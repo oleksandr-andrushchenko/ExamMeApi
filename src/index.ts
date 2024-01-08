@@ -1,4 +1,4 @@
 import app from './app';
-import env from "./config/env";
+import config from "./config";
 
-app.listen(env.PORT, (): void => console.log(`Server is running on port ${env.PORT}`));
+app.listen(config.port, (): void => console.log(`Server is running on port ${config.port}`));
