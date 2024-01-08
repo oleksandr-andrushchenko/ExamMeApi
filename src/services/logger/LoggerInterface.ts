@@ -1,9 +1,9 @@
 export interface LoggerInterface {
-    debug(message: string, ...args: any[]): this;
+    debug(message: string, ...args: any[]): LoggerInterface;
 
-    info(message: string, ...args: any[]): this;
+    info(message: string, ...args: any[]): LoggerInterface;
 
-    warn(message: string, ...args: any[]): this;
+    warn(message: string, ...args: any[]): LoggerInterface;
 
-    error(message: string, ...args: any[]): this;
+    error(message: string, ...args: any[]): LoggerInterface;
 }

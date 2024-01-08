@@ -7,7 +7,7 @@ export class WinstonLogger extends Logger implements LoggerInterface {
         super();
     }
 
-    protected log(level: string, message: string, args: any[]): this {
+    protected log(level: string, message: string, args: any[]): LoggerInterface {
         this.winstonLogger.log(level, message, ...args);
 
         return this;
