@@ -1,13 +1,11 @@
 import 'reflect-metadata';
-import express, { Request, Response, NextFunction, Application } from 'express';
+import express, { Application } from 'express';
 import { containerLoader } from './loaders/containerLoader';
+import { routerLoader } from './loaders/routerLoader';
 
 const app: Application = express();
 
 containerLoader(app);
-
-app.get('*', (req: Request, res: Response, next: NextFunction): Response<string> => {
-    return res.status(200).send('Hello World');
-});
+routerLoader(app);
 
 export default app;
