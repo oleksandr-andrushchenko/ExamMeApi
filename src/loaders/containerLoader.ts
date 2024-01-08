@@ -1,7 +1,7 @@
-import Application from '../lib/app/Application';
-import { ApplicationLoader } from "../lib/app/ApplicationLoader";
+import Application from '../services/app/Application';
+import { ApplicationLoader } from "../services/app/ApplicationLoader";
 import { Container } from "typedi";
-import { WinstonDefaultLoggerFactory } from "../lib/factory/WinstonDefaultLoggerFactory";
+import { WinstonDefaultLoggerFactory } from "../services/factory/WinstonDefaultLoggerFactory";
 import config from "../config";
 import { useContainer as routingControllerUserContainer } from "routing-controllers";
 

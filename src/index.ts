@@ -1,7 +1,7 @@
 import app from './app';
 import config from "./config";
 import { Container } from "typedi";
-import { LoggerInterface } from "./lib/logger/LoggerInterface";
+import { LoggerInterface } from "./services/logger/LoggerInterface";
 
 app.listen(config.port, (): void => {
     const logger: LoggerInterface = Container.get('logger');

@@ -1,5 +1,5 @@
-import Application from '../lib/app/Application';
-import { ApplicationLoader } from "../lib/app/ApplicationLoader";
+import Application from '../services/app/Application';
+import { ApplicationLoader } from "../services/app/ApplicationLoader";
 import { useExpressServer } from "routing-controllers";
 import path from 'path';
 
