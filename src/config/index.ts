@@ -7,5 +7,6 @@ export default {
     port: env.PORT,
     logger: {
         level: environment === 'development' ? 'debug' : 'info',
+        format: environment === 'development' ? 'dev' : 'tiny',
     }
 };
