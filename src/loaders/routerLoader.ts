@@ -6,6 +6,7 @@ import path from 'path';
 export const routerLoader: ApplicationLoader = (app: Application): void => {
     useExpressServer(app, {
         controllers: [path.join(__dirname + '/../controllers/*.ts')],
+        middlewares: [path.join(__dirname + '/../middlewares/*.ts')],
     });
 };
 
