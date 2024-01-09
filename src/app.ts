@@ -1,11 +1,11 @@
 import 'reflect-metadata';
-import express, { Application } from 'express';
+import express from 'express';
 import { containerLoader } from './loaders/containerLoader';
-import { routerLoader } from './loaders/routerLoader';
+import { expressLoader } from './loaders/expressLoader';
 
-const app: Application = express();
+const app = express();
 
 containerLoader(app);
-routerLoader(app);
+expressLoader(app);
 
 export default app;

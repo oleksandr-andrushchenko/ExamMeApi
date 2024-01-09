@@ -1,13 +1,12 @@
 import compression from 'compression';
-import * as express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
 import { Service } from "typedi";
 
 @Service()
 @Middleware({ type: 'before' })
 export class CompressionMiddleware implements ExpressMiddlewareInterface {
-    public use(req: express.Request, res: express.Response, next: express.NextFunction): any {
-        console.log('ok');
+    public use(req: Request, res: Response, next: NextFunction): any {
         return compression()(req, res, next);
     }
 }
