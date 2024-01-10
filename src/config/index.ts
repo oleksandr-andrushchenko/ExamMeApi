@@ -8,5 +8,12 @@ export default {
     logger: {
         level: environment === 'development' ? 'debug' : 'info',
         format: environment === 'development' ? 'dev' : 'tiny',
+    },
+    db: {
+        type: env.DATABASE_TYPE,
+        url: env.DATABASE_URL,
+        synchronize: environment === 'development',
+        logging: environment === 'development',
+
     }
 };

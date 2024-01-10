@@ -1,7 +1,6 @@
 import { Container } from "typedi";
 import { WinstonDefaultLoggerFactory } from "../services/factory/WinstonDefaultLoggerFactory";
 import config from "../config";
-import { useContainer as routingControllerUserContainer } from "routing-controllers";
 import { Application as express } from "express";
 
 export const containerLoader = (app: express): void => {
@@ -10,7 +9,9 @@ export const containerLoader = (app: express): void => {
     Container.set('loggerFormat', config.logger.format);
     const winstonDefaultLoggerFactory = Container.get(WinstonDefaultLoggerFactory);
     Container.set('logger', winstonDefaultLoggerFactory.create());
-
-    routingControllerUserContainer(Container);
+    Container.set('dbType', config.db.type);
+    Container.set('dbUrl', config.db.url);
+    Container.set('dbSync', config.db.synchronize);
+    Container.set('dbLogs', config.db.logging);
 };
 
