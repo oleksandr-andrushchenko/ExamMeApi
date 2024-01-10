@@ -7,7 +7,7 @@ import { LoggerInterface } from "../services/logger/LoggerInterface";
 
 @Service()
 @Middleware({ type: 'before' })
-export class LogMiddleware implements ExpressMiddlewareInterface {
+export default class LogMiddleware implements ExpressMiddlewareInterface {
     constructor(
         @Inject('logger') private readonly logger: LoggerInterface,
         @Inject('loggerFormat') private readonly format: string,

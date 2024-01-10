@@ -3,7 +3,7 @@ import { Service } from "typedi";
 
 @Service()
 @Controller()
-export class IndexController {
+export default class IndexController {
     @Get('/')
     public getIndex(): string {
         return 'Hello World';
