@@ -8,7 +8,8 @@ export const containerLoader = (app: express): void => {
     Container.set('env', config.env);
     Container.set('loggerLevel', config.logger.level);
     Container.set('loggerFormat', config.logger.format);
-    Container.set('logger', Container.get(WinstonDefaultLoggerFactory).create());
+    const winstonDefaultLoggerFactory = Container.get(WinstonDefaultLoggerFactory);
+    Container.set('logger', winstonDefaultLoggerFactory.create());
 
     routingControllerUserContainer(Container);
 };
