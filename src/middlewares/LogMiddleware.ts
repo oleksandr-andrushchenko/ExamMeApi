@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
 
 import { Inject, Service } from "typedi";
-import { LoggerInterface } from "../services/logger/LoggerInterface";
+import { LoggerInterface } from "../services/loggers/LoggerInterface";
 
 @Service()
 @Middleware({ type: 'before' })

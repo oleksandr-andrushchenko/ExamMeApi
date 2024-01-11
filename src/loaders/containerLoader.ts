@@ -1,5 +1,5 @@
 import { Container } from "typedi";
-import { WinstonDefaultLoggerFactory } from "../services/factory/WinstonDefaultLoggerFactory";
+import { WinstonDefaultLoggerFactory } from "../services/factories/WinstonDefaultLoggerFactory";
 import config from "../config";
 import { Application as express } from "express";
 

@@ -1,4 +1,4 @@
-import { WinstonLogger } from "../logger/WinstonLogger";
+import { WinstonLogger } from "../loggers/WinstonLogger";
 import { Service, Inject } from "typedi";
 import winston, { configure, format, transports, Logger } from 'winston';
 
