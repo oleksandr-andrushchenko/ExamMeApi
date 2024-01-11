@@ -7,17 +7,7 @@ import { Container as typeormTypediContainer } from 'typeorm-typedi-extensions';
 export const databaseLoader = async (app: express): Promise<DataSource> => {
     typeormUseContainer(typeormTypediContainer);
 
-    const type: 'mongodb' = Container.get('dbType');
-    const AppDataSource = new DataSource({
-        type: type,
-        url: Container.get('dbUrl'),
-        synchronize: Container.get('dbSync'),
-        logging: Container.get('dbLogs'),
-        entities: ['../entities/*.ts'],
-        migrations: ['../migrations/*.ts'],
-        subscribers: ['../subscribers/*.ts'],
-    });
-
+    const AppDataSource: DataSource = Container.get('dataSource');
 
     return await AppDataSource.initialize();
 };
