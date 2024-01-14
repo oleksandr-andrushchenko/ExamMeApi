@@ -8,7 +8,7 @@ import { useContainer as routingControllerUserContainer, useExpressServer } from
 import express, { Application } from "express";
 import { LoggerInterface } from "./logger/LoggerInterface";
 
-export default async (): Promise<{ server: Application, port: number, logger: LoggerInterface }> => {
+export default async (): Promise<{ app: Application, port: number, logger: LoggerInterface }> => {
     typeormUseContainer(Container);
 
     const projectDir = config.project_dir;
@@ -38,9 +38,9 @@ export default async (): Promise<{ server: Application, port: number, logger: Lo
 
     routingControllerUserContainer(Container);
 
-    const server = express();
+    const app = express();
 
-    useExpressServer(server, {
+    useExpressServer(app, {
         controllers: [`${projectDir}/src/controller/*.ts`],
         middlewares: [`${projectDir}/src/middleware/*.ts`],
     });
@@ -49,5 +49,5 @@ export default async (): Promise<{ server: Application, port: number, logger: Lo
 
     const port = config.port;
 
-    return { server, port, logger };
+    return { app, port, logger };
 };
