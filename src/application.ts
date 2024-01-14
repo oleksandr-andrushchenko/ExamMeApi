@@ -4,7 +4,7 @@ import { Container } from "typedi";
 import config from "./config";
 import { WinstonDefaultLoggerFactory } from "./factory/WinstonDefaultLoggerFactory";
 import { TypeormDefaultDataSourceFactory } from "./factory/TypeormDefaultDataSourceFactory";
-import { useContainer as routingControllerUserContainer, useExpressServer } from "routing-controllers";
+import { useContainer as routingControllerUseContainer, useExpressServer } from "routing-controllers";
 import express, { Application } from "express";
 import { LoggerInterface } from "./logger/LoggerInterface";
 
@@ -40,7 +40,7 @@ export default async (): Promise<{
         { id: 'data_source', value: dataSource },
     ]);
 
-    routingControllerUserContainer(Container);
+    routingControllerUseContainer(Container);
 
     const app = express();
 
