@@ -1,10 +1,13 @@
-import { Entity, ObjectIdColumn, ObjectId, Column, CreateDateColumn, UpdateDateColumn, Index } from "typeorm"
+import { Entity, ObjectIdColumn, ObjectId, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Expose, Transform } from "class-transformer";
 
 @Entity({ name: 'categories' })
 export class Category {
 
     @ObjectIdColumn()
-    public id: ObjectId;
+    @Expose({ name: 'id' })
+    @Transform((params: { value: ObjectId }) => params.value.toString())
+    public _id: ObjectId;
 
     @Column({
         unique: true,
