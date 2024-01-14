@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { useContainer as typeormUseContainer } from 'typeorm';
+import { DataSource, useContainer as typeormUseContainer } from 'typeorm';
 import { Container } from "typedi";
 import config from "./config";
 import { WinstonDefaultLoggerFactory } from "./factory/WinstonDefaultLoggerFactory";
@@ -8,7 +8,12 @@ import { useContainer as routingControllerUserContainer, useExpressServer } from
 import express, { Application } from "express";
 import { LoggerInterface } from "./logger/LoggerInterface";
 
-export default async (): Promise<{ app: Application, port: number, logger: LoggerInterface }> => {
+export default async (): Promise<{
+    app: Application,
+    dataSource: DataSource,
+    port: number,
+    logger: LoggerInterface
+}> => {
     typeormUseContainer(Container);
 
     const projectDir = config.project_dir;
@@ -49,5 +54,5 @@ export default async (): Promise<{ app: Application, port: number, logger: Logge
 
     const port = config.port;
 
-    return { app, port, logger };
+    return { app, dataSource, port, logger };
 };
