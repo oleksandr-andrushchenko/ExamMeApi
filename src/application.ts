@@ -4,8 +4,6 @@ import { Container } from "typedi";
 import config from "./config";
 import { WinstonDefaultLoggerFactory } from "./factory/WinstonDefaultLoggerFactory";
 import { TypeormDefaultDataSourceFactory } from "./factory/TypeormDefaultDataSourceFactory";
-import { Category } from "./entity/Category";
-import { TypeormMongoRepositoryFactory } from "./factory/TypeormMongoRepositoryFactory";
 import { useContainer as routingControllerUserContainer, useExpressServer } from "routing-controllers";
 import express, { Application } from "express";
 import { LoggerInterface } from "./logger/LoggerInterface";
@@ -36,12 +34,6 @@ export default async (): Promise<{ server: Application, port: number, logger: Lo
     Container.set([
         { id: 'logger', value: logger },
         { id: 'data_source', value: dataSource },
-    ]);
-    Container.set([
-        {
-            id: 'category_repository',
-            value: Container.get<TypeormMongoRepositoryFactory>(TypeormMongoRepositoryFactory).create(Category)
-        },
     ]);
 
     routingControllerUserContainer(Container);

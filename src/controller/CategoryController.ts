@@ -1,14 +1,14 @@
 import { JsonController, Get } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import { Category } from "../entity/Category";
-import { CategoryRepository } from "../repository";
+import { CategoryRepository } from "../repository/CategoryRepository";
 
 @Service()
 @JsonController('/categories')
 export default class CategoryController {
 
     constructor(
-        @Inject('category_repository') private readonly categoryRepository: CategoryRepository,
+        @Inject() private readonly categoryRepository: CategoryRepository,
     ) {
     }
 
