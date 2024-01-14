@@ -7,5 +7,4 @@ export interface LoggerInterface {
     warn(message: string, ...args: any[]): LoggerInterface;
 
     error(message: string, ...args: any[]): LoggerInterface;
-
 }

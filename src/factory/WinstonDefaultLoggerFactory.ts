@@ -12,9 +12,7 @@ export class WinstonDefaultLoggerFactory {
     }
 
     public create(): WinstonLogger {
-        let winstonLogger: winston.Logger;
-
-        winstonLogger = winston.clear();
+        const winstonLogger: winston.Logger = winston.clear();
 
         configure({
             transports: [
@@ -36,5 +34,4 @@ export class WinstonDefaultLoggerFactory {
 
         return new WinstonLogger(winstonLogger);
     }
-
 }

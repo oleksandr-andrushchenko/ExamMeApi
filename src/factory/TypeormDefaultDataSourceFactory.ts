@@ -25,5 +25,4 @@ export class TypeormDefaultDataSourceFactory {
 
         return new DataSource(dataSourceOptions);
     }
-
 }

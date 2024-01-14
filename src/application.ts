@@ -31,7 +31,6 @@ export default async (): Promise<{
         { id: 'db_logging', value: config.db.logging },
     ]);
 
-
     const logger = Container.get<WinstonDefaultLoggerFactory>(WinstonDefaultLoggerFactory).create();
     const dataSource = Container.get<TypeormDefaultDataSourceFactory>(TypeormDefaultDataSourceFactory).create();
 

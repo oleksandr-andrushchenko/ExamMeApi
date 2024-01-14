@@ -19,5 +19,4 @@ export abstract class Logger implements LoggerInterface {
     }
 
     protected abstract log(level: string, message: string, args: any[]): LoggerInterface;
-
 }

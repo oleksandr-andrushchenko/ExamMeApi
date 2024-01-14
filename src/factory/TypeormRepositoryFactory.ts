@@ -15,5 +15,4 @@ export class TypeormRepositoryFactory {
         const { target, manager, queryRunner } = this.dataSource.manager.getMongoRepository(Category);
         return new CategoryRepository(target, manager, queryRunner);
     }
-
 }

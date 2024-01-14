@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import morgan from 'morgan';
 import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
-
 import { Inject, Service } from "typedi";
 import { LoggerInterface } from "../logger/LoggerInterface";
 
@@ -22,5 +21,4 @@ export default class LogMiddleware implements ExpressMiddlewareInterface {
             },
         })(req, res, next);
     }
-
 }

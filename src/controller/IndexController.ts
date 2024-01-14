@@ -9,5 +9,4 @@ export default class IndexController {
     public getIndex(): string {
         return 'Hello World';
     }
-
 }

@@ -9,5 +9,4 @@ export class CategoryRepository extends MongoRepository<Category> {
     public async findAll(): Promise<Category[]> {
         return await this.find();
     }
-
 }

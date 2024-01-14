@@ -13,5 +13,4 @@ export class WinstonLogger extends Logger implements LoggerInterface {
 
         return this;
     }
-
 }
