@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import application from "./application";
-import * as process from "process";
 
 application()
     .then(({ app, dataSource, port, logger }) => {
