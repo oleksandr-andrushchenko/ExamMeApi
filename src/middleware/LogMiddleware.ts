@@ -3,14 +3,15 @@ import morgan from 'morgan';
 import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
 
 import { Inject, Service } from "typedi";
-import { LoggerInterface } from "../services/loggers/LoggerInterface";
+import { LoggerInterface } from "../logger/LoggerInterface";
 
 @Service()
 @Middleware({ type: 'before' })
 export default class LogMiddleware implements ExpressMiddlewareInterface {
+
     constructor(
         @Inject('logger') private readonly logger: LoggerInterface,
-        @Inject('loggerFormat') private readonly format: string,
+        @Inject('logger_format') private readonly format: string,
     ) {
     }
 
@@ -21,4 +22,5 @@ export default class LogMiddleware implements ExpressMiddlewareInterface {
             },
         })(req, res, next);
     }
+
 }

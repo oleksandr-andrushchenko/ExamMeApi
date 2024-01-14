@@ -3,6 +3,7 @@ import winston from 'winston';
 import { Logger } from "./Logger";
 
 export class WinstonLogger extends Logger implements LoggerInterface {
+
     constructor(private readonly winstonLogger: winston.Logger) {
         super();
     }
@@ -12,4 +13,5 @@ export class WinstonLogger extends Logger implements LoggerInterface {
 
         return this;
     }
+
 }

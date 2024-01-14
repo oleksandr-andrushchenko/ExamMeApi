@@ -6,7 +6,10 @@ import { Service } from "typedi";
 @Service()
 @Middleware({ type: 'before' })
 export default class CompressionMiddleware implements ExpressMiddlewareInterface {
+
     public use(req: Request, res: Response, next: NextFunction): any {
         return compression()(req, res, next);
+
     }
+
 }

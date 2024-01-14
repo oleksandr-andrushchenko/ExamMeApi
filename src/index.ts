@@ -1,9 +1,7 @@
-import app from './app';
-import config from "./config";
-import { Container } from "typedi";
-import { LoggerInterface } from "./services/loggers/LoggerInterface";
+import 'reflect-metadata';
+import application from "./application";
 
-app.listen(config.port, (): void => {
-    const logger: LoggerInterface = Container.get('logger');
-    logger.info(`Server is running on port ${config.port}`);
-});
+const app = application()
+    .then(({ server, port, logger }) => server.listen(port, () => logger.info(`Server is running on port ${port}`)))
+    .catch(error => console.log(error))
+;

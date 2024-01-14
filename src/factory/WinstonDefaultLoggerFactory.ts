@@ -1,12 +1,13 @@
-import { WinstonLogger } from "../loggers/WinstonLogger";
+import { WinstonLogger } from "../logger/WinstonLogger";
 import { Service, Inject } from "typedi";
-import winston, { configure, format, transports, Logger } from 'winston';
+import winston, { configure, format, transports } from 'winston';
 
 @Service()
 export class WinstonDefaultLoggerFactory {
+
     constructor(
         @Inject('env') private readonly env: string,
-        @Inject('loggerLevel') private readonly level: string,
+        @Inject('logger_level') private readonly level: string,
     ) {
     }
 
@@ -35,4 +36,5 @@ export class WinstonDefaultLoggerFactory {
 
         return new WinstonLogger(winstonLogger);
     }
+
 }
