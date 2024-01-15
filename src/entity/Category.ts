@@ -1,4 +1,12 @@
-import { Entity, ObjectIdColumn, ObjectId, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import {
+    Entity,
+    ObjectIdColumn,
+    ObjectId,
+    Column,
+    CreateDateColumn,
+    UpdateDateColumn,
+    DeleteDateColumn
+} from "typeorm";
 import { Expose, Transform } from "class-transformer";
 
 @Entity({ name: 'categories' })
@@ -9,10 +17,7 @@ export class Category {
     @Transform((params: { value: ObjectId }) => params.value.toString())
     public _id: ObjectId;
 
-    @Column({
-        unique: true,
-        nullable: false,
-    })
+    @Column({ unique: true, nullable: false })
     public name: string;
 
     @Column()
@@ -22,4 +27,8 @@ export class Category {
     @Column()
     @UpdateDateColumn()
     public updatedAt: Date;
+
+    @Column()
+    @DeleteDateColumn()
+    public deletedAt: Date;
 }
