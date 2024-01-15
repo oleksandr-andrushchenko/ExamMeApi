@@ -47,6 +47,7 @@ export default async (): Promise<{
     useExpressServer(app, {
         controllers: [`${projectDir}/src/controller/*.ts`],
         middlewares: [`${projectDir}/src/middleware/*.ts`],
+        defaultErrorHandler: false,
     });
 
     await dataSource.initialize();
