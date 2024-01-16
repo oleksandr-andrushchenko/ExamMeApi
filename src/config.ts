@@ -31,5 +31,8 @@ export default {
         url: env.DATABASE_URL,
         synchronize: false,
         logging: environment === 'development',
-    }
+    },
+    jwt: {
+        secret: 'any',
+    },
 };
