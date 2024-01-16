@@ -9,15 +9,22 @@ import {
 } from "typeorm";
 import { Exclude, Expose, Transform } from "class-transformer";
 
+export enum TokenType {
+    ACCESS = 'access',
+    REFRESH = 'refresh',
+    RESET_PASSWORD = 'resetPassword',
+    VERIFY_EMAIL = 'verifyEmail',
+}
+
 @Entity({ name: 'tokens' })
-export class Token {
+export default class Token {
 
     @ObjectIdColumn()
     @Expose({ name: 'id' })
     @Transform((params: { value: ObjectId }) => params.value.toString())
     public _id: ObjectId;
 
-    @Column({ nullable: false })
+    @Column({ enum: TokenType, nullable: false })
     public type: string;
 
     @Exclude()
@@ -26,6 +33,9 @@ export class Token {
 
     @Column({ nullable: false })
     public userId: string;
+
+    @Column()
+    public expires: number;
 
     @Column()
     @CreateDateColumn()
