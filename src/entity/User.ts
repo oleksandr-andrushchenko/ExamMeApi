@@ -10,7 +10,7 @@ import {
 import { Exclude, Expose, Transform } from "class-transformer";
 
 @Entity({ name: 'users' })
-export class User {
+export default class User {
 
     @ObjectIdColumn()
     @Expose({ name: 'id' })
@@ -20,7 +20,7 @@ export class User {
     @Column({ nullable: false })
     public name: string;
 
-    @Column({ nullable: false })
+    @Column({ unique: true, nullable: false })
     public email: string;
 
     @Exclude()
