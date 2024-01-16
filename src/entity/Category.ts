@@ -10,8 +10,7 @@ import {
 import { Expose, Transform } from "class-transformer";
 
 @Entity({ name: 'categories' })
-export class Category {
-
+export default class Category {
     @ObjectIdColumn()
     @Expose({ name: 'id' })
     @Transform((params: { value: ObjectId }) => params.value.toString())
