@@ -1,12 +1,16 @@
 import { MongoRepository } from "typeorm";
 import { Service } from "typedi";
-import { TypeormRepositoryFactory } from "../factory/TypeormRepositoryFactory";
-import { User } from "../entity/User";
+import User from "../entity/User";
+import Category from "../entity/Category";
+import createRepository from "../util/createRepository";
 
-@Service({ factory: [TypeormRepositoryFactory, 'createUser'] })
-export class UserRepository extends MongoRepository<User> {
+// @ts-ignore
+const create = () => createRepository(Category, (...args) => new UserRepository(...args));
 
-    public async findAll(): Promise<User[]> {
-        return await this.find();
+@Service({ factory: create })
+export default class UserRepository extends MongoRepository<User> {
+
+    public async findOneByEmail(email: string): Promise<User | null> {
+        return await this.findOneBy({ email });
     }
 }

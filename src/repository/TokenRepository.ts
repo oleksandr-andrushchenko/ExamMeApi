@@ -1,10 +1,14 @@
 import { MongoRepository } from "typeorm";
 import { Service } from "typedi";
-import { TypeormRepositoryFactory } from "../factory/TypeormRepositoryFactory";
-import { Token } from "../entity/Token";
+import Token from "../entity/Token";
+import Category from "../entity/Category";
+import createRepository from "../util/createRepository";
 
-@Service({ factory: [TypeormRepositoryFactory, 'createToken'] })
-export class TokenRepository extends MongoRepository<Token> {
+// @ts-ignore
+const create = () => createRepository(Category, (...args) => new TokenRepository(...args));
+
+@Service({ factory: create })
+export default class TokenRepository extends MongoRepository<Token> {
 
     public async findAll(): Promise<Token[]> {
         return await this.find();
