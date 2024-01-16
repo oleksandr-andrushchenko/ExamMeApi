@@ -10,7 +10,7 @@ export default class LogMiddleware implements ExpressMiddlewareInterface {
 
     constructor(
         @Inject('logger') private readonly logger: LoggerInterface,
-        @Inject('logger_format') private readonly format: string,
+        @Inject('loggerFormat') private readonly format: string,
     ) {
     }
 

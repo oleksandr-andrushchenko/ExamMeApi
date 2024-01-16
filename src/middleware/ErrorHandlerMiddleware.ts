@@ -5,7 +5,7 @@ import { LoggerInterface } from "../logger/LoggerInterface";
 
 @Service()
 @Middleware({ type: 'after' })
-export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
+export default class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
 
     constructor(
         @Inject('env') private readonly env: string,

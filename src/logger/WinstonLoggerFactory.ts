@@ -1,25 +1,24 @@
-import { WinstonLogger } from "../logger/WinstonLogger";
-import { Service, Inject } from "typedi";
+import { WinstonLogger } from "./WinstonLogger";
+import { Service } from "typedi";
 import winston, { configure, format, transports } from 'winston';
 
+export type WinstonLoggerOptions = {
+    level: string,
+    format: string,
+};
+
 @Service()
-export class WinstonDefaultLoggerFactory {
+export class WinstonLoggerFactory {
 
-    constructor(
-        @Inject('env') private readonly env: string,
-        @Inject('logger_level') private readonly level: string,
-    ) {
-    }
-
-    public create(): WinstonLogger {
+    public create(options: WinstonLoggerOptions): WinstonLogger {
         const winstonLogger: winston.Logger = winston.clear();
 
         configure({
             transports: [
                 new transports.Console({
-                    level: this.level,
+                    level: options.level,
                     handleExceptions: true,
-                    format: this.env === 'development'
+                    format: options.format === 'dev'
                         ? format.combine(
                             format.splat(),
                             format.colorize(),

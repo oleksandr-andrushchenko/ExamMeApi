@@ -1,7 +1,7 @@
 import { JsonController, Get } from "routing-controllers";
 import { Inject, Service } from "typedi";
-import { Category } from "../entity/Category";
-import { CategoryRepository } from "../repository/CategoryRepository";
+import Category from "../entity/Category";
+import CategoryRepository from "../repository/CategoryRepository";
 
 @Service()
 @JsonController('/categories')
