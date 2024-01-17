@@ -8,8 +8,8 @@ export default class JwtTokenStrategy implements TokenStrategyInterface {
     ) {
     }
 
-    public async encodeToken<Payload>(token: Payload, expires: number): Promise<string> {
-        return jwt.sign(token as unknown as object, this.secret, { expiresIn: expires });
+    public async encodeToken<Payload>(token: Payload): Promise<string> {
+        return jwt.sign(token as unknown as object, this.secret, { expiresIn: '100d' });
     }
 
     public async decodeToken<Payload>(token: string): Promise<Payload> {
