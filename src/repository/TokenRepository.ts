@@ -1,6 +1,6 @@
 import { MongoRepository } from "typeorm";
 import { Service } from "typedi";
-import Token from "../entity/Token";
+import Token, { TokenType } from "../entity/Token";
 import Category from "../entity/Category";
 import createRepository from "../util/createRepository";
 
@@ -10,7 +10,7 @@ const create = () => createRepository(Category, (...args) => new TokenRepository
 @Service({ factory: create })
 export default class TokenRepository extends MongoRepository<Token> {
 
-    public async findAll(): Promise<Token[]> {
-        return await this.find();
+    public async findOneByAttrs(token: string, type: TokenType, userId: string): Promise<Token | null> {
+        return await this.findOneBy({ token, type, userId });
     }
 }
