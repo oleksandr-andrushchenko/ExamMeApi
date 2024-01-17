@@ -1,9 +1,8 @@
 import { Inject, Service } from "typedi";
 import { Action } from "routing-controllers";
 import User from "../../entity/User";
-import Token, { TokenType } from "../../entity/Token";
 import UserRepository from "../../repository/UserRepository";
-import TokenService, { GeneratedToken } from "../token/TokenService";
+import TokenService, { GeneratedToken, TokenPayload } from "../token/TokenService";
 import { Request } from "express";
 import UserService from "../user/UserService";
 import { EventDispatcher, EventDispatcherInterface } from "../../decorator/EventDispatcher";
@@ -28,28 +27,29 @@ export default class AuthService {
     ) {
     }
 
-    public getAuthorizationChecker(): (action: Action, roles: any[]) => Promise<boolean> | boolean {
-        return async (action: Action, roles: string[]) => {
-            // return false;
-            const token: Token | null = await this.verifyToken(action.request);
+    public getAuthorizationChecker(): (action: Action, roles: any[]) => Promise<boolean> {
+        return async (action: Action): Promise<boolean> => {
+            const req = action.request;
+            const userId: string | null = await this.verifyAccessToken(req);
 
-            action.request.token = token;
+            req.userId = userId;
 
             // @todo get user and check permissions (roles)
-            return token !== null;
+
+            return userId !== null;
         };
     }
 
-    public getCurrentUserChecker(): (action: Action) => Promise<UserTransfer | null> {
+    public getCurrentUserChecker(): (action: Action) => Promise<User | null> {
         return async (action: Action) => {
-            // return null;
-            const token: Token = action.request.hasOwnProperty('token') ? action.request.token : await this.verifyToken(action.request);
+            const req = action.request;
+            const userId: string | null = req.hasOwnProperty('userId') ? req.userId : await this.verifyAccessToken(req);
 
-            if (!token) {
+            if (userId === null) {
                 return null;
             }
 
-            return await this.userRepository.findOneBy({ _id: token.userId });
+            return this.userRepository.findOneById(userId);
         };
     }
 
@@ -67,7 +67,6 @@ export default class AuthService {
         await validate(transfer);
 
         const user: User = await this.userService.getUserByCredentials(transfer);
-
         const tokens = this.authorizeUser(user);
 
         this.eventDispatcher.dispatch('userLoggedIn', { user });
@@ -84,18 +83,19 @@ export default class AuthService {
         return { accessToken, refreshToken };
     }
 
-    /**
-     * @todo check if need, if getCurrentUserChecker called - then getAuthorizationChecker should be executed, so in this case - no need to call twice, just pass from previous step call
-     * @param req
-     * @private
-     */
-    private async verifyToken(req: Request): Promise<Token | null> {
+    public async verifyAccessToken(req: Request): Promise<string | null> {
         const token: string | undefined = req.header('Authorization');
 
         if (!token) {
             return null;
         }
 
-        return await this.tokenService.verifyToken(token, TokenType.ACCESS);
+        const payload: TokenPayload | null = await this.tokenService.verifyAccessToken(token);
+
+        if (!payload || !payload.userId) {
+            return null;
+        }
+
+        return payload.userId;
     }
 }
