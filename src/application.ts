@@ -11,6 +11,7 @@ import AuthService from "./service/auth/AuthService";
 import TokenStrategyInterface from "./service/token/strategy/TokenStrategyInterface";
 import { ValidatorOptions } from "class-validator/types/validation/ValidatorOptions";
 import { MongoConnectionOptions } from "typeorm/driver/mongodb/MongoConnectionOptions";
+import logTypeormMongoCommands from "./util/logTypeormMongoCommands";
 
 export default async (): Promise<{
     app: Application,
@@ -28,6 +29,8 @@ export default async (): Promise<{
     Container.set('logger', logger);
 
     const projectDir = config.project_dir;
+    const mongoLogging = config.db.type === 'mongodb' && config.db.logging;
+
     const dataSourceOptions: MongoConnectionOptions = {
         type: config.db.type,
         url: config.db.url,
@@ -35,11 +38,14 @@ export default async (): Promise<{
         logging: config.db.logging,
         entities: [`${projectDir}/src/entity/*.ts`],
         subscribers: [`${projectDir}/src/subscriber/*.ts`],
+        monitorCommands: mongoLogging,
     };
 
     const dataSource: DataSource = new DataSource(dataSourceOptions);
     Container.set('entityManager', dataSource.manager);
     await dataSource.initialize();
+
+    mongoLogging && logTypeormMongoCommands(dataSource);
 
     const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt);
     Container.set('tokenStrategy', tokenStrategy);
