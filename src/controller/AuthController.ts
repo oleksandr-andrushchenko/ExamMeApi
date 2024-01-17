@@ -3,6 +3,7 @@ import { Inject, Service } from "typedi";
 import UserTransfer from "../transfer/user/UserTransfer";
 import AuthService, { AuthTokens } from "../service/auth/AuthService";
 import UserCredentialsTransfer from "../transfer/user/UserCredentialsTransfer";
+import User from "../entity/User";
 
 @Service()
 @JsonController('/auth')
@@ -15,9 +16,9 @@ export default class AuthController {
 
     @Post('/register')
     public async register(@Body({ required: true }) transfer: UserTransfer): Promise<AuthTokens> {
-        await this.authService.registerUser(transfer);
+        const user: User = await this.authService.registerUser(transfer);
 
-        return await this.authService.loginUser(transfer);
+        return await this.authService.authorizeUser(user);
     }
 
     @Post('/login')
