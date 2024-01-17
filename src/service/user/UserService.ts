@@ -10,6 +10,7 @@ import * as bcrypt from "bcrypt";
 import { LoggerInterface } from "../../logger/LoggerInterface";
 import UserNotFoundError from "../../error/user/UserNotFoundError";
 import UserWrongCredentialsError from "../../error/user/UserWrongCredentialsError";
+import UserEmailTakenError from "../../error/user/UserEmailTakenError";
 
 @Service()
 export default class UserService {
@@ -25,11 +26,16 @@ export default class UserService {
     public async createUser(transfer: UserTransfer): Promise<User> {
         await validate(transfer);
 
+        const email = transfer.email;
+
+        if (await this.userRepository.findOneByEmail(email)) {
+            throw new UserEmailTakenError(`Email "${email}" is already taken`);
+        }
+
         const user: User = new User();
         user.name = transfer.name;
-        user.email = transfer.email;
+        user.email = email;
         user.password = transfer.password;
-
         await this.entityManager.save<UserTransfer>(user);
 
         this.eventDispatcher.dispatch('userCreated', { user });
@@ -37,10 +43,6 @@ export default class UserService {
         return user;
     }
 
-    /**
-     * @todo: raise errors
-     * @param transfer
-     */
     public async getUserByCredentials(transfer: UserCredentialsTransfer): Promise<User | null> {
         await validate(transfer);
 
