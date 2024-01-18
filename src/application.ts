@@ -96,9 +96,8 @@ export default async (): Promise<{
         const storage = getMetadataArgsStorage();
         const spec = routingControllersToSpec(storage, routingControllersOptions, {
             components: {
-                schemas: {
-                    schema: schemas,
-                },
+                // @ts-ignore
+                schemas,
                 securitySchemes: {
                     basicAuth: {
                         scheme: 'basic',
