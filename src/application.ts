@@ -3,7 +3,11 @@ import { DataSource, useContainer as typeormUseContainer, ConnectionManager } fr
 import { Container } from "typedi";
 import config from "./config";
 import { WinstonLoggerFactory } from "./logger/WinstonLoggerFactory";
-import { useContainer as routingControllerUseContainer, useExpressServer } from "routing-controllers";
+import {
+    useContainer as routingControllerUseContainer,
+    useExpressServer,
+    getMetadataArgsStorage,
+} from "routing-controllers";
 import express, { Application } from "express";
 import LoggerInterface from "./logger/LoggerInterface";
 import JwtTokenStrategyFactory from "./service/token/strategy/JwtTokenStrategyFactory";
@@ -12,6 +16,11 @@ import TokenStrategyInterface from "./service/token/strategy/TokenStrategyInterf
 import { ValidatorOptions } from "class-validator/types/validation/ValidatorOptions";
 import { MongoConnectionOptions } from "typeorm/driver/mongodb/MongoConnectionOptions";
 import { MongoDriver } from "typeorm/driver/mongodb/MongoDriver";
+import { validationMetadatasToSchemas } from "class-validator-jsonschema";
+import * as swaggerUiExpress from "swagger-ui-express";
+import { routingControllersToSpec } from "routing-controllers-openapi";
+import { RoutingControllersOptions } from "routing-controllers/types/RoutingControllersOptions";
+import basicAuth from 'express-basic-auth';
 
 export default async (): Promise<{
     app: Application,
@@ -21,7 +30,6 @@ export default async (): Promise<{
 }> => {
     typeormUseContainer(Container);
     routingControllerUseContainer(Container);
-
 
     Container.set('env', config.env);
     Container.set('loggerFormat', config.logger.format);
@@ -67,7 +75,7 @@ export default async (): Promise<{
         },
     };
 
-    useExpressServer(app, {
+    const routingControllersOptions: RoutingControllersOptions = {
         authorizationChecker: authService.getAuthorizationChecker(),
         currentUserChecker: authService.getCurrentUserChecker(),
         controllers: [`${projectDir}/src/controller/*.ts`],
@@ -75,7 +83,47 @@ export default async (): Promise<{
         validation: validation,
         classTransformer: true,
         defaultErrorHandler: false,
-    });
+    };
+
+    useExpressServer(app, routingControllersOptions);
+
+    if (config.swagger.enabled) {
+        const { defaultMetadataStorage } = require('class-transformer/cjs/storage');
+        const schemas = validationMetadatasToSchemas({
+            classTransformerMetadataStorage: defaultMetadataStorage,
+            refPointerPrefix: '#/components/schemas/',
+        });
+        const storage = getMetadataArgsStorage();
+        const spec = routingControllersToSpec(storage, routingControllersOptions, {
+            components: {
+                schemas: {
+                    schema: schemas,
+                },
+                securitySchemes: {
+                    basicAuth: {
+                        scheme: 'basic',
+                        type: 'http',
+                    },
+                },
+            },
+            info: {
+                description: config.app.description,
+                title: config.app.name,
+                version: config.app.version,
+            },
+        });
+        app.use(
+            config.swagger.route,
+            basicAuth({
+                users: {
+                    [config.swagger.username]: config.swagger.password,
+                },
+                challenge: true,
+            }),
+            swaggerUiExpress.serve,
+            swaggerUiExpress.setup(spec)
+        );
+    }
 
     const port = config.port;
 

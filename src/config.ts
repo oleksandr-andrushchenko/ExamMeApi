@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import path from "path";
+import pkg from "../package.json";
 
 const schema: Joi.ObjectSchema = Joi.object()
     .keys({
@@ -19,6 +20,11 @@ if (error) {
 const environment: string = env.NODE_ENV;
 
 export default {
+    app: {
+        name: pkg.name,
+        version: pkg.version,
+        description: pkg.description,
+    },
     project_dir: path.resolve(__dirname, '..'),
     env: environment,
     port: env.PORT,
@@ -34,5 +40,11 @@ export default {
     },
     jwt: {
         secret: 'any',
+    },
+    swagger: {
+        enabled: environment === 'development',
+        route: '/',
+        username: 'any',
+        password: 'any',
     },
 };
