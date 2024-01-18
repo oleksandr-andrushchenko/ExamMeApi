@@ -1,5 +1,6 @@
 import Joi from 'joi';
 import path from "path";
+// @ts-ignore
 import pkg from "../package.json";
 
 const schema: Joi.ObjectSchema = Joi.object()
@@ -20,14 +21,14 @@ if (error) {
 const environment: string = env.NODE_ENV;
 
 export default {
+    env: environment,
+    project_dir: path.resolve(__dirname, '..'),
     app: {
         name: pkg.name,
         version: pkg.version,
         description: pkg.description,
+        port: env.PORT,
     },
-    project_dir: path.resolve(__dirname, '..'),
-    env: environment,
-    port: env.PORT,
     logger: {
         level: environment === 'development' ? 'debug' : 'info',
         format: environment === 'development' ? 'dev' : 'tiny',

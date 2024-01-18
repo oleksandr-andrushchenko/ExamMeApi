@@ -125,7 +125,7 @@ export default async (): Promise<{
         );
     }
 
-    const port = config.port;
+    const port = config.app.port;
 
     return { app, dataSource, port, logger };
 };
