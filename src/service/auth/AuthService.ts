@@ -5,7 +5,7 @@ import UserRepository from "../../repository/UserRepository";
 import TokenService, { GeneratedToken, TokenPayload } from "../token/TokenService";
 import { Request } from "express";
 import UserService from "../user/UserService";
-import { EventDispatcher, EventDispatcherInterface } from "../../decorator/EventDispatcher";
+import InjectEventDispatcher, { EventDispatcherInterface } from "../../decorator/InjectEventDispatcher";
 import UserTransfer from "../../transfer/user/UserTransfer";
 import UserCredentialsTransfer from "../../transfer/user/UserCredentialsTransfer";
 import { validate } from "class-validator";
@@ -22,7 +22,7 @@ export default class AuthService {
         @Inject() private readonly tokenService: TokenService,
         @Inject() private readonly userService: UserService,
         @Inject() private readonly userRepository: UserRepository,
-        @EventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+        @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
         private readonly tokenExpiresIn: number = 60 * 60 * 24 * 7,
     ) {
     }

@@ -2,8 +2,8 @@ import { Inject, Service } from "typedi";
 import Token, { TokenType } from "../../entity/Token";
 import User from "../../entity/User";
 import TokenStrategyInterface from "./strategy/TokenStrategyInterface";
-import { EntityManager } from "typeorm";
 import TokenRepository from "../../repository/TokenRepository";
+import InjectEntityManager, { EntityManagerInterface } from "../../decorator/InjectEntityManager";
 
 export type GeneratedToken = {
     token: string;
@@ -21,7 +21,7 @@ export default class TokenService {
 
     constructor(
         @Inject('tokenStrategy') private readonly tokenStrategy: TokenStrategyInterface,
-        @Inject('entityManager') private readonly entityManager: EntityManager,
+        @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
         @Inject() private readonly tokenRepository: TokenRepository,
     ) {
     }

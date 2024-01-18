@@ -1,6 +1,6 @@
-import { LoggerInterface } from "./LoggerInterface";
+import LoggerInterface from "./LoggerInterface";
 
-export abstract class Logger implements LoggerInterface {
+export default abstract class Logger implements LoggerInterface {
 
     public debug(message: string, ...args: any[]): LoggerInterface {
         return this.log('debug', message, args);

@@ -1,17 +1,17 @@
 import 'reflect-metadata';
-import { DataSource, useContainer as typeormUseContainer } from 'typeorm';
+import { DataSource, useContainer as typeormUseContainer, ConnectionManager } from 'typeorm';
 import { Container } from "typedi";
 import config from "./config";
 import { WinstonLoggerFactory } from "./logger/WinstonLoggerFactory";
 import { useContainer as routingControllerUseContainer, useExpressServer } from "routing-controllers";
 import express, { Application } from "express";
-import { LoggerInterface } from "./logger/LoggerInterface";
+import LoggerInterface from "./logger/LoggerInterface";
 import JwtTokenStrategyFactory from "./service/token/strategy/JwtTokenStrategyFactory";
 import AuthService from "./service/auth/AuthService";
 import TokenStrategyInterface from "./service/token/strategy/TokenStrategyInterface";
 import { ValidatorOptions } from "class-validator/types/validation/ValidatorOptions";
 import { MongoConnectionOptions } from "typeorm/driver/mongodb/MongoConnectionOptions";
-import logTypeormMongoCommands from "./util/logTypeormMongoCommands";
+import { MongoDriver } from "typeorm/driver/mongodb/MongoDriver";
 
 export default async (): Promise<{
     app: Application,
@@ -22,6 +22,7 @@ export default async (): Promise<{
     typeormUseContainer(Container);
     routingControllerUseContainer(Container);
 
+
     Container.set('env', config.env);
     Container.set('loggerFormat', config.logger.format);
 
@@ -30,6 +31,9 @@ export default async (): Promise<{
 
     const projectDir = config.project_dir;
     const mongoLogging = config.db.type === 'mongodb' && config.db.logging;
+
+    const connectionManager = new ConnectionManager();
+    Container.set({ id: ConnectionManager, value: connectionManager });
 
     const dataSourceOptions: MongoConnectionOptions = {
         type: config.db.type,
@@ -41,11 +45,14 @@ export default async (): Promise<{
         monitorCommands: mongoLogging,
     };
 
-    const dataSource: DataSource = new DataSource(dataSourceOptions);
-    Container.set('entityManager', dataSource.manager);
-    await dataSource.initialize();
+    const dataSource = await connectionManager.create(dataSourceOptions).initialize();
 
-    mongoLogging && logTypeormMongoCommands(dataSource);
+    if (mongoLogging) {
+        const conn = (dataSource.driver as MongoDriver).queryRunner!.databaseConnection;
+        conn.on('commandStarted', (event) => logger.debug('commandStarted', event));
+        conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event));
+        conn.on('commandFailed', (event) => logger.error('commandFailed', event));
+    }
 
     const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt);
     Container.set('tokenStrategy', tokenStrategy);

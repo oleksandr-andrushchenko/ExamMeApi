@@ -1,4 +1,4 @@
-export interface LoggerInterface {
+export default interface LoggerInterface {
 
     debug(message: string, ...args: any[]): LoggerInterface;
 

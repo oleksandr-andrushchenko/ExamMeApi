@@ -1,8 +1,8 @@
-import { LoggerInterface } from "./LoggerInterface";
+import LoggerInterface from "./LoggerInterface";
 import winston from 'winston';
-import { Logger } from "./Logger";
+import Logger from "./Logger";
 
-export class WinstonLogger extends Logger implements LoggerInterface {
+export default class WinstonLogger extends Logger implements LoggerInterface {
 
     constructor(private readonly winstonLogger: winston.Logger) {
         super();

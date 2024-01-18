@@ -2,23 +2,23 @@ import { Inject, Service } from "typedi";
 import User from "../../entity/User";
 import UserTransfer from "../../transfer/user/UserTransfer";
 import { validate } from "class-validator";
-import { EntityManager } from "typeorm";
-import { EventDispatcher, EventDispatcherInterface } from "../../decorator/EventDispatcher";
+import InjectEventDispatcher, { EventDispatcherInterface } from "../../decorator/InjectEventDispatcher";
 import UserCredentialsTransfer from "../../transfer/user/UserCredentialsTransfer";
 import UserRepository from "../../repository/UserRepository";
 import * as bcrypt from "bcrypt";
-import { LoggerInterface } from "../../logger/LoggerInterface";
+import LoggerInterface from "../../logger/LoggerInterface";
 import UserNotFoundError from "../../error/user/UserNotFoundError";
 import UserWrongCredentialsError from "../../error/user/UserWrongCredentialsError";
 import UserEmailTakenError from "../../error/user/UserEmailTakenError";
+import InjectEntityManager, { EntityManagerInterface } from "../../decorator/InjectEntityManager";
 
 @Service()
 export default class UserService {
 
     constructor(
-        @Inject('entityManager') private readonly entityManager: EntityManager,
+        @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
         @Inject() private readonly userRepository: UserRepository,
-        @EventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+        @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
         @Inject('logger') private readonly logger: LoggerInterface,
     ) {
     }
