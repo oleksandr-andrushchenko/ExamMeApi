@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsEmail, IsStrongPassword } from "class-validator";
 
-export default class UserTransfer {
+export default class UserSchema {
 
     @IsNotEmpty()
     public name: string;

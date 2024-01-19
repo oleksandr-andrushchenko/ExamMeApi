@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsEmail } from "class-validator";
 
-export default class UserCredentialsTransfer {
+export default class AuthSchema {
+
     @IsNotEmpty()
     @IsEmail()
     public email: string;
