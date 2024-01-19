@@ -89,19 +89,18 @@ export default async (): Promise<{
 
     if (config.swagger.enabled) {
         const { defaultMetadataStorage } = require('class-transformer/cjs/storage');
-        const schemas = validationMetadatasToSchemas({
-            classTransformerMetadataStorage: defaultMetadataStorage,
-            refPointerPrefix: '#/components/schemas/',
-        });
-        const storage = getMetadataArgsStorage();
-        const spec = routingControllersToSpec(storage, routingControllersOptions, {
+        const spec = routingControllersToSpec(getMetadataArgsStorage(), routingControllersOptions, {
             components: {
                 // @ts-ignore
-                schemas,
+                schemas: validationMetadatasToSchemas({
+                    classTransformerMetadataStorage: defaultMetadataStorage,
+                    refPointerPrefix: '#/components/schemas/',
+                }),
                 securitySchemes: {
-                    basicAuth: {
-                        scheme: 'basic',
+                    bearerAuth: {
                         type: 'http',
+                        scheme: 'bearer',
+                        bearerFormat: 'JWT',
                     },
                 },
             },
@@ -114,9 +113,7 @@ export default async (): Promise<{
         app.use(
             config.swagger.route,
             basicAuth({
-                users: {
-                    [config.swagger.username]: config.swagger.password,
-                },
+                users: { [config.swagger.username]: config.swagger.password },
                 challenge: true,
             }),
             swaggerUiExpress.serve,
