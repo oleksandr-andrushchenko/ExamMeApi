@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import application from "./application";
 
-application()
+application().api()
     .then(({ app, dataSource, port, logger }) => {
         const server = app.listen(port, () => logger.info(`Server is running on port ${port}`));
 

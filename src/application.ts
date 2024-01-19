@@ -22,14 +22,11 @@ import { routingControllersToSpec } from "routing-controllers-openapi";
 import { RoutingControllersOptions } from "routing-controllers/types/RoutingControllersOptions";
 import basicAuth from 'express-basic-auth';
 
-export default async (): Promise<{
-    app: Application,
+export default (): {
     dataSource: DataSource,
-    port: number,
-    logger: LoggerInterface,
-}> => {
+    api: Function,
+} => {
     typeormUseContainer(Container);
-    routingControllerUseContainer(Container);
 
     Container.set('env', config.env);
     Container.set('loggerFormat', config.logger.format);
@@ -53,76 +50,89 @@ export default async (): Promise<{
         monitorCommands: mongoLogging,
     };
 
-    const dataSource = await connectionManager.create(dataSourceOptions).initialize();
+    const dataSource = connectionManager.create(dataSourceOptions);
 
-    if (mongoLogging) {
-        const conn = (dataSource.driver as MongoDriver).queryRunner!.databaseConnection;
-        conn.on('commandStarted', (event) => logger.debug('commandStarted', event));
-        conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event));
-        conn.on('commandFailed', (event) => logger.error('commandFailed', event));
-    }
+    const api = async (): Promise<{
+        app: Application,
+        dataSource: DataSource,
+        port: number,
+        logger: LoggerInterface
+    }> => {
+        routingControllerUseContainer(Container);
 
-    const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt);
-    Container.set('tokenStrategy', tokenStrategy);
+        await dataSource.initialize();
 
-    const app = express();
+        if (mongoLogging) {
+            const conn = (dataSource.driver as MongoDriver).queryRunner!.databaseConnection;
+            conn.on('commandStarted', (event) => logger.debug('commandStarted', event));
+            conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event));
+            conn.on('commandFailed', (event) => logger.error('commandFailed', event));
+        }
 
-    const authService: AuthService = Container.get<AuthService>(AuthService);
-    const validation: ValidatorOptions = {
-        validationError: {
-            target: false,
-            value: false,
-        },
-    };
+        const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt);
+        Container.set('tokenStrategy', tokenStrategy);
 
-    const routingControllersOptions: RoutingControllersOptions = {
-        authorizationChecker: authService.getAuthorizationChecker(),
-        currentUserChecker: authService.getCurrentUserChecker(),
-        controllers: [`${projectDir}/src/controller/*.ts`],
-        middlewares: [`${projectDir}/src/middleware/*.ts`],
-        validation: validation,
-        classTransformer: true,
-        defaultErrorHandler: false,
-    };
+        const app = express();
 
-    useExpressServer(app, routingControllersOptions);
+        const authService: AuthService = Container.get<AuthService>(AuthService);
+        const validation: ValidatorOptions = {
+            validationError: {
+                target: false,
+                value: false,
+            },
+        };
 
-    if (config.swagger.enabled) {
-        const { defaultMetadataStorage } = require('class-transformer/cjs/storage');
-        const spec = routingControllersToSpec(getMetadataArgsStorage(), routingControllersOptions, {
-            components: {
-                // @ts-ignore
-                schemas: validationMetadatasToSchemas({
-                    classTransformerMetadataStorage: defaultMetadataStorage,
-                    refPointerPrefix: '#/components/schemas/',
-                }),
-                securitySchemes: {
-                    // todo: move this part to authService
-                    bearerAuth: {
-                        type: 'http',
-                        scheme: 'bearer',
-                        bearerFormat: 'JWT',
+        const routingControllersOptions: RoutingControllersOptions = {
+            authorizationChecker: authService.getAuthorizationChecker(),
+            currentUserChecker: authService.getCurrentUserChecker(),
+            controllers: [`${projectDir}/src/controller/*.ts`],
+            middlewares: [`${projectDir}/src/middleware/*.ts`],
+            validation: validation,
+            classTransformer: true,
+            defaultErrorHandler: false,
+        };
+
+        useExpressServer(app, routingControllersOptions);
+
+        if (config.swagger.enabled) {
+            const { defaultMetadataStorage } = require('class-transformer/cjs/storage');
+            const spec = routingControllersToSpec(getMetadataArgsStorage(), routingControllersOptions, {
+                components: {
+                    // @ts-ignore
+                    schemas: validationMetadatasToSchemas({
+                        classTransformerMetadataStorage: defaultMetadataStorage,
+                        refPointerPrefix: '#/components/schemas/',
+                    }),
+                    securitySchemes: {
+                        // todo: move this part to authService
+                        bearerAuth: {
+                            type: 'http',
+                            scheme: 'bearer',
+                            bearerFormat: 'JWT',
+                        },
                     },
                 },
-            },
-            info: {
-                description: config.app.description,
-                title: config.app.name,
-                version: config.app.version,
-            },
-        });
-        app.use(
-            config.swagger.route,
-            basicAuth({
-                users: { [config.swagger.username]: config.swagger.password },
-                challenge: true,
-            }),
-            swaggerUiExpress.serve,
-            swaggerUiExpress.setup(spec)
-        );
+                info: {
+                    description: config.app.description,
+                    title: config.app.name,
+                    version: config.app.version,
+                },
+            });
+            app.use(
+                config.swagger.route,
+                basicAuth({
+                    users: { [config.swagger.username]: config.swagger.password },
+                    challenge: true,
+                }),
+                swaggerUiExpress.serve,
+                swaggerUiExpress.setup(spec)
+            );
+        }
+
+        const port = config.app.port;
+
+        return { app, dataSource, port, logger };
     }
 
-    const port = config.app.port;
-
-    return { app, dataSource, port, logger };
-};
+    return { dataSource, api };
+}
