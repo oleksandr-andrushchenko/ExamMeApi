@@ -47,6 +47,7 @@ export default (): {
         logging: config.db.logging,
         entities: [`${projectDir}/src/entity/*.ts`],
         subscribers: [`${projectDir}/src/subscriber/*.ts`],
+        migrations: [`${projectDir}/src/migration/*.ts`],
         monitorCommands: mongoLogging,
     };
 

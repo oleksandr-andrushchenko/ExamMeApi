@@ -21,7 +21,8 @@
       "dev": "env $(cat .env) nodemon --watch src --exec 'ts-node' src/index.ts",
       "build": "tsc",
       "start": "ts-node src/index.ts",
-      "typeorm": "typeorm-ts-node-commonjs"
+      "typeorm": "typeorm-ts-node-commonjs",
+      "migrations:run": "npm run typeorm migration:run -- -d ./src/data-source.ts"
    },
    "author": "Oleksandr Andrushchenko",
    "license": "ISC",
