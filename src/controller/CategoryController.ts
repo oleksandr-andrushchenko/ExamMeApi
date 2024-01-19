@@ -159,7 +159,7 @@ export default class CategoryController {
         },
     })
     public async delete(
-        @CurrentUser() user: User,
+        @CurrentUser({ required: true }) user: User,
         @Param('id') id: string,
     ): Promise<void> {
         try {
