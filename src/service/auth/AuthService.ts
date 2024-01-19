@@ -2,18 +2,11 @@ import { Inject, Service } from "typedi";
 import { Action } from "routing-controllers";
 import User from "../../entity/User";
 import UserRepository from "../../repository/UserRepository";
-import TokenService, { GeneratedToken, TokenPayload } from "../token/TokenService";
+import TokenService, { TokenPayload } from "../token/TokenService";
 import { Request } from "express";
 import UserService from "../user/UserService";
 import InjectEventDispatcher, { EventDispatcherInterface } from "../../decorator/InjectEventDispatcher";
-import UserTransfer from "../../transfer/user/UserTransfer";
-import UserCredentialsTransfer from "../../transfer/user/UserCredentialsTransfer";
-import { validate } from "class-validator";
-
-export type AuthTokens = {
-    accessToken: GeneratedToken;
-    refreshToken: GeneratedToken;
-}
+import TokenSchema from "../../schema/auth/TokenSchema";
 
 @Service()
 export default class AuthService {
@@ -53,34 +46,12 @@ export default class AuthService {
         };
     }
 
-    public async registerUser(transfer: UserTransfer): Promise<User> {
-        await validate(transfer);
+    public async createAuth(user: User): Promise<TokenSchema> {
+        const access = await this.tokenService.generateAccessToken(user, this.tokenExpiresIn);
 
-        const user: User = await this.userService.createUser(transfer);
+        this.eventDispatcher.dispatch('authCreated', { user });
 
-        this.eventDispatcher.dispatch('userRegistered', { user });
-
-        return user;
-    }
-
-    public async loginUser(transfer: UserCredentialsTransfer): Promise<AuthTokens> {
-        await validate(transfer);
-
-        const user: User = await this.userService.getUserByCredentials(transfer);
-        const tokens = this.authorizeUser(user);
-
-        this.eventDispatcher.dispatch('userLoggedIn', { user });
-
-        return tokens;
-    }
-
-    public async authorizeUser(user: User): Promise<AuthTokens> {
-        const accessToken = await this.tokenService.generateAccessToken(user, this.tokenExpiresIn);
-        const refreshToken = await this.tokenService.generateRefreshToken(user, this.tokenExpiresIn);
-
-        this.eventDispatcher.dispatch('userAuthorized', { user });
-
-        return { accessToken, refreshToken };
+        return access;
     }
 
     public async verifyAccessToken(req: Request): Promise<string | null> {
