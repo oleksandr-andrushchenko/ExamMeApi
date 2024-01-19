@@ -97,6 +97,7 @@ export default async (): Promise<{
                     refPointerPrefix: '#/components/schemas/',
                 }),
                 securitySchemes: {
+                    // todo: move this part to authService
                     bearerAuth: {
                         type: 'http',
                         scheme: 'bearer',
