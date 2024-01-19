@@ -1,19 +1,16 @@
 import {
     Entity,
     ObjectIdColumn,
-    ObjectId,
     Column,
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn
 } from "typeorm";
 import { Exclude, Expose, Transform } from "class-transformer";
+import { ObjectId } from "mongodb";
 
 export enum TokenType {
     ACCESS = 'access',
-    REFRESH = 'refresh',
-    RESET_PASSWORD = 'resetPassword',
-    VERIFY_EMAIL = 'verifyEmail',
 }
 
 @Entity({ name: 'tokens' })
@@ -32,10 +29,13 @@ export default class Token {
     public value: string;
 
     @Column({ nullable: false })
-    public userId: string;
+    public userId: ObjectId;
 
     @Column()
     public expires: number;
+
+    @Column()
+    public createdBy: ObjectId;
 
     @Column()
     @CreateDateColumn()
