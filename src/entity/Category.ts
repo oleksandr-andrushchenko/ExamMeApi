@@ -1,13 +1,14 @@
 import {
     Entity,
     ObjectIdColumn,
-    ObjectId,
     Column,
     CreateDateColumn,
     UpdateDateColumn,
     DeleteDateColumn
 } from "typeorm";
 import { Expose, Transform } from "class-transformer";
+import { ObjectId } from "mongodb";
+import { IsNotEmpty } from "class-validator";
 
 @Entity({ name: 'categories' })
 export default class Category {
@@ -16,8 +17,12 @@ export default class Category {
     @Transform((params: { value: ObjectId }) => params.value.toString())
     public _id: ObjectId;
 
+    @IsNotEmpty()
     @Column({ unique: true, nullable: false })
     public name: string;
+
+    @Column()
+    public createdBy: ObjectId;
 
     @Column()
     @CreateDateColumn()
