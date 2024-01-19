@@ -44,7 +44,7 @@ export default {
     },
     swagger: {
         enabled: environment === 'development',
-        route: '/',
+        route: '/docs',
         username: 'any',
         password: 'any',
     },
