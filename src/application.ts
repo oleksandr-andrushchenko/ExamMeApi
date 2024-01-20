@@ -52,6 +52,16 @@ export default (): {
     };
 
     const dataSource = connectionManager.create(dataSourceOptions);
+    const initializeDataSource = async () => {
+        await dataSource.initialize();
+
+        if (mongoLogging) {
+            const conn = (dataSource.driver as MongoDriver).queryRunner!.databaseConnection;
+            conn.on('commandStarted', (event) => logger.debug('commandStarted', event));
+            conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event));
+            conn.on('commandFailed', (event) => logger.error('commandFailed', event));
+        }
+    };
 
     const api = async (): Promise<{
         app: Application,
@@ -61,14 +71,7 @@ export default (): {
     }> => {
         routingControllerUseContainer(Container);
 
-        await dataSource.initialize();
-
-        if (mongoLogging) {
-            const conn = (dataSource.driver as MongoDriver).queryRunner!.databaseConnection;
-            conn.on('commandStarted', (event) => logger.debug('commandStarted', event));
-            conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event));
-            conn.on('commandFailed', (event) => logger.error('commandFailed', event));
-        }
+        await initializeDataSource();
 
         const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt);
         Container.set('tokenStrategy', tokenStrategy);
