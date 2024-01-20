@@ -1,3 +1,8 @@
+/**
+ * Originally taken from 'w3tecch/express-typescript-boilerplate'
+ * Credits to the author
+ */
+
 import { EventDispatcher } from 'event-dispatch';
 import { Constructable, Container } from 'typedi';
 
