@@ -20,7 +20,7 @@ export default class AuthService {
     ) {
     }
 
-    public getAuthorizationChecker(): (action: Action, roles: any[]) => Promise<boolean> {
+    public getAuthorizationChecker(): (action: Action) => Promise<boolean> {
         return async (action: Action): Promise<boolean> => {
             const req = action.request;
             const userId: string | null = await this.verifyAccessToken(req);

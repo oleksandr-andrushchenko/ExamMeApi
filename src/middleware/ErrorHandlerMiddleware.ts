@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-controllers';
 import { Inject, Service } from "typedi";
 import LoggerInterface from "../logger/LoggerInterface";
@@ -13,11 +13,11 @@ export default class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInt
     ) {
     }
 
-    public error(error: HttpError, req: Request, res: Response, next: NextFunction): void {
+    public error(error: HttpError, _: Request, res: Response): void {
         res.status(error.httpCode || 500).json({
             name: error.name,
             message: error.message,
-            errors: error[`errors`] || [],
+            errors: (error[`errors`] || []) as [],
         });
 
         if (this.env === 'production') {

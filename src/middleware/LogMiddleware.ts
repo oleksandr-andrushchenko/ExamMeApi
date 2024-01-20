@@ -14,10 +14,10 @@ export default class LogMiddleware implements ExpressMiddlewareInterface {
     ) {
     }
 
-    public use(req: Request, res: Response, next: NextFunction): any {
-        return morgan(this.format, {
+    public use(req: Request, res: Response, next: NextFunction): void {
+        morgan(this.format, {
             stream: {
-                write: this.logger.info.bind(this.logger),
+                write: this.logger.info.bind(this.logger) as (str: string) => void,
             },
         })(req, res, next);
     }

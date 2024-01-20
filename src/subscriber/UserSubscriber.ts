@@ -12,11 +12,11 @@ export class UserSubscriber implements EntitySubscriberInterface {
     ) {
     }
 
-    public listenTo(): Function | string {
+    public listenTo(): typeof User {
         return User;
     }
 
-    public async beforeInsert(event: InsertEvent<User>): Promise<any> {
+    public async beforeInsert(event: InsertEvent<User>): Promise<void> {
         const user: User = event.entity;
         user.password = await this.userService.hashUserPassword(user.password);
     }

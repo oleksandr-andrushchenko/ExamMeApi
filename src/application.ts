@@ -21,10 +21,16 @@ import * as swaggerUiExpress from "swagger-ui-express";
 import { routingControllersToSpec } from "routing-controllers-openapi";
 import { RoutingControllersOptions } from "routing-controllers/types/RoutingControllersOptions";
 import basicAuth from 'express-basic-auth';
+import { MetadataStorage } from "class-transformer/types/MetadataStorage";
 
 export default (): {
     dataSource: DataSource,
-    api: Function,
+    api: () => Promise<{
+        app: Application,
+        dataSource: DataSource,
+        port: number,
+        logger: LoggerInterface
+    }>,
 } => {
     typeormUseContainer(Container);
 
@@ -56,7 +62,7 @@ export default (): {
         await dataSource.initialize();
 
         if (mongoLogging) {
-            const conn = (dataSource.driver as MongoDriver).queryRunner!.databaseConnection;
+            const conn = (dataSource.driver as MongoDriver).queryRunner.databaseConnection;
             conn.on('commandStarted', (event) => logger.debug('commandStarted', event));
             conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event));
             conn.on('commandFailed', (event) => logger.error('commandFailed', event));
@@ -102,9 +108,9 @@ export default (): {
             const { defaultMetadataStorage } = require('class-transformer/cjs/storage');
             const spec = routingControllersToSpec(getMetadataArgsStorage(), routingControllersOptions, {
                 components: {
-                    // @ts-ignore
+                    // @ts-expect-error non-documented property
                     schemas: validationMetadatasToSchemas({
-                        classTransformerMetadataStorage: defaultMetadataStorage,
+                        classTransformerMetadataStorage: defaultMetadataStorage as MetadataStorage,
                         refPointerPrefix: '#/components/schemas/',
                     }),
                     securitySchemes: {

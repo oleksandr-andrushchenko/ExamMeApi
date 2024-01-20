@@ -34,8 +34,8 @@ export default {
         format: environment === 'development' ? 'dev' : 'tiny',
     },
     db: {
-        type: env.DATABASE_TYPE,
-        url: env.DATABASE_URL,
+        type: env.DATABASE_TYPE as 'mongodb',
+        url: env.DATABASE_URL as string,
         synchronize: false,
         logging: environment === 'development',
     },

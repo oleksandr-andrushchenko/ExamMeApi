@@ -34,12 +34,12 @@ export default class AuthController {
             const user: User = await this.userService.getUserByAuth(auth);
 
             return await this.authService.createAuth(user);
-        } catch (error: any) {
+        } catch (error) {
             switch (true) {
                 case error instanceof UserNotFoundError:
-                    throw new NotFoundError(error.message);
+                    throw new NotFoundError((error as UserNotFoundError).message);
                 case error instanceof UserWrongCredentialsError:
-                    throw new ForbiddenError(error.message);
+                    throw new ForbiddenError((error as UserWrongCredentialsError).message);
             }
         }
     }

@@ -9,7 +9,6 @@ import UserWrongCredentialsError from "../../error/user/UserWrongCredentialsErro
 import UserEmailTakenError from "../../error/user/UserEmailTakenError";
 import InjectEntityManager, { EntityManagerInterface } from "../../decorator/InjectEntityManager";
 import UserSchema from "../../schema/user/UserSchema";
-import UserOwnershipError from "../../error/user/UserOwnershipError";
 import AuthSchema from "../../schema/auth/AuthSchema";
 
 @Service()
@@ -67,7 +66,7 @@ export default class UserService {
     }
 
     public async compareUserPassword(user: User, password: string): Promise<boolean> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             bcrypt.compare(password, user.password, (err, res) => {
                 resolve(res === true);
             });
@@ -87,12 +86,6 @@ export default class UserService {
     public async verifyUserEmailNotExists(email: string): Promise<void> {
         if (await this.userRepository.findOneByEmail(email)) {
             throw new UserEmailTakenError(email);
-        }
-    }
-
-    public async verifyUserOwnership(user: User, currentUser: User): Promise<void> {
-        if (user._id.toString() !== currentUser._id.toString()) {
-            throw new UserOwnershipError(user._id.toString());
         }
     }
 }

@@ -1,10 +1,10 @@
 export default interface LoggerInterface {
 
-    debug(message: string, ...args: any[]): LoggerInterface;
+    debug(message: string, ...args: unknown[]): LoggerInterface;
 
-    info(message: string, ...args: any[]): LoggerInterface;
+    info(message: string, ...args: unknown[]): LoggerInterface;
 
-    warn(message: string, ...args: any[]): LoggerInterface;
+    warn(message: string, ...args: unknown[]): LoggerInterface;
 
-    error(message: string, ...args: any[]): LoggerInterface;
+    error(message: string, ...args: unknown[]): LoggerInterface;
 }

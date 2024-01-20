@@ -48,10 +48,10 @@ export default class CategoryController {
     ): Promise<Category> {
         try {
             return await this.categoryService.createCategory(category, user);
-        } catch (error: any) {
+        } catch (error) {
             switch (true) {
                 case error instanceof CategoryNameTakenError:
-                    throw new ConflictHttpError(error.message);
+                    throw new ConflictHttpError((error as CategoryNameTakenError).message);
             }
         }
     }
@@ -78,10 +78,10 @@ export default class CategoryController {
     public async find(@Param('id') id: string): Promise<Category> {
         try {
             return await this.categoryService.getCategory(id);
-        } catch (error: any) {
+        } catch (error) {
             switch (true) {
                 case error instanceof CategoryNotFoundError:
-                    throw new NotFoundError(error.message);
+                    throw new NotFoundError((error as CategoryNotFoundError).message);
             }
         }
     }
@@ -106,12 +106,12 @@ export default class CategoryController {
     ): Promise<Category> {
         try {
             return await this.categoryService.replaceCategoryById(id, category, user);
-        } catch (error: any) {
+        } catch (error) {
             switch (true) {
                 case error instanceof CategoryNotFoundError:
-                    throw new NotFoundError(error.message);
+                    throw new NotFoundError((error as CategoryNotFoundError).message);
                 case error instanceof CategoryOwnershipError:
-                    throw new ForbiddenError(error.message);
+                    throw new ForbiddenError((error as CategoryOwnershipError).message);
             }
         }
     }
@@ -136,12 +136,12 @@ export default class CategoryController {
     ): Promise<Category> {
         try {
             return await this.categoryService.updateCategoryById(id, category, user);
-        } catch (error: any) {
+        } catch (error) {
             switch (true) {
                 case error instanceof CategoryNotFoundError:
-                    throw new NotFoundError(error.message);
+                    throw new NotFoundError((error as CategoryNotFoundError).message);
                 case error instanceof CategoryOwnershipError:
-                    throw new ForbiddenError(error.message);
+                    throw new ForbiddenError((error as CategoryOwnershipError).message);
             }
         }
     }
@@ -164,12 +164,12 @@ export default class CategoryController {
     ): Promise<void> {
         try {
             await this.categoryService.deleteCategoryById(id, user);
-        } catch (error: any) {
+        } catch (error) {
             switch (true) {
                 case error instanceof CategoryOwnershipError:
-                    throw new ForbiddenError(error.message);
+                    throw new ForbiddenError((error as CategoryOwnershipError).message);
                 case error instanceof CategoryNotFoundError:
-                    throw new NotFoundError(error.message);
+                    throw new NotFoundError((error as CategoryNotFoundError).message);
             }
         }
     }

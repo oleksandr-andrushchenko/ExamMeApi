@@ -41,10 +41,10 @@ export default class UserController {
     ): Promise<User> {
         try {
             return await this.userService.createUser(user, currentUser);
-        } catch (error: any) {
+        } catch (error) {
             switch (true) {
                 case error instanceof UserEmailTakenError:
-                    throw new ConflictHttpError(error.message);
+                    throw new ConflictHttpError((error as UserEmailTakenError).message);
             }
         }
     }

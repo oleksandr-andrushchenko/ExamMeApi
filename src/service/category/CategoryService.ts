@@ -50,7 +50,7 @@ export default class CategoryService {
         await validate(transfer);
 
         const category: Category = await this.getCategory(id);
-        await this.verifyCategoryOwnership(category, user);
+        this.verifyCategoryOwnership(category, user);
 
         if (transfer.name) {
             category.name = transfer.name;
@@ -67,7 +67,7 @@ export default class CategoryService {
         await validate(transfer);
 
         const category: Category = await this.getCategory(id);
-        await this.verifyCategoryOwnership(category, user);
+        this.verifyCategoryOwnership(category, user);
 
         category.name = transfer.name;
         await this.entityManager.save<Category>(category);
@@ -78,7 +78,7 @@ export default class CategoryService {
     }
 
     public async deleteCategory(category: Category, user: User): Promise<Category> {
-        await this.verifyCategoryOwnership(category, user);
+        this.verifyCategoryOwnership(category, user);
         await this.entityManager.remove<Category>(category);
 
         this.eventDispatcher.dispatch('categoryDeleted', { category });
@@ -88,7 +88,7 @@ export default class CategoryService {
 
     public async deleteCategoryById(id: string, user: User): Promise<Category> {
         const category: Category = await this.getCategory(id);
-        await this.verifyCategoryOwnership(category, user);
+        this.verifyCategoryOwnership(category, user);
 
         return await this.deleteCategory(category, user);
     }
@@ -99,7 +99,7 @@ export default class CategoryService {
         }
     }
 
-    public async verifyCategoryOwnership(category: Category, user: User): Promise<void> {
+    public verifyCategoryOwnership(category: Category, user: User): void {
         if (category.createdBy.toString() !== user._id.toString()) {
             throw new CategoryOwnershipError(category._id.toString());
         }
