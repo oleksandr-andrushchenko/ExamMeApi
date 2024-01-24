@@ -5,10 +5,10 @@ import pkg from "../package.json";
 
 const schema: Joi.ObjectSchema = Joi.object()
     .keys({
-        NODE_ENV: Joi.string().valid('development').default('development').description('Node env'),
-        PORT: Joi.number().default(8080).description('Web server port number'),
-        DATABASE_TYPE: Joi.string().default('mongodb').description('Database typeorm type'),
-        DATABASE_URL: Joi.string().uri().default('mongodb://root:1111@mongo:27017/test?authSource=admin').description('Database connection url'),
+        NODE_ENV: Joi.string().required().valid('development', 'test').example('development').description('Node env'),
+        PORT: Joi.number().required().example('8080').description('Web server port number'),
+        DATABASE_TYPE: Joi.string().required().valid('mongodb').example('mongodb').description('Database typeorm type'),
+        DATABASE_URL: Joi.string().uri().required().example('mongodb://root:1111@mongo:27017/test?authSource=admin').description('Database connection url'),
     })
     .unknown();
 
