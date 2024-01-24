@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import application from "./application";
 
 application().api()
