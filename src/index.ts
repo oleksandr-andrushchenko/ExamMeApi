@@ -1,6 +1,6 @@
 import application from "./application";
 
-application().api()
+application().api().up()
     .then(({ app, dataSource, port, logger }) => {
         const server = app.listen(port, () => logger.info(`Server is running on port ${port}`));
 

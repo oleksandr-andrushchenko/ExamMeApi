@@ -25,12 +25,16 @@ import { MetadataStorage } from "class-transformer/types/MetadataStorage";
 
 export default (): {
     dataSource: DataSource,
-    api: () => Promise<{
+    api: () => {
         app: Application,
-        dataSource: DataSource,
-        port: number,
-        logger: LoggerInterface
-    }>,
+        up: () => Promise<{
+            app: Application,
+            dataSource: DataSource,
+            port: number,
+            logger: LoggerInterface,
+        }>,
+        down: () => Promise<void>,
+    },
 } => {
     typeormUseContainer(Container);
 
@@ -58,7 +62,7 @@ export default (): {
     };
 
     const dataSource = connectionManager.create(dataSourceOptions);
-    const initializeDataSource = async () => {
+    const upDataSource = async () => {
         await dataSource.initialize();
 
         if (mongoLogging) {
@@ -68,16 +72,21 @@ export default (): {
             conn.on('commandFailed', (event) => logger.error('commandFailed', event));
         }
     };
+    const downDataSource = async () => {
+        return dataSource.destroy();
+    };
 
-    const api = async (): Promise<{
+    const api = (): {
         app: Application,
-        dataSource: DataSource,
-        port: number,
-        logger: LoggerInterface
-    }> => {
+        up: () => Promise<{
+            app: Application,
+            dataSource: DataSource,
+            port: number,
+            logger: LoggerInterface,
+        }>,
+        down: () => Promise<void>,
+    } => {
         routingControllerUseContainer(Container);
-
-        await initializeDataSource();
 
         const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt);
         Container.set('tokenStrategy', tokenStrategy);
@@ -139,9 +148,19 @@ export default (): {
             );
         }
 
-        const port = config.app.port;
+        const up = async () => {
+            await upDataSource();
 
-        return { app, dataSource, port, logger };
+            const port = config.app.port;
+
+            return { app, dataSource, port, logger };
+        };
+
+        const down = async () => {
+            await downDataSource();
+        };
+
+        return { app, up, down };
     }
 
     return { dataSource, api };
