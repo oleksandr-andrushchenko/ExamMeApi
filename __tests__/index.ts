@@ -45,7 +45,7 @@ export const fixture = async <Entity>(entity: any): Promise<Entity> => {
             throw new Error(`Unknown "${entity.toString()}" type passed`);
     }
 
-    await Container.get(ConnectionManager).get('default').manager.save(object);
+    await Container.get<ConnectionManager>(ConnectionManager).get('default').manager.save(object);
 
     return object;
 }
