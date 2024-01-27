@@ -37,6 +37,7 @@ export default class CategoryController {
         security: [{ bearerAuth: [] }],
         responses: {
             201: { description: 'Created' },
+            400: { description: 'Bad Request' },
             401: { description: 'Unauthorized' },
             409: { description: 'Conflict' },
         },
