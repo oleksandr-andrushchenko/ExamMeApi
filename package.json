@@ -28,7 +28,7 @@
    },
    "scripts": {
       "dev": "nodemon",
-      "test": "DOTENV_CONFIG_PATH=.env.test jest",
+      "test:functional": "DOTENV_CONFIG_PATH=.env.test jest --runInBand --testPathPattern=__tests__/functional",
       "build": "tsc",
       "typeorm": "typeorm-ts-node-commonjs"
    },
