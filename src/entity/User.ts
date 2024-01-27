@@ -32,6 +32,7 @@ export default class User {
 
     @Exclude()
     @Column()
+    @Transform((params: { value: ObjectId }) => params.value?.toString())
     public createdBy: ObjectId;
 
     @Column()
