@@ -6,7 +6,7 @@ import {
     UpdateDateColumn,
     DeleteDateColumn
 } from "typeorm";
-import { Expose, Transform } from "class-transformer";
+import { Exclude, Expose, Transform } from "class-transformer";
 import { ObjectId } from "mongodb";
 import { IsNotEmpty } from "class-validator";
 
@@ -21,7 +21,9 @@ export default class Category {
     @Column({ unique: true, nullable: false })
     public name: string;
 
+    @Exclude()
     @Column()
+    @Transform((params: { value: ObjectId }) => params.value?.toString())
     public createdBy: ObjectId;
 
     @Column()
