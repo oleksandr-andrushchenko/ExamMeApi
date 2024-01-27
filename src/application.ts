@@ -22,26 +22,30 @@ import { routingControllersToSpec } from "routing-controllers-openapi";
 import { RoutingControllersOptions } from "routing-controllers/types/RoutingControllersOptions";
 import basicAuth from 'express-basic-auth';
 import { MetadataStorage } from "class-transformer/types/MetadataStorage";
+import NullLogger from "./logger/NullLogger";
+
+type API = {
+    dataSource: DataSource,
+    app: Application,
+    up: () => Promise<{
+        app: Application,
+        dataSource: DataSource,
+        port: number,
+        logger: LoggerInterface,
+    }>,
+    down: () => Promise<void>,
+};
 
 export default (): {
     dataSource: DataSource,
-    api: () => {
-        app: Application,
-        up: () => Promise<{
-            app: Application,
-            dataSource: DataSource,
-            port: number,
-            logger: LoggerInterface,
-        }>,
-        down: () => Promise<void>,
-    },
+    api: () => API,
 } => {
     typeormUseContainer(Container);
 
     Container.set('env', config.env);
     Container.set('loggerFormat', config.logger.format);
 
-    const logger: LoggerInterface = Container.get<WinstonLoggerFactory>(WinstonLoggerFactory).create(config.logger);
+    const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLoggerFactory>(WinstonLoggerFactory).create(config.logger) : new NullLogger();
     Container.set('logger', logger);
 
     const projectDir = config.project_dir;
@@ -73,19 +77,10 @@ export default (): {
         }
     };
     const downDataSource = async () => {
-        return dataSource.destroy();
+        await dataSource.destroy();
     };
 
-    const api = (): {
-        app: Application,
-        up: () => Promise<{
-            app: Application,
-            dataSource: DataSource,
-            port: number,
-            logger: LoggerInterface,
-        }>,
-        down: () => Promise<void>,
-    } => {
+    const api = (): API => {
         routingControllerUseContainer(Container);
 
         const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt);
@@ -160,7 +155,7 @@ export default (): {
             await downDataSource();
         };
 
-        return { app, up, down };
+        return { dataSource, app, up, down };
     }
 
     return { dataSource, api };
