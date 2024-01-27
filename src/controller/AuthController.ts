@@ -24,6 +24,7 @@ export default class AuthController {
     @OpenAPI({
         responses: {
             201: { description: 'Created' },
+            400: { description: 'Bad Request' },
             403: { description: 'Forbidden' },
             404: { description: 'Not Found' },
         },
