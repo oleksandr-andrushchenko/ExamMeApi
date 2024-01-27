@@ -4,6 +4,7 @@
    "description": "",
    "main": "dist/index.js",
    "devDependencies": {
+      "@faker-js/faker": "^8.4.0",
       "@jest/globals": "^29.7.0",
       "@types/bcrypt": "^5.0.2",
       "@types/body-parser": "^1.19.5",
