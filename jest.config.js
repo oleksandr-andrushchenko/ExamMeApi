@@ -8,13 +8,12 @@ module.exports = {
     moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json', 'node'],
     testMatch: [
         '**/__tests__/**/*.ts',
-        '!**/__tests__/**/global.ts',
+        '!**/__tests__/**/index.ts',
     ],
     transform: {
         '^.+\\.(ts|tsx)$': 'ts-jest',
     },
     setupFiles: [
         'dotenv/config',
-        './__tests__/global.ts',
-    ]
+    ],
 };
