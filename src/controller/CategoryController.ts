@@ -43,7 +43,7 @@ export default class CategoryController {
         },
     })
     @ResponseSchema(Category)
-    public async create(
+    public async createCategory(
         @CurrentUser({ required: true }) user: User,
         @Body({ required: true }) category: CategorySchema,
     ): Promise<Category> {
@@ -64,7 +64,7 @@ export default class CategoryController {
         },
     })
     @ResponseSchema(Category, { isArray: true })
-    public async query(): Promise<Category[]> {
+    public async queryCategories(): Promise<Category[]> {
         return this.categoryRepository.findAll();
     }
 
@@ -76,7 +76,7 @@ export default class CategoryController {
         },
     })
     @ResponseSchema(Category)
-    public async find(@Param('id') id: string): Promise<Category> {
+    public async findCategory(@Param('id') id: string): Promise<Category> {
         try {
             return await this.categoryService.getCategory(id);
         } catch (error) {
@@ -100,7 +100,7 @@ export default class CategoryController {
         },
     })
     @ResponseSchema(Category)
-    public async replace(
+    public async replaceCategory(
         @CurrentUser({ required: true }) user: User,
         @Param('id') id: string,
         @Body({ required: true }) category: CategorySchema,
@@ -130,7 +130,7 @@ export default class CategoryController {
         },
     })
     @ResponseSchema(Category)
-    public async update(
+    public async updateCategory(
         @CurrentUser({ required: true }) user: User,
         @Param('id') id: string,
         @Body({ required: true }) category: CategorySchema,
@@ -159,7 +159,7 @@ export default class CategoryController {
             404: { description: 'Not Found' },
         },
     })
-    public async delete(
+    public async deleteCategory(
         @CurrentUser({ required: true }) user: User,
         @Param('id') id: string,
     ): Promise<void> {
