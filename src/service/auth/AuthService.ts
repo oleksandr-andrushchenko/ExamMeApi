@@ -4,7 +4,6 @@ import User from "../../entity/User";
 import UserRepository from "../../repository/UserRepository";
 import TokenService, { TokenPayload } from "../token/TokenService";
 import { Request } from "express";
-import UserService from "../user/UserService";
 import InjectEventDispatcher, { EventDispatcherInterface } from "../../decorator/InjectEventDispatcher";
 import TokenSchema from "../../schema/auth/TokenSchema";
 
@@ -13,7 +12,6 @@ export default class AuthService {
 
     constructor(
         @Inject() private readonly tokenService: TokenService,
-        @Inject() private readonly userService: UserService,
         @Inject() private readonly userRepository: UserRepository,
         @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
         private readonly tokenExpiresIn: number = 60 * 60 * 24 * 7,
@@ -55,13 +53,19 @@ export default class AuthService {
     }
 
     public async verifyAccessToken(req: Request): Promise<string | null> {
-        const token: string | undefined = req.header('Authorization');
+        const header: string | undefined = req.header('Authorization');
 
-        if (!token) {
+        if (!header) {
             return null;
         }
 
-        const payload: TokenPayload | null = await this.tokenService.verifyAccessToken(token);
+        const parts: string[] = header.split(' ');
+
+        if (parts.length !== 2 || parts[0] !== 'Bearer' || !parts[1]) {
+            return null;
+        }
+
+        const payload: TokenPayload | null = await this.tokenService.verifyAccessToken(parts[1]);
 
         if (!payload || !payload.userId) {
             return null;
