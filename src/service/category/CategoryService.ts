@@ -1,5 +1,4 @@
 import { Inject, Service } from "typedi";
-import { validate } from "class-validator";
 import InjectEventDispatcher, { EventDispatcherInterface } from "../../decorator/InjectEventDispatcher";
 import InjectEntityManager, { EntityManagerInterface } from "../../decorator/InjectEntityManager";
 import Category from "../../entity/Category";
@@ -11,6 +10,7 @@ import CategoryOwnershipError from "../../error/category/CategoryOwnershipError"
 import CategorySchema from "../../schema/category/CategorySchema";
 import AuthService from "../auth/AuthService";
 import { Permission } from "../../type/auth/Permission";
+import Validator from "../Validator";
 
 @Service()
 export default class CategoryService {
@@ -20,6 +20,7 @@ export default class CategoryService {
         @Inject() private readonly categoryRepository: CategoryRepository,
         @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
         @Inject() private readonly authService: AuthService,
+        @Inject() private readonly validator: Validator,
     ) {
     }
 
@@ -29,7 +30,7 @@ export default class CategoryService {
      * @throws AuthorizationFailedError
      */
     public async createCategory(transfer: CategorySchema, initiator: User): Promise<Category> {
-        await validate(transfer);
+        await this.validator.validate(transfer);
 
         await this.authService.verifyAuthorization(initiator, Permission.CREATE_CATEGORY);
 
@@ -57,7 +58,7 @@ export default class CategoryService {
     }
 
     public async updateCategoryById(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
-        await validate(transfer);
+        await this.validator.validate(transfer);
 
         const category: Category = await this.getCategory(id);
         this.verifyCategoryOwnership(category, initiator);
@@ -74,7 +75,7 @@ export default class CategoryService {
     }
 
     public async replaceCategoryById(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
-        await validate(transfer);
+        await this.validator.validate(transfer);
 
         const category: Category = await this.getCategory(id);
         this.verifyCategoryOwnership(category, initiator);

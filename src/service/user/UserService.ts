@@ -1,6 +1,5 @@
 import { Inject, Service } from "typedi";
 import User from "../../entity/User";
-import { validate } from "class-validator";
 import InjectEventDispatcher, { EventDispatcherInterface } from "../../decorator/InjectEventDispatcher";
 import UserRepository from "../../repository/UserRepository";
 import * as bcrypt from "bcrypt";
@@ -12,6 +11,7 @@ import UserSchema from "../../schema/user/UserSchema";
 import AuthSchema from "../../schema/auth/AuthSchema";
 import { Permission } from "../../type/auth/Permission";
 import AuthService from "../auth/AuthService";
+import Validator from "../Validator";
 
 @Service()
 export default class UserService {
@@ -21,6 +21,7 @@ export default class UserService {
         @Inject() private readonly userRepository: UserRepository,
         @Inject() private readonly authService: AuthService,
         @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+        @Inject() private readonly validator: Validator,
     ) {
     }
 
@@ -30,7 +31,7 @@ export default class UserService {
      * @throws AuthorizationFailedError
      */
     public async createUser(transfer: UserSchema, initiator: User): Promise<User> {
-        await validate(transfer);
+        await this.validator.validate(transfer);
 
         await this.authService.verifyAuthorization(initiator, Permission.CREATE_USER);
 
@@ -52,7 +53,7 @@ export default class UserService {
     }
 
     public async getUserByAuth(transfer: AuthSchema): Promise<User | null> {
-        await validate(transfer);
+        await this.validator.validate(transfer);
 
         const email: string = transfer.email;
         const user: User = await this.getUserByEmail(email);
