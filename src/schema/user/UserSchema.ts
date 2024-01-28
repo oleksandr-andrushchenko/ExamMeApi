@@ -4,17 +4,17 @@ import { Permission } from "../../type/auth/Permission";
 export default class UserSchema {
 
     @IsNotEmpty()
-    public name: string;
+    public readonly name: string;
 
     @IsNotEmpty()
     @IsEmail()
-    public email: string;
+    public readonly email: string;
 
     @IsNotEmpty()
     @IsStrongPassword({ minLength: 5, minLowercase: 0, minNumbers: 0, minSymbols: 0, minUppercase: 0 })
-    public password: string;
+    public readonly password: string;
 
     @IsOptional()
     @IsEnum(Permission, { each: true })
-    public permissions: Permission[];
+    public readonly permissions: Permission[];
 }

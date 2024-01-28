@@ -4,8 +4,8 @@ export default class AuthSchema {
 
     @IsNotEmpty()
     @IsEmail()
-    public email: string;
+    public readonly email: string;
 
     @IsNotEmpty()
-    public password: string;
+    public readonly password: string;
 }
