@@ -9,6 +9,8 @@ import User from "../../entity/User";
 import CategoryNotFoundError from "../../error/category/CategoryNotFoundError";
 import CategoryOwnershipError from "../../error/category/CategoryOwnershipError";
 import CategorySchema from "../../schema/category/CategorySchema";
+import AuthService from "../auth/AuthService";
+import { Permission } from "../../type/auth/Permission";
 
 @Service()
 export default class CategoryService {
@@ -17,11 +19,19 @@ export default class CategoryService {
         @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
         @Inject() private readonly categoryRepository: CategoryRepository,
         @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+        @Inject() private readonly authService: AuthService,
     ) {
     }
 
+    /**
+     * @param transfer
+     * @param initiator
+     * @throws AuthorizationFailedError
+     */
     public async createCategory(transfer: CategorySchema, initiator: User): Promise<Category> {
         await validate(transfer);
+
+        await this.authService.verifyAuthorization(initiator, Permission.CREATE_CATEGORY);
 
         const name = transfer.name;
         await this.verifyCategoryNameNotExists(name);

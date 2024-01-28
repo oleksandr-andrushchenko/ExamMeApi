@@ -44,6 +44,7 @@ export default (): {
 
     Container.set('env', config.env);
     Container.set('loggerFormat', config.logger.format);
+    Container.set('authPermissions', config.auth.permissions);
 
     const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLoggerFactory>(WinstonLoggerFactory).create(config.logger) : new NullLogger();
     Container.set('logger', logger);

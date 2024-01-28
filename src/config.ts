@@ -2,6 +2,7 @@ import Joi from 'joi';
 import path from "path";
 // @ts-ignore
 import pkg from "../package.json";
+import { Permission } from "./type/auth/Permission";
 
 const schema: Joi.ObjectSchema = Joi.object()
     .keys({
@@ -28,6 +29,14 @@ export default {
         version: pkg.version,
         description: pkg.description,
         port: env.PORT,
+    },
+    auth: {
+        permissions: {
+            [Permission.REGULAR]: [],
+            [Permission.ROOT]: [
+                Permission.ALL,
+            ],
+        },
     },
     logger: {
         enabled: environment !== 'test',

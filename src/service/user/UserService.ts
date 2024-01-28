@@ -10,6 +10,8 @@ import UserEmailTakenError from "../../error/user/UserEmailTakenError";
 import InjectEntityManager, { EntityManagerInterface } from "../../decorator/InjectEntityManager";
 import UserSchema from "../../schema/user/UserSchema";
 import AuthSchema from "../../schema/auth/AuthSchema";
+import { Permission } from "../../type/auth/Permission";
+import AuthService from "../auth/AuthService";
 
 @Service()
 export default class UserService {
@@ -17,12 +19,20 @@ export default class UserService {
     constructor(
         @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
         @Inject() private readonly userRepository: UserRepository,
+        @Inject() private readonly authService: AuthService,
         @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
     ) {
     }
 
-    public async createUser(transfer: UserSchema, initiator: User = null): Promise<User> {
+    /**
+     * @param transfer
+     * @param initiator
+     * @throws AuthorizationFailedError
+     */
+    public async createUser(transfer: UserSchema, initiator: User): Promise<User> {
         await validate(transfer);
+
+        await this.authService.verifyAuthorization(initiator, Permission.CREATE_USER);
 
         const email = transfer.email;
 
@@ -32,7 +42,8 @@ export default class UserService {
         user.name = transfer.name;
         user.email = email;
         user.password = transfer.password;
-        user.createdBy = initiator?._id;
+        user.permissions = transfer.permissions;
+        user.createdBy = initiator._id;
         await this.entityManager.save<User>(user);
 
         this.eventDispatcher.dispatch('userCreated', { user });

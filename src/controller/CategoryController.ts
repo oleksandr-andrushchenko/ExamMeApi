@@ -19,6 +19,7 @@ import CategoryNotFoundError from "../error/category/CategoryNotFoundError";
 import CategoryOwnershipError from "../error/category/CategoryOwnershipError";
 import CategoryNameTakenError from "../error/category/CategoryNameTakenError";
 import ConflictHttpError from "../error/http/ConflictHttpError";
+import AuthorizationFailedError from "../error/auth/AuthorizationFailedError";
 
 @Service()
 @JsonController('/categories')
@@ -39,6 +40,7 @@ export default class CategoryController {
             201: { description: 'Created' },
             400: { description: 'Bad Request' },
             401: { description: 'Unauthorized' },
+            403: { description: 'Forbidden' },
             409: { description: 'Conflict' },
         },
     })
@@ -51,6 +53,8 @@ export default class CategoryController {
             return await this.categoryService.createCategory(category, user);
         } catch (error) {
             switch (true) {
+                case error instanceof AuthorizationFailedError:
+                    throw new ForbiddenError((error as AuthorizationFailedError).message);
                 case error instanceof CategoryNameTakenError:
                     throw new ConflictHttpError((error as CategoryNameTakenError).message);
             }

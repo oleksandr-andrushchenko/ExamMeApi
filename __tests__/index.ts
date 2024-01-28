@@ -10,6 +10,7 @@ import AuthService from "../src/service/auth/AuthService";
 import TokenSchema from "../src/schema/auth/TokenSchema";
 import CategoryRepository from "../src/repository/CategoryRepository";
 import UserRepository from "../src/repository/UserRepository";
+import { Permission } from "../src/type/auth/Permission";
 
 export const api = (): Application => {
     const { app, up, down } = application().api();
@@ -26,7 +27,7 @@ export const api = (): Application => {
     return app;
 }
 
-export const fixture = async <Entity>(entity: any): Promise<Entity> => {
+export const fixture = async <Entity>(entity: any, options: object = {}): Promise<Entity> => {
     let object: any;
 
     switch (entity) {
@@ -35,6 +36,7 @@ export const fixture = async <Entity>(entity: any): Promise<Entity> => {
             object.name = faker.person.fullName();
             object.email = faker.internet.email();
             object.password = faker.internet.password();
+            object.permissions = options['permissions'] ?? [Permission.REGULAR];
             break;
         case Category:
             object = new Category();

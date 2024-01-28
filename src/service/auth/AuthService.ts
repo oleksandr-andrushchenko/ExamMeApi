@@ -6,6 +6,8 @@ import TokenService, { TokenPayload } from "../token/TokenService";
 import { Request } from "express";
 import InjectEventDispatcher, { EventDispatcherInterface } from "../../decorator/InjectEventDispatcher";
 import TokenSchema from "../../schema/auth/TokenSchema";
+import AuthorizationFailedError from "../../error/auth/AuthorizationFailedError";
+import { Permission } from "../../type/auth/Permission";
 
 @Service()
 export default class AuthService {
@@ -14,8 +16,37 @@ export default class AuthService {
         @Inject() private readonly tokenService: TokenService,
         @Inject() private readonly userRepository: UserRepository,
         @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+        @Inject('authPermissions') private readonly permissions: { [permission: string]: Permission[] },
         private readonly tokenExpiresIn: number = 60 * 60 * 24 * 7,
     ) {
+    }
+
+    /**
+     * @param user
+     * @param permission
+     * @param userPermissions
+     * @throws AuthorizationFailedError
+     */
+    public async verifyAuthorization(user: User, permission: Permission, userPermissions: Permission[] = null): Promise<boolean> {
+        userPermissions = userPermissions === null ? user.permissions : userPermissions;
+
+        if (userPermissions.indexOf(Permission.ALL) !== -1) {
+            return true;
+        }
+
+        if (userPermissions.indexOf(permission) !== -1) {
+            return true;
+        }
+
+        for (const userPermission of userPermissions) {
+            if (this.permissions.hasOwnProperty(userPermission)) {
+                if (await this.verifyAuthorization(user, permission, this.permissions[userPermission])) {
+                    return true;
+                }
+            }
+        }
+
+        throw new AuthorizationFailedError(permission);
     }
 
     public getAuthorizationChecker(): (action: Action) => Promise<boolean> {
@@ -24,8 +55,6 @@ export default class AuthService {
             const userId: string | null = await this.verifyAccessToken(req);
 
             req.userId = userId;
-
-            // @todo get user and check permissions (roles)
 
             return userId !== null;
         };

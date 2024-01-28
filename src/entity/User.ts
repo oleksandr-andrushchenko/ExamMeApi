@@ -9,6 +9,7 @@ import {
 import { Exclude, Expose, Transform } from "class-transformer";
 import { ObjectId } from "mongodb";
 import { IsNotEmpty } from "class-validator";
+import { Permission } from "../type/auth/Permission";
 
 @Entity({ name: 'users' })
 export default class User {
@@ -29,6 +30,9 @@ export default class User {
     @Exclude()
     @Column({ nullable: false })
     public password: string;
+
+    @Column({ default: [Permission.REGULAR] })
+    public permissions: Permission[];
 
     @Exclude()
     @Column()

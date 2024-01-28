@@ -4,7 +4,7 @@ import {
     Body,
     HttpCode,
     CurrentUser,
-    Authorized,
+    Authorized, ForbiddenError,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import User from "../entity/User";
@@ -13,6 +13,7 @@ import UserService from "../service/user/UserService";
 import UserSchema from "../schema/user/UserSchema";
 import UserEmailTakenError from "../error/user/UserEmailTakenError";
 import ConflictHttpError from "../error/http/ConflictHttpError";
+import AuthorizationFailedError from "../error/auth/AuthorizationFailedError";
 
 @Service()
 @JsonController('/users')
@@ -32,6 +33,7 @@ export default class UserController {
             201: { description: 'Created' },
             400: { description: 'Bad Request' },
             401: { description: 'Unauthorized' },
+            403: { description: 'Forbidden' },
             409: { description: 'Conflict' },
         },
     })
@@ -44,6 +46,8 @@ export default class UserController {
             return await this.userService.createUser(user, currentUser);
         } catch (error) {
             switch (true) {
+                case error instanceof AuthorizationFailedError:
+                    throw new ForbiddenError((error as AuthorizationFailedError).message);
                 case error instanceof UserEmailTakenError:
                     throw new ConflictHttpError((error as UserEmailTakenError).message);
             }
