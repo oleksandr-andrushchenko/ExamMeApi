@@ -49,7 +49,7 @@ export default (): {
     const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLoggerFactory>(WinstonLoggerFactory).create(config.logger) : new NullLogger();
     Container.set('logger', logger);
 
-    const projectDir = config.project_dir;
+    const projectDir = config.projectDir;
     const mongoLogging = config.db.type === 'mongodb' && config.db.logging;
 
     const connectionManager = new ConnectionManager();

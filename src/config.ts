@@ -23,7 +23,7 @@ const environment: string = env.NODE_ENV;
 
 export default {
     env: environment,
-    project_dir: path.resolve(__dirname, '..'),
+    projectDir: path.resolve(__dirname, '..'),
     app: {
         name: pkg.name,
         version: pkg.version,
