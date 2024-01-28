@@ -21,7 +21,7 @@ export default class UserService {
     ) {
     }
 
-    public async createUser(transfer: UserSchema, currentUser: User = null): Promise<User> {
+    public async createUser(transfer: UserSchema, initiator: User = null): Promise<User> {
         await validate(transfer);
 
         const email = transfer.email;
@@ -32,7 +32,7 @@ export default class UserService {
         user.name = transfer.name;
         user.email = email;
         user.password = transfer.password;
-        user.createdBy = currentUser?._id;
+        user.createdBy = initiator?._id;
         await this.entityManager.save<User>(user);
 
         this.eventDispatcher.dispatch('userCreated', { user });
