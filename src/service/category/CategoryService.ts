@@ -11,6 +11,7 @@ import CategorySchema from "../../schema/category/CategorySchema";
 import AuthService from "../auth/AuthService";
 import { Permission } from "../../type/auth/Permission";
 import Validator from "../Validator";
+import { ObjectId } from "mongodb";
 
 @Service()
 export default class CategoryService {
@@ -76,12 +77,17 @@ export default class CategoryService {
     }
 
     public async replaceCategoryById(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
+        await this.authService.verifyAuthorization(initiator, Permission.REPLACE_CATEGORY);
+
         await this.validator.validate(transfer);
 
         const category: Category = await this.getCategory(id);
         this.verifyCategoryOwnership(category, initiator);
 
-        category.setName(transfer.name);
+        const name = transfer.name;
+        await this.verifyCategoryNameNotExists(name, category.getId());
+
+        category.setName(name);
         await this.entityManager.save<Category>(category);
 
         this.eventDispatcher.dispatch('categoryReplaced', { category });
@@ -105,8 +111,8 @@ export default class CategoryService {
         return await this.deleteCategory(category, initiator);
     }
 
-    public async verifyCategoryNameNotExists(name: string): Promise<void> {
-        if (await this.categoryRepository.findOneByName(name)) {
+    public async verifyCategoryNameNotExists(name: string, ignoreId: ObjectId = undefined): Promise<void> {
+        if (await this.categoryRepository.findOneByName(name, ignoreId)) {
             throw new CategoryNameTakenError(`Name "${name}" is already taken`);
         }
     }
