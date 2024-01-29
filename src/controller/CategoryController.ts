@@ -98,9 +98,11 @@ export default class CategoryController {
         security: [{ bearerAuth: [] }],
         responses: {
             205: { description: 'Reset Content' },
+            400: { description: 'Bad Request' },
             401: { description: 'Unauthorized' },
             403: { description: 'Forbidden' },
             404: { description: 'Not Found' },
+            409: { description: 'Conflict' },
         },
     })
     @ResponseSchema(Category)
@@ -113,10 +115,14 @@ export default class CategoryController {
             return await this.categoryService.replaceCategoryById(id, category, user);
         } catch (error) {
             switch (true) {
+                case error instanceof AuthorizationFailedError:
+                    throw new ForbiddenError((error as AuthorizationFailedError).message);
                 case error instanceof CategoryNotFoundError:
                     throw new NotFoundError((error as CategoryNotFoundError).message);
                 case error instanceof CategoryOwnershipError:
                     throw new ForbiddenError((error as CategoryOwnershipError).message);
+                case error instanceof CategoryNameTakenError:
+                    throw new ConflictHttpError((error as CategoryNameTakenError).message);
             }
         }
     }
