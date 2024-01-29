@@ -89,3 +89,5 @@ export const auth = async (user: User): Promise<TokenSchema> => {
 
     return await authService.createAuth(user);
 };
+
+export const fakeId = async (): Promise<ObjectId> => ObjectId.createFromTime(Date.now());
