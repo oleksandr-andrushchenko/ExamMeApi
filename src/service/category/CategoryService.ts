@@ -12,6 +12,7 @@ import AuthService from "../auth/AuthService";
 import { Permission } from "../../type/auth/Permission";
 import Validator from "../Validator";
 import { ObjectId } from "mongodb";
+import CategoryUpdateSchema from "../../schema/category/CategoryUpdateSchema";
 
 @Service()
 export default class CategoryService {
@@ -59,14 +60,18 @@ export default class CategoryService {
         return category;
     }
 
-    public async updateCategoryById(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
+    public async updateCategoryById(id: string, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
+        await this.authService.verifyAuthorization(initiator, Permission.UPDATE_CATEGORY);
         await this.validator.validate(transfer);
 
         const category: Category = await this.getCategory(id);
         this.verifyCategoryOwnership(category, initiator);
 
         if (transfer.name) {
-            category.setName(transfer.name);
+            const name = transfer.name;
+            await this.verifyCategoryNameNotExists(name, category.getId());
+
+            category.setName(name);
         }
 
         await this.entityManager.save<Category>(category);
