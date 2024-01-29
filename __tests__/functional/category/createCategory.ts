@@ -16,6 +16,15 @@ describe('POST /categories', () => {
         expect(res.body).toMatchObject(error('AuthorizationRequiredError'));
     });
 
+    test('Bad request', async () => {
+        const user = await fixture<User>(User, { permissions: [Permission.CREATE_CATEGORY] });
+        const token = (await auth(user)).token;
+        const res = await request(app).post('/categories').send({}).auth(token, { type: 'bearer' });
+
+        expect(res.status).toEqual(400);
+        expect(res.body).toMatchObject(error('BadRequestError', 'Invalid body, check \'errors\' property for more info.'));
+    });
+
     test('Forbidden', async () => {
         const user = await fixture<User>(User, { permissions: [Permission.REGULAR] });
         const token = (await auth(user)).token;
@@ -44,14 +53,5 @@ describe('POST /categories', () => {
         expect(res.status).toEqual(201);
         expect(res.body).toHaveProperty('id');
         expect(res.body).toMatchObject({ name });
-    });
-
-    test('Bad request', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_CATEGORY] });
-        const token = (await auth(user)).token;
-        const res = await request(app).post('/categories').send({}).auth(token, { type: 'bearer' });
-
-        expect(res.status).toEqual(400);
-        expect(res.body).toMatchObject(error('BadRequestError', 'Invalid body, check \'errors\' property for more info.'));
     });
 });
