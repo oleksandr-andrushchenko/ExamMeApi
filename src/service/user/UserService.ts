@@ -31,9 +31,9 @@ export default class UserService {
      * @throws AuthorizationFailedError
      */
     public async createUser(transfer: UserSchema, initiator: User): Promise<User> {
-        await this.validator.validate(transfer);
-
         await this.authService.verifyAuthorization(initiator, Permission.CREATE_USER);
+
+        await this.validator.validate(transfer);
 
         const email = transfer.email;
 

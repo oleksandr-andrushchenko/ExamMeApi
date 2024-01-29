@@ -30,9 +30,9 @@ export default class CategoryService {
      * @throws AuthorizationFailedError
      */
     public async createCategory(transfer: CategorySchema, initiator: User): Promise<Category> {
-        await this.validator.validate(transfer);
-
         await this.authService.verifyAuthorization(initiator, Permission.CREATE_CATEGORY);
+
+        await this.validator.validate(transfer);
 
         const name = transfer.name;
         await this.verifyCategoryNameNotExists(name);
