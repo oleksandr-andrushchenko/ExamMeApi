@@ -16,10 +16,10 @@ describe('GET /categories/:id', () => {
 
     test('Found', async () => {
         const category = await fixture<Category>(Category);
-        const id = category._id.toString();
+        const id = category.getId().toString();
         const res = await request(app).get(`/categories/${id}`);
 
         expect(res.status).toEqual(200);
-        expect(res.body).toMatchObject({ id: id, name: category.name });
+        expect(res.body).toMatchObject({ id: id, name: category.getName() });
     });
 });

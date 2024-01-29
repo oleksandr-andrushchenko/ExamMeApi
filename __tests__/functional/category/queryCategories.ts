@@ -22,8 +22,8 @@ describe('GET /categories', () => {
         expect(res.status).toEqual(200);
         expect(res.body).toHaveLength(categories.length);
         const body = res.body.sort((a, b) => a.name.localeCompare(b.name));
-        categories.sort((a, b) => a.name.localeCompare(b.name)).forEach((category, index) => {
-            expect(body[index]).toMatchObject({ name: category.name });
+        categories.sort((a, b) => a.getName().localeCompare(b.getName())).forEach((category, index) => {
+            expect(body[index]).toMatchObject({ name: category.getName() });
         });
     });
 });

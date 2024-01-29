@@ -29,10 +29,10 @@ describe('POST /categories', () => {
         const category = await fixture<Category>(Category);
         const user = await fixture<User>(User, { permissions: [Permission.ROOT] });
         const token = (await auth(user)).token;
-        const res = await request(app).post('/categories').send({ name: category.name }).auth(token, { type: 'bearer' });
+        const res = await request(app).post('/categories').send({ name: category.getName() }).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(409);
-        expect(res.body).toMatchObject(error('Error', `Name "${category.name}" is already taken`));
+        expect(res.body).toMatchObject(error('Error', `Name "${category.getName()}" is already taken`));
     });
 
     test('Created', async () => {

@@ -37,9 +37,10 @@ export default class CategoryService {
         const name = transfer.name;
         await this.verifyCategoryNameNotExists(name);
 
-        const category: Category = new Category();
-        category.name = transfer.name;
-        category.createdBy = initiator._id;
+        const category: Category = (new Category())
+            .setName(transfer.name)
+            .setCreatedBy(initiator._id)
+        ;
         await this.entityManager.save<Category>(category);
 
         this.eventDispatcher.dispatch('categoryCreated', { category });
@@ -64,7 +65,7 @@ export default class CategoryService {
         this.verifyCategoryOwnership(category, initiator);
 
         if (transfer.name) {
-            category.name = transfer.name;
+            category.setName(transfer.name);
         }
 
         await this.entityManager.save<Category>(category);
@@ -80,7 +81,7 @@ export default class CategoryService {
         const category: Category = await this.getCategory(id);
         this.verifyCategoryOwnership(category, initiator);
 
-        category.name = transfer.name;
+        category.setName(transfer.name);
         await this.entityManager.save<Category>(category);
 
         this.eventDispatcher.dispatch('categoryReplaced', { category });
@@ -111,8 +112,8 @@ export default class CategoryService {
     }
 
     public verifyCategoryOwnership(category: Category, initiator: User): void {
-        if (category.createdBy.toString() !== initiator._id.toString()) {
-            throw new CategoryOwnershipError(category._id.toString());
+        if (category.getCreatedBy().toString() !== initiator._id.toString()) {
+            throw new CategoryOwnershipError(category.getId().toString());
         }
     }
 }

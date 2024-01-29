@@ -12,29 +12,54 @@ import { IsNotEmpty } from "class-validator";
 
 @Entity({ name: 'categories' })
 export default class Category {
+
     @ObjectIdColumn()
     @Expose({ name: 'id' })
     @Transform((params: { value: ObjectId }) => params.value.toString())
-    public _id: ObjectId;
+    private _id: ObjectId;
+
+    public getId(): ObjectId {
+        return this._id;
+    }
 
     @IsNotEmpty()
     @Column({ unique: true, nullable: false })
-    public name: string;
+    private name: string;
+
+    public setName(name: string): this {
+        this.name = name;
+
+        return this;
+    }
+
+    public getName(): string {
+        return this.name;
+    }
 
     @Exclude()
     @Column()
     @Transform((params: { value: ObjectId }) => params.value?.toString())
-    public createdBy: ObjectId;
+    private createdBy: ObjectId;
+
+    public setCreatedBy(createdBy: ObjectId): this {
+        this.createdBy = createdBy;
+
+        return this;
+    }
+
+    public getCreatedBy(): ObjectId {
+        return this.createdBy;
+    }
 
     @Column()
     @CreateDateColumn()
-    public createdAt: Date;
+    private createdAt: Date;
 
     @Column()
     @UpdateDateColumn()
-    public updatedAt: Date;
+    private updatedAt: Date;
 
     @Column()
     @DeleteDateColumn()
-    public deletedAt: Date;
+    private deletedAt: Date;
 }
