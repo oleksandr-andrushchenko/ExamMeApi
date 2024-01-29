@@ -12,6 +12,7 @@ import AuthSchema from "../../schema/auth/AuthSchema";
 import { Permission } from "../../type/auth/Permission";
 import AuthService from "../auth/AuthService";
 import Validator from "../Validator";
+import UserMeSchema from "../../schema/user/UserMeSchema";
 
 @Service()
 export default class UserService {
@@ -27,8 +28,33 @@ export default class UserService {
 
     /**
      * @param transfer
+     * @throws AuthorizationFailedError
+     * @throws UserEmailTakenError
+     */
+    public async createMeUser(transfer: UserMeSchema): Promise<User> {
+        await this.validator.validate(transfer);
+
+        const email = transfer.email;
+        await this.verifyUserEmailNotExists(email);
+
+        const user: User = (new User())
+            .setName(transfer.name)
+            .setEmail(email)
+            .setPassword(transfer.password)
+            .setPermissions([Permission.REGULAR])
+        ;
+        await this.entityManager.save<User>(user);
+
+        this.eventDispatcher.dispatch('meUserCreated', { user });
+
+        return user;
+    }
+
+    /**
+     * @param transfer
      * @param initiator
      * @throws AuthorizationFailedError
+     * @throws UserEmailTakenError
      */
     public async createUser(transfer: UserSchema, initiator: User): Promise<User> {
         await this.authService.verifyAuthorization(initiator, Permission.CREATE_USER);
@@ -36,13 +62,13 @@ export default class UserService {
         await this.validator.validate(transfer);
 
         const email = transfer.email;
-
         await this.verifyUserEmailNotExists(email);
 
         const user: User = (new User())
             .setName(transfer.name)
             .setEmail(email)
             .setPassword(transfer.password)
+            .setPermissions(transfer.permissions ?? [Permission.REGULAR])
             .setCreatedBy(initiator.getId())
         ;
         await this.entityManager.save<User>(user);
