@@ -5,7 +5,7 @@ import {
     HttpCode,
     CurrentUser,
     Param,
-    NotFoundError, ForbiddenError, Authorized
+    NotFoundError, ForbiddenError, Authorized, OnUndefined
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import Category from "../entity/Category";
@@ -167,6 +167,7 @@ export default class CategoryController {
     @Delete('/:id')
     @Authorized()
     @HttpCode(204)
+    @OnUndefined(204)
     @OpenAPI({
         security: [{ bearerAuth: [] }],
         responses: {
@@ -184,6 +185,8 @@ export default class CategoryController {
             await this.categoryService.deleteCategoryById(id, user);
         } catch (error) {
             switch (true) {
+                case error instanceof AuthorizationFailedError:
+                    throw new ForbiddenError((error as AuthorizationFailedError).message);
                 case error instanceof CategoryOwnershipError:
                     throw new ForbiddenError((error as CategoryOwnershipError).message);
                 case error instanceof CategoryNotFoundError:
