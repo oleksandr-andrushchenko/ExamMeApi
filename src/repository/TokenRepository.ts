@@ -7,6 +7,6 @@ import User from "../entity/User";
 export default class TokenRepository extends MongoRepository<Token> {
 
     public async findOneByTokenAndTypeAndUser(token: string, type: TokenType, user: User): Promise<Token | null> {
-        return await this.findOneBy({ token, type, userId: user._id });
+        return await this.findOneBy({ token, type, userId: user.getId() });
     }
 }

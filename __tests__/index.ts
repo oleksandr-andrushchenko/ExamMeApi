@@ -11,7 +11,6 @@ import TokenSchema from "../src/schema/auth/TokenSchema";
 import CategoryRepository from "../src/repository/CategoryRepository";
 import UserRepository from "../src/repository/UserRepository";
 import { Permission } from "../src/type/auth/Permission";
-import { match } from "node:assert";
 
 export const api = (): Application => {
     const { app, up, down } = application().api();
@@ -33,16 +32,17 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
 
     switch (entity) {
         case User:
-            object = new User();
-            object.name = faker.person.fullName();
-            object.email = faker.internet.email();
-            object.password = faker.internet.password();
-            object.permissions = options['permissions'] ?? [Permission.REGULAR];
+            object = (new User())
+                .setName(faker.person.fullName())
+                .setEmail(faker.internet.email())
+                .setPassword(faker.internet.password())
+                .setPermissions(options['permissions'] ?? [Permission.REGULAR])
+            ;
             break;
         case Category:
             object = (new Category())
                 .setName(faker.lorem.word())
-                .setCreatedBy((await fixture(User) as User)._id)
+                .setCreatedBy((await fixture(User) as User).getId())
             ;
             break;
         default:

@@ -24,7 +24,7 @@ export default class TokenService {
 
     public async generateAccessToken(user: User, expiresIn: number): Promise<GeneratedToken> {
         const expires = Date.now() + expiresIn;
-        const payload = { userId: user._id.toString(), expires, type: TokenType.ACCESS };
+        const payload = { userId: user.getId().toString(), expires, type: TokenType.ACCESS };
         const token = await this.tokenStrategy.encodeToken<TokenPayload>(payload);
 
         return { token, expires };

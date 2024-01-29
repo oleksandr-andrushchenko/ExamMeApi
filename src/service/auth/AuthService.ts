@@ -28,7 +28,7 @@ export default class AuthService {
      * @throws AuthorizationFailedError
      */
     public async verifyAuthorization(user: User, permission: Permission, userPermissions: Permission[] = null): Promise<boolean> {
-        userPermissions = userPermissions === null ? user.permissions : userPermissions;
+        userPermissions = userPermissions === null ? user.getPermissions() : userPermissions;
 
         if (userPermissions.indexOf(Permission.ALL) !== -1) {
             return true;

@@ -39,12 +39,12 @@ export default class UserService {
 
         await this.verifyUserEmailNotExists(email);
 
-        const user: User = new User();
-        user.name = transfer.name;
-        user.email = email;
-        user.password = transfer.password;
-        user.permissions = transfer.permissions;
-        user.createdBy = initiator._id;
+        const user: User = (new User())
+            .setName(transfer.name)
+            .setEmail(email)
+            .setPassword(transfer.password)
+            .setCreatedBy(initiator.getId())
+        ;
         await this.entityManager.save<User>(user);
 
         this.eventDispatcher.dispatch('userCreated', { user });
@@ -79,7 +79,7 @@ export default class UserService {
 
     public async compareUserPassword(user: User, password: string): Promise<boolean> {
         return new Promise((resolve) => {
-            bcrypt.compare(password, user.password, (err, res) => {
+            bcrypt.compare(password, user.getPassword(), (err, res) => {
                 resolve(res === true);
             });
         });

@@ -18,6 +18,6 @@ export default class UserSubscriber implements EntitySubscriberInterface {
 
     public async beforeInsert(event: InsertEvent<User>): Promise<void> {
         const user: User = event.entity;
-        user.password = await this.userService.hashUserPassword(user.password);
+        user.setPassword(await this.userService.hashUserPassword(user.getPassword()));
     }
 }
