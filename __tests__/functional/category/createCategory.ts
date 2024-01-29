@@ -1,10 +1,11 @@
 import { describe, expect, test } from '@jest/globals';
 import request from "supertest";
 // @ts-ignore
-import { api, fixture, error, auth } from "../../index";
+import { api, fixture, error, auth, load } from "../../index";
 import Category from "../../../src/entity/Category";
 import User from "../../../src/entity/User";
 import { Permission } from "../../../src/type/auth/Permission";
+import { ObjectId } from "mongodb";
 
 describe('POST /categories', () => {
     const app = api();
@@ -52,6 +53,8 @@ describe('POST /categories', () => {
 
         expect(res.status).toEqual(201);
         expect(res.body).toHaveProperty('id');
+        const id = new ObjectId(res.body.id);
         expect(res.body).toMatchObject({ name });
+        expect(await load<Category>(Category, id)).toMatchObject({ name });
     });
 });
