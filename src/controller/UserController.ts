@@ -14,6 +14,7 @@ import UserSchema from "../schema/user/UserSchema";
 import UserEmailTakenError from "../error/user/UserEmailTakenError";
 import ConflictHttpError from "../error/http/ConflictHttpError";
 import AuthorizationFailedError from "../error/auth/AuthorizationFailedError";
+import UserMeSchema from "../schema/user/UserMeSchema";
 
 @Service()
 @JsonController('/users')
@@ -22,6 +23,29 @@ export default class UserController {
     constructor(
         @Inject() private readonly userService: UserService,
     ) {
+    }
+
+    @Post('/me')
+    @HttpCode(201)
+    @OpenAPI({
+        responses: {
+            201: { description: 'Created' },
+            400: { description: 'Bad Request' },
+            409: { description: 'Conflict' },
+        },
+    })
+    @ResponseSchema(User)
+    public async createMeUser(
+        @Body({ required: true }) user: UserMeSchema,
+    ): Promise<User> {
+        try {
+            return await this.userService.createMeUser(user);
+        } catch (error) {
+            switch (true) {
+                case error instanceof UserEmailTakenError:
+                    throw new ConflictHttpError((error as UserEmailTakenError).message);
+            }
+        }
     }
 
     @Post()
@@ -39,7 +63,7 @@ export default class UserController {
     })
     @ResponseSchema(User)
     public async createUser(
-        @CurrentUser() currentUser: User,
+        @CurrentUser({ required: true }) currentUser: User,
         @Body({ required: true }) user: UserSchema,
     ): Promise<User> {
         try {
