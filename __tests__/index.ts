@@ -43,7 +43,7 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
         case Category:
             object = (new Category())
                 .setName(faker.lorem.word())
-                .setCreatedBy((await fixture(User) as User).getId())
+                .setCreatedBy((await fixture(User, options) as User).getId())
             ;
             break;
         default:
