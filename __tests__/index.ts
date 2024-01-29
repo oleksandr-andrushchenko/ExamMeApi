@@ -11,6 +11,7 @@ import TokenSchema from "../src/schema/auth/TokenSchema";
 import CategoryRepository from "../src/repository/CategoryRepository";
 import UserRepository from "../src/repository/UserRepository";
 import { Permission } from "../src/type/auth/Permission";
+import { ObjectId } from "mongodb";
 
 export const api = (): Application => {
     const { app, up, down } = application().api();
@@ -52,6 +53,17 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
     await Container.get<ConnectionManager>(ConnectionManager).get('default').manager.save(object);
 
     return object;
+}
+
+export const load = async <Entity>(entity: any, id: ObjectId): Promise<Entity> => {
+    switch (entity) {
+        case User:
+            return Container.get<UserRepository>(UserRepository).findOneById(id.toString()) as any;
+        case Category:
+            return Container.get<CategoryRepository>(CategoryRepository).findOneById(id.toString()) as any;
+        default:
+            throw new Error(`Unknown "${entity.toString()}" type passed`);
+    }
 }
 
 export const error = (name: string = '', message: string = '', errors: string[] = []) => {
