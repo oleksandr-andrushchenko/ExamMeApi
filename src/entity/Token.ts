@@ -19,33 +19,87 @@ export default class Token {
     @ObjectIdColumn()
     @Expose({ name: 'id' })
     @Transform((params: { value: ObjectId }) => params.value.toString())
-    public _id: ObjectId;
+    private _id: ObjectId;
+
+    public getId(): ObjectId {
+        return this._id;
+    }
 
     @Column({ enum: TokenType, nullable: false })
-    public type: string;
+    private type: string;
+
+    public setType(type: string): this {
+        this.type = type;
+
+        return this;
+    }
+
+    public getType(): string {
+        return this.type;
+    }
 
     @Exclude()
     @Column({ nullable: false })
-    public value: string;
+    private value: string;
+
+    public setValue(value: string): this {
+        this.value = value;
+
+        return this;
+    }
+
+    public getValue(): string {
+        return this.value;
+    }
 
     @Column({ nullable: false })
-    public userId: ObjectId;
+    private userId: ObjectId;
+
+    public setUserId(userId: ObjectId): this {
+        this.userId = userId;
+
+        return this;
+    }
+
+    public getUserId(): ObjectId {
+        return this.userId;
+    }
 
     @Column()
-    public expires: number;
+    private expires: number;
+
+    public setExpires(expires: number): this {
+        this.expires = expires;
+
+        return this;
+    }
+
+    public getExpires(): number {
+        return this.expires;
+    }
 
     @Column()
-    public createdBy: ObjectId;
+    private createdBy: ObjectId;
+
+    public setCreatedBy(createdBy: ObjectId): this {
+        this.createdBy = createdBy;
+
+        return this;
+    }
+
+    public getCreatedBy(): ObjectId {
+        return this.createdBy;
+    }
 
     @Column()
     @CreateDateColumn()
-    public createdAt: Date;
+    private createdAt: Date;
 
     @Column()
     @UpdateDateColumn()
-    public updatedAt: Date;
+    private updatedAt: Date;
 
     @Column()
     @DeleteDateColumn()
-    public deletedAt: Date;
+    private deletedAt: Date;
 }
