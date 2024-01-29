@@ -101,6 +101,8 @@ export default class CategoryService {
     }
 
     public async deleteCategory(category: Category, initiator: User): Promise<Category> {
+        await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY);
+
         this.verifyCategoryOwnership(category, initiator);
         await this.entityManager.remove<Category>(category);
 
@@ -110,6 +112,8 @@ export default class CategoryService {
     }
 
     public async deleteCategoryById(id: string, initiator: User): Promise<Category> {
+        await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY);
+
         const category: Category = await this.getCategory(id);
         this.verifyCategoryOwnership(category, initiator);
 
