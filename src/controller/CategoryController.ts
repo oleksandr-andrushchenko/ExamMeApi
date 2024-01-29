@@ -95,6 +95,7 @@ export default class CategoryController {
     @Put('/:id')
     @Authorized()
     @HttpCode(205)
+    @OnUndefined(205)
     @OpenAPI({
         security: [{ bearerAuth: [] }],
         responses: {
@@ -111,9 +112,9 @@ export default class CategoryController {
         @CurrentUser({ required: true }) user: User,
         @Param('id') id: string,
         @Body({ required: true }) category: CategorySchema,
-    ): Promise<Category> {
+    ): Promise<void> {
         try {
-            return await this.categoryService.replaceCategoryById(id, category, user);
+            await this.categoryService.replaceCategoryById(id, category, user);
         } catch (error) {
             switch (true) {
                 case error instanceof AuthorizationFailedError:
@@ -131,6 +132,7 @@ export default class CategoryController {
     @Patch('/:id')
     @Authorized()
     @HttpCode(205)
+    @OnUndefined(205)
     @OpenAPI({
         security: [{ bearerAuth: [] }],
         responses: {
@@ -147,9 +149,9 @@ export default class CategoryController {
         @CurrentUser({ required: true }) user: User,
         @Param('id') id: string,
         @Body({ required: true }) category: CategoryUpdateSchema,
-    ): Promise<Category> {
+    ): Promise<void> {
         try {
-            return await this.categoryService.updateCategoryById(id, category, user);
+            await this.categoryService.updateCategoryById(id, category, user);
         } catch (error) {
             switch (true) {
                 case error instanceof AuthorizationFailedError:
