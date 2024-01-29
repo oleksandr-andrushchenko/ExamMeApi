@@ -11,6 +11,7 @@ import TokenSchema from "../src/schema/auth/TokenSchema";
 import CategoryRepository from "../src/repository/CategoryRepository";
 import UserRepository from "../src/repository/UserRepository";
 import { Permission } from "../src/type/auth/Permission";
+import { match } from "node:assert";
 
 export const api = (): Application => {
     const { app, up, down } = application().api();
@@ -39,9 +40,10 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
             object.permissions = options['permissions'] ?? [Permission.REGULAR];
             break;
         case Category:
-            object = new Category();
-            object.name = faker.lorem.word();
-            object.createdBy = (await fixture(User) as User)._id;
+            object = (new Category())
+                .setName(faker.lorem.word())
+                .setCreatedBy((await fixture(User) as User)._id)
+            ;
             break;
         default:
             throw new Error(`Unknown "${entity.toString()}" type passed`);
