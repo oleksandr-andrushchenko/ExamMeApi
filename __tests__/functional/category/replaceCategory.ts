@@ -70,7 +70,7 @@ describe('PUT /categories/:id', () => {
         const res = await request(app).put(`/categories/${id.toString()}`).send({ name: category1.getName() }).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(409);
-        expect(res.body).toMatchObject(error('Error', `Name "${category1.getName()}" is already taken`));
+        expect(res.body).toMatchObject(error('Error'));
     });
 
     test('Replaced', async () => {

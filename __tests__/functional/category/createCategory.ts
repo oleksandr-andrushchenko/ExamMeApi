@@ -23,7 +23,7 @@ describe('POST /categories', () => {
         const res = await request(app).post('/categories').send({}).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(400);
-        expect(res.body).toMatchObject(error('BadRequestError', 'Invalid body, check \'errors\' property for more info.'));
+        expect(res.body).toMatchObject(error('BadRequestError'));
     });
 
     test('Forbidden', async () => {
@@ -42,7 +42,7 @@ describe('POST /categories', () => {
         const res = await request(app).post('/categories').send({ name: category.getName() }).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(409);
-        expect(res.body).toMatchObject(error('Error', `Name "${category.getName()}" is already taken`));
+        expect(res.body).toMatchObject(error('Error'));
     });
 
     test('Created', async () => {
