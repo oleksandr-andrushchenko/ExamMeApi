@@ -10,9 +10,9 @@ import CategoryOwnershipError from "../../error/category/CategoryOwnershipError"
 import CategorySchema from "../../schema/category/CategorySchema";
 import AuthService from "../auth/AuthService";
 import { Permission } from "../../type/auth/Permission";
-import Validator from "../Validator";
 import { ObjectId } from "mongodb";
 import CategoryUpdateSchema from "../../schema/category/CategoryUpdateSchema";
+import ValidatorInterface from "../validator/ValidatorInterface";
 
 @Service()
 export default class CategoryService {
@@ -22,7 +22,7 @@ export default class CategoryService {
         @Inject() private readonly categoryRepository: CategoryRepository,
         @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
         @Inject() private readonly authService: AuthService,
-        @Inject() private readonly validator: Validator,
+        @Inject('validator') private readonly validator: ValidatorInterface,
     ) {
     }
 

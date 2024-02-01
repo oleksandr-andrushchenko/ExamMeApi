@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-controllers';
 import { Inject, Service } from "typedi";
-import LoggerInterface from "../logger/LoggerInterface";
+import LoggerInterface from "../service/logger/LoggerInterface";
 
 @Service()
 @Middleware({ type: 'after' })

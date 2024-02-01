@@ -11,8 +11,8 @@ import UserSchema from "../../schema/user/UserSchema";
 import AuthSchema from "../../schema/auth/AuthSchema";
 import { Permission } from "../../type/auth/Permission";
 import AuthService from "../auth/AuthService";
-import Validator from "../Validator";
 import UserMeSchema from "../../schema/user/UserMeSchema";
+import ValidatorInterface from "../validator/ValidatorInterface";
 
 @Service()
 export default class UserService {
@@ -22,7 +22,7 @@ export default class UserService {
         @Inject() private readonly userRepository: UserRepository,
         @Inject() private readonly authService: AuthService,
         @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
-        @Inject() private readonly validator: Validator,
+        @Inject('validator') private readonly validator: ValidatorInterface,
     ) {
     }
 

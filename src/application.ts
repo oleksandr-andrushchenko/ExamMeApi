@@ -2,14 +2,13 @@ import 'reflect-metadata';
 import { DataSource, useContainer as typeormUseContainer, ConnectionManager } from 'typeorm';
 import { Container } from "typedi";
 import config from "./config";
-import { WinstonLoggerFactory } from "./logger/WinstonLoggerFactory";
 import {
     useContainer as routingControllerUseContainer,
     useExpressServer,
     getMetadataArgsStorage,
 } from "routing-controllers";
 import express, { Application } from "express";
-import LoggerInterface from "./logger/LoggerInterface";
+import LoggerInterface from "./service/logger/LoggerInterface";
 import JwtTokenStrategyFactory from "./service/token/strategy/JwtTokenStrategyFactory";
 import AuthService from "./service/auth/AuthService";
 import TokenStrategyInterface from "./service/token/strategy/TokenStrategyInterface";
@@ -22,7 +21,9 @@ import { routingControllersToSpec } from "routing-controllers-openapi";
 import { RoutingControllersOptions } from "routing-controllers/types/RoutingControllersOptions";
 import basicAuth from 'express-basic-auth';
 import { MetadataStorage } from "class-transformer/types/MetadataStorage";
-import NullLogger from "./logger/NullLogger";
+import NullLogger from "./service/logger/NullLogger";
+import ClassValidatorValidator from "./service/validator/ClassValidatorValidator";
+import WinstonLogger from "./service/logger/WinstonLogger";
 
 type API = {
     dataSource: DataSource,
@@ -44,10 +45,13 @@ export default (): {
 
     Container.set('env', config.env);
     Container.set('loggerFormat', config.logger.format);
+    Container.set('loggerLevel', config.logger.level);
     Container.set('authPermissions', config.auth.permissions);
 
-    const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLoggerFactory>(WinstonLoggerFactory).create(config.logger) : new NullLogger();
+    const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLogger>(WinstonLogger) : new NullLogger();
     Container.set('logger', logger);
+
+    Container.set('validator', () => Container.get<ClassValidatorValidator>(ClassValidatorValidator));
 
     const projectDir = config.projectDir;
     const mongoLogging = config.db.type === 'mongodb' && config.db.logging;
