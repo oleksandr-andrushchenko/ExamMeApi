@@ -51,7 +51,7 @@ export default (): {
     const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLogger>(WinstonLogger) : new NullLogger();
     Container.set('logger', logger);
 
-    Container.set('validator', () => Container.get<ClassValidatorValidator>(ClassValidatorValidator));
+    Container.set('validator', Container.get<ClassValidatorValidator>(ClassValidatorValidator));
 
     const projectDir = config.projectDir;
     const mongoLogging = config.db.type === 'mongodb' && config.db.logging;
