@@ -91,4 +91,12 @@ export default class MeService {
 
         return initiator;
     }
+
+    public async deleteMe(initiator: User): Promise<User> {
+        await this.entityManager.remove<User>(initiator);
+
+        this.eventDispatcher.dispatch('meDeleted', { me: initiator });
+
+        return initiator;
+    }
 }
