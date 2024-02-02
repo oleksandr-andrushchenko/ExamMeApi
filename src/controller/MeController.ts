@@ -2,7 +2,7 @@ import {
     JsonController,
     Post,
     Body,
-    HttpCode, Get, Authorized, CurrentUser, Put, OnUndefined,
+    HttpCode, Get, Authorized, CurrentUser, Put, OnUndefined, Patch,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import User from "../entity/User";
@@ -12,6 +12,7 @@ import ConflictHttpError from "../error/http/ConflictHttpError";
 import MeSchema from "../schema/user/MeSchema";
 import MeService from "../service/user/MeService";
 import Category from "../entity/Category";
+import MeUpdateSchema from "../schema/user/MeUpdateSchema";
 
 @Service()
 @JsonController('/me')
@@ -80,6 +81,34 @@ export default class UserController {
     ): Promise<void> {
         try {
             await this.meService.replaceMe(me, user);
+        } catch (error) {
+            switch (true) {
+                case error instanceof UserEmailTakenError:
+                    throw new ConflictHttpError((error as UserEmailTakenError).message);
+            }
+        }
+    }
+
+    @Patch()
+    @Authorized()
+    @HttpCode(205)
+    @OnUndefined(205)
+    @OpenAPI({
+        security: [{ bearerAuth: [] }],
+        responses: {
+            205: { description: 'Reset Content' },
+            400: { description: 'Bad Request' },
+            401: { description: 'Unauthorized' },
+            409: { description: 'Conflict' },
+        },
+    })
+    @ResponseSchema(User)
+    public async updateMe(
+        @CurrentUser({ required: true }) user: User,
+        @Body({ required: true }) me: MeUpdateSchema,
+    ): Promise<void> {
+        try {
+            await this.meService.updateMe(me, user);
         } catch (error) {
             switch (true) {
                 case error instanceof UserEmailTakenError:
