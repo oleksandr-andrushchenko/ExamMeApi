@@ -2,7 +2,7 @@ import {
     JsonController,
     Post,
     Body,
-    HttpCode, Get, Authorized, CurrentUser, Put, OnUndefined, Patch,
+    HttpCode, Get, Authorized, CurrentUser, Put, OnUndefined, Patch, Delete,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import User from "../entity/User";
@@ -115,5 +115,22 @@ export default class UserController {
                     throw new ConflictHttpError((error as UserEmailTakenError).message);
             }
         }
+    }
+
+    @Delete()
+    @Authorized()
+    @HttpCode(204)
+    @OnUndefined(204)
+    @OpenAPI({
+        security: [{ bearerAuth: [] }],
+        responses: {
+            204: { description: 'No Content' },
+            401: { description: 'Unauthorized' },
+        },
+    })
+    public async deleteMe(
+        @CurrentUser({ required: true }) user: User,
+    ): Promise<void> {
+        await this.meService.deleteMe(user);
     }
 }
