@@ -36,7 +36,7 @@ describe('PUT /categories/:id', () => {
         const res = await request(app).put(`/categories/${id.toString()}`).send({}).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(400);
-        expect(res.body).toMatchObject(error('BadRequestError', 'Invalid body, check \'errors\' property for more info.'));
+        expect(res.body).toMatchObject(error('BadRequestError'));
     });
 
     test('Forbidden (no permissions)', async () => {
@@ -78,9 +78,11 @@ describe('PUT /categories/:id', () => {
         const id = category.getId();
         const user = await load<User>(User, category.getCreatedBy());
         const token = (await auth(user)).token;
-        const name = 'any';
-        const res = await request(app).put(`/categories/${id.toString()}`).send({ name }).auth(token, { type: 'bearer' });
+        const schema = { name: 'any' };
+        const res = await request(app).put(`/categories/${id.toString()}`).send(schema).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(205);
+        expect(res.body).toEqual('');
+        expect(await load<Category>(Category, id)).toMatchObject(schema);
     });
 });

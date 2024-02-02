@@ -78,9 +78,11 @@ describe('PATCH /categories/:id', () => {
         const id = category.getId();
         const user = await load<User>(User, category.getCreatedBy());
         const token = (await auth(user)).token;
-        const name = 'any';
-        const res = await request(app).patch(`/categories/${id.toString()}`).send({ name }).auth(token, { type: 'bearer' });
+        const schema = { name: 'any' };
+        const res = await request(app).patch(`/categories/${id.toString()}`).send(schema).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(205);
+        expect(res.body).toEqual('');
+        expect(await load<Category>(Category, id)).toMatchObject(schema);
     });
 });
