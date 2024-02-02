@@ -1,5 +1,4 @@
-import { IsNotEmpty, IsEmail, IsStrongPassword, IsEnum, IsOptional } from "class-validator";
-import { Permission } from "../../type/auth/Permission";
+import { IsNotEmpty, IsEmail, IsStrongPassword } from "class-validator";
 
 export default class MeSchema {
 
