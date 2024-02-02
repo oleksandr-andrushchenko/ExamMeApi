@@ -7,17 +7,17 @@ import {
 import { Inject, Service } from "typedi";
 import User from "../entity/User";
 import { OpenAPI, ResponseSchema } from "routing-controllers-openapi";
-import UserService from "../service/user/UserService";
 import UserEmailTakenError from "../error/user/UserEmailTakenError";
 import ConflictHttpError from "../error/http/ConflictHttpError";
-import UserMeSchema from "../schema/user/UserMeSchema";
+import MeSchema from "../schema/user/MeSchema";
+import MeService from "../service/user/MeService";
 
 @Service()
 @JsonController('/me')
 export default class UserController {
 
     constructor(
-        @Inject() private readonly userService: UserService,
+        @Inject() private readonly meService: MeService,
     ) {
     }
 
@@ -32,10 +32,10 @@ export default class UserController {
     })
     @ResponseSchema(User)
     public async createMe(
-        @Body({ required: true }) user: UserMeSchema,
+        @Body({ required: true }) user: MeSchema,
     ): Promise<User> {
         try {
-            return await this.userService.createMeUser(user);
+            return await this.meService.createMe(user);
         } catch (error) {
             switch (true) {
                 case error instanceof UserEmailTakenError:

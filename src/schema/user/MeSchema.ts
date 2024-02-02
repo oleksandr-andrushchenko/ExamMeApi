@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsEmail, IsStrongPassword, IsEnum, IsOptional } from "class-validator";
 import { Permission } from "../../type/auth/Permission";
 
-export default class UserMeSchema {
+export default class MeSchema {
 
     @IsNotEmpty()
     public readonly name: string;

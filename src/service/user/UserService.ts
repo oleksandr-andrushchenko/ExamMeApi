@@ -11,7 +11,6 @@ import UserSchema from "../../schema/user/UserSchema";
 import AuthSchema from "../../schema/auth/AuthSchema";
 import { Permission } from "../../type/auth/Permission";
 import AuthService from "../auth/AuthService";
-import UserMeSchema from "../../schema/user/UserMeSchema";
 import ValidatorInterface from "../validator/ValidatorInterface";
 
 @Service()
@@ -24,30 +23,6 @@ export default class UserService {
         @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
         @Inject('validator') private readonly validator: ValidatorInterface,
     ) {
-    }
-
-    /**
-     * @param transfer
-     * @throws AuthorizationFailedError
-     * @throws UserEmailTakenError
-     */
-    public async createMeUser(transfer: UserMeSchema): Promise<User> {
-        await this.validator.validate(transfer);
-
-        const email = transfer.email;
-        await this.verifyUserEmailNotExists(email);
-
-        const user: User = (new User())
-            .setName(transfer.name)
-            .setEmail(email)
-            .setPassword(transfer.password)
-            .setPermissions([Permission.REGULAR])
-        ;
-        await this.entityManager.save<User>(user);
-
-        this.eventDispatcher.dispatch('meUserCreated', { user });
-
-        return user;
     }
 
     /**
