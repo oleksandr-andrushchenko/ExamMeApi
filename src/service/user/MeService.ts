@@ -19,11 +19,10 @@ export default class MeService {
     }
 
     /**
-     *
      * @param {MeSchema} transfer
      * @returns {Promise<User>}
-     * @throws AuthorizationFailedError
-     * @throws UserEmailTakenError
+     * @throws {AuthorizationFailedError}
+     * @throws {UserEmailTakenError}
      */
     public async createMe(transfer: MeSchema): Promise<User> {
         await this.validator.validate(transfer);
@@ -39,7 +38,7 @@ export default class MeService {
         ;
         await this.entityManager.save<User>(user);
 
-        this.eventDispatcher.dispatch('meCreated', { user });
+        this.eventDispatcher.dispatch('meCreated', { me: user });
 
         return user;
     }
