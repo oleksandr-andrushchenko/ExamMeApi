@@ -81,7 +81,9 @@ export default class CategoryController {
         },
     })
     @ResponseSchema(Category)
-    public async findCategory(@Param('id') id: string): Promise<Category> {
+    public async findCategory(
+        @Param('id') id: string,
+    ): Promise<Category> {
         try {
             return await this.categoryService.getCategory(id);
         } catch (error) {
