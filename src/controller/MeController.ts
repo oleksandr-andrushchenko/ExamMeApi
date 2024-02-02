@@ -21,7 +21,7 @@ export default class UserController {
     ) {
     }
 
-    @Post('/me')
+    @Post()
     @HttpCode(201)
     @OpenAPI({
         responses: {
