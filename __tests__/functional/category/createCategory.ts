@@ -37,7 +37,7 @@ describe('POST /categories', () => {
 
     test('Conflict', async () => {
         const category = await fixture<Category>(Category);
-        const user = await fixture<User>(User, { permissions: [Permission.ROOT] });
+        const user = await fixture<User>(User, { permissions: [Permission.CREATE_CATEGORY] });
         const token = (await auth(user)).token;
         const res = await request(app).post('/categories').send({ name: category.getName() }).auth(token, { type: 'bearer' });
 
@@ -48,13 +48,13 @@ describe('POST /categories', () => {
     test('Created', async () => {
         const user = await fixture<User>(User, { permissions: [Permission.CREATE_CATEGORY] });
         const token = (await auth(user)).token;
-        const name = 'any';
-        const res = await request(app).post('/categories').send({ name }).auth(token, { type: 'bearer' });
+        const schema = { name: 'any' };
+        const res = await request(app).post('/categories').send(schema).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(201);
         expect(res.body).toHaveProperty('id');
         const id = new ObjectId(res.body.id);
-        expect(res.body).toMatchObject({ name });
-        expect(await load<Category>(Category, id)).toMatchObject({ name });
+        expect(res.body).toMatchObject(schema);
+        expect(await load<Category>(Category, id)).toMatchObject(schema);
     });
 });
