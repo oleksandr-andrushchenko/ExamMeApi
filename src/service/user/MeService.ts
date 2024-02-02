@@ -42,4 +42,28 @@ export default class MeService {
 
         return user;
     }
+
+    /**
+     * @param {MeSchema} transfer
+     * @param {User} initiator
+     * @returns {Promise<User>}
+     * @throws {UserEmailTakenError}
+     */
+    public async replaceMe(transfer: MeSchema, initiator: User): Promise<User> {
+        await this.validator.validate(transfer);
+
+        const email = transfer.email;
+        await this.userService.verifyUserEmailNotExists(email);
+
+        initiator
+            .setName(transfer.name)
+            .setEmail(email)
+            .setPassword(transfer.password)
+        ;
+        await this.entityManager.save<User>(initiator);
+
+        this.eventDispatcher.dispatch('meReplaced', { me: initiator });
+
+        return initiator;
+    }
 }
