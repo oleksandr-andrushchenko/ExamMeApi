@@ -33,10 +33,10 @@ export default class UserController {
     })
     @ResponseSchema(User)
     public async createMe(
-        @Body({ required: true }) user: MeSchema,
+        @Body({ required: true }) me: MeSchema,
     ): Promise<User> {
         try {
-            return await this.meService.createMe(user);
+            return await this.meService.createMe(me);
         } catch (error) {
             switch (true) {
                 case error instanceof UserEmailTakenError:
