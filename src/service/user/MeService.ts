@@ -6,6 +6,7 @@ import { Permission } from "../../type/auth/Permission";
 import MeSchema from "../../schema/user/MeSchema";
 import ValidatorInterface from "../validator/ValidatorInterface";
 import UserService from "./UserService";
+import MeUpdateSchema from "../../schema/user/MeUpdateSchema";
 
 @Service()
 export default class MeService {
@@ -63,6 +64,30 @@ export default class MeService {
         await this.entityManager.save<User>(initiator);
 
         this.eventDispatcher.dispatch('meReplaced', { me: initiator });
+
+        return initiator;
+    }
+
+    public async updateMe(transfer: MeUpdateSchema, initiator: User): Promise<User> {
+        await this.validator.validate(transfer);
+
+        if (transfer.email) {
+            const email = transfer.email;
+            await this.userService.verifyUserEmailNotExists(email);
+            initiator.setEmail(email);
+        }
+
+        if (transfer.name) {
+            initiator.setName(transfer.name);
+        }
+
+        if (transfer.password) {
+            initiator.setPassword(transfer.password);
+        }
+
+        await this.entityManager.save<User>(initiator);
+
+        this.eventDispatcher.dispatch('meUpdated', { me: initiator });
 
         return initiator;
     }
