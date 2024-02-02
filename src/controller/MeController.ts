@@ -2,7 +2,7 @@ import {
     JsonController,
     Post,
     Body,
-    HttpCode,
+    HttpCode, Get, Authorized, CurrentUser,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import User from "../entity/User";
@@ -42,5 +42,20 @@ export default class UserController {
                     throw new ConflictHttpError((error as UserEmailTakenError).message);
             }
         }
+    }
+
+    @Get()
+    @Authorized()
+    @OpenAPI({
+        responses: {
+            200: { description: 'OK' },
+            401: { description: 'Unauthorized' },
+        },
+    })
+    @ResponseSchema(User)
+    public async findMe(
+        @CurrentUser({ required: true }) user: User,
+    ): Promise<User> {
+        return user;
     }
 }
