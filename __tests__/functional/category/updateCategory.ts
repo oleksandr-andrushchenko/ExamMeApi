@@ -70,7 +70,7 @@ describe('PATCH /categories/:id', () => {
         const res = await request(app).patch(`/categories/${id.toString()}`).send({ name: category1.getName() }).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(409);
-        expect(res.body).toMatchObject(error('Error'));
+        expect(res.body).toMatchObject(error('ConflictError'));
     });
 
     test('Updated', async () => {

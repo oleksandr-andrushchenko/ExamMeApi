@@ -42,7 +42,7 @@ describe('POST /categories', () => {
         const res = await request(app).post('/categories').send({ name: category.getName() }).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(409);
-        expect(res.body).toMatchObject(error('Error'));
+        expect(res.body).toMatchObject(error('ConflictError'));
     });
 
     test('Created', async () => {
