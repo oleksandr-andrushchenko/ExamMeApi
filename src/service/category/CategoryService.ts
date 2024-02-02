@@ -27,9 +27,11 @@ export default class CategoryService {
     }
 
     /**
-     * @param transfer
-     * @param initiator
-     * @throws AuthorizationFailedError
+     * @param {CategorySchema} transfer
+     * @param {User} initiator
+     * @returns {Promise<Category>}
+     * @throws {AuthorizationFailedError}
+     * @throws {CategoryNameTakenError}
      */
     public async createCategory(transfer: CategorySchema, initiator: User): Promise<Category> {
         await this.authService.verifyAuthorization(initiator, Permission.CREATE_CATEGORY);
@@ -50,6 +52,11 @@ export default class CategoryService {
         return category;
     }
 
+    /**
+     * @param {string} id
+     * @returns {Promise<Category>}
+     * @throws {CategoryNotFoundError}
+     */
     public async getCategory(id: string): Promise<Category> {
         const category: Category = await this.categoryRepository.findOneById(id);
 
@@ -60,6 +67,16 @@ export default class CategoryService {
         return category;
     }
 
+    /**
+     * @param {string} id
+     * @param {CategoryUpdateSchema} transfer
+     * @param {User} initiator
+     * @returns {Promise<Category>}
+     * @throws {CategoryNotFoundError}
+     * @throws {AuthorizationFailedError}
+     * @throws {CategoryOwnershipError}
+     * @throws {CategoryNameTakenError}
+     */
     public async updateCategoryById(id: string, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
         const category: Category = await this.getCategory(id);
 
@@ -82,6 +99,16 @@ export default class CategoryService {
         return category;
     }
 
+    /**
+     * @param {string} id
+     * @param {CategorySchema} transfer
+     * @param {User} initiator
+     * @returns {Promise<Category>}
+     * @throws {CategoryNotFoundError}
+     * @throws {AuthorizationFailedError}
+     * @throws {CategoryOwnershipError}
+     * @throws {CategoryNameTakenError}
+     */
     public async replaceCategoryById(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
         const category: Category = await this.getCategory(id);
 
@@ -101,7 +128,17 @@ export default class CategoryService {
         return category;
     }
 
-    public async deleteCategory(category: Category, initiator: User): Promise<Category> {
+    /**
+     * @param {string} id
+     * @param {User} initiator
+     * @returns {Promise<Category>}
+     * @throws {CategoryNotFoundError}
+     * @throws {AuthorizationFailedError}
+     * @throws {CategoryOwnershipError}
+     */
+    public async deleteCategoryById(id: string, initiator: User): Promise<Category> {
+        const category: Category = await this.getCategory(id);
+
         await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY);
         this.verifyCategoryOwnership(category, initiator);
 
@@ -112,21 +149,23 @@ export default class CategoryService {
         return category;
     }
 
-    public async deleteCategoryById(id: string, initiator: User): Promise<Category> {
-        const category: Category = await this.getCategory(id);
-
-        await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY);
-        this.verifyCategoryOwnership(category, initiator);
-
-        return await this.deleteCategory(category, initiator);
-    }
-
+    /**
+     * @param {string} name
+     * @param {ObjectId} ignoreId
+     * @returns {Promise<void>}
+     * @throws {CategoryNameTakenError}
+     */
     public async verifyCategoryNameNotExists(name: string, ignoreId: ObjectId = undefined): Promise<void> {
         if (await this.categoryRepository.findOneByName(name, ignoreId)) {
             throw new CategoryNameTakenError(`Name "${name}" is already taken`);
         }
     }
 
+    /**
+     * @param {Category} category
+     * @param {User} initiator
+     * @throws {CategoryOwnershipError}
+     */
     public verifyCategoryOwnership(category: Category, initiator: User): void {
         if (category.getCreatedBy().toString() !== initiator.getId().toString()) {
             throw new CategoryOwnershipError(category.getId().toString());
