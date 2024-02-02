@@ -58,6 +58,7 @@ describe('DELETE /categories/:id', () => {
         const res = await request(app).delete(`/categories/${id.toString()}`).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(204);
+        expect(res.body).toEqual({});
         expect(await load<Category>(Category, id)).toBeNull();
     });
 });
