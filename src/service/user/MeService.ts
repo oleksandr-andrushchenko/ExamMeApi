@@ -93,6 +93,7 @@ export default class MeService {
     }
 
     public async deleteMe(initiator: User): Promise<User> {
+        // todo: soft delete
         await this.entityManager.remove<User>(initiator);
 
         this.eventDispatcher.dispatch('meDeleted', { me: initiator });

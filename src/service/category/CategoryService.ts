@@ -142,6 +142,7 @@ export default class CategoryService {
         await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY);
         this.verifyCategoryOwnership(category, initiator);
 
+        // todo: soft delete
         await this.entityManager.remove<Category>(category);
 
         this.eventDispatcher.dispatch('categoryDeleted', { category });
