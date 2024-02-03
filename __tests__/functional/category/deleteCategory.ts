@@ -53,7 +53,7 @@ describe('DELETE /categories/:id', () => {
     test('Deleted', async () => {
         const category = await fixture<Category>(Category, { permissions: [Permission.DELETE_CATEGORY] });
         const id = category.getId();
-        const user = await load<User>(User, category.getCreatedBy());
+        const user = await load<User>(User, category.getCreator());
         const token = (await auth(user)).token;
         const res = await request(app).delete(`/categories/${id.toString()}`).auth(token, { type: 'bearer' });
 

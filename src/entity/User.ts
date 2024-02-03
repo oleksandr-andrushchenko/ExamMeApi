@@ -19,13 +19,41 @@ export default class User {
     @Transform((params: { value: ObjectId }) => params.value.toString())
     private _id: ObjectId;
 
-    public getId(): ObjectId {
-        return this._id;
-    }
-
     @IsNotEmpty()
     @Column({ nullable: false })
     private name: string;
+
+    @IsNotEmpty()
+    @Column({ unique: true, nullable: false })
+    private email: string;
+
+    @Exclude()
+    @Column({ nullable: false })
+    private password: string;
+
+    @Column({ default: [Permission.REGULAR] })
+    private permissions: Permission[];
+
+    @Exclude()
+    @Column()
+    @Transform((params: { value: ObjectId }) => params.value?.toString())
+    private creator: ObjectId;
+
+    @Column()
+    @CreateDateColumn()
+    private created: Date;
+
+    @Column()
+    @UpdateDateColumn()
+    private updated: Date;
+
+    @Column()
+    @DeleteDateColumn()
+    private deleted: Date;
+
+    public getId(): ObjectId {
+        return this._id;
+    }
 
     public setName(name: string): this {
         this.name = name;
@@ -37,10 +65,6 @@ export default class User {
         return this.name;
     }
 
-    @IsNotEmpty()
-    @Column({ unique: true, nullable: false })
-    private email: string;
-
     public setEmail(email: string): this {
         this.email = email;
 
@@ -50,10 +74,6 @@ export default class User {
     public getEmail(): string {
         return this.email;
     }
-
-    @Exclude()
-    @Column({ nullable: false })
-    private password: string;
 
     public setPassword(password: string): this {
         this.password = password;
@@ -65,9 +85,6 @@ export default class User {
         return this.password;
     }
 
-    @Column({ default: [Permission.REGULAR] })
-    private permissions: Permission[];
-
     public setPermissions(permissions: Permission[]): this {
         this.permissions = permissions;
 
@@ -78,30 +95,13 @@ export default class User {
         return this.permissions;
     }
 
-    @Exclude()
-    @Column()
-    @Transform((params: { value: ObjectId }) => params.value?.toString())
-    private createdBy: ObjectId;
-
-    public setCreatedBy(createdBy: ObjectId): this {
-        this.createdBy = createdBy;
+    public setCreator(creator: ObjectId): this {
+        this.creator = creator;
 
         return this;
     }
 
-    public getCreatedBy(): ObjectId {
-        return this.createdBy;
+    public getCreator(): ObjectId {
+        return this.creator;
     }
-
-    @Column()
-    @CreateDateColumn()
-    private createdAt: Date;
-
-    @Column()
-    @UpdateDateColumn()
-    private updatedAt: Date;
-
-    @Column()
-    @DeleteDateColumn()
-    private deletedAt: Date;
 }

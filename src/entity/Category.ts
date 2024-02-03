@@ -18,13 +18,30 @@ export default class Category {
     @Transform((params: { value: ObjectId }) => params.value.toString())
     private _id: ObjectId;
 
-    public getId(): ObjectId {
-        return this._id;
-    }
-
     @IsNotEmpty()
     @Column({ unique: true, nullable: false })
     private name: string;
+
+    @Exclude()
+    @Column()
+    @Transform((params: { value: ObjectId }) => params.value?.toString())
+    private creator: ObjectId;
+
+    @Column()
+    @CreateDateColumn()
+    private created: Date;
+
+    @Column()
+    @UpdateDateColumn()
+    private updated: Date;
+
+    @Column()
+    @DeleteDateColumn()
+    private deleted: Date;
+
+    public getId(): ObjectId {
+        return this._id;
+    }
 
     public setName(name: string): this {
         this.name = name;
@@ -36,30 +53,13 @@ export default class Category {
         return this.name;
     }
 
-    @Exclude()
-    @Column()
-    @Transform((params: { value: ObjectId }) => params.value?.toString())
-    private createdBy: ObjectId;
-
-    public setCreatedBy(createdBy: ObjectId): this {
-        this.createdBy = createdBy;
+    public setCreator(creator: ObjectId): this {
+        this.creator = creator;
 
         return this;
     }
 
-    public getCreatedBy(): ObjectId {
-        return this.createdBy;
+    public getCreator(): ObjectId {
+        return this.creator;
     }
-
-    @Column()
-    @CreateDateColumn()
-    private createdAt: Date;
-
-    @Column()
-    @UpdateDateColumn()
-    private updatedAt: Date;
-
-    @Column()
-    @DeleteDateColumn()
-    private deletedAt: Date;
 }

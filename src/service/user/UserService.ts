@@ -44,7 +44,7 @@ export default class UserService {
             .setEmail(email)
             .setPassword(transfer.password)
             .setPermissions(transfer.permissions ?? [Permission.REGULAR])
-            .setCreatedBy(initiator.getId())
+            .setCreator(initiator.getId())
         ;
         await this.entityManager.save<User>(user);
 

@@ -43,7 +43,7 @@ export default class CategoryService {
 
         const category: Category = (new Category())
             .setName(name)
-            .setCreatedBy(initiator.getId())
+            .setCreator(initiator.getId())
         ;
         await this.entityManager.save<Category>(category);
 
@@ -168,7 +168,7 @@ export default class CategoryService {
      * @throws {CategoryOwnershipError}
      */
     public verifyCategoryOwnership(category: Category, initiator: User): void {
-        if (category.getCreatedBy().toString() !== initiator.getId().toString()) {
+        if (category.getCreator().toString() !== initiator.getId().toString()) {
             throw new CategoryOwnershipError(category.getId().toString());
         }
     }

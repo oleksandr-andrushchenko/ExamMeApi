@@ -65,7 +65,7 @@ describe('PUT /categories/:id', () => {
         const category1 = await fixture<Category>(Category);
         const category = await fixture<Category>(Category, { permissions: [Permission.REPLACE_CATEGORY] });
         const id = category.getId();
-        const user = await load<User>(User, category.getCreatedBy());
+        const user = await load<User>(User, category.getCreator());
         const token = (await auth(user)).token;
         const res = await request(app).put(`/categories/${id.toString()}`).send({ name: category1.getName() }).auth(token, { type: 'bearer' });
 
@@ -76,7 +76,7 @@ describe('PUT /categories/:id', () => {
     test('Replaced', async () => {
         const category = await fixture<Category>(Category, { permissions: [Permission.REPLACE_CATEGORY] });
         const id = category.getId();
-        const user = await load<User>(User, category.getCreatedBy());
+        const user = await load<User>(User, category.getCreator());
         const token = (await auth(user)).token;
         const schema = { name: 'any' };
         const res = await request(app).put(`/categories/${id.toString()}`).send(schema).auth(token, { type: 'bearer' });
