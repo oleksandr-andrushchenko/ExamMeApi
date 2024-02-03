@@ -12,6 +12,8 @@ import CategoryRepository from "../src/repository/CategoryRepository";
 import UserRepository from "../src/repository/UserRepository";
 import { Permission } from "../src/type/auth/Permission";
 import { ObjectId } from "mongodb";
+import QuestionRepository from "../src/repository/QuestionRepository";
+import Question, { QuestionChoice, QuestionDifficulty, QuestionType } from "../src/entity/Question";
 
 export const api = (): Application => {
     const { app, up, down } = application().api();
@@ -19,6 +21,7 @@ export const api = (): Application => {
     const clear = async () => {
         await Container.get<UserRepository>(UserRepository).clear();
         await Container.get<CategoryRepository>(CategoryRepository).clear();
+        await Container.get<QuestionRepository>(QuestionRepository).clear();
     };
 
     beforeAll(() => up());
@@ -46,6 +49,24 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
                 .setCreator((await fixture(User, options) as User).getId())
             ;
             break;
+        case Question:
+            object = (new Question())
+                .setCategory((await fixture(Category, options) as Category).getId())
+                .setType(faker.helpers.enumValue(QuestionType))
+                .setDifficulty(faker.helpers.enumValue(QuestionDifficulty))
+                .setTitle(faker.lorem.word())
+                .setCreator((await fixture(User, options) as User).getId())
+            ;
+
+            if (object.getType() === QuestionType.CHOICE) {
+                object.setChoices([
+                    (new QuestionChoice())
+                        .setTitle(faker.lorem.word())
+                        .setIsCorrect(faker.datatype.boolean()),
+                ]);
+            }
+
+            break;
         default:
             throw new Error(`Unknown "${entity.toString()}" type passed`);
     }
@@ -61,6 +82,8 @@ export const load = async <Entity>(entity: any, id: ObjectId): Promise<Entity> =
             return Container.get<UserRepository>(UserRepository).findOneById(id.toString()) as any;
         case Category:
             return Container.get<CategoryRepository>(CategoryRepository).findOneById(id.toString()) as any;
+        case Question:
+            return Container.get<QuestionRepository>(QuestionRepository).findOneById(id.toString()) as any;
         default:
             throw new Error(`Unknown "${entity.toString()}" type passed`);
     }
