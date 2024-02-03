@@ -1,0 +1,133 @@
+import { describe, expect, test } from '@jest/globals';
+import request from "supertest";
+// @ts-ignore
+import { api, fixture, error, auth, load, fakeId } from "../../index";
+import Category from "../../../src/entity/Category";
+import User from "../../../src/entity/User";
+import { Permission } from "../../../src/type/auth/Permission";
+import { ObjectId } from "mongodb";
+import Question, { QuestionDifficulty, QuestionType } from "../../../src/entity/Question";
+
+describe('POST /categories/:id/questions', () => {
+    const app = api();
+
+    test('Unauthorized', async () => {
+        const category = await fixture<Category>(Category);
+        const categoryId = category.getId();
+        const res = await request(app).post(`/categories/${categoryId.toString()}/questions`);
+
+        expect(res.status).toEqual(401);
+        expect(res.body).toMatchObject(error('AuthorizationRequiredError'));
+    });
+
+    test('Not found', async () => {
+        const categoryId = await fakeId();
+        const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
+        const token = (await auth(user)).token;
+        const res = await request(app)
+            .post(`/categories/${categoryId.toString()}/questions`)
+            .send({ title: 'any' })
+            .auth(token, { type: 'bearer' })
+        ;
+
+        expect(res.status).toEqual(404);
+        expect(res.body).toMatchObject(error('NotFoundError'));
+    });
+
+    test.each([
+        { case: 'empty body', body: {} },
+        { case: 'no title', body: { type: QuestionType.RAW, difficulty: QuestionDifficulty.EASY } },
+        { case: 'no type', body: { title: 'any', difficulty: QuestionDifficulty.EASY } },
+        { case: 'bad type', body: { title: 'any', type: 'any', difficulty: QuestionDifficulty.EASY } },
+        { case: 'no difficulty', body: { title: 'any', type: QuestionType.RAW } },
+        { case: 'bad difficulty', body: { title: 'any', type: QuestionType.RAW, difficulty: 'any' } },
+        { case: 'no choices', body: { title: 'any', type: QuestionType.CHOICE, difficulty: QuestionDifficulty.EASY } },
+        {
+            case: 'non-array choices',
+            body: { title: 'any', type: QuestionType.CHOICE, difficulty: QuestionDifficulty.EASY, choices: 'any' }
+        },
+        {
+            case: 'no choice title',
+            body: {
+                title: 'any',
+                type: QuestionType.CHOICE,
+                difficulty: QuestionDifficulty.EASY,
+                choices: [{ correct: false }]
+            }
+        },
+        {
+            case: 'no choice correct',
+            body: {
+                title: 'any',
+                type: QuestionType.CHOICE,
+                difficulty: QuestionDifficulty.EASY,
+                choices: [{ title: 'any' }]
+            }
+        },
+    ])('Bad request ($case)', async ({ body }) => {
+        const category = await fixture<Category>(Category);
+        const categoryId = category.getId();
+        const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
+        const token = (await auth(user)).token;
+        const res = await request(app)
+            .post(`/categories/${categoryId.toString()}/questions`)
+            .send(body)
+            .auth(token, { type: 'bearer' })
+        ;
+
+        expect(res.status).toEqual(400);
+        expect(res.body).toMatchObject(error('BadRequestError'));
+    });
+
+    // todo: add cases
+    test('Forbidden', async () => {
+        const category = await fixture<Category>(Category);
+        const categoryId = category.getId();
+        const user = await fixture<User>(User, { permissions: [Permission.REGULAR] });
+        const token = (await auth(user)).token;
+        const res = await request(app)
+            .post(`/categories/${categoryId.toString()}/questions`)
+            .send({ title: 'any' })
+            .auth(token, { type: 'bearer' })
+        ;
+
+        expect(res.status).toEqual(403);
+        expect(res.body).toMatchObject(error('ForbiddenError'));
+    });
+
+    test('Conflict', async () => {
+        const category = await fixture<Category>(Category);
+        const categoryId = category.getId();
+        const question = await fixture<Question>(Question);
+        const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
+        const token = (await auth(user)).token;
+        const res = await request(app)
+            .post(`/categories/${categoryId.toString()}/questions`)
+            .send({ title: question.getTitle(), type: QuestionType.RAW, difficulty: QuestionDifficulty.EASY })
+            .auth(token, { type: 'bearer' })
+        ;
+
+        expect(res.status).toEqual(409);
+        expect(res.body).toMatchObject(error('ConflictError'));
+    });
+
+    // todo: add cases
+    test('Created', async () => {
+        const category = await fixture<Category>(Category);
+        const categoryId = category.getId();
+        const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
+        const token = (await auth(user)).token;
+        const schema = { title: 'any', type: QuestionType.RAW, difficulty: QuestionDifficulty.EASY };
+        const res = await request(app)
+            .post(`/categories/${categoryId.toString()}/questions`)
+            .send(schema)
+            .auth(token, { type: 'bearer' })
+        ;
+
+        expect(res.status).toEqual(201);
+        expect(res.body).toHaveProperty('id');
+        const id = new ObjectId(res.body.id);
+        expect(res.body).toMatchObject(schema);
+        expect(await load<Question>(Question, id)).toMatchObject(schema);
+    });
+});
