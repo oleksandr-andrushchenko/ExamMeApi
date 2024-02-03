@@ -1,5 +1,4 @@
 import { Inject, Service } from "typedi";
-import { TokenType } from "../../entity/Token";
 import User from "../../entity/User";
 import TokenStrategyInterface from "./strategy/TokenStrategyInterface";
 
@@ -7,6 +6,10 @@ export type GeneratedToken = {
     token: string;
     expires: number;
 };
+
+export enum TokenType {
+    ACCESS = 'access',
+}
 
 export type TokenPayload = {
     userId: string;
