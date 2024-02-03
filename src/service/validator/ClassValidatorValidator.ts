@@ -1,12 +1,22 @@
-import { Service } from "typedi";
-import { validate } from "class-validator";
+import { Inject, Service } from "typedi";
+import { validateOrReject, ValidatorOptions } from "class-validator";
 import ValidatorInterface from "./ValidatorInterface";
-import { ClassValidatorValidatorFactory } from "./ClassValidatorValidatorFactory";
+import ValidatorError from "../../error/validator/ValidatorError";
+import { ValidationError } from "class-validator";
 
-@Service({ factory: [ClassValidatorValidatorFactory, 'create'] })
+@Service()
 export default class ClassValidatorValidator implements ValidatorInterface {
 
+    constructor(
+        @Inject('validatorOptions') private readonly options: ValidatorOptions,
+    ) {
+    }
+
     public async validate(object: object): Promise<void> {
-        await validate(object);
+        try {
+            await validateOrReject(object, this.options);
+        } catch (errors) {
+            throw new ValidatorError((errors as ValidationError[]));
+        }
     }
 }

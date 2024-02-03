@@ -12,7 +12,6 @@ import LoggerInterface from "./service/logger/LoggerInterface";
 import JwtTokenStrategyFactory from "./service/token/strategy/JwtTokenStrategyFactory";
 import AuthService from "./service/auth/AuthService";
 import TokenStrategyInterface from "./service/token/strategy/TokenStrategyInterface";
-import { ValidatorOptions } from "class-validator/types/validation/ValidatorOptions";
 import { MongoConnectionOptions } from "typeorm/driver/mongodb/MongoConnectionOptions";
 import { MongoDriver } from "typeorm/driver/mongodb/MongoDriver";
 import { validationMetadatasToSchemas } from "class-validator-jsonschema";
@@ -47,6 +46,7 @@ export default (): {
     Container.set('loggerFormat', config.logger.format);
     Container.set('loggerLevel', config.logger.level);
     Container.set('authPermissions', config.auth.permissions);
+    Container.set('validatorOptions', config.validator);
 
     const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLogger>(WinstonLogger) : new NullLogger();
     Container.set('logger', logger);
@@ -94,19 +94,13 @@ export default (): {
         const app = express();
 
         const authService: AuthService = Container.get<AuthService>(AuthService);
-        const validation: ValidatorOptions = {
-            validationError: {
-                target: false,
-                value: false,
-            },
-        };
 
         const routingControllersOptions: RoutingControllersOptions = {
             authorizationChecker: authService.getAuthorizationChecker(),
             currentUserChecker: authService.getCurrentUserChecker(),
             controllers: [`${projectDir}/src/controller/*.ts`],
             middlewares: [`${projectDir}/src/middleware/*.ts`],
-            validation: validation,
+            validation: false, // config.validator,
             classTransformer: true,
             defaultErrorHandler: false,
         };
