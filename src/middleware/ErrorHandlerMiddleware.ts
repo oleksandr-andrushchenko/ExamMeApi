@@ -21,6 +21,10 @@ export default class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInt
             errors: (error[`errors`] || []) as [],
         };
 
+        if (code === 400 && data.name === 'ParamRequiredError') {
+            data.name = 'BadRequestError';
+        }
+
         res.status(code).json(data);
 
         if (this.env === 'production') {
