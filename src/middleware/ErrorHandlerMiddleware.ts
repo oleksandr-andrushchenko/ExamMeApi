@@ -14,11 +14,14 @@ export default class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInt
     }
 
     public error(error: HttpError, _: Request, res: Response): void {
-        res.status(error.httpCode || 500).json({
+        const code = error.httpCode || 500;
+        const data = {
             name: error.name,
             message: error.message,
             errors: (error[`errors`] || []) as [],
-        });
+        };
+
+        res.status(code).json(data);
 
         if (this.env === 'production') {
             this.logger.error(error.name, error.message);
