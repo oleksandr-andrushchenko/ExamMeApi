@@ -31,7 +31,7 @@ export default class User {
     @Column({ nullable: false })
     private password: string;
 
-    @Column({ default: [Permission.REGULAR] })
+    @Column({ type: 'set', enum: Permission, default: [Permission.REGULAR] })
     private permissions: Permission[];
 
     @Exclude()
