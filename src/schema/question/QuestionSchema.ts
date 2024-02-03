@@ -1,6 +1,6 @@
-import { IsArray, IsDefined, IsEnum, IsNotEmpty, ValidateIf, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsEnum, IsNotEmpty, ValidateIf, ValidateNested } from "class-validator";
 import { QuestionChoice, QuestionDifficulty, QuestionType } from "../../entity/Question";
-import { Permission } from "../../type/auth/Permission";
+import { Type } from "class-transformer";
 
 export default class QuestionSchema {
 
@@ -15,8 +15,9 @@ export default class QuestionSchema {
     @IsNotEmpty()
     public readonly title: string;
 
-    @ValidateIf(o => o.type === QuestionType.CHOICE)
-    @IsNotEmpty()
-    @ValidateNested()
+    @ValidateIf(question => question.type === QuestionType.CHOICE)
+    @ArrayNotEmpty()
+    @ValidateNested({ each: true })
+    @Type(() => QuestionChoice)
     public readonly choices: QuestionChoice[];
 }

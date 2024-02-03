@@ -6,9 +6,9 @@ import {
     UpdateDateColumn,
     DeleteDateColumn
 } from "typeorm";
-import { Exclude, Expose, Transform } from "class-transformer";
+import { Exclude, Expose, Transform, Type } from "class-transformer";
 import { ObjectId } from "mongodb";
-import { IsNotEmpty } from "class-validator";
+import { ArrayNotEmpty, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateIf, ValidateNested } from "class-validator";
 
 export enum QuestionType {
     RAW = 'raw',
@@ -32,6 +32,8 @@ export class QuestionChoice {
     @Column({ nullable: false })
     private correct: boolean;
 
+    @IsOptional()
+    @IsString()
     @Column()
     private explanation: string;
 
@@ -70,17 +72,23 @@ export default class Question {
     private category: ObjectId;
 
     @IsNotEmpty()
+    @IsEnum(QuestionType)
     @Column({ type: 'enum', enum: QuestionType, nullable: false })
     private type: QuestionType;
 
     @IsNotEmpty()
-    @Column({ type: 'enum', enum: QuestionDifficulty })
+    @IsEnum(QuestionDifficulty)
+    @Column({ type: 'enum', enum: QuestionDifficulty, nullable: false })
     private difficulty: QuestionDifficulty;
 
     @IsNotEmpty()
     @Column({ unique: true, nullable: false })
     private title: string;
 
+    @ValidateIf(question => question.type === QuestionType.CHOICE)
+    @ArrayNotEmpty()
+    @ValidateNested({ each: true })
+    @Type(() => QuestionChoice)
     @Column(() => QuestionChoice)
     private choices: QuestionChoice[];
 
