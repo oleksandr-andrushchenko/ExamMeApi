@@ -8,8 +8,8 @@ import { ObjectId } from "mongodb";
 describe('POST /me', () => {
     const app = api();
 
-    test('Bad request', async () => {
-        const res = await request(app).post('/me').send({});
+    test('Bad request (empty body)', async () => {
+        const res = await request(app).post('/me');
 
         expect(res.status).toEqual(400);
         expect(res.body).toMatchObject(error('BadRequestError'));

@@ -33,10 +33,10 @@ describe('PATCH /categories/:id', () => {
         const token = (await auth(user)).token;
         const category = await fixture<Category>(Category);
         const id = category.getId();
-        const res = await request(app).patch(`/categories/${id.toString()}`).send({}).auth(token, { type: 'bearer' });
+        const res = await request(app).patch(`/categories/${id.toString()}`).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(400);
-        expect(res.body).toMatchObject(error('ParamRequiredError'));
+        expect(res.body).toMatchObject(error('BadRequestError'));
     });
 
     test('Forbidden (no permissions)', async () => {

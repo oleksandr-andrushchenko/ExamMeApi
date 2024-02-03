@@ -17,10 +17,10 @@ describe('PUT /me', () => {
         expect(res.body).toMatchObject(error('AuthorizationRequiredError'));
     });
 
-    test('Bad request', async () => {
+    test('Bad request (empty body)', async () => {
         const user = await fixture<User>(User);
         const token = (await auth(user)).token;
-        const res = await request(app).put(`/me`).send({}).auth(token, { type: 'bearer' });
+        const res = await request(app).put(`/me`).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(400);
         expect(res.body).toMatchObject(error('BadRequestError'));

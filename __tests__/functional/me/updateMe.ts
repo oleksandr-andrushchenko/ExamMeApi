@@ -20,7 +20,7 @@ describe('PATCH /me', () => {
         const res = await request(app).patch(`/me`).send({}).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(400);
-        expect(res.body).toMatchObject(error('ParamRequiredError'));
+        expect(res.body).toMatchObject(error('BadRequestError'));
     });
 
     test('Conflict', async () => {

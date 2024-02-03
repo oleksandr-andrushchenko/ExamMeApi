@@ -16,10 +16,10 @@ describe('POST /users', () => {
         expect(res.body).toMatchObject(error('AuthorizationRequiredError'));
     });
 
-    test('Bad request', async () => {
+    test('Bad request (empty body)', async () => {
         const user = await fixture<User>(User, { permissions: [Permission.CREATE_USER] });
         const token = (await auth(user)).token;
-        const res = await request(app).post('/users').send({}).auth(token, { type: 'bearer' });
+        const res = await request(app).post('/users').auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(400);
         expect(res.body).toMatchObject(error('BadRequestError'));

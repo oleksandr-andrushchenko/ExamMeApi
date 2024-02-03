@@ -28,12 +28,12 @@ describe('PUT /categories/:id', () => {
         expect(res.body).toMatchObject(error('NotFoundError'));
     });
 
-    test('Bad request', async () => {
+    test('Bad request (empty body)', async () => {
         const user = await fixture<User>(User, { permissions: [Permission.REPLACE_CATEGORY] });
         const token = (await auth(user)).token;
         const category = await fixture<Category>(Category);
         const id = category.getId();
-        const res = await request(app).put(`/categories/${id.toString()}`).send({}).auth(token, { type: 'bearer' });
+        const res = await request(app).put(`/categories/${id.toString()}`).auth(token, { type: 'bearer' });
 
         expect(res.status).toEqual(400);
         expect(res.body).toMatchObject(error('BadRequestError'));
