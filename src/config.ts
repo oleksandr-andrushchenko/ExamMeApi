@@ -41,7 +41,7 @@ export default {
     validator: {
         validationError: {
             target: false,
-            value: false,
+            value: true,
         },
     },
     logger: {
