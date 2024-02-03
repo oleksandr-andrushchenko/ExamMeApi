@@ -1,4 +1,12 @@
-import { JsonController, Post, Body, HttpCode, NotFoundError, ForbiddenError } from "routing-controllers";
+import {
+    JsonController,
+    Post,
+    Body,
+    HttpCode,
+    NotFoundError,
+    ForbiddenError,
+    BadRequestError
+} from "routing-controllers";
 import { Inject, Service } from "typedi";
 import AuthService from "../service/auth/AuthService";
 import { OpenAPI, ResponseSchema } from "routing-controllers-openapi";
@@ -8,6 +16,7 @@ import UserService from "../service/user/UserService";
 import User from "../entity/User";
 import UserNotFoundError from "../error/user/UserNotFoundError";
 import UserWrongCredentialsError from "../error/user/UserWrongCredentialsError";
+import ValidatorError from "../error/validator/ValidatorError";
 
 @Service()
 @JsonController()
@@ -37,6 +46,8 @@ export default class AuthController {
             return await this.authService.createAuth(user);
         } catch (error) {
             switch (true) {
+                case error instanceof ValidatorError:
+                    throw new BadRequestError((error as ValidatorError).message);
                 case error instanceof UserNotFoundError:
                     throw new NotFoundError((error as UserNotFoundError).message);
                 case error instanceof UserWrongCredentialsError:

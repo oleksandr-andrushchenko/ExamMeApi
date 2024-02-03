@@ -2,7 +2,7 @@ import {
     JsonController,
     Post,
     Body,
-    HttpCode, Get, Authorized, CurrentUser, Put, OnUndefined, Patch, Delete,
+    HttpCode, Get, Authorized, CurrentUser, Put, OnUndefined, Patch, Delete, BadRequestError,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import User from "../entity/User";
@@ -13,6 +13,7 @@ import MeSchema from "../schema/user/MeSchema";
 import MeService from "../service/user/MeService";
 import Category from "../entity/Category";
 import MeUpdateSchema from "../schema/user/MeUpdateSchema";
+import ValidatorError from "../error/validator/ValidatorError";
 
 @Service()
 @JsonController('/me')
@@ -40,6 +41,8 @@ export default class UserController {
             return await this.meService.createMe(me);
         } catch (error) {
             switch (true) {
+                case error instanceof ValidatorError:
+                    throw new BadRequestError((error as ValidatorError).message);
                 case error instanceof UserEmailTakenError:
                     throw new ConflictHttpError((error as UserEmailTakenError).message);
             }
@@ -83,6 +86,8 @@ export default class UserController {
             await this.meService.replaceMe(me, user);
         } catch (error) {
             switch (true) {
+                case error instanceof ValidatorError:
+                    throw new BadRequestError((error as ValidatorError).message);
                 case error instanceof UserEmailTakenError:
                     throw new ConflictHttpError((error as UserEmailTakenError).message);
             }
@@ -111,6 +116,8 @@ export default class UserController {
             await this.meService.updateMe(me, user);
         } catch (error) {
             switch (true) {
+                case error instanceof ValidatorError:
+                    throw new BadRequestError((error as ValidatorError).message);
                 case error instanceof UserEmailTakenError:
                     throw new ConflictHttpError((error as UserEmailTakenError).message);
             }

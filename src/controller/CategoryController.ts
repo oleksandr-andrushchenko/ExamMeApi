@@ -5,7 +5,7 @@ import {
     HttpCode,
     CurrentUser,
     Param,
-    NotFoundError, ForbiddenError, Authorized, OnUndefined
+    NotFoundError, ForbiddenError, Authorized, OnUndefined, BadRequestError
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import Category from "../entity/Category";
@@ -21,6 +21,7 @@ import CategoryNameTakenError from "../error/category/CategoryNameTakenError";
 import ConflictHttpError from "../error/http/ConflictHttpError";
 import AuthorizationFailedError from "../error/auth/AuthorizationFailedError";
 import CategoryUpdateSchema from "../schema/category/CategoryUpdateSchema";
+import ValidatorError from "../error/validator/ValidatorError";
 
 @Service()
 @JsonController('/categories')
@@ -54,6 +55,8 @@ export default class CategoryController {
             return await this.categoryService.createCategory(category, user);
         } catch (error) {
             switch (true) {
+                case error instanceof ValidatorError:
+                    throw new BadRequestError((error as ValidatorError).message);
                 case error instanceof AuthorizationFailedError:
                     throw new ForbiddenError((error as AuthorizationFailedError).message);
                 case error instanceof CategoryNameTakenError:
@@ -119,6 +122,8 @@ export default class CategoryController {
             await this.categoryService.replaceCategoryById(id, category, user);
         } catch (error) {
             switch (true) {
+                case error instanceof ValidatorError:
+                    throw new BadRequestError((error as ValidatorError).message);
                 case error instanceof AuthorizationFailedError:
                     throw new ForbiddenError((error as AuthorizationFailedError).message);
                 case error instanceof CategoryNotFoundError:
@@ -156,6 +161,8 @@ export default class CategoryController {
             await this.categoryService.updateCategoryById(id, category, user);
         } catch (error) {
             switch (true) {
+                case error instanceof ValidatorError:
+                    throw new BadRequestError((error as ValidatorError).message);
                 case error instanceof AuthorizationFailedError:
                     throw new ForbiddenError((error as AuthorizationFailedError).message);
                 case error instanceof CategoryNotFoundError:

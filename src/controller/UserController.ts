@@ -4,7 +4,7 @@ import {
     Body,
     HttpCode,
     CurrentUser,
-    Authorized, ForbiddenError,
+    Authorized, ForbiddenError, BadRequestError,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import User from "../entity/User";
@@ -14,6 +14,7 @@ import UserSchema from "../schema/user/UserSchema";
 import UserEmailTakenError from "../error/user/UserEmailTakenError";
 import ConflictHttpError from "../error/http/ConflictHttpError";
 import AuthorizationFailedError from "../error/auth/AuthorizationFailedError";
+import ValidatorError from "../error/validator/ValidatorError";
 
 @Service()
 @JsonController('/users')
@@ -46,6 +47,8 @@ export default class UserController {
             return await this.userService.createUser(user, currentUser);
         } catch (error) {
             switch (true) {
+                case error instanceof ValidatorError:
+                    throw new BadRequestError((error as ValidatorError).message);
                 case error instanceof AuthorizationFailedError:
                     throw new ForbiddenError((error as AuthorizationFailedError).message);
                 case error instanceof UserEmailTakenError:
