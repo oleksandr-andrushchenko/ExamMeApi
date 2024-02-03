@@ -60,7 +60,7 @@ export default class UserService {
         const user: User = await this.getUserByEmail(email);
 
         if (!await this.compareUserPassword(user, transfer.password)) {
-            throw new UserWrongCredentialsError(`Passwords not matched`);
+            throw new UserWrongCredentialsError();
         }
 
         return user;

@@ -158,7 +158,7 @@ export default class CategoryService {
      */
     public async verifyCategoryNameNotExists(name: string, ignoreId: ObjectId = undefined): Promise<void> {
         if (await this.categoryRepository.findOneByName(name, ignoreId)) {
-            throw new CategoryNameTakenError(`Name "${name}" is already taken`);
+            throw new CategoryNameTakenError(name);
         }
     }
 
