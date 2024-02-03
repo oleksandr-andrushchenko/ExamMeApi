@@ -38,6 +38,12 @@ export default {
             ],
         },
     },
+    validator: {
+        validationError: {
+            target: false,
+            value: false,
+        },
+    },
     logger: {
         enabled: environment !== 'test',
         level: environment === 'development' ? 'debug' : 'info',
