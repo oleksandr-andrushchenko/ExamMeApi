@@ -52,6 +52,7 @@ export default class MeController {
     @Get()
     @Authorized()
     @OpenAPI({
+        security: [{ bearerAuth: [] }],
         responses: {
             200: { description: 'OK' },
             401: { description: 'Unauthorized' },
