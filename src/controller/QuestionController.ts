@@ -15,6 +15,7 @@ import CategoryNotFoundError from "../error/category/CategoryNotFoundError";
 import ValidatorError from "../error/validator/ValidatorError";
 import QuestionRepository from "../repository/QuestionRepository";
 import CategoryService from "../service/category/CategoryService";
+import QuestionNotFoundError from "../error/question/QuestionNotFoundError";
 
 @Service()
 @JsonController('/categories/:category_id/questions')
@@ -82,6 +83,28 @@ export default class QuestionController {
             switch (true) {
                 case error instanceof CategoryNotFoundError:
                     throw new NotFoundError((error as CategoryNotFoundError).message);
+            }
+        }
+    }
+
+    @Get('/:question_id')
+    @OpenAPI({
+        responses: {
+            200: { description: 'OK' },
+            404: { description: 'Not Found' },
+        },
+    })
+    @ResponseSchema(Question)
+    public async findQuestion(
+        @Param('category_id') categoryId: string,
+        @Param('question_id') questionId: string,
+    ): Promise<Question> {
+        try {
+            return await this.questionService.getQuestion(questionId, categoryId);
+        } catch (error) {
+            switch (true) {
+                case error instanceof QuestionNotFoundError:
+                    throw new NotFoundError((error as QuestionNotFoundError).message);
             }
         }
     }
