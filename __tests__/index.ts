@@ -54,7 +54,7 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
                 .setCategory(options['category'] ?? (await fixture(Category, options) as Category).getId())
                 .setType(faker.helpers.enumValue(QuestionType))
                 .setDifficulty(faker.helpers.enumValue(QuestionDifficulty))
-                .setTitle(faker.lorem.word())
+                .setTitle(faker.lorem.sentences(3))
                 .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
             ;
 
