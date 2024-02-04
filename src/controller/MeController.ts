@@ -17,7 +17,7 @@ import ValidatorError from "../error/validator/ValidatorError";
 
 @Service()
 @JsonController('/me')
-export default class UserController {
+export default class MeController {
 
     constructor(
         @Inject() private readonly meService: MeService,
