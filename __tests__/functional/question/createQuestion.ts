@@ -8,7 +8,7 @@ import { Permission } from "../../../src/type/auth/Permission";
 import { ObjectId } from "mongodb";
 import Question, { QuestionDifficulty, QuestionType } from "../../../src/entity/Question";
 
-describe('POST /categories/:id/questions', () => {
+describe('POST /categories/:category_id/questions', () => {
     const app = api();
 
     test('Unauthorized', async () => {
