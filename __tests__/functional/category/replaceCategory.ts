@@ -6,7 +6,7 @@ import Category from "../../../src/entity/Category";
 import User from "../../../src/entity/User";
 import { Permission } from "../../../src/type/auth/Permission";
 
-describe('PUT /categories/:id', () => {
+describe('PUT /categories/:category_id', () => {
     const app = api();
 
     test('Unauthorized', async () => {

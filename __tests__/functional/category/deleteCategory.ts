@@ -6,7 +6,7 @@ import Category from "../../../src/entity/Category";
 import User from "../../../src/entity/User";
 import { Permission } from "../../../src/type/auth/Permission";
 
-describe('DELETE /categories/:id', () => {
+describe('DELETE /categories/:category_id', () => {
     const app = api();
 
     test('Unauthorized', async () => {

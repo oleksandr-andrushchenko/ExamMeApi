@@ -6,7 +6,7 @@ import Category from "../../../src/entity/Category";
 import User from "../../../src/entity/User";
 import { Permission } from "../../../src/type/auth/Permission";
 
-describe('PATCH /categories/:id', () => {
+describe('PATCH /categories/:category_id', () => {
     const app = api();
 
     test('Unauthorized', async () => {

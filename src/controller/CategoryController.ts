@@ -76,7 +76,7 @@ export default class CategoryController {
         return this.categoryRepository.findAll();
     }
 
-    @Get('/:id')
+    @Get('/:category_id')
     @OpenAPI({
         responses: {
             200: { description: 'OK' },
@@ -85,7 +85,7 @@ export default class CategoryController {
     })
     @ResponseSchema(Category)
     public async findCategory(
-        @Param('id') id: string,
+        @Param('category_id') id: string,
     ): Promise<Category> {
         try {
             return await this.categoryService.getCategory(id);
@@ -97,7 +97,7 @@ export default class CategoryController {
         }
     }
 
-    @Put('/:id')
+    @Put('/:category_id')
     @Authorized()
     @HttpCode(205)
     @OnUndefined(205)
@@ -115,7 +115,7 @@ export default class CategoryController {
     @ResponseSchema(Category)
     public async replaceCategory(
         @CurrentUser({ required: true }) user: User,
-        @Param('id') id: string,
+        @Param('category_id') id: string,
         @Body({ required: true }) category: CategorySchema,
     ): Promise<void> {
         try {
@@ -136,7 +136,7 @@ export default class CategoryController {
         }
     }
 
-    @Patch('/:id')
+    @Patch('/:category_id')
     @Authorized()
     @HttpCode(205)
     @OnUndefined(205)
@@ -154,7 +154,7 @@ export default class CategoryController {
     @ResponseSchema(Category)
     public async updateCategory(
         @CurrentUser({ required: true }) user: User,
-        @Param('id') id: string,
+        @Param('category_id') id: string,
         @Body({ required: true }) category: CategoryUpdateSchema,
     ): Promise<void> {
         try {
@@ -175,7 +175,7 @@ export default class CategoryController {
         }
     }
 
-    @Delete('/:id')
+    @Delete('/:category_id')
     @Authorized()
     @HttpCode(204)
     @OnUndefined(204)
@@ -190,7 +190,7 @@ export default class CategoryController {
     })
     public async deleteCategory(
         @CurrentUser({ required: true }) user: User,
-        @Param('id') id: string,
+        @Param('category_id') id: string,
     ): Promise<void> {
         try {
             await this.categoryService.deleteCategoryById(id, user);
