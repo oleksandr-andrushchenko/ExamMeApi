@@ -7,6 +7,7 @@ import User from "../../../src/entity/User";
 import { Permission } from "../../../src/type/auth/Permission";
 import { ObjectId } from "mongodb";
 import Question, { QuestionDifficulty, QuestionType } from "../../../src/entity/Question";
+import { faker } from "@faker-js/faker";
 
 describe('POST /categories/:category_id/questions', () => {
     const app = api();
@@ -34,6 +35,7 @@ describe('POST /categories/:category_id/questions', () => {
         expect(res.body).toMatchObject(error('NotFoundError'));
     });
 
+    // todo: add cases
     test.each([
         { case: 'empty body', body: {} },
         { case: 'no title', body: { type: QuestionType.RAW, difficulty: QuestionDifficulty.EASY } },
@@ -117,7 +119,7 @@ describe('POST /categories/:category_id/questions', () => {
         const categoryId = category.getId();
         const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
         const token = (await auth(user)).token;
-        const schema = { title: 'any', type: QuestionType.RAW, difficulty: QuestionDifficulty.EASY };
+        const schema = { title: faker.lorem.sentences(3), type: QuestionType.RAW, difficulty: QuestionDifficulty.EASY };
         const res = await request(app)
             .post(`/categories/${categoryId.toString()}/questions`)
             .send(schema)
