@@ -18,4 +18,13 @@ export default class QuestionSchema {
     @ValidateNested({ each: true })
     @Type(() => QuestionChoice)
     public readonly choices: QuestionChoice[];
+
+    @ValidateIf(question => question.type === QuestionType.TYPE)
+    @ArrayNotEmpty()
+    @Length(2, 10, { each: true })
+    public readonly answers: string[];
+
+    @ValidateIf(question => question.type === QuestionType.TYPE)
+    @Length(10, 1000)
+    public readonly explanation: string;
 }

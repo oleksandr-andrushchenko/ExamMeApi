@@ -97,6 +97,17 @@ export default class Question {
     @Column(() => QuestionChoice)
     private choices: QuestionChoice[];
 
+    @ValidateIf(question => question.type === QuestionType.TYPE)
+    @ArrayNotEmpty()
+    @Length(2, 10, { each: true })
+    @Column()
+    private answers: string[];
+
+    @ValidateIf(question => question.type === QuestionType.TYPE)
+    @Length(10, 1000)
+    @Column()
+    private explanation: string;
+
     @Exclude()
     @IsMongoId()
     @Column()
@@ -168,14 +179,34 @@ export default class Question {
         return this.title;
     }
 
-    public setChoices(choices: QuestionChoice[]): this {
+    public setChoices(choices: QuestionChoice[] | undefined): this {
         this.choices = choices;
 
         return this;
     }
 
-    public getChoices(): QuestionChoice[] {
+    public getChoices(): QuestionChoice[] | undefined {
         return this.choices;
+    }
+
+    public setAnswers(answers: string[] | undefined): this {
+        this.answers = answers;
+
+        return this;
+    }
+
+    public getAnswers(): string[] | undefined {
+        return this.answers;
+    }
+
+    public setExplanation(explanation: string | undefined): this {
+        this.explanation = explanation;
+
+        return this;
+    }
+
+    public getExplanation(): string | undefined {
+        return this.explanation;
     }
 
     public setCreator(creator: ObjectId): this {

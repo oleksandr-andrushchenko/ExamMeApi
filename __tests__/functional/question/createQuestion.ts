@@ -105,7 +105,13 @@ describe('POST /categories/:category_id/questions', () => {
         const token = (await auth(user)).token;
         const res = await request(app)
             .post(`/categories/${categoryId.toString()}/questions`)
-            .send({ title: question.getTitle(), type: QuestionType.TYPE, difficulty: QuestionDifficulty.EASY })
+            .send({
+                title: question.getTitle(),
+                type: QuestionType.TYPE,
+                difficulty: QuestionDifficulty.EASY,
+                answers: [faker.lorem.word()],
+                explanation: faker.lorem.sentence(),
+            })
             .auth(token, { type: 'bearer' })
         ;
 
@@ -119,7 +125,13 @@ describe('POST /categories/:category_id/questions', () => {
         const categoryId = category.getId();
         const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
         const token = (await auth(user)).token;
-        const schema = { title: faker.lorem.sentences(3), type: QuestionType.TYPE, difficulty: QuestionDifficulty.EASY };
+        const schema = {
+            title: faker.lorem.sentences(3),
+            type: QuestionType.TYPE,
+            difficulty: QuestionDifficulty.EASY,
+            answers: [faker.lorem.word()],
+            explanation: faker.lorem.sentence(),
+        };
         const res = await request(app)
             .post(`/categories/${categoryId.toString()}/questions`)
             .send(schema)

@@ -58,7 +58,16 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
                 .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
             ;
 
-            if (object.getType() === QuestionType.CHOICE) {
+            if (object.getType() === QuestionType.TYPE) {
+                const answers = [];
+
+                for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
+                    answers.push(faker.lorem.word());
+                }
+
+                object.setAnswers(answers);
+                object.setExplanation(faker.lorem.sentence());
+            } else if (object.getType() === QuestionType.CHOICE) {
                 const choices = [];
 
                 for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {

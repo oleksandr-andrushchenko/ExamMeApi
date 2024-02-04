@@ -7,7 +7,7 @@ import AuthService from "../auth/AuthService";
 import { Permission } from "../../type/auth/Permission";
 import { ObjectId } from "mongodb";
 import ValidatorInterface from "../validator/ValidatorInterface";
-import Question from "../../entity/Question";
+import Question, { QuestionType } from "../../entity/Question";
 import QuestionSchema from "../../schema/question/QuestionSchema";
 import QuestionRepository from "../../repository/QuestionRepository";
 import QuestionTitleTakenError from "../../error/question/QuestionTitleTakenError";
@@ -52,9 +52,20 @@ export default class QuestionService {
             .setType(transfer.type)
             .setDifficulty(transfer.difficulty)
             .setTitle(title)
-            .setChoices(transfer.choices)
             .setCreator(initiator.getId())
         ;
+
+        if (question.getType() === QuestionType.TYPE) {
+            question
+                .setAnswers(transfer.answers)
+                .setExplanation(transfer.explanation)
+            ;
+        } else if (question.getType() === QuestionType.CHOICE) {
+            question
+                .setChoices(transfer.choices)
+            ;
+        }
+
         await this.entityManager.save<Question>(question);
 
         this.eventDispatcher.dispatch('questionCreated', { question });
