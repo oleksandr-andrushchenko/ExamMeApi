@@ -13,6 +13,7 @@ import QuestionRepository from "../../repository/QuestionRepository";
 import QuestionTitleTakenError from "../../error/question/QuestionTitleTakenError";
 import CategoryService from "../category/CategoryService";
 import QuestionOwnershipError from "../../error/question/QuestionOwnershipError";
+import QuestionNotFoundError from "../../error/question/QuestionNotFoundError";
 
 @Service()
 export default class QuestionService {
@@ -57,6 +58,22 @@ export default class QuestionService {
         await this.entityManager.save<Question>(question);
 
         this.eventDispatcher.dispatch('questionCreated', { question });
+
+        return question;
+    }
+
+    /**
+     * @param {string} questionId
+     * @param {string} categoryId
+     * @returns {Promise<Question>}
+     * @throws {QuestionNotFoundError}
+     */
+    public async getQuestion(questionId: string, categoryId: string = undefined): Promise<Question> {
+        const question: Question = await this.questionRepository.findOneById(questionId);
+
+        if (!question || (categoryId && question.getCategory().toString() !== categoryId)) {
+            throw new QuestionNotFoundError(questionId);
+        }
 
         return question;
     }
