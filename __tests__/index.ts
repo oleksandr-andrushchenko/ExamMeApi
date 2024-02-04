@@ -46,24 +46,31 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
         case Category:
             object = (new Category())
                 .setName(faker.lorem.word())
-                .setCreator((await fixture(User, options) as User).getId())
+                .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
             ;
             break;
         case Question:
             object = (new Question())
-                .setCategory((await fixture(Category, options) as Category).getId())
+                .setCategory(options['category'] ?? (await fixture(Category, options) as Category).getId())
                 .setType(faker.helpers.enumValue(QuestionType))
                 .setDifficulty(faker.helpers.enumValue(QuestionDifficulty))
                 .setTitle(faker.lorem.word())
-                .setCreator((await fixture(User, options) as User).getId())
+                .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
             ;
 
             if (object.getType() === QuestionType.CHOICE) {
-                object.setChoices([
-                    (new QuestionChoice())
-                        .setTitle(faker.lorem.word())
-                        .setIsCorrect(faker.datatype.boolean()),
-                ]);
+                const choices = [];
+
+                for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
+                    choices.push(
+                        (new QuestionChoice())
+                            .setTitle(faker.lorem.word())
+                            .setIsCorrect(faker.datatype.boolean())
+                            .setExplanation(faker.datatype.boolean() ? faker.lorem.sentence() : undefined)
+                    );
+                }
+
+                object.setChoices(choices);
             }
 
             break;
@@ -79,11 +86,11 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
 export const load = async <Entity>(entity: any, id: ObjectId): Promise<Entity> => {
     switch (entity) {
         case User:
-            return Container.get<UserRepository>(UserRepository).findOneById(id.toString()) as any;
+            return await Container.get<UserRepository>(UserRepository).findOneById(id.toString()) as any;
         case Category:
-            return Container.get<CategoryRepository>(CategoryRepository).findOneById(id.toString()) as any;
+            return await Container.get<CategoryRepository>(CategoryRepository).findOneById(id.toString()) as any;
         case Question:
-            return Container.get<QuestionRepository>(QuestionRepository).findOneById(id.toString()) as any;
+            return await Container.get<QuestionRepository>(QuestionRepository).findOneById(id.toString()) as any;
         default:
             throw new Error(`Unknown "${entity.toString()}" type passed`);
     }
