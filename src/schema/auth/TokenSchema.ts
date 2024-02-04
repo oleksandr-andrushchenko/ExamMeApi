@@ -1,10 +1,10 @@
-import { IsNotEmpty } from "class-validator";
+import { IsNumber, IsString } from "class-validator";
 
 export default class TokenSchema {
 
-    @IsNotEmpty()
+    @IsString()
     public token: string;
 
-    @IsNotEmpty()
+    @IsNumber()
     public expires: number;
 }

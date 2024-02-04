@@ -1,58 +1,69 @@
 import {
-    Entity,
-    ObjectIdColumn,
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-    DeleteDateColumn
+    Entity, ObjectIdColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
 } from "typeorm";
-import { Exclude, Expose, Transform } from "class-transformer";
+import { Exclude, Transform } from "class-transformer";
 import { ObjectId } from "mongodb";
-import { IsNotEmpty } from "class-validator";
+import {
+    ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length,
+} from "class-validator";
 import { Permission } from "../type/auth/Permission";
 
 @Entity({ name: 'users' })
 export default class User {
 
+    @IsMongoId()
     @ObjectIdColumn()
-    @Expose({ name: 'id' })
     @Transform((params: { value: ObjectId }) => params.value.toString())
-    private _id: ObjectId;
+    private id: ObjectId;
 
-    @IsNotEmpty()
+    @Length(2, 30)
     @Column({ nullable: false })
     private name: string;
 
-    @IsNotEmpty()
+    @IsEmail()
     @Column({ unique: true, nullable: false })
     private email: string;
 
     @Exclude()
+    @Length(5, 15)
     @Column({ nullable: false })
     private password: string;
 
+    @ArrayNotEmpty()
+    @IsEnum(Permission, { each: true })
+    @ArrayUnique()
     @Column({ type: 'set', enum: Permission, default: [Permission.REGULAR] })
     private permissions: Permission[];
 
     @Exclude()
+    @IsMongoId()
     @Column()
     @Transform((params: { value: ObjectId }) => params.value?.toString())
     private creator: ObjectId;
 
+    @IsNumber()
     @Column()
     @CreateDateColumn()
+    @Transform((params: { value: Date }) => params.value?.getTime())
     private created: Date;
 
+    @IsOptional()
+    @IsNumber()
     @Column()
     @UpdateDateColumn()
+    @Transform((params: { value: Date }) => params.value?.getTime())
     private updated: Date;
 
+    @Exclude()
+    @IsOptional()
+    @IsNumber()
     @Column()
     @DeleteDateColumn()
+    @Transform((params: { value: Date }) => params.value?.getTime())
     private deleted: Date;
 
     public getId(): ObjectId {
-        return this._id;
+        return this.id;
     }
 
     public setName(name: string): this {

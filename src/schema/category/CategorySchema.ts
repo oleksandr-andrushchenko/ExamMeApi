@@ -1,7 +1,7 @@
-import { IsNotEmpty } from "class-validator";
+import { Length } from "class-validator";
 
 export default class CategorySchema {
 
-    @IsNotEmpty()
+    @Length(3, 30)
     public readonly name: string;
 }

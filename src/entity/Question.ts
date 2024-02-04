@@ -1,14 +1,11 @@
 import {
-    Entity,
-    ObjectIdColumn,
-    Column,
-    CreateDateColumn,
-    UpdateDateColumn,
-    DeleteDateColumn
+    Entity, ObjectIdColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
 } from "typeorm";
-import { Exclude, Expose, Transform, Type } from "class-transformer";
+import { Exclude, Transform, Type } from "class-transformer";
 import { ObjectId } from "mongodb";
-import { ArrayNotEmpty, IsEnum, IsNotEmpty, IsOptional, IsString, ValidateIf, ValidateNested } from "class-validator";
+import {
+    ArrayNotEmpty, IsBoolean, IsEnum, IsMongoId, IsNumber, IsOptional, Length, ValidateIf, ValidateNested,
+} from "class-validator";
 
 export enum QuestionType {
     RAW = 'raw',
@@ -24,16 +21,16 @@ export enum QuestionDifficulty {
 
 export class QuestionChoice {
 
-    @IsNotEmpty()
+    @Length(3, 1000)
     @Column({ nullable: false })
     private title: string;
 
-    @IsNotEmpty()
+    @IsBoolean()
     @Column({ nullable: false })
     private correct: boolean;
 
     @IsOptional()
-    @IsString()
+    @Length(10, 1000)
     @Column()
     private explanation: string;
 
@@ -71,26 +68,25 @@ export class QuestionChoice {
 @Entity({ name: 'questions' })
 export default class Question {
 
+    @IsMongoId()
     @ObjectIdColumn()
-    @Expose({ name: 'id' })
     @Transform((params: { value: ObjectId }) => params.value.toString())
-    private _id: ObjectId;
+    private id: ObjectId;
 
+    @IsMongoId()
     @Column()
     @Transform((params: { value: ObjectId }) => params.value?.toString())
     private category: ObjectId;
 
-    @IsNotEmpty()
     @IsEnum(QuestionType)
     @Column({ type: 'enum', enum: QuestionType, nullable: false })
     private type: QuestionType;
 
-    @IsNotEmpty()
     @IsEnum(QuestionDifficulty)
     @Column({ type: 'enum', enum: QuestionDifficulty, nullable: false })
     private difficulty: QuestionDifficulty;
 
-    @IsNotEmpty()
+    @Length(50, 3000)
     @Column({ unique: true, nullable: false })
     private title: string;
 
@@ -102,24 +98,34 @@ export default class Question {
     private choices: QuestionChoice[];
 
     @Exclude()
+    @IsMongoId()
     @Column()
     @Transform((params: { value: ObjectId }) => params.value?.toString())
     private creator: ObjectId;
 
+    @IsNumber()
     @Column()
     @CreateDateColumn()
+    @Transform((params: { value: Date }) => params.value?.getTime())
     private created: Date;
 
+    @IsOptional()
+    @IsNumber()
     @Column()
     @UpdateDateColumn()
+    @Transform((params: { value: Date }) => params.value?.getTime())
     private updated: Date;
 
+    @Exclude()
+    @IsOptional()
+    @IsNumber()
     @Column()
     @DeleteDateColumn()
+    @Transform((params: { value: Date }) => params.value?.getTime())
     private deleted: Date;
 
     public getId(): ObjectId {
-        return this._id;
+        return this.id;
     }
 
     public setCategory(category: ObjectId): this {

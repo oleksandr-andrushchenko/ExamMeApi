@@ -1,11 +1,10 @@
-import { IsNotEmpty, IsEmail } from "class-validator";
+import { IsEmail, Length } from "class-validator";
 
 export default class AuthSchema {
 
-    @IsNotEmpty()
     @IsEmail()
     public readonly email: string;
 
-    @IsNotEmpty()
+    @Length(5, 15)
     public readonly password: string;
 }

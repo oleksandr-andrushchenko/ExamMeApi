@@ -1,15 +1,14 @@
-import { IsNotEmpty, IsEmail, IsStrongPassword } from "class-validator";
+import { IsEmail, IsStrongPassword, Length } from "class-validator";
 
 export default class MeSchema {
 
-    @IsNotEmpty()
+    @Length(2, 30)
     public readonly name: string;
 
-    @IsNotEmpty()
     @IsEmail()
     public readonly email: string;
 
-    @IsNotEmpty()
+    @Length(5, 15)
     @IsStrongPassword({ minLength: 5, minLowercase: 0, minNumbers: 0, minSymbols: 0, minUppercase: 0 })
     public readonly password: string;
 }
