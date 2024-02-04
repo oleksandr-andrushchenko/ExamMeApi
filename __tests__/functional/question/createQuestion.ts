@@ -38,11 +38,11 @@ describe('POST /categories/:category_id/questions', () => {
     // todo: add cases
     test.each([
         { case: 'empty body', body: {} },
-        { case: 'no title', body: { type: QuestionType.RAW, difficulty: QuestionDifficulty.EASY } },
+        { case: 'no title', body: { type: QuestionType.TYPE, difficulty: QuestionDifficulty.EASY } },
         { case: 'no type', body: { title: 'any', difficulty: QuestionDifficulty.EASY } },
         { case: 'bad type', body: { title: 'any', type: 'any', difficulty: QuestionDifficulty.EASY } },
-        { case: 'no difficulty', body: { title: 'any', type: QuestionType.RAW } },
-        { case: 'bad difficulty', body: { title: 'any', type: QuestionType.RAW, difficulty: 'any' } },
+        { case: 'no difficulty', body: { title: 'any', type: QuestionType.TYPE } },
+        { case: 'bad difficulty', body: { title: 'any', type: QuestionType.TYPE, difficulty: 'any' } },
         { case: 'no choices', body: { title: 'any', type: QuestionType.CHOICE, difficulty: QuestionDifficulty.EASY } },
         {
             case: 'non-array choices',
@@ -105,7 +105,7 @@ describe('POST /categories/:category_id/questions', () => {
         const token = (await auth(user)).token;
         const res = await request(app)
             .post(`/categories/${categoryId.toString()}/questions`)
-            .send({ title: question.getTitle(), type: QuestionType.RAW, difficulty: QuestionDifficulty.EASY })
+            .send({ title: question.getTitle(), type: QuestionType.TYPE, difficulty: QuestionDifficulty.EASY })
             .auth(token, { type: 'bearer' })
         ;
 
@@ -119,7 +119,7 @@ describe('POST /categories/:category_id/questions', () => {
         const categoryId = category.getId();
         const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
         const token = (await auth(user)).token;
-        const schema = { title: faker.lorem.sentences(3), type: QuestionType.RAW, difficulty: QuestionDifficulty.EASY };
+        const schema = { title: faker.lorem.sentences(3), type: QuestionType.TYPE, difficulty: QuestionDifficulty.EASY };
         const res = await request(app)
             .post(`/categories/${categoryId.toString()}/questions`)
             .send(schema)

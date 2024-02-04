@@ -8,7 +8,7 @@ import {
 } from "class-validator";
 
 export enum QuestionType {
-    RAW = 'raw',
+    TYPE = 'type',
     CHOICE = 'choice',
 }
 
