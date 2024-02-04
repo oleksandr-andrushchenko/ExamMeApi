@@ -1,6 +1,6 @@
 export default class CategoryNotFoundError extends Error {
 
-    constructor(idOrMessage: string = null) {
-        super(idOrMessage ? `Category with id="${idOrMessage}" not found error` : idOrMessage);
+    constructor(id: string) {
+        super(`Category with id="${id}" not found error`);
     }
 }

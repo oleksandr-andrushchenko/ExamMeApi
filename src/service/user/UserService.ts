@@ -80,7 +80,7 @@ export default class UserService {
 
     public async compareUserPassword(user: User, password: string): Promise<boolean> {
         return new Promise((resolve) => {
-            bcrypt.compare(password, user.getPassword(), (err, res) => {
+            bcrypt.compare(password, user.getPassword(), (_, res) => {
                 resolve(res === true);
             });
         });
@@ -90,7 +90,7 @@ export default class UserService {
         const user: User = await this.userRepository.findOneByEmail(email);
 
         if (!user) {
-            throw new UserNotFoundError(`Email not found "${email}"`);
+            throw new UserNotFoundError(email);
         }
 
         return user;
