@@ -15,7 +15,7 @@ import CategoryNotFoundError from "../error/category/CategoryNotFoundError";
 import ValidatorError from "../error/validator/ValidatorError";
 
 @Service()
-@JsonController('/categories/:id/questions')
+@JsonController('/categories/:category_id/questions')
 export default class QuestionController {
 
     constructor(
@@ -39,7 +39,7 @@ export default class QuestionController {
     })
     @ResponseSchema(Question)
     public async createQuestion(
-        @Param('id') categoryId: string,
+        @Param('category_id') categoryId: string,
         @Body({ required: true }) question: QuestionSchema,
         @CurrentUser({ required: true }) user: User,
     ): Promise<Question> {
