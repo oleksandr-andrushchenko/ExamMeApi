@@ -56,6 +56,16 @@ export class QuestionChoice {
     public isCorrect(): boolean {
         return this.correct;
     }
+
+    public setExplanation(explanation: string | undefined): this {
+        this.explanation = explanation;
+
+        return this;
+    }
+
+    public getExplanation(): string | undefined {
+        return this.explanation;
+    }
 }
 
 @Entity({ name: 'questions' })
@@ -66,7 +76,6 @@ export default class Question {
     @Transform((params: { value: ObjectId }) => params.value.toString())
     private _id: ObjectId;
 
-    @Exclude()
     @Column()
     @Transform((params: { value: ObjectId }) => params.value?.toString())
     private category: ObjectId;
