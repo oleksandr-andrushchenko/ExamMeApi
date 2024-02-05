@@ -50,7 +50,12 @@ describe('GET /categories/:category_id/questions', () => {
                     title: question.getTitle()
                 });
 
-                if (question.getType() === QuestionType.CHOICE) {
+                if (question.getType() === QuestionType.TYPE) {
+                    expect(body[index]).toHaveProperty('answers');
+                    expect(body[index].answers).toEqual(question.getAnswers());
+                    expect(body[index]).toHaveProperty('explanation');
+                    expect(body[index].explanation).toEqual(question.getExplanation());
+                } else if (question.getType() === QuestionType.CHOICE) {
                     expect(body[index]).toHaveProperty('choices');
                     question.getChoices().forEach((choice: QuestionChoice, index2: number) => {
                         expect(body[index].choices[index2]).toMatchObject({

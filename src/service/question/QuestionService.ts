@@ -30,19 +30,18 @@ export default class QuestionService {
 
 
     /**
-     * @param {string} categoryId
      * @param {CategorySchema} transfer
      * @param {User} initiator
      * @returns {Promise<Category>}
+     * @throws {CategoryNotFoundError}
      * @throws {AuthorizationFailedError}
      * @throws {QuestionTitleTakenError}
      */
-    public async createQuestion(categoryId: string, transfer: QuestionSchema, initiator: User): Promise<Question> {
-        const category: Category = await this.categoryService.getCategory(categoryId);
-
+    public async createQuestion(transfer: QuestionSchema, initiator: User): Promise<Question> {
         await this.authService.verifyAuthorization(initiator, Permission.CREATE_QUESTION);
 
         await this.validator.validate(transfer);
+        const category: Category = await this.categoryService.getCategory(transfer.category);
 
         const title = transfer.title;
         await this.verifyQuestionTitleNotExists(title);

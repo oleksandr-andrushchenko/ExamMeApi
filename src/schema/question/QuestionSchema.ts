@@ -1,8 +1,11 @@
-import { ArrayNotEmpty, IsEnum, Length, ValidateIf, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsEnum, IsMongoId, Length, ValidateIf, ValidateNested } from "class-validator";
 import { QuestionChoice, QuestionDifficulty, QuestionType } from "../../entity/Question";
 import { Type } from "class-transformer";
 
 export default class QuestionSchema {
+
+    @IsMongoId()
+    public readonly category: string;
 
     @IsEnum(QuestionType)
     public readonly type: QuestionType;

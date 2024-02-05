@@ -1,6 +1,6 @@
 import {
     JsonController, Post, Body, HttpCode, CurrentUser, ForbiddenError, Authorized, Param, NotFoundError,
-    BadRequestError, Get,
+    BadRequestError, Get, Put, OnUndefined,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import Question from "../entity/Question";
@@ -18,7 +18,7 @@ import CategoryService from "../service/category/CategoryService";
 import QuestionNotFoundError from "../error/question/QuestionNotFoundError";
 
 @Service()
-@JsonController('/categories/:category_id/questions')
+@JsonController()
 export default class QuestionController {
 
     constructor(
@@ -28,7 +28,7 @@ export default class QuestionController {
     ) {
     }
 
-    @Post()
+    @Post('/questions')
     @Authorized()
     @HttpCode(201)
     @OpenAPI({
@@ -38,24 +38,22 @@ export default class QuestionController {
             400: { description: 'Bad Request' },
             401: { description: 'Unauthorized' },
             403: { description: 'Forbidden' },
-            404: { description: 'Not Found' },
             409: { description: 'Conflict' },
         },
     })
     @ResponseSchema(Question)
     public async createQuestion(
-        @Param('category_id') categoryId: string,
         @Body({ required: true }) question: QuestionSchema,
         @CurrentUser({ required: true }) user: User,
     ): Promise<Question> {
         try {
-            return await this.questionService.createQuestion(categoryId, question, user);
+            return await this.questionService.createQuestion(question, user);
         } catch (error) {
             switch (true) {
                 case error instanceof ValidatorError:
                     throw new BadRequestError((error as ValidatorError).message);
                 case error instanceof CategoryNotFoundError:
-                    throw new NotFoundError((error as CategoryNotFoundError).message);
+                    throw new BadRequestError((error as CategoryNotFoundError).message);
                 case error instanceof AuthorizationFailedError:
                     throw new ForbiddenError((error as AuthorizationFailedError).message);
                 case error instanceof QuestionTitleTakenError:
@@ -64,7 +62,7 @@ export default class QuestionController {
         }
     }
 
-    @Get()
+    @Get('/categories/:category_id/questions')
     @OpenAPI({
         responses: {
             200: { description: 'OK' },
@@ -87,7 +85,7 @@ export default class QuestionController {
         }
     }
 
-    @Get('/:question_id')
+    @Get('/questions/:question_id')
     @OpenAPI({
         responses: {
             200: { description: 'OK' },
@@ -96,11 +94,10 @@ export default class QuestionController {
     })
     @ResponseSchema(Question)
     public async findQuestion(
-        @Param('category_id') categoryId: string,
         @Param('question_id') questionId: string,
     ): Promise<Question> {
         try {
-            return await this.questionService.getQuestion(questionId, categoryId);
+            return await this.questionService.getQuestion(questionId);
         } catch (error) {
             switch (true) {
                 case error instanceof QuestionNotFoundError:

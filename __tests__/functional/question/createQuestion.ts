@@ -9,30 +9,28 @@ import { ObjectId } from "mongodb";
 import Question, { QuestionDifficulty, QuestionType } from "../../../src/entity/Question";
 import { faker } from "@faker-js/faker";
 
-describe('POST /categories/:category_id/questions', () => {
+describe('POST /questions', () => {
     const app = api();
 
     test('Unauthorized', async () => {
-        const category = await fixture<Category>(Category);
-        const categoryId = category.getId();
-        const res = await request(app).post(`/categories/${categoryId.toString()}/questions`);
+        const res = await request(app).post(`/questions`);
 
         expect(res.status).toEqual(401);
         expect(res.body).toMatchObject(error('AuthorizationRequiredError'));
     });
 
-    test('Not found', async () => {
+    test('Bad request (category not found)', async () => {
         const categoryId = await fakeId();
         const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
         const token = (await auth(user)).token;
         const res = await request(app)
-            .post(`/categories/${categoryId.toString()}/questions`)
-            .send({ title: 'any' })
+            .post(`/questions`)
+            .send({ title: 'any', category: categoryId })
             .auth(token, { type: 'bearer' })
         ;
 
-        expect(res.status).toEqual(404);
-        expect(res.body).toMatchObject(error('NotFoundError'));
+        expect(res.status).toEqual(400);
+        expect(res.body).toMatchObject(error('BadRequestError'));
     });
 
     // todo: add cases
@@ -72,8 +70,8 @@ describe('POST /categories/:category_id/questions', () => {
         const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
         const token = (await auth(user)).token;
         const res = await request(app)
-            .post(`/categories/${categoryId.toString()}/questions`)
-            .send(body)
+            .post(`/questions`)
+            .send({ ...body, ...{ category: categoryId } })
             .auth(token, { type: 'bearer' })
         ;
 
@@ -88,8 +86,8 @@ describe('POST /categories/:category_id/questions', () => {
         const user = await fixture<User>(User, { permissions: [Permission.REGULAR] });
         const token = (await auth(user)).token;
         const res = await request(app)
-            .post(`/categories/${categoryId.toString()}/questions`)
-            .send({ title: 'any' })
+            .post(`/questions`)
+            .send({ title: 'any', category: categoryId })
             .auth(token, { type: 'bearer' })
         ;
 
@@ -104,8 +102,9 @@ describe('POST /categories/:category_id/questions', () => {
         const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
         const token = (await auth(user)).token;
         const res = await request(app)
-            .post(`/categories/${categoryId.toString()}/questions`)
+            .post(`/questions`)
             .send({
+                category: categoryId,
                 title: question.getTitle(),
                 type: QuestionType.TYPE,
                 difficulty: QuestionDifficulty.EASY,
@@ -126,6 +125,7 @@ describe('POST /categories/:category_id/questions', () => {
         const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
         const token = (await auth(user)).token;
         const schema = {
+            category: categoryId.toString(),
             title: faker.lorem.sentences(3),
             type: QuestionType.TYPE,
             difficulty: QuestionDifficulty.EASY,
@@ -133,7 +133,7 @@ describe('POST /categories/:category_id/questions', () => {
             explanation: faker.lorem.sentence(),
         };
         const res = await request(app)
-            .post(`/categories/${categoryId.toString()}/questions`)
+            .post(`/questions`)
             .send(schema)
             .auth(token, { type: 'bearer' })
         ;
@@ -142,6 +142,6 @@ describe('POST /categories/:category_id/questions', () => {
         expect(res.body).toHaveProperty('id');
         const id = new ObjectId(res.body.id);
         expect(res.body).toMatchObject(schema);
-        expect(await load<Question>(Question, id)).toMatchObject(schema);
+        expect(await load<Question>(Question, id)).toMatchObject({ ...schema, ...{ category: categoryId } });
     });
 });
