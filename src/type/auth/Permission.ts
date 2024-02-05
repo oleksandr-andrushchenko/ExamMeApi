@@ -8,5 +8,6 @@ export enum Permission {
     DELETE_CATEGORY = 'deleteCategory',
     CREATE_QUESTION = 'createQuestion',
     REPLACE_QUESTION = 'replaceQuestion',
+    UPDATE_QUESTION = 'updateQuestion',
     ALL = '*',
 }
