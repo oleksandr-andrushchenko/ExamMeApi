@@ -9,5 +9,6 @@ export enum Permission {
     CREATE_QUESTION = 'createQuestion',
     REPLACE_QUESTION = 'replaceQuestion',
     UPDATE_QUESTION = 'updateQuestion',
+    DELETE_QUESTION = 'deleteQuestion',
     ALL = '*',
 }
