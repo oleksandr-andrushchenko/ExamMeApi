@@ -52,7 +52,7 @@ export default class MeController {
     @Get()
     @Authorized()
     @OpenAPI({
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
             200: { description: 'OK' },
             401: { description: 'Unauthorized' },
@@ -70,7 +70,7 @@ export default class MeController {
     @HttpCode(205)
     @OnUndefined(205)
     @OpenAPI({
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
             205: { description: 'Reset Content' },
             400: { description: 'Bad Request' },
@@ -100,7 +100,7 @@ export default class MeController {
     @HttpCode(205)
     @OnUndefined(205)
     @OpenAPI({
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
             205: { description: 'Reset Content' },
             400: { description: 'Bad Request' },
@@ -130,7 +130,7 @@ export default class MeController {
     @HttpCode(204)
     @OnUndefined(204)
     @OpenAPI({
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
             204: { description: 'No Content' },
             401: { description: 'Unauthorized' },

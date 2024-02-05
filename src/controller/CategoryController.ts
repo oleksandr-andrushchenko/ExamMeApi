@@ -37,7 +37,7 @@ export default class CategoryController {
     @Authorized()
     @HttpCode(201)
     @OpenAPI({
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
             201: { description: 'Created' },
             400: { description: 'Bad Request' },
@@ -102,7 +102,7 @@ export default class CategoryController {
     @HttpCode(205)
     @OnUndefined(205)
     @OpenAPI({
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
             205: { description: 'Reset Content' },
             400: { description: 'Bad Request' },
@@ -141,7 +141,7 @@ export default class CategoryController {
     @HttpCode(205)
     @OnUndefined(205)
     @OpenAPI({
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
             205: { description: 'Reset Content' },
             400: { description: 'Bad Request' },
@@ -180,7 +180,7 @@ export default class CategoryController {
     @HttpCode(204)
     @OnUndefined(204)
     @OpenAPI({
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
             204: { description: 'No Content' },
             401: { description: 'Unauthorized' },

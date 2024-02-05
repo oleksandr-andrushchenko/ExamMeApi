@@ -29,7 +29,7 @@ export default class UserController {
     @Authorized()
     @HttpCode(201)
     @OpenAPI({
-        security: [{ bearerAuth: [] }],
+        security: [ { bearerAuth: [] } ],
         responses: {
             201: { description: 'Created' },
             400: { description: 'Bad Request' },
