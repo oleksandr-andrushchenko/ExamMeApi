@@ -14,6 +14,7 @@ import QuestionTitleTakenError from "../../error/question/QuestionTitleTakenErro
 import CategoryService from "../category/CategoryService";
 import QuestionOwnershipError from "../../error/question/QuestionOwnershipError";
 import QuestionNotFoundError from "../../error/question/QuestionNotFoundError";
+import QuestionUpdateSchema from "../../schema/question/QuestionUpdateSchema";
 
 @Service()
 export default class QuestionService {
@@ -131,6 +132,64 @@ export default class QuestionService {
         await this.entityManager.save<Question>(question);
 
         this.eventDispatcher.dispatch('questionReplaced', { question });
+
+        return question;
+    }
+
+    /**
+     * @param {string} id
+     * @param {QuestionSchema} transfer
+     * @param {User} initiator
+     * @returns {Promise<Question>}
+     * @throws {QuestionNotFoundError}
+     * @throws {CategoryNotFoundError}
+     * @throws {AuthorizationFailedError}
+     * @throws {QuestionTitleTakenError}
+     */
+    public async updateQuestion(id: string, transfer: QuestionUpdateSchema, initiator: User): Promise<Question> {
+        const question = await this.getQuestion(id);
+
+        await this.authService.verifyAuthorization(initiator, Permission.UPDATE_QUESTION);
+        this.verifyQuestionOwnership(question, initiator);
+
+        await this.validator.validate(transfer);
+
+        if (transfer.hasOwnProperty('category')) {
+            const category: Category = await this.categoryService.getCategory(transfer.category);
+            question.setCategory(category.getId());
+        }
+
+        if (transfer.hasOwnProperty('title')) {
+            const title = transfer.title;
+            await this.verifyQuestionTitleNotExists(title);
+            question.setTitle(title);
+        }
+
+        if (transfer.hasOwnProperty('type')) {
+            question.setType(transfer.type);
+        }
+
+        if (transfer.hasOwnProperty('difficulty')) {
+            question.setDifficulty(transfer.difficulty);
+        }
+
+        if (question.getType() === QuestionType.TYPE) {
+            if (transfer.hasOwnProperty('answers')) {
+                question.setAnswers(transfer.answers);
+            }
+
+            if (transfer.hasOwnProperty('explanation')) {
+                question.setExplanation(transfer.explanation);
+            }
+        } else if (question.getType() === QuestionType.CHOICE) {
+            if (transfer.hasOwnProperty('choices')) {
+                question.setChoices(transfer.choices);
+            }
+        }
+
+        await this.entityManager.save<Question>(question);
+
+        this.eventDispatcher.dispatch('questionUpdated', { question });
 
         return question;
     }
