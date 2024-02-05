@@ -1,6 +1,6 @@
 import {
     JsonController, Post, Body, HttpCode, CurrentUser, ForbiddenError, Authorized, Param, NotFoundError,
-    BadRequestError, Get, Put, OnUndefined, Patch,
+    BadRequestError, Get, Put, OnUndefined, Patch, Delete,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import Question from "../entity/Question";
@@ -186,6 +186,37 @@ export default class QuestionController {
                     throw new NotFoundError((error as QuestionNotFoundError).message);
                 case error instanceof QuestionTitleTakenError:
                     throw new ConflictHttpError((error as QuestionTitleTakenError).message);
+            }
+        }
+    }
+
+    @Delete('/questions/:question_id')
+    @Authorized()
+    @HttpCode(204)
+    @OnUndefined(204)
+    @OpenAPI({
+        security: [ { bearerAuth: [] } ],
+        responses: {
+            204: { description: 'No Content' },
+            401: { description: 'Unauthorized' },
+            403: { description: 'Forbidden' },
+            404: { description: 'Not Found' },
+        },
+    })
+    public async deleteQuestion(
+        @Param('question_id') id: string,
+        @CurrentUser({ required: true }) user: User,
+    ): Promise<void> {
+        try {
+            await this.questionService.deleteQuestion(id, user);
+        } catch (error) {
+            switch (true) {
+                case error instanceof AuthorizationFailedError:
+                    throw new ForbiddenError((error as AuthorizationFailedError).message);
+                case error instanceof QuestionOwnershipError:
+                    throw new ForbiddenError((error as QuestionOwnershipError).message);
+                case error instanceof QuestionNotFoundError:
+                    throw new NotFoundError((error as QuestionNotFoundError).message);
             }
         }
     }
