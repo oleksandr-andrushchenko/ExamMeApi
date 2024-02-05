@@ -1,11 +1,6 @@
 import {
-    JsonController,
-    Get, Post, Delete, Put, Patch,
-    Body,
-    HttpCode,
-    CurrentUser,
-    Param,
-    NotFoundError, ForbiddenError, Authorized, OnUndefined, BadRequestError
+    JsonController, Get, Post, Delete, Put, Patch, Body, HttpCode, CurrentUser, Param, NotFoundError, ForbiddenError,
+    Authorized, OnUndefined, BadRequestError,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import Category from "../entity/Category";
@@ -48,8 +43,8 @@ export default class CategoryController {
     })
     @ResponseSchema(Category)
     public async createCategory(
-        @CurrentUser({ required: true }) user: User,
         @Body({ required: true }) category: CategorySchema,
+        @CurrentUser({ required: true }) user: User,
     ): Promise<Category> {
         try {
             return await this.categoryService.createCategory(category, user);
@@ -114,12 +109,12 @@ export default class CategoryController {
     })
     @ResponseSchema(Category)
     public async replaceCategory(
-        @CurrentUser({ required: true }) user: User,
         @Param('category_id') id: string,
         @Body({ required: true }) category: CategorySchema,
+        @CurrentUser({ required: true }) user: User,
     ): Promise<void> {
         try {
-            await this.categoryService.replaceCategoryById(id, category, user);
+            await this.categoryService.replaceCategory(id, category, user);
         } catch (error) {
             switch (true) {
                 case error instanceof ValidatorError:
@@ -153,12 +148,12 @@ export default class CategoryController {
     })
     @ResponseSchema(Category)
     public async updateCategory(
-        @CurrentUser({ required: true }) user: User,
         @Param('category_id') id: string,
         @Body({ required: true }) category: CategoryUpdateSchema,
+        @CurrentUser({ required: true }) user: User,
     ): Promise<void> {
         try {
-            await this.categoryService.updateCategoryById(id, category, user);
+            await this.categoryService.updateCategory(id, category, user);
         } catch (error) {
             switch (true) {
                 case error instanceof ValidatorError:
@@ -189,11 +184,11 @@ export default class CategoryController {
         },
     })
     public async deleteCategory(
-        @CurrentUser({ required: true }) user: User,
         @Param('category_id') id: string,
+        @CurrentUser({ required: true }) user: User,
     ): Promise<void> {
         try {
-            await this.categoryService.deleteCategoryById(id, user);
+            await this.categoryService.deleteCategory(id, user);
         } catch (error) {
             switch (true) {
                 case error instanceof AuthorizationFailedError:

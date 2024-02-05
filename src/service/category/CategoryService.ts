@@ -77,7 +77,7 @@ export default class CategoryService {
      * @throws {CategoryOwnershipError}
      * @throws {CategoryNameTakenError}
      */
-    public async updateCategoryById(id: string, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
+    public async updateCategory(id: string, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
         const category: Category = await this.getCategory(id);
 
         await this.authService.verifyAuthorization(initiator, Permission.UPDATE_CATEGORY);
@@ -109,7 +109,7 @@ export default class CategoryService {
      * @throws {CategoryOwnershipError}
      * @throws {CategoryNameTakenError}
      */
-    public async replaceCategoryById(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
+    public async replaceCategory(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
         const category: Category = await this.getCategory(id);
 
         await this.authService.verifyAuthorization(initiator, Permission.REPLACE_CATEGORY);
@@ -136,7 +136,7 @@ export default class CategoryService {
      * @throws {AuthorizationFailedError}
      * @throws {CategoryOwnershipError}
      */
-    public async deleteCategoryById(id: string, initiator: User): Promise<Category> {
+    public async deleteCategory(id: string, initiator: User): Promise<Category> {
         const category: Category = await this.getCategory(id);
 
         await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY);

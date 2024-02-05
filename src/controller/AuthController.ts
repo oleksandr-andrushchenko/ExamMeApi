@@ -1,11 +1,5 @@
 import {
-    JsonController,
-    Post,
-    Body,
-    HttpCode,
-    NotFoundError,
-    ForbiddenError,
-    BadRequestError
+    JsonController, Post, Body, HttpCode, NotFoundError, ForbiddenError, BadRequestError,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import AuthService from "../service/auth/AuthService";
@@ -39,7 +33,9 @@ export default class AuthController {
         },
     })
     @ResponseSchema(TokenSchema)
-    public async createAuth(@Body({ required: true }) auth: AuthSchema): Promise<TokenSchema> {
+    public async createAuth(
+        @Body({ required: true }) auth: AuthSchema,
+    ): Promise<TokenSchema> {
         try {
             const user: User = await this.userService.getUserByAuth(auth);
 

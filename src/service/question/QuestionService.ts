@@ -74,23 +74,23 @@ export default class QuestionService {
     }
 
     /**
-     * @param {string} questionId
+     * @param {string} id
      * @param {string} categoryId
      * @returns {Promise<Question>}
      * @throws {QuestionNotFoundError}
      */
-    public async getQuestion(questionId: string, categoryId: string = undefined): Promise<Question> {
-        const question: Question = await this.questionRepository.findOneById(questionId);
+    public async getQuestion(id: string, categoryId: string = undefined): Promise<Question> {
+        const question: Question = await this.questionRepository.findOneById(id);
 
         if (!question || (categoryId && question.getCategory().toString() !== categoryId)) {
-            throw new QuestionNotFoundError(questionId);
+            throw new QuestionNotFoundError(id);
         }
 
         return question;
     }
 
     /**
-     * @param {string} questionId
+     * @param {string} id
      * @param {QuestionSchema} transfer
      * @param {User} initiator
      * @returns {Promise<Question>}
@@ -99,8 +99,8 @@ export default class QuestionService {
      * @throws {AuthorizationFailedError}
      * @throws {QuestionTitleTakenError}
      */
-    public async replaceQuestion(questionId: string, transfer: QuestionSchema, initiator: User): Promise<Question> {
-        const question = await this.getQuestion(questionId);
+    public async replaceQuestion(id: string, transfer: QuestionSchema, initiator: User): Promise<Question> {
+        const question = await this.getQuestion(id);
 
         await this.authService.verifyAuthorization(initiator, Permission.REPLACE_QUESTION);
         this.verifyQuestionOwnership(question, initiator);

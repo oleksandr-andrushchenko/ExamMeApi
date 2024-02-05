@@ -1,8 +1,6 @@
 import {
-    JsonController,
-    Post,
-    Body,
-    HttpCode, Get, Authorized, CurrentUser, Put, OnUndefined, Patch, Delete, BadRequestError,
+    JsonController, Post, Body, HttpCode, Get, Authorized, CurrentUser, Put, OnUndefined, Patch, Delete,
+    BadRequestError,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import User from "../entity/User";
@@ -80,8 +78,8 @@ export default class MeController {
     })
     @ResponseSchema(Category)
     public async replaceMe(
-        @CurrentUser({ required: true }) user: User,
         @Body({ required: true }) me: MeSchema,
+        @CurrentUser({ required: true }) user: User,
     ): Promise<void> {
         try {
             await this.meService.replaceMe(me, user);
@@ -110,8 +108,8 @@ export default class MeController {
     })
     @ResponseSchema(User)
     public async updateMe(
-        @CurrentUser({ required: true }) user: User,
         @Body({ required: true }) me: MeUpdateSchema,
+        @CurrentUser({ required: true }) user: User,
     ): Promise<void> {
         try {
             await this.meService.updateMe(me, user);

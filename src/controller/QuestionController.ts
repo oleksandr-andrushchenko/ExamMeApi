@@ -96,10 +96,10 @@ export default class QuestionController {
     })
     @ResponseSchema(Question)
     public async findQuestion(
-        @Param('question_id') questionId: string,
+        @Param('question_id') id: string,
     ): Promise<Question> {
         try {
-            return await this.questionService.getQuestion(questionId);
+            return await this.questionService.getQuestion(id);
         } catch (error) {
             switch (true) {
                 case error instanceof QuestionNotFoundError:
@@ -125,12 +125,12 @@ export default class QuestionController {
     })
     @ResponseSchema(Question)
     public async replaceQuestion(
-        @Param('question_id') questionId: string,
+        @Param('question_id') id: string,
         @Body({ required: true }) question: QuestionSchema,
         @CurrentUser({ required: true }) user: User,
     ): Promise<void> {
         try {
-            await this.questionService.replaceQuestion(questionId, question, user);
+            await this.questionService.replaceQuestion(id, question, user);
         } catch (error) {
             switch (true) {
                 case error instanceof ValidatorError:
@@ -166,12 +166,12 @@ export default class QuestionController {
     })
     @ResponseSchema(Question)
     public async updateQuestion(
-        @Param('question_id') questionId: string,
+        @Param('question_id') id: string,
         @Body({ required: true }) question: QuestionUpdateSchema,
         @CurrentUser({ required: true }) user: User,
     ): Promise<void> {
         try {
-            await this.questionService.updateQuestion(questionId, question, user);
+            await this.questionService.updateQuestion(id, question, user);
         } catch (error) {
             switch (true) {
                 case error instanceof CategoryNotFoundError:

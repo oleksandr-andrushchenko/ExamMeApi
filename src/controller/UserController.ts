@@ -1,10 +1,5 @@
 import {
-    JsonController,
-    Post,
-    Body,
-    HttpCode,
-    CurrentUser,
-    Authorized, ForbiddenError, BadRequestError,
+    JsonController, Post, Body, HttpCode, CurrentUser, Authorized, ForbiddenError, BadRequestError,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import User from "../entity/User";
@@ -40,8 +35,8 @@ export default class UserController {
     })
     @ResponseSchema(User)
     public async createUser(
-        @CurrentUser({ required: true }) currentUser: User,
         @Body({ required: true }) user: UserSchema,
+        @CurrentUser({ required: true }) currentUser: User,
     ): Promise<User> {
         try {
             return await this.userService.createUser(user, currentUser);
