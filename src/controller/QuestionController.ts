@@ -1,6 +1,6 @@
 import {
     JsonController, Post, Body, HttpCode, CurrentUser, ForbiddenError, Authorized, Param, NotFoundError,
-    BadRequestError, Get, Put, OnUndefined,
+    BadRequestError, Get, Put, OnUndefined, Patch,
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import Question from "../entity/Question";
@@ -16,7 +16,8 @@ import ValidatorError from "../error/validator/ValidatorError";
 import QuestionRepository from "../repository/QuestionRepository";
 import CategoryService from "../service/category/CategoryService";
 import QuestionNotFoundError from "../error/question/QuestionNotFoundError";
-import CategoryOwnershipError from "../error/category/CategoryOwnershipError";
+import QuestionOwnershipError from "../error/question/QuestionOwnershipError";
+import QuestionUpdateSchema from "../schema/question/QuestionUpdateSchema";
 
 @Service()
 @JsonController()
@@ -140,8 +141,49 @@ export default class QuestionController {
                     throw new BadRequestError((error as CategoryNotFoundError).message);
                 case error instanceof QuestionNotFoundError:
                     throw new NotFoundError((error as QuestionNotFoundError).message);
-                case error instanceof CategoryOwnershipError:
-                    throw new ForbiddenError((error as CategoryOwnershipError).message);
+                case error instanceof QuestionOwnershipError:
+                    throw new ForbiddenError((error as QuestionOwnershipError).message);
+                case error instanceof QuestionTitleTakenError:
+                    throw new ConflictHttpError((error as QuestionTitleTakenError).message);
+            }
+        }
+    }
+
+    @Patch('/questions/:question_id')
+    @Authorized()
+    @HttpCode(205)
+    @OnUndefined(205)
+    @OpenAPI({
+        security: [ { bearerAuth: [] } ],
+        responses: {
+            205: { description: 'Reset Content' },
+            400: { description: 'Bad Request' },
+            401: { description: 'Unauthorized' },
+            403: { description: 'Forbidden' },
+            404: { description: 'Not Found' },
+            409: { description: 'Conflict' },
+        },
+    })
+    @ResponseSchema(Question)
+    public async updateQuestion(
+        @Param('question_id') questionId: string,
+        @Body({ required: true }) question: QuestionUpdateSchema,
+        @CurrentUser({ required: true }) user: User,
+    ): Promise<void> {
+        try {
+            await this.questionService.updateQuestion(questionId, question, user);
+        } catch (error) {
+            switch (true) {
+                case error instanceof CategoryNotFoundError:
+                    throw new BadRequestError((error as CategoryNotFoundError).message);
+                case error instanceof ValidatorError:
+                    throw new BadRequestError((error as ValidatorError).message);
+                case error instanceof AuthorizationFailedError:
+                    throw new ForbiddenError((error as AuthorizationFailedError).message);
+                case error instanceof QuestionOwnershipError:
+                    throw new ForbiddenError((error as QuestionOwnershipError).message);
+                case error instanceof QuestionNotFoundError:
+                    throw new NotFoundError((error as QuestionNotFoundError).message);
                 case error instanceof QuestionTitleTakenError:
                     throw new ConflictHttpError((error as QuestionTitleTakenError).message);
             }
