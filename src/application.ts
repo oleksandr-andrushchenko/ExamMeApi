@@ -64,9 +64,9 @@ export default (): {
         url: config.db.url,
         synchronize: config.db.synchronize,
         logging: config.db.logging,
-        entities: [`${projectDir}/src/entity/*.ts`],
-        subscribers: [`${projectDir}/src/subscriber/*.ts`],
-        migrations: [`${projectDir}/src/migration/*.ts`],
+        entities: [ `${projectDir}/src/entity/*.ts` ],
+        subscribers: [ `${projectDir}/src/subscriber/*.ts` ],
+        migrations: [ `${projectDir}/src/migration/*.ts` ],
         monitorCommands: mongoLogging,
     };
 
@@ -98,8 +98,8 @@ export default (): {
         const routingControllersOptions: RoutingControllersOptions = {
             authorizationChecker: authService.getAuthorizationChecker(),
             currentUserChecker: authService.getCurrentUserChecker(),
-            controllers: [`${projectDir}/src/controller/*.ts`],
-            middlewares: [`${projectDir}/src/middleware/*.ts`],
+            controllers: [ `${projectDir}/src/controller/*.ts` ],
+            middlewares: [ `${projectDir}/src/middleware/*.ts` ],
             validation: false, // config.validator,
             classTransformer: true,
             defaultErrorHandler: false,

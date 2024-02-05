@@ -85,7 +85,7 @@ export default class CategoryService {
 
         await this.validator.validate(transfer);
 
-        if (transfer.name) {
+        if (transfer.hasOwnProperty('name')) {
             const name = transfer.name;
             await this.verifyCategoryNameNotExists(name, category.getId());
 

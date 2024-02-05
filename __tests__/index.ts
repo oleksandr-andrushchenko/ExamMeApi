@@ -40,7 +40,7 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
                 .setName(faker.person.fullName())
                 .setEmail(faker.internet.email())
                 .setPassword(faker.internet.password())
-                .setPermissions(options['permissions'] ?? [Permission.REGULAR])
+                .setPermissions(options['permissions'] ?? [ Permission.REGULAR ])
             ;
             break;
         case Category:

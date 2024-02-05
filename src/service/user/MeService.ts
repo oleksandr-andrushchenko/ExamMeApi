@@ -71,17 +71,17 @@ export default class MeService {
     public async updateMe(transfer: MeUpdateSchema, initiator: User): Promise<User> {
         await this.validator.validate(transfer);
 
-        if (transfer.email) {
+        if (transfer.hasOwnProperty('email')) {
             const email = transfer.email;
             await this.userService.verifyUserEmailNotExists(email);
             initiator.setEmail(email);
         }
 
-        if (transfer.name) {
+        if (transfer.hasOwnProperty('name')) {
             initiator.setName(transfer.name);
         }
 
-        if (transfer.password) {
+        if (transfer.hasOwnProperty('password')) {
             initiator.setPassword(transfer.password);
         }
 

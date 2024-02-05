@@ -32,7 +32,7 @@ export default class User {
     @ArrayNotEmpty()
     @IsEnum(Permission, { each: true })
     @ArrayUnique()
-    @Column({ type: 'set', enum: Permission, default: [Permission.REGULAR] })
+    @Column({ type: 'set', enum: Permission, default: [ Permission.REGULAR ] })
     private permissions: Permission[];
 
     @Exclude()

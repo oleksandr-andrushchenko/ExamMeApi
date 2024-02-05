@@ -9,7 +9,6 @@ import UserEmailTakenError from "../error/user/UserEmailTakenError";
 import ConflictHttpError from "../error/http/ConflictHttpError";
 import MeSchema from "../schema/user/MeSchema";
 import MeService from "../service/user/MeService";
-import Category from "../entity/Category";
 import MeUpdateSchema from "../schema/user/MeUpdateSchema";
 import ValidatorError from "../error/validator/ValidatorError";
 
