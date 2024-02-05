@@ -76,7 +76,6 @@ export default class MeController {
             409: { description: 'Conflict' },
         },
     })
-    @ResponseSchema(Category)
     public async replaceMe(
         @Body({ required: true }) me: MeSchema,
         @CurrentUser({ required: true }) user: User,
@@ -106,7 +105,6 @@ export default class MeController {
             409: { description: 'Conflict' },
         },
     })
-    @ResponseSchema(User)
     public async updateMe(
         @Body({ required: true }) me: MeUpdateSchema,
         @CurrentUser({ required: true }) user: User,

@@ -107,7 +107,6 @@ export default class CategoryController {
             409: { description: 'Conflict' },
         },
     })
-    @ResponseSchema(Category)
     public async replaceCategory(
         @Param('category_id') id: string,
         @Body({ required: true }) category: CategorySchema,
@@ -146,7 +145,6 @@ export default class CategoryController {
             409: { description: 'Conflict' },
         },
     })
-    @ResponseSchema(Category)
     public async updateCategory(
         @Param('category_id') id: string,
         @Body({ required: true }) category: CategoryUpdateSchema,

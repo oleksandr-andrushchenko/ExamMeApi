@@ -123,7 +123,6 @@ export default class QuestionController {
             409: { description: 'Conflict' },
         },
     })
-    @ResponseSchema(Question)
     public async replaceQuestion(
         @Param('question_id') id: string,
         @Body({ required: true }) question: QuestionSchema,
@@ -164,7 +163,6 @@ export default class QuestionController {
             409: { description: 'Conflict' },
         },
     })
-    @ResponseSchema(Question)
     public async updateQuestion(
         @Param('question_id') id: string,
         @Body({ required: true }) question: QuestionUpdateSchema,
