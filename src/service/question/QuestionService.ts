@@ -31,9 +31,9 @@ export default class QuestionService {
 
 
     /**
-     * @param {CategorySchema} transfer
+     * @param {QuestionSchema} transfer
      * @param {User} initiator
-     * @returns {Promise<Category>}
+     * @returns {Promise<Question>}
      * @throws {CategoryNotFoundError}
      * @throws {AuthorizationFailedError}
      * @throws {QuestionTitleTakenError}
@@ -195,10 +195,32 @@ export default class QuestionService {
     }
 
     /**
+     * @param {string} id
+     * @param {User} initiator
+     * @returns {Promise<Question>}
+     * @throws {QuestionNotFoundError}
+     * @throws {AuthorizationFailedError}
+     * @throws {QuestionOwnershipError}
+     */
+    public async deleteQuestion(id: string, initiator: User): Promise<Question> {
+        const question: Question = await this.getQuestion(id);
+
+        await this.authService.verifyAuthorization(initiator, Permission.DELETE_QUESTION);
+        this.verifyQuestionOwnership(question, initiator);
+
+        // todo: soft delete
+        await this.entityManager.remove<Question>(question);
+
+        this.eventDispatcher.dispatch('questionDeleted', { question });
+
+        return question;
+    }
+
+    /**
      * @param {string} title
      * @param {ObjectId} ignoreId
      * @returns {Promise<void>}
-     * @throws {CategoryNameTakenError}
+     * @throws {QuestionTitleTakenError}
      */
     public async verifyQuestionTitleNotExists(title: string, ignoreId: ObjectId = undefined): Promise<void> {
         if (await this.questionRepository.findOneByTitle(title, ignoreId)) {
