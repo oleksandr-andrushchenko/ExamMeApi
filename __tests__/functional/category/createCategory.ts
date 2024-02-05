@@ -18,7 +18,7 @@ describe('POST /categories', () => {
     });
 
     test('Bad request (empty body)', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_CATEGORY] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_CATEGORY ] });
         const token = (await auth(user)).token;
         const res = await request(app).post('/categories').auth(token, { type: 'bearer' });
 
@@ -27,7 +27,7 @@ describe('POST /categories', () => {
     });
 
     test('Forbidden', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.REGULAR] });
+        const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] });
         const token = (await auth(user)).token;
         const res = await request(app).post('/categories').send({ name: 'any' }).auth(token, { type: 'bearer' });
 
@@ -37,7 +37,7 @@ describe('POST /categories', () => {
 
     test('Conflict', async () => {
         const category = await fixture<Category>(Category);
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_CATEGORY] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_CATEGORY ] });
         const token = (await auth(user)).token;
         const res = await request(app).post('/categories').send({ name: category.getName() }).auth(token, { type: 'bearer' });
 
@@ -46,7 +46,7 @@ describe('POST /categories', () => {
     });
 
     test('Created', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_CATEGORY] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_CATEGORY ] });
         const token = (await auth(user)).token;
         const schema = { name: 'any' };
         const res = await request(app).post('/categories').send(schema).auth(token, { type: 'bearer' });

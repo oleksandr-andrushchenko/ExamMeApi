@@ -19,7 +19,7 @@ describe('DELETE /categories/:category_id', () => {
     });
 
     test('Not found', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.DELETE_CATEGORY] });
+        const user = await fixture<User>(User, { permissions: [ Permission.DELETE_CATEGORY ] });
         const token = (await auth(user)).token;
         const id = await fakeId();
         const res = await request(app).delete(`/categories/${id.toString()}`).auth(token, { type: 'bearer' });
@@ -29,7 +29,7 @@ describe('DELETE /categories/:category_id', () => {
     });
 
     test('Forbidden (no permissions)', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.REGULAR] });
+        const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] });
         const category = await fixture<Category>(Category);
         const id = category.getId();
         const token = (await auth(user)).token;
@@ -40,7 +40,7 @@ describe('DELETE /categories/:category_id', () => {
     });
 
     test('Forbidden (no ownership)', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.DELETE_CATEGORY] });
+        const user = await fixture<User>(User, { permissions: [ Permission.DELETE_CATEGORY ] });
         const category = await fixture<Category>(Category);
         const id = category.getId();
         const token = (await auth(user)).token;
@@ -51,7 +51,7 @@ describe('DELETE /categories/:category_id', () => {
     });
 
     test('Deleted', async () => {
-        const category = await fixture<Category>(Category, { permissions: [Permission.DELETE_CATEGORY] });
+        const category = await fixture<Category>(Category, { permissions: [ Permission.DELETE_CATEGORY ] });
         const id = category.getId();
         const user = await load<User>(User, category.getCreator());
         const token = (await auth(user)).token;

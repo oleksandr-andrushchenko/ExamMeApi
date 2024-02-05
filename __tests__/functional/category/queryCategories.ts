@@ -15,7 +15,7 @@ describe('GET /categories', () => {
     });
 
     test('Not empty', async () => {
-        const categories = await Promise.all([fixture<Category>(Category), fixture<Category>(Category)]);
+        const categories = await Promise.all([ fixture<Category>(Category), fixture<Category>(Category) ]);
 
         const res = await request(app).get('/categories');
 

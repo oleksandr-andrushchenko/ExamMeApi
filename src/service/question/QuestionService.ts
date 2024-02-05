@@ -89,6 +89,53 @@ export default class QuestionService {
     }
 
     /**
+     * @param {string} questionId
+     * @param {QuestionSchema} transfer
+     * @param {User} initiator
+     * @returns {Promise<Question>}
+     * @throws {QuestionNotFoundError}
+     * @throws {CategoryNotFoundError}
+     * @throws {AuthorizationFailedError}
+     * @throws {QuestionTitleTakenError}
+     */
+    public async replaceQuestion(questionId: string, transfer: QuestionSchema, initiator: User): Promise<Question> {
+        const question = await this.getQuestion(questionId);
+
+        await this.authService.verifyAuthorization(initiator, Permission.REPLACE_QUESTION);
+        this.verifyQuestionOwnership(question, initiator);
+
+        await this.validator.validate(transfer);
+        const category: Category = await this.categoryService.getCategory(transfer.category);
+
+        const title = transfer.title;
+        await this.verifyQuestionTitleNotExists(title);
+
+        question
+            .setCategory(category.getId())
+            .setType(transfer.type)
+            .setDifficulty(transfer.difficulty)
+            .setTitle(title)
+            .setCreator(initiator.getId())
+        ;
+
+        if (question.getType() === QuestionType.TYPE) {
+            question
+                .setAnswers(transfer.answers)
+                .setExplanation(transfer.explanation)
+            ;
+        } else if (question.getType() === QuestionType.CHOICE) {
+            question
+                .setChoices(transfer.choices)
+            ;
+        }
+        await this.entityManager.save<Question>(question);
+
+        this.eventDispatcher.dispatch('questionReplaced', { question });
+
+        return question;
+    }
+
+    /**
      * @param {string} title
      * @param {ObjectId} ignoreId
      * @returns {Promise<void>}

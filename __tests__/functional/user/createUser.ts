@@ -17,7 +17,7 @@ describe('POST /users', () => {
     });
 
     test('Bad request (empty body)', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_USER] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_USER ] });
         const token = (await auth(user)).token;
         const res = await request(app).post('/users').auth(token, { type: 'bearer' });
 
@@ -26,7 +26,7 @@ describe('POST /users', () => {
     });
 
     test('Forbidden', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.REGULAR] });
+        const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] });
         const token = (await auth(user)).token;
         const res = await request(app).post('/users').send({
             name: 'any',
@@ -40,7 +40,7 @@ describe('POST /users', () => {
 
     test('Conflict', async () => {
         const user1 = await fixture<User>(User);
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_USER] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_USER ] });
         const token = (await auth(user)).token;
         const res = await request(app).post('/users').send({
             name: 'any',
@@ -53,10 +53,14 @@ describe('POST /users', () => {
     });
 
     test('Created', async () => {
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_USER] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_USER ] });
         const token = (await auth(user)).token;
         const schema = { name: 'any', email: 'a@a.com' };
-        const res = await request(app).post('/users').send({ ...schema, ...{ password: '123123' } }).auth(token, { type: 'bearer' });
+        const res = await request(app)
+            .post('/users')
+            .send({ ...schema, ...{ password: '123123' } })
+            .auth(token, { type: 'bearer' })
+        ;
 
         expect(res.status).toEqual(201);
         expect(res.body).toHaveProperty('id');

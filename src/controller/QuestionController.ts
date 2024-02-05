@@ -1,6 +1,6 @@
 import {
     JsonController, Post, Body, HttpCode, CurrentUser, ForbiddenError, Authorized, Param, NotFoundError,
-    BadRequestError, Get, Put, OnUndefined,
+    BadRequestError, Get
 } from "routing-controllers";
 import { Inject, Service } from "typedi";
 import Question from "../entity/Question";

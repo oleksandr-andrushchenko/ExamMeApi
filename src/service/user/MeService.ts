@@ -35,7 +35,7 @@ export default class MeService {
             .setName(transfer.name)
             .setEmail(email)
             .setPassword(transfer.password)
-            .setPermissions([Permission.REGULAR])
+            .setPermissions([ Permission.REGULAR ])
         ;
         await this.entityManager.save<User>(user);
 

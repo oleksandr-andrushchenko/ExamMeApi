@@ -21,7 +21,7 @@ describe('POST /questions', () => {
 
     test('Bad request (category not found)', async () => {
         const categoryId = await fakeId();
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_QUESTION ] });
         const token = (await auth(user)).token;
         const res = await request(app)
             .post(`/questions`)
@@ -52,7 +52,7 @@ describe('POST /questions', () => {
                 title: 'any',
                 type: QuestionType.CHOICE,
                 difficulty: QuestionDifficulty.EASY,
-                choices: [{ correct: false }]
+                choices: [ { correct: false } ]
             }
         },
         {
@@ -61,13 +61,13 @@ describe('POST /questions', () => {
                 title: 'any',
                 type: QuestionType.CHOICE,
                 difficulty: QuestionDifficulty.EASY,
-                choices: [{ title: 'any' }]
+                choices: [ { title: 'any' } ]
             }
         },
     ])('Bad request ($case)', async ({ body }) => {
         const category = await fixture<Category>(Category);
         const categoryId = category.getId();
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_QUESTION ] });
         const token = (await auth(user)).token;
         const res = await request(app)
             .post(`/questions`)
@@ -83,7 +83,7 @@ describe('POST /questions', () => {
     test('Forbidden', async () => {
         const category = await fixture<Category>(Category);
         const categoryId = category.getId();
-        const user = await fixture<User>(User, { permissions: [Permission.REGULAR] });
+        const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] });
         const token = (await auth(user)).token;
         const res = await request(app)
             .post(`/questions`)
@@ -99,7 +99,7 @@ describe('POST /questions', () => {
         const category = await fixture<Category>(Category);
         const categoryId = category.getId();
         const question = await fixture<Question>(Question);
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_QUESTION ] });
         const token = (await auth(user)).token;
         const res = await request(app)
             .post(`/questions`)
@@ -108,7 +108,7 @@ describe('POST /questions', () => {
                 title: question.getTitle(),
                 type: QuestionType.TYPE,
                 difficulty: QuestionDifficulty.EASY,
-                answers: [faker.lorem.word()],
+                answers: [ faker.lorem.word() ],
                 explanation: faker.lorem.sentence(),
             })
             .auth(token, { type: 'bearer' })
@@ -122,14 +122,14 @@ describe('POST /questions', () => {
     test('Created', async () => {
         const category = await fixture<Category>(Category);
         const categoryId = category.getId();
-        const user = await fixture<User>(User, { permissions: [Permission.CREATE_QUESTION] });
+        const user = await fixture<User>(User, { permissions: [ Permission.CREATE_QUESTION ] });
         const token = (await auth(user)).token;
         const schema = {
             category: categoryId.toString(),
             title: faker.lorem.sentences(3),
             type: QuestionType.TYPE,
             difficulty: QuestionDifficulty.EASY,
-            answers: [faker.lorem.word()],
+            answers: [ faker.lorem.word() ],
             explanation: faker.lorem.sentence(),
         };
         const res = await request(app)
