@@ -100,6 +100,7 @@ export default (): {
             currentUserChecker: authService.getCurrentUserChecker(),
             controllers: [ `${projectDir}/src/controller/*.ts` ],
             middlewares: [ `${projectDir}/src/middleware/*.ts` ],
+            cors: config.app.cors,
             validation: config.app.validator,
             classTransformer: true,
             defaultErrorHandler: false,

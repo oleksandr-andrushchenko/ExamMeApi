@@ -29,6 +29,7 @@ export default {
         version: pkg.version,
         description: pkg.description,
         port: env.PORT,
+        cors: true,
         validator: false,
     },
     auth: {
