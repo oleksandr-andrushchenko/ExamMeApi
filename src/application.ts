@@ -100,7 +100,7 @@ export default (): {
             currentUserChecker: authService.getCurrentUserChecker(),
             controllers: [ `${projectDir}/src/controller/*.ts` ],
             middlewares: [ `${projectDir}/src/middleware/*.ts` ],
-            validation: false, // config.validator,
+            validation: config.app.validator,
             classTransformer: true,
             defaultErrorHandler: false,
         };
