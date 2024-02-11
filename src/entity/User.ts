@@ -16,8 +16,9 @@ export default class User {
     @Transform((params: { value: ObjectId }) => params.value.toString())
     private id: ObjectId;
 
+    @IsOptional()
     @Length(2, 30)
-    @Column({ nullable: false })
+    @Column()
     private name: string;
 
     @IsEmail()
@@ -66,13 +67,13 @@ export default class User {
         return this.id;
     }
 
-    public setName(name: string): this {
+    public setName(name: string | undefined): this {
         this.name = name;
 
         return this;
     }
 
-    public getName(): string {
+    public getName(): string | undefined {
         return this.name;
     }
 

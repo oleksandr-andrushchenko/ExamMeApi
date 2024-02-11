@@ -32,11 +32,15 @@ export default class MeService {
         await this.userService.verifyUserEmailNotExists(email);
 
         const user: User = (new User())
-            .setName(transfer.name)
             .setEmail(email)
             .setPassword(transfer.password)
             .setPermissions([ Permission.REGULAR ])
         ;
+
+        if (transfer.hasOwnProperty('name')) {
+            user.setName(transfer.name);
+        }
+
         await this.entityManager.save<User>(user);
 
         this.eventDispatcher.dispatch('meCreated', { me: user });
@@ -61,6 +65,11 @@ export default class MeService {
             .setEmail(email)
             .setPassword(transfer.password)
         ;
+
+        if (transfer.hasOwnProperty('name')) {
+            initiator.setName(transfer.name);
+        }
+
         await this.entityManager.save<User>(initiator);
 
         this.eventDispatcher.dispatch('meReplaced', { me: initiator });

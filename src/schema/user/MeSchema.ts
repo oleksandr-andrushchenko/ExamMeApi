@@ -1,7 +1,8 @@
-import { IsEmail, IsStrongPassword, Length } from "class-validator";
+import { IsEmail, IsOptional, IsStrongPassword, Length } from "class-validator";
 
 export default class MeSchema {
 
+    @IsOptional()
     @Length(2, 30)
     public readonly name: string;
 

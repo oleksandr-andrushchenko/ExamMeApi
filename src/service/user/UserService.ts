@@ -40,12 +40,16 @@ export default class UserService {
         await this.verifyUserEmailNotExists(email);
 
         const user: User = (new User())
-            .setName(transfer.name)
             .setEmail(email)
             .setPassword(transfer.password)
             .setPermissions(transfer.permissions ?? [ Permission.REGULAR ])
             .setCreator(initiator.getId())
         ;
+
+        if (transfer.hasOwnProperty('name')) {
+            user.setName(transfer.name);
+        }
+
         await this.entityManager.save<User>(user);
 
         this.eventDispatcher.dispatch('userCreated', { user });
