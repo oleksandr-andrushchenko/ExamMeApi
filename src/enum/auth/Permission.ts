@@ -1,4 +1,4 @@
-export enum Permission {
+enum Permission {
     REGULAR = 'regular',
     ROOT = 'root',
     CREATE_USER = 'createUser',
@@ -12,3 +12,5 @@ export enum Permission {
     DELETE_QUESTION = 'deleteQuestion',
     ALL = '*',
 }
+
+export default Permission;

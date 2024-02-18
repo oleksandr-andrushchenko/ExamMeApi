@@ -7,7 +7,7 @@ import { Request } from "express";
 import InjectEventDispatcher, { EventDispatcherInterface } from "../../decorator/InjectEventDispatcher";
 import TokenSchema from "../../schema/auth/TokenSchema";
 import AuthorizationFailedError from "../../error/auth/AuthorizationFailedError";
-import { Permission } from "../../type/auth/Permission";
+import Permission from "../../enum/auth/Permission";
 
 @Service()
 export default class AuthService {

@@ -57,7 +57,7 @@ export default (): {
     const mongoLogging = config.db.type === 'mongodb' && config.db.logging;
 
     const connectionManager = new ConnectionManager();
-    Container.set({ id: ConnectionManager, value: connectionManager });
+    Container.set(ConnectionManager, connectionManager);
 
     const dataSourceOptions: MongoConnectionOptions = {
         type: config.db.type,

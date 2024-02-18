@@ -4,7 +4,7 @@ import InjectEntityManager, { EntityManagerInterface } from "../../decorator/Inj
 import Category from "../../entity/Category";
 import User from "../../entity/User";
 import AuthService from "../auth/AuthService";
-import { Permission } from "../../type/auth/Permission";
+import Permission from "../../enum/auth/Permission";
 import { ObjectId } from "mongodb";
 import ValidatorInterface from "../validator/ValidatorInterface";
 import Question, { QuestionType } from "../../entity/Question";

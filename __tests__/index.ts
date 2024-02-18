@@ -10,7 +10,7 @@ import AuthService from "../src/service/auth/AuthService";
 import TokenSchema from "../src/schema/auth/TokenSchema";
 import CategoryRepository from "../src/repository/CategoryRepository";
 import UserRepository from "../src/repository/UserRepository";
-import { Permission } from "../src/type/auth/Permission";
+import Permission from "../src/enum/auth/Permission";
 import { ObjectId } from "mongodb";
 import QuestionRepository from "../src/repository/QuestionRepository";
 import Question, { QuestionChoice, QuestionDifficulty, QuestionType } from "../src/entity/Question";

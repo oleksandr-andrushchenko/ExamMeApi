@@ -4,7 +4,7 @@ import request from "supertest";
 import { api, fixture, error, auth, load, fakeId } from "../../index";
 import Category from "../../../src/entity/Category";
 import User from "../../../src/entity/User";
-import { Permission } from "../../../src/type/auth/Permission";
+import Permission from "../../../src/enum/auth/Permission";
 
 describe('PATCH /categories/:category_id', () => {
     const app = api();

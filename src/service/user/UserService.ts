@@ -9,7 +9,7 @@ import UserEmailTakenError from "../../error/user/UserEmailTakenError";
 import InjectEntityManager, { EntityManagerInterface } from "../../decorator/InjectEntityManager";
 import UserSchema from "../../schema/user/UserSchema";
 import AuthSchema from "../../schema/auth/AuthSchema";
-import { Permission } from "../../type/auth/Permission";
+import Permission from "../../enum/auth/Permission";
 import AuthService from "../auth/AuthService";
 import ValidatorInterface from "../validator/ValidatorInterface";
 

@@ -9,7 +9,7 @@ import CategoryNotFoundError from "../../error/category/CategoryNotFoundError";
 import CategoryOwnershipError from "../../error/category/CategoryOwnershipError";
 import CategorySchema from "../../schema/category/CategorySchema";
 import AuthService from "../auth/AuthService";
-import { Permission } from "../../type/auth/Permission";
+import Permission from "../../enum/auth/Permission";
 import { ObjectId } from "mongodb";
 import CategoryUpdateSchema from "../../schema/category/CategoryUpdateSchema";
 import ValidatorInterface from "../validator/ValidatorInterface";

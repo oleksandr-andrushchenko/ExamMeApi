@@ -6,7 +6,7 @@ import { ObjectId } from "mongodb";
 import {
     ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length,
 } from "class-validator";
-import { Permission } from "../type/auth/Permission";
+import Permission from "../enum/auth/Permission";
 
 @Entity({ name: 'users' })
 export default class User {

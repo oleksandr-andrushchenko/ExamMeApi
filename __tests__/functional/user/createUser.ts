@@ -3,7 +3,7 @@ import request from "supertest";
 // @ts-ignore
 import { api, fixture, error, auth, load } from "../../index";
 import User from "../../../src/entity/User";
-import { Permission } from "../../../src/type/auth/Permission";
+import Permission from "../../../src/enum/auth/Permission";
 import { ObjectId } from "mongodb";
 
 describe('POST /users', () => {

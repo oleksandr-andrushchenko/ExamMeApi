@@ -1,4 +1,4 @@
-import { Permission } from "../../type/auth/Permission";
+import Permission from "../../enum/auth/Permission";
 
 export default class AuthorizationFailedError extends Error {
 

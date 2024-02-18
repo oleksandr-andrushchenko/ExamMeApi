@@ -2,7 +2,7 @@ import { Inject, Service } from "typedi";
 import User from "../../entity/User";
 import InjectEventDispatcher, { EventDispatcherInterface } from "../../decorator/InjectEventDispatcher";
 import InjectEntityManager, { EntityManagerInterface } from "../../decorator/InjectEntityManager";
-import { Permission } from "../../type/auth/Permission";
+import Permission from "../../enum/auth/Permission";
 import MeSchema from "../../schema/user/MeSchema";
 import ValidatorInterface from "../validator/ValidatorInterface";
 import UserService from "./UserService";
