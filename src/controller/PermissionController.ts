@@ -9,7 +9,7 @@ import PermissionHierarchy from "../type/auth/PermissionHierarchy";
 export default class PermissionController {
 
     constructor(
-        @Inject('authPermissionHierarchy') private readonly permissionHierarchy: PermissionHierarchy,
+        @Inject('authPermissions') private readonly permissionHierarchy: PermissionHierarchy,
     ) {
     }
 
