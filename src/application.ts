@@ -47,6 +47,7 @@ export default (): {
     Container.set('loggerLevel', config.logger.level);
     Container.set('authPermissions', config.auth.permissions);
     Container.set('validatorOptions', config.validator);
+    Container.set('authPermissionHierarchy', config.auth.permissions);
 
     const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLogger>(WinstonLogger) : new NullLogger();
     Container.set('logger', logger);
