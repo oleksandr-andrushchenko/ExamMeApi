@@ -5,7 +5,7 @@ export default class ValidatorError extends Error {
     constructor(
         private readonly errors: ValidationError[],
     ) {
-        super(`Validation error${errors.length === 1 ? '' : 's'} ${JSON.stringify(errors)}`);
+        super(`Validation errors ${JSON.stringify(errors)}`);
     }
 
     public getErrors(): ValidationError[] {
