@@ -4,16 +4,16 @@ import Logger from "./Logger";
 import { Service } from "typedi";
 import { WinstonLoggerFactory } from "./WinstonLoggerFactory";
 
-@Service({ factory: [WinstonLoggerFactory, 'create'] })
+@Service({ factory: [ WinstonLoggerFactory, 'create' ] })
 export default class WinstonLogger extends Logger implements LoggerInterface {
 
-    constructor(private readonly winstonLogger: winston.Logger) {
-        super();
-    }
+  constructor(private readonly winstonLogger: winston.Logger) {
+    super();
+  }
 
-    protected log(level: string, message: string, args: unknown[]): LoggerInterface {
-        this.winstonLogger.log(level, message, args);
+  protected log(level: string, message: string, args: unknown[]): LoggerInterface {
+    this.winstonLogger.log(level, message, args);
 
-        return this;
-    }
+    return this;
+  }
 }

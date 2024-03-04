@@ -17,159 +17,159 @@ import ValidatorInterface from "../validator/ValidatorInterface";
 @Service()
 export default class CategoryService {
 
-    constructor(
-        @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
-        @Inject() private readonly categoryRepository: CategoryRepository,
-        @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
-        @Inject() private readonly authService: AuthService,
-        @Inject('validator') private readonly validator: ValidatorInterface,
-    ) {
+  constructor(
+    @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
+    @Inject() private readonly categoryRepository: CategoryRepository,
+    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly authService: AuthService,
+    @Inject('validator') private readonly validator: ValidatorInterface,
+  ) {
+  }
+
+  /**
+   * @param {CategorySchema} transfer
+   * @param {User} initiator
+   * @returns {Promise<Category>}
+   * @throws {AuthorizationFailedError}
+   * @throws {CategoryNameTakenError}
+   */
+  public async createCategory(transfer: CategorySchema, initiator: User): Promise<Category> {
+    await this.authService.verifyAuthorization(initiator, Permission.CREATE_CATEGORY);
+
+    await this.validator.validate(transfer);
+
+    const name = transfer.name;
+    await this.verifyCategoryNameNotExists(name);
+
+    const category: Category = (new Category())
+      .setName(name)
+      .setCreator(initiator.getId())
+    ;
+    await this.entityManager.save<Category>(category);
+
+    this.eventDispatcher.dispatch('categoryCreated', { category });
+
+    return category;
+  }
+
+  /**
+   * @param {string} id
+   * @returns {Promise<Category>}
+   * @throws {CategoryNotFoundError}
+   */
+  public async getCategory(id: string): Promise<Category> {
+    const category: Category = await this.categoryRepository.findOneById(id);
+
+    if (!category) {
+      throw new CategoryNotFoundError(id);
     }
 
-    /**
-     * @param {CategorySchema} transfer
-     * @param {User} initiator
-     * @returns {Promise<Category>}
-     * @throws {AuthorizationFailedError}
-     * @throws {CategoryNameTakenError}
-     */
-    public async createCategory(transfer: CategorySchema, initiator: User): Promise<Category> {
-        await this.authService.verifyAuthorization(initiator, Permission.CREATE_CATEGORY);
+    return category;
+  }
 
-        await this.validator.validate(transfer);
+  /**
+   * @param {string} id
+   * @param {CategoryUpdateSchema} transfer
+   * @param {User} initiator
+   * @returns {Promise<Category>}
+   * @throws {CategoryNotFoundError}
+   * @throws {AuthorizationFailedError}
+   * @throws {CategoryOwnershipError}
+   * @throws {CategoryNameTakenError}
+   */
+  public async updateCategory(id: string, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
+    const category: Category = await this.getCategory(id);
 
-        const name = transfer.name;
-        await this.verifyCategoryNameNotExists(name);
+    await this.authService.verifyAuthorization(initiator, Permission.UPDATE_CATEGORY);
+    this.verifyCategoryOwnership(category, initiator);
 
-        const category: Category = (new Category())
-            .setName(name)
-            .setCreator(initiator.getId())
-        ;
-        await this.entityManager.save<Category>(category);
+    await this.validator.validate(transfer);
 
-        this.eventDispatcher.dispatch('categoryCreated', { category });
+    if (transfer.hasOwnProperty('name')) {
+      const name = transfer.name;
+      await this.verifyCategoryNameNotExists(name, category.getId());
 
-        return category;
+      category.setName(name);
     }
 
-    /**
-     * @param {string} id
-     * @returns {Promise<Category>}
-     * @throws {CategoryNotFoundError}
-     */
-    public async getCategory(id: string): Promise<Category> {
-        const category: Category = await this.categoryRepository.findOneById(id);
+    await this.entityManager.save<Category>(category);
 
-        if (!category) {
-            throw new CategoryNotFoundError(id);
-        }
+    this.eventDispatcher.dispatch('categoryUpdated', { category });
 
-        return category;
+    return category;
+  }
+
+  /**
+   * @param {string} id
+   * @param {CategorySchema} transfer
+   * @param {User} initiator
+   * @returns {Promise<Category>}
+   * @throws {CategoryNotFoundError}
+   * @throws {AuthorizationFailedError}
+   * @throws {CategoryOwnershipError}
+   * @throws {CategoryNameTakenError}
+   */
+  public async replaceCategory(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
+    const category: Category = await this.getCategory(id);
+
+    await this.authService.verifyAuthorization(initiator, Permission.REPLACE_CATEGORY);
+    this.verifyCategoryOwnership(category, initiator);
+
+    await this.validator.validate(transfer);
+
+    const name = transfer.name;
+    await this.verifyCategoryNameNotExists(name, category.getId());
+
+    category.setName(name);
+    await this.entityManager.save<Category>(category);
+
+    this.eventDispatcher.dispatch('categoryReplaced', { category });
+
+    return category;
+  }
+
+  /**
+   * @param {string} id
+   * @param {User} initiator
+   * @returns {Promise<Category>}
+   * @throws {CategoryNotFoundError}
+   * @throws {AuthorizationFailedError}
+   * @throws {CategoryOwnershipError}
+   */
+  public async deleteCategory(id: string, initiator: User): Promise<Category> {
+    const category: Category = await this.getCategory(id);
+
+    await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY);
+    this.verifyCategoryOwnership(category, initiator);
+
+    // todo: soft delete
+    await this.entityManager.remove<Category>(category);
+
+    this.eventDispatcher.dispatch('categoryDeleted', { category });
+
+    return category;
+  }
+
+  /**
+   * @param {string} name
+   * @param {ObjectId} ignoreId
+   * @returns {Promise<void>}
+   * @throws {CategoryNameTakenError}
+   */
+  public async verifyCategoryNameNotExists(name: string, ignoreId: ObjectId = undefined): Promise<void> {
+    if (await this.categoryRepository.findOneByName(name, ignoreId)) {
+      throw new CategoryNameTakenError(name);
     }
+  }
 
-    /**
-     * @param {string} id
-     * @param {CategoryUpdateSchema} transfer
-     * @param {User} initiator
-     * @returns {Promise<Category>}
-     * @throws {CategoryNotFoundError}
-     * @throws {AuthorizationFailedError}
-     * @throws {CategoryOwnershipError}
-     * @throws {CategoryNameTakenError}
-     */
-    public async updateCategory(id: string, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
-        const category: Category = await this.getCategory(id);
-
-        await this.authService.verifyAuthorization(initiator, Permission.UPDATE_CATEGORY);
-        this.verifyCategoryOwnership(category, initiator);
-
-        await this.validator.validate(transfer);
-
-        if (transfer.hasOwnProperty('name')) {
-            const name = transfer.name;
-            await this.verifyCategoryNameNotExists(name, category.getId());
-
-            category.setName(name);
-        }
-
-        await this.entityManager.save<Category>(category);
-
-        this.eventDispatcher.dispatch('categoryUpdated', { category });
-
-        return category;
+  /**
+   * @param {Category} category
+   * @param {User} initiator
+   * @throws {CategoryOwnershipError}
+   */
+  public verifyCategoryOwnership(category: Category, initiator: User): void {
+    if (category.getCreator().toString() !== initiator.getId().toString()) {
+      throw new CategoryOwnershipError(category.getId().toString());
     }
-
-    /**
-     * @param {string} id
-     * @param {CategorySchema} transfer
-     * @param {User} initiator
-     * @returns {Promise<Category>}
-     * @throws {CategoryNotFoundError}
-     * @throws {AuthorizationFailedError}
-     * @throws {CategoryOwnershipError}
-     * @throws {CategoryNameTakenError}
-     */
-    public async replaceCategory(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
-        const category: Category = await this.getCategory(id);
-
-        await this.authService.verifyAuthorization(initiator, Permission.REPLACE_CATEGORY);
-        this.verifyCategoryOwnership(category, initiator);
-
-        await this.validator.validate(transfer);
-
-        const name = transfer.name;
-        await this.verifyCategoryNameNotExists(name, category.getId());
-
-        category.setName(name);
-        await this.entityManager.save<Category>(category);
-
-        this.eventDispatcher.dispatch('categoryReplaced', { category });
-
-        return category;
-    }
-
-    /**
-     * @param {string} id
-     * @param {User} initiator
-     * @returns {Promise<Category>}
-     * @throws {CategoryNotFoundError}
-     * @throws {AuthorizationFailedError}
-     * @throws {CategoryOwnershipError}
-     */
-    public async deleteCategory(id: string, initiator: User): Promise<Category> {
-        const category: Category = await this.getCategory(id);
-
-        await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY);
-        this.verifyCategoryOwnership(category, initiator);
-
-        // todo: soft delete
-        await this.entityManager.remove<Category>(category);
-
-        this.eventDispatcher.dispatch('categoryDeleted', { category });
-
-        return category;
-    }
-
-    /**
-     * @param {string} name
-     * @param {ObjectId} ignoreId
-     * @returns {Promise<void>}
-     * @throws {CategoryNameTakenError}
-     */
-    public async verifyCategoryNameNotExists(name: string, ignoreId: ObjectId = undefined): Promise<void> {
-        if (await this.categoryRepository.findOneByName(name, ignoreId)) {
-            throw new CategoryNameTakenError(name);
-        }
-    }
-
-    /**
-     * @param {Category} category
-     * @param {User} initiator
-     * @throws {CategoryOwnershipError}
-     */
-    public verifyCategoryOwnership(category: Category, initiator: User): void {
-        if (category.getCreator().toString() !== initiator.getId().toString()) {
-            throw new CategoryOwnershipError(category.getId().toString());
-        }
-    }
+  }
 }

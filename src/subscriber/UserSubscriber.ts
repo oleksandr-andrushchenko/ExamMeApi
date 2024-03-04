@@ -7,17 +7,17 @@ import UserService from "../service/user/UserService";
 @EventSubscriber()
 export default class UserSubscriber implements EntitySubscriberInterface {
 
-    constructor(
-        @Inject() private readonly userService: UserService,
-    ) {
-    }
+  constructor(
+    @Inject() private readonly userService: UserService,
+  ) {
+  }
 
-    public listenTo(): typeof User {
-        return User;
-    }
+  public listenTo(): typeof User {
+    return User;
+  }
 
-    public async beforeInsert(event: InsertEvent<User>): Promise<void> {
-        const user: User = event.entity;
-        user.setPassword(await this.userService.hashUserPassword(user.getPassword()));
-    }
+  public async beforeInsert(event: InsertEvent<User>): Promise<void> {
+    const user: User = event.entity;
+    user.setPassword(await this.userService.hashUserPassword(user.getPassword()));
+  }
 }

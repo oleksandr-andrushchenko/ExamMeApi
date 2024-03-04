@@ -11,102 +11,102 @@ import MeUpdateSchema from "../../schema/user/MeUpdateSchema";
 @Service()
 export default class MeService {
 
-    constructor(
-        @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
-        @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
-        @Inject('validator') private readonly validator: ValidatorInterface,
-        @Inject() private readonly userService: UserService,
-    ) {
+  constructor(
+    @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
+    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject('validator') private readonly validator: ValidatorInterface,
+    @Inject() private readonly userService: UserService,
+  ) {
+  }
+
+  /**
+   * @param {MeSchema} transfer
+   * @returns {Promise<User>}
+   * @throws {AuthorizationFailedError}
+   * @throws {UserEmailTakenError}
+   */
+  public async createMe(transfer: MeSchema): Promise<User> {
+    await this.validator.validate(transfer);
+
+    const email = transfer.email;
+    await this.userService.verifyUserEmailNotExists(email);
+
+    const user: User = (new User())
+      .setEmail(email)
+      .setPassword(transfer.password)
+      .setPermissions([ Permission.REGULAR ])
+    ;
+
+    if (transfer.hasOwnProperty('name')) {
+      user.setName(transfer.name);
     }
 
-    /**
-     * @param {MeSchema} transfer
-     * @returns {Promise<User>}
-     * @throws {AuthorizationFailedError}
-     * @throws {UserEmailTakenError}
-     */
-    public async createMe(transfer: MeSchema): Promise<User> {
-        await this.validator.validate(transfer);
+    await this.entityManager.save<User>(user);
 
-        const email = transfer.email;
-        await this.userService.verifyUserEmailNotExists(email);
+    this.eventDispatcher.dispatch('meCreated', { me: user });
 
-        const user: User = (new User())
-            .setEmail(email)
-            .setPassword(transfer.password)
-            .setPermissions([ Permission.REGULAR ])
-        ;
+    return user;
+  }
 
-        if (transfer.hasOwnProperty('name')) {
-            user.setName(transfer.name);
-        }
+  /**
+   * @param {MeSchema} transfer
+   * @param {User} initiator
+   * @returns {Promise<User>}
+   * @throws {UserEmailTakenError}
+   */
+  public async replaceMe(transfer: MeSchema, initiator: User): Promise<User> {
+    await this.validator.validate(transfer);
 
-        await this.entityManager.save<User>(user);
+    const email = transfer.email;
+    await this.userService.verifyUserEmailNotExists(email);
 
-        this.eventDispatcher.dispatch('meCreated', { me: user });
+    initiator
+      .setName(transfer.name)
+      .setEmail(email)
+      .setPassword(transfer.password)
+    ;
 
-        return user;
+    if (transfer.hasOwnProperty('name')) {
+      initiator.setName(transfer.name);
     }
 
-    /**
-     * @param {MeSchema} transfer
-     * @param {User} initiator
-     * @returns {Promise<User>}
-     * @throws {UserEmailTakenError}
-     */
-    public async replaceMe(transfer: MeSchema, initiator: User): Promise<User> {
-        await this.validator.validate(transfer);
+    await this.entityManager.save<User>(initiator);
 
-        const email = transfer.email;
-        await this.userService.verifyUserEmailNotExists(email);
+    this.eventDispatcher.dispatch('meReplaced', { me: initiator });
 
-        initiator
-            .setName(transfer.name)
-            .setEmail(email)
-            .setPassword(transfer.password)
-        ;
+    return initiator;
+  }
 
-        if (transfer.hasOwnProperty('name')) {
-            initiator.setName(transfer.name);
-        }
+  public async updateMe(transfer: MeUpdateSchema, initiator: User): Promise<User> {
+    await this.validator.validate(transfer);
 
-        await this.entityManager.save<User>(initiator);
-
-        this.eventDispatcher.dispatch('meReplaced', { me: initiator });
-
-        return initiator;
+    if (transfer.hasOwnProperty('email')) {
+      const email = transfer.email;
+      await this.userService.verifyUserEmailNotExists(email);
+      initiator.setEmail(email);
     }
 
-    public async updateMe(transfer: MeUpdateSchema, initiator: User): Promise<User> {
-        await this.validator.validate(transfer);
-
-        if (transfer.hasOwnProperty('email')) {
-            const email = transfer.email;
-            await this.userService.verifyUserEmailNotExists(email);
-            initiator.setEmail(email);
-        }
-
-        if (transfer.hasOwnProperty('name')) {
-            initiator.setName(transfer.name);
-        }
-
-        if (transfer.hasOwnProperty('password')) {
-            initiator.setPassword(transfer.password);
-        }
-
-        await this.entityManager.save<User>(initiator);
-
-        this.eventDispatcher.dispatch('meUpdated', { me: initiator });
-
-        return initiator;
+    if (transfer.hasOwnProperty('name')) {
+      initiator.setName(transfer.name);
     }
 
-    public async deleteMe(initiator: User): Promise<User> {
-        // todo: soft delete
-        await this.entityManager.remove<User>(initiator);
-
-        this.eventDispatcher.dispatch('meDeleted', { me: initiator });
-
-        return initiator;
+    if (transfer.hasOwnProperty('password')) {
+      initiator.setPassword(transfer.password);
     }
+
+    await this.entityManager.save<User>(initiator);
+
+    this.eventDispatcher.dispatch('meUpdated', { me: initiator });
+
+    return initiator;
+  }
+
+  public async deleteMe(initiator: User): Promise<User> {
+    // todo: soft delete
+    await this.entityManager.remove<User>(initiator);
+
+    this.eventDispatcher.dispatch('meDeleted', { me: initiator });
+
+    return initiator;
+  }
 }

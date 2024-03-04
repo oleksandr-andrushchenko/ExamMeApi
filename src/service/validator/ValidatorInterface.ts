@@ -1,4 +1,4 @@
 export default interface ValidatorInterface {
 
-    validate(object: object): Promise<void>;
+  validate(object: object): Promise<void>;
 }

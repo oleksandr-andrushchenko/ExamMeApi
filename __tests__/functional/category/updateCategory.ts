@@ -7,102 +7,102 @@ import User from "../../../src/entity/User";
 import Permission from "../../../src/enum/auth/Permission";
 
 describe('PATCH /categories/:category_id', () => {
-    const app = api();
+  const app = api();
 
-    test('Unauthorized', async () => {
-        const category = await fixture<Category>(Category);
-        const id = category.getId();
-        const res = await request(app).patch(`/categories/${id.toString()}`).send({ name: 'any' });
+  test('Unauthorized', async () => {
+    const category = await fixture<Category>(Category);
+    const id = category.getId();
+    const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: 'any' });
 
-        expect(res.status).toEqual(401);
-        expect(res.body).toMatchObject(error('AuthorizationRequiredError'));
-    });
+    expect(res.status).toEqual(401);
+    expect(res.body).toMatchObject(error('AuthorizationRequiredError'));
+  });
 
-    test('Not found', async () => {
-        const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_CATEGORY ] });
-        const token = (await auth(user)).token;
-        const id = await fakeId();
-        const res = await request(app)
-            .patch(`/categories/${id.toString()}`)
-            .send({ name: 'any' })
-            .auth(token, { type: 'bearer' })
-        ;
+  test('Not found', async () => {
+    const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_CATEGORY ] });
+    const token = (await auth(user)).token;
+    const id = await fakeId();
+    const res = await request(app)
+      .patch(`/categories/${ id.toString() }`)
+      .send({ name: 'any' })
+      .auth(token, { type: 'bearer' })
+    ;
 
-        expect(res.status).toEqual(404);
-        expect(res.body).toMatchObject(error('NotFoundError'));
-    });
+    expect(res.status).toEqual(404);
+    expect(res.body).toMatchObject(error('NotFoundError'));
+  });
 
-    test('Bad request (empty body)', async () => {
-        const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_CATEGORY ] });
-        const token = (await auth(user)).token;
-        const category = await fixture<Category>(Category);
-        const id = category.getId();
-        const res = await request(app).patch(`/categories/${id.toString()}`).auth(token, { type: 'bearer' });
+  test('Bad request (empty body)', async () => {
+    const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_CATEGORY ] });
+    const token = (await auth(user)).token;
+    const category = await fixture<Category>(Category);
+    const id = category.getId();
+    const res = await request(app).patch(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' });
 
-        expect(res.status).toEqual(400);
-        expect(res.body).toMatchObject(error('BadRequestError'));
-    });
+    expect(res.status).toEqual(400);
+    expect(res.body).toMatchObject(error('BadRequestError'));
+  });
 
-    test('Forbidden (no permissions)', async () => {
-        const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] });
-        const category = await fixture<Category>(Category);
-        const id = category.getId();
-        const token = (await auth(user)).token;
-        const res = await request(app)
-            .patch(`/categories/${id.toString()}`)
-            .send({ name: 'any' })
-            .auth(token, { type: 'bearer' })
-        ;
+  test('Forbidden (no permissions)', async () => {
+    const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] });
+    const category = await fixture<Category>(Category);
+    const id = category.getId();
+    const token = (await auth(user)).token;
+    const res = await request(app)
+      .patch(`/categories/${ id.toString() }`)
+      .send({ name: 'any' })
+      .auth(token, { type: 'bearer' })
+    ;
 
-        expect(res.status).toEqual(403);
-        expect(res.body).toMatchObject(error('ForbiddenError'));
-    });
+    expect(res.status).toEqual(403);
+    expect(res.body).toMatchObject(error('ForbiddenError'));
+  });
 
-    test('Forbidden (no ownership)', async () => {
-        const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_CATEGORY ] });
-        const category = await fixture<Category>(Category);
-        const id = category.getId();
-        const token = (await auth(user)).token;
-        const res = await request(app)
-            .patch(`/categories/${id.toString()}`)
-            .send({ name: 'any' })
-            .auth(token, { type: 'bearer' })
-        ;
+  test('Forbidden (no ownership)', async () => {
+    const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_CATEGORY ] });
+    const category = await fixture<Category>(Category);
+    const id = category.getId();
+    const token = (await auth(user)).token;
+    const res = await request(app)
+      .patch(`/categories/${ id.toString() }`)
+      .send({ name: 'any' })
+      .auth(token, { type: 'bearer' })
+    ;
 
-        expect(res.status).toEqual(403);
-        expect(res.body).toMatchObject(error('ForbiddenError'));
-    });
+    expect(res.status).toEqual(403);
+    expect(res.body).toMatchObject(error('ForbiddenError'));
+  });
 
-    test('Conflict', async () => {
-        const category1 = await fixture<Category>(Category);
-        const category = await fixture<Category>(Category, { permissions: [ Permission.UPDATE_CATEGORY ] });
-        const id = category.getId();
-        const user = await load<User>(User, category.getCreator());
-        const token = (await auth(user)).token;
-        const res = await request(app)
-            .patch(`/categories/${id.toString()}`)
-            .send({ name: category1.getName() })
-            .auth(token, { type: 'bearer' })
-        ;
+  test('Conflict', async () => {
+    const category1 = await fixture<Category>(Category);
+    const category = await fixture<Category>(Category, { permissions: [ Permission.UPDATE_CATEGORY ] });
+    const id = category.getId();
+    const user = await load<User>(User, category.getCreator());
+    const token = (await auth(user)).token;
+    const res = await request(app)
+      .patch(`/categories/${ id.toString() }`)
+      .send({ name: category1.getName() })
+      .auth(token, { type: 'bearer' })
+    ;
 
-        expect(res.status).toEqual(409);
-        expect(res.body).toMatchObject(error('ConflictError'));
-    });
+    expect(res.status).toEqual(409);
+    expect(res.body).toMatchObject(error('ConflictError'));
+  });
 
-    test('Updated', async () => {
-        const category = await fixture<Category>(Category, { permissions: [ Permission.UPDATE_CATEGORY ] });
-        const id = category.getId();
-        const user = await load<User>(User, category.getCreator());
-        const token = (await auth(user)).token;
-        const schema = { name: 'any' };
-        const res = await request(app)
-            .patch(`/categories/${id.toString()}`)
-            .send(schema)
-            .auth(token, { type: 'bearer' })
-        ;
+  test('Updated', async () => {
+    const category = await fixture<Category>(Category, { permissions: [ Permission.UPDATE_CATEGORY ] });
+    const id = category.getId();
+    const user = await load<User>(User, category.getCreator());
+    const token = (await auth(user)).token;
+    const schema = { name: 'any' };
+    const res = await request(app)
+      .patch(`/categories/${ id.toString() }`)
+      .send(schema)
+      .auth(token, { type: 'bearer' })
+    ;
 
-        expect(res.status).toEqual(205);
-        expect(res.body).toEqual('');
-        expect(await load<Category>(Category, id)).toMatchObject(schema);
-    });
+    expect(res.status).toEqual(205);
+    expect(res.body).toEqual('');
+    expect(await load<Category>(Category, id)).toMatchObject(schema);
+  });
 });

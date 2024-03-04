@@ -16,93 +16,93 @@ import ValidatorInterface from "../validator/ValidatorInterface";
 @Service()
 export default class UserService {
 
-    constructor(
-        @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
-        @Inject() private readonly userRepository: UserRepository,
-        @Inject() private readonly authService: AuthService,
-        @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
-        @Inject('validator') private readonly validator: ValidatorInterface,
-    ) {
+  constructor(
+    @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
+    @Inject() private readonly userRepository: UserRepository,
+    @Inject() private readonly authService: AuthService,
+    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject('validator') private readonly validator: ValidatorInterface,
+  ) {
+  }
+
+  /**
+   * @param transfer
+   * @param initiator
+   * @throws AuthorizationFailedError
+   * @throws UserEmailTakenError
+   */
+  public async createUser(transfer: UserSchema, initiator: User): Promise<User> {
+    await this.authService.verifyAuthorization(initiator, Permission.CREATE_USER);
+
+    await this.validator.validate(transfer);
+
+    const email = transfer.email;
+    await this.verifyUserEmailNotExists(email);
+
+    const user: User = (new User())
+      .setEmail(email)
+      .setPassword(transfer.password)
+      .setPermissions(transfer.permissions ?? [ Permission.REGULAR ])
+      .setCreator(initiator.getId())
+    ;
+
+    if (transfer.hasOwnProperty('name')) {
+      user.setName(transfer.name);
     }
 
-    /**
-     * @param transfer
-     * @param initiator
-     * @throws AuthorizationFailedError
-     * @throws UserEmailTakenError
-     */
-    public async createUser(transfer: UserSchema, initiator: User): Promise<User> {
-        await this.authService.verifyAuthorization(initiator, Permission.CREATE_USER);
+    await this.entityManager.save<User>(user);
 
-        await this.validator.validate(transfer);
+    this.eventDispatcher.dispatch('userCreated', { user });
 
-        const email = transfer.email;
-        await this.verifyUserEmailNotExists(email);
+    return user;
+  }
 
-        const user: User = (new User())
-            .setEmail(email)
-            .setPassword(transfer.password)
-            .setPermissions(transfer.permissions ?? [ Permission.REGULAR ])
-            .setCreator(initiator.getId())
-        ;
+  public async getUserByAuth(transfer: AuthSchema): Promise<User | null> {
+    await this.validator.validate(transfer);
 
-        if (transfer.hasOwnProperty('name')) {
-            user.setName(transfer.name);
+    const email: string = transfer.email;
+    const user: User = await this.getUserByEmail(email);
+
+    if (!await this.compareUserPassword(user, transfer.password)) {
+      throw new UserWrongCredentialsError();
+    }
+
+    return user;
+  }
+
+  public async hashUserPassword(password: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      bcrypt.hash(password, 10, (err, hash) => {
+        if (err) {
+          return reject(err);
         }
 
-        await this.entityManager.save<User>(user);
+        resolve(hash);
+      });
+    });
+  }
 
-        this.eventDispatcher.dispatch('userCreated', { user });
+  public async compareUserPassword(user: User, password: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      bcrypt.compare(password, user.getPassword(), (_, res) => {
+        resolve(res === true);
+      });
+    });
+  }
 
-        return user;
+  public async getUserByEmail(email: string): Promise<User> {
+    const user: User = await this.userRepository.findOneByEmail(email);
+
+    if (!user) {
+      throw new UserNotFoundError(email);
     }
 
-    public async getUserByAuth(transfer: AuthSchema): Promise<User | null> {
-        await this.validator.validate(transfer);
+    return user;
+  }
 
-        const email: string = transfer.email;
-        const user: User = await this.getUserByEmail(email);
-
-        if (!await this.compareUserPassword(user, transfer.password)) {
-            throw new UserWrongCredentialsError();
-        }
-
-        return user;
+  public async verifyUserEmailNotExists(email: string): Promise<void> {
+    if (await this.userRepository.findOneByEmail(email)) {
+      throw new UserEmailTakenError(email);
     }
-
-    public async hashUserPassword(password: string): Promise<string> {
-        return new Promise((resolve, reject) => {
-            bcrypt.hash(password, 10, (err, hash) => {
-                if (err) {
-                    return reject(err);
-                }
-
-                resolve(hash);
-            });
-        });
-    }
-
-    public async compareUserPassword(user: User, password: string): Promise<boolean> {
-        return new Promise((resolve) => {
-            bcrypt.compare(password, user.getPassword(), (_, res) => {
-                resolve(res === true);
-            });
-        });
-    }
-
-    public async getUserByEmail(email: string): Promise<User> {
-        const user: User = await this.userRepository.findOneByEmail(email);
-
-        if (!user) {
-            throw new UserNotFoundError(email);
-        }
-
-        return user;
-    }
-
-    public async verifyUserEmailNotExists(email: string): Promise<void> {
-        if (await this.userRepository.findOneByEmail(email)) {
-            throw new UserEmailTakenError(email);
-        }
-    }
+  }
 }

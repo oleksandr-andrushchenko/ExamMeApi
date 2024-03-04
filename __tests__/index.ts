@@ -16,117 +16,117 @@ import QuestionRepository from "../src/repository/QuestionRepository";
 import Question, { QuestionChoice, QuestionDifficulty, QuestionType } from "../src/entity/Question";
 
 export const api = (): Application => {
-    const { app, up, down } = application().api();
+  const { app, up, down } = application().api();
 
-    const clear = async () => {
-        await Container.get<UserRepository>(UserRepository).clear();
-        await Container.get<CategoryRepository>(CategoryRepository).clear();
-        await Container.get<QuestionRepository>(QuestionRepository).clear();
-    };
+  const clear = async () => {
+    await Container.get<UserRepository>(UserRepository).clear();
+    await Container.get<CategoryRepository>(CategoryRepository).clear();
+    await Container.get<QuestionRepository>(QuestionRepository).clear();
+  };
 
-    beforeAll(() => up());
-    beforeEach(() => clear());
-    afterAll(() => down());
+  beforeAll(() => up());
+  beforeEach(() => clear());
+  afterAll(() => down());
 
-    return app;
+  return app;
 }
 
 export const fixture = async <Entity>(entity: any, options: object = {}): Promise<Entity> => {
-    let object: any;
+  let object: any;
 
-    switch (entity) {
-        case User:
-            object = (new User())
-                .setName(faker.person.fullName())
-                .setEmail(faker.internet.email())
-                .setPassword(faker.internet.password())
-                .setPermissions(options['permissions'] ?? [ Permission.REGULAR ])
-            ;
-            break;
-        case Category:
-            object = (new Category())
-                .setName(faker.lorem.word())
-                .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
-            ;
-            break;
-        case Question:
-            object = (new Question())
-                .setCategory(options['category'] ?? (await fixture(Category, options) as Category).getId())
-                .setType(faker.helpers.enumValue(QuestionType))
-                .setDifficulty(faker.helpers.enumValue(QuestionDifficulty))
-                .setTitle(faker.lorem.sentences(3))
-                .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
-            ;
+  switch (entity) {
+    case User:
+      object = (new User())
+        .setName(faker.person.fullName())
+        .setEmail(faker.internet.email())
+        .setPassword(faker.internet.password())
+        .setPermissions(options['permissions'] ?? [ Permission.REGULAR ])
+      ;
+      break;
+    case Category:
+      object = (new Category())
+        .setName(faker.lorem.word())
+        .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
+      ;
+      break;
+    case Question:
+      object = (new Question())
+        .setCategory(options['category'] ?? (await fixture(Category, options) as Category).getId())
+        .setType(faker.helpers.enumValue(QuestionType))
+        .setDifficulty(faker.helpers.enumValue(QuestionDifficulty))
+        .setTitle(faker.lorem.sentences(3))
+        .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
+      ;
 
-            if (object.getType() === QuestionType.TYPE) {
-                const answers = [];
+      if (object.getType() === QuestionType.TYPE) {
+        const answers = [];
 
-                for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
-                    answers.push(faker.lorem.word());
-                }
+        for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
+          answers.push(faker.lorem.word());
+        }
 
-                object.setAnswers(answers);
-                object.setExplanation(faker.lorem.sentence());
-            } else if (object.getType() === QuestionType.CHOICE) {
-                const choices = [];
+        object.setAnswers(answers);
+        object.setExplanation(faker.lorem.sentence());
+      } else if (object.getType() === QuestionType.CHOICE) {
+        const choices = [];
 
-                for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
-                    choices.push(
-                        (new QuestionChoice())
-                            .setTitle(faker.lorem.word())
-                            .setIsCorrect(faker.datatype.boolean())
-                            .setExplanation(faker.datatype.boolean() ? faker.lorem.sentence() : undefined)
-                    );
-                }
+        for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
+          choices.push(
+            (new QuestionChoice())
+              .setTitle(faker.lorem.word())
+              .setIsCorrect(faker.datatype.boolean())
+              .setExplanation(faker.datatype.boolean() ? faker.lorem.sentence() : undefined)
+          );
+        }
 
-                object.setChoices(choices);
-            }
+        object.setChoices(choices);
+      }
 
-            break;
-        default:
-            throw new Error(`Unknown "${entity.toString()}" type passed`);
-    }
+      break;
+    default:
+      throw new Error(`Unknown "${ entity.toString() }" type passed`);
+  }
 
-    await Container.get<ConnectionManager>(ConnectionManager).get('default').manager.save(object);
+  await Container.get<ConnectionManager>(ConnectionManager).get('default').manager.save(object);
 
-    return object;
+  return object;
 }
 
 export const load = async <Entity>(entity: any, id: ObjectId): Promise<Entity> => {
-    switch (entity) {
-        case User:
-            return await Container.get<UserRepository>(UserRepository).findOneById(id.toString()) as any;
-        case Category:
-            return await Container.get<CategoryRepository>(CategoryRepository).findOneById(id.toString()) as any;
-        case Question:
-            return await Container.get<QuestionRepository>(QuestionRepository).findOneById(id.toString()) as any;
-        default:
-            throw new Error(`Unknown "${entity.toString()}" type passed`);
-    }
+  switch (entity) {
+    case User:
+      return await Container.get<UserRepository>(UserRepository).findOneById(id.toString()) as any;
+    case Category:
+      return await Container.get<CategoryRepository>(CategoryRepository).findOneById(id.toString()) as any;
+    case Question:
+      return await Container.get<QuestionRepository>(QuestionRepository).findOneById(id.toString()) as any;
+    default:
+      throw new Error(`Unknown "${ entity.toString() }" type passed`);
+  }
 }
 
 export const error = (name: string = '', message: string = '', errors: string[] = []) => {
-    const body = {};
+  const body = {};
 
-    if (name) {
-        body['name'] = name;
-    }
+  if (name) {
+    body['name'] = name;
+  }
 
-    if (message) {
-        body['message'] = message;
-    }
+  if (message) {
+    body['message'] = message;
+  }
 
-    if (errors.length > 0) {
-        body['errors'] = errors;
-    }
+  if (errors.length > 0) {
+    body['errors'] = errors;
+  }
 
-    return body;
+  return body;
 };
 
 export const auth = async (user: User): Promise<TokenSchema> => {
-    const authService: AuthService = Container.get<AuthService>(AuthService);
+  const authService: AuthService = Container.get<AuthService>(AuthService);
 
-    return await authService.createAuth(user);
+  return await authService.createAuth(user);
 };
 
 export const fakeId = async (): Promise<ObjectId> => ObjectId.createFromTime(Date.now());
