@@ -54,7 +54,6 @@ export default class QuestionService {
       .setTitle(title)
       .setCreator(initiator.getId())
 
-
     if (question.getType() === QuestionType.TYPE) {
       question
         .setAnswers(transfer.answers)
