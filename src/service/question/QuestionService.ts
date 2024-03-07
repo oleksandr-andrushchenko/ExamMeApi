@@ -65,7 +65,12 @@ export default class QuestionService {
 
     }
 
-    await this.entityManager.save<Question>(question)
+    category.setQuestionCount(category.getQuestionCount() + 1)
+
+    await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
+      await entityManager.save<Question>(question)
+      await entityManager.save<Category>(category)
+    })
 
     this.eventDispatcher.dispatch('questionCreated', { question })
 
@@ -207,8 +212,14 @@ export default class QuestionService {
     await this.authService.verifyAuthorization(initiator, Permission.DELETE_QUESTION)
     this.verifyQuestionOwnership(question, initiator)
 
-    // todo: soft delete
-    await this.entityManager.remove<Question>(question)
+    const category: Category = await this.categoryService.getCategory(question.getCategory().toString())
+    category.setQuestionCount(category.getQuestionCount() - 1)
+
+    await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
+      // todo: soft delete
+      await entityManager.remove<Question>(question)
+      await entityManager.save<Category>(category)
+    })
 
     this.eventDispatcher.dispatch('questionDeleted', { question })
 
