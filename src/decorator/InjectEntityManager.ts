@@ -1,5 +1,5 @@
-import { Container, Constructable } from "typedi";
-import { ConnectionManager, EntityManager } from "typeorm";
+import { Constructable, Container } from 'typedi'
+import { ConnectionManager, EntityManager } from 'typeorm'
 
 export default function InjectEntityManager(connection: string = 'default'): ParameterDecorator {
   return (target: Constructable<unknown>, propertyKey: string | symbol, parameterIndex: number): void => {
@@ -8,8 +8,8 @@ export default function InjectEntityManager(connection: string = 'default'): Par
       propertyName: propertyKey as string,
       index: parameterIndex,
       value: container => container.get(ConnectionManager).get(connection).manager,
-    });
-  };
+    })
+  }
 }
 
-export { EntityManager as EntityManagerInterface };
+export { EntityManager as EntityManagerInterface }

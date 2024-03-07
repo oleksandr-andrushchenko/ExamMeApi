@@ -1,8 +1,8 @@
-import { JsonController, Get, Authorized } from "routing-controllers";
-import { Inject, Service } from "typedi";
-import { OpenAPI } from "routing-controllers-openapi";
-import Permission from "../enum/auth/Permission";
-import PermissionHierarchy from "../type/auth/PermissionHierarchy";
+import { Authorized, Get, JsonController } from 'routing-controllers'
+import { Inject, Service } from 'typedi'
+import { OpenAPI } from 'routing-controllers-openapi'
+import Permission from '../enum/auth/Permission'
+import PermissionHierarchy from '../type/auth/PermissionHierarchy'
 
 @Service()
 @JsonController('/permissions')
@@ -33,7 +33,7 @@ export default class PermissionController {
     }
   })
   public async queryPermissions(): Promise<Permission[]> {
-    return Object.values(Permission) as Permission[];
+    return Object.values(Permission) as Permission[]
   }
 
   @Authorized()
@@ -66,6 +66,6 @@ export default class PermissionController {
     }
   })
   public async queryPermissionHierarchy(): Promise<PermissionHierarchy> {
-    return this.permissionHierarchy;
+    return this.permissionHierarchy
   }
 }

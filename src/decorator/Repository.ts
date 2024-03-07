@@ -1,5 +1,5 @@
-import { Constructable, Container } from "typedi";
-import { ConnectionManager, EntityTarget, MongoRepository } from "typeorm";
+import { Constructable, Container } from 'typedi'
+import { ConnectionManager, EntityTarget, MongoRepository } from 'typeorm'
 
 export default function Repository(entity: Constructable<unknown>, connection: string = 'default'): ClassDecorator {
   return <T = Constructable<unknown>>(repositoryType: T): void => {
@@ -7,14 +7,14 @@ export default function Repository(entity: Constructable<unknown>, connection: s
       id: repositoryType,
       type: repositoryType as any,
       factory: () => {
-        const em = Container.get(ConnectionManager).get(connection).manager;
+        const em = Container.get(ConnectionManager).get(connection).manager
         const {
           target,
           manager,
           queryRunner
-        } = em[`get${ repositoryType instanceof MongoRepository ? 'Mongo' : '' }Repository`](entity as EntityTarget<typeof entity>);
-        return new (repositoryType as any)(target, manager, queryRunner);
+        } = em[`get${ repositoryType instanceof MongoRepository ? 'Mongo' : '' }Repository`](entity as EntityTarget<typeof entity>)
+        return new (repositoryType as any)(target, manager, queryRunner)
       }
-    });
-  };
+    })
+  }
 }

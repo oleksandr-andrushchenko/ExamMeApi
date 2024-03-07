@@ -1,9 +1,7 @@
-import {
-  Entity, ObjectIdColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
-} from "typeorm";
-import { Exclude, Transform } from "class-transformer";
-import { ObjectId } from "mongodb";
-import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, Length } from "class-validator";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn, } from 'typeorm'
+import { Exclude, Transform } from 'class-transformer'
+import { ObjectId } from 'mongodb'
+import { IsMongoId, IsNumber, IsOptional, Length } from 'class-validator'
 
 @Entity({ name: 'categories' })
 export default class Category {
@@ -11,30 +9,30 @@ export default class Category {
   @IsMongoId()
   @ObjectIdColumn()
   @Transform((params: { value: ObjectId }) => params.value.toString())
-  private id: ObjectId;
+  private id: ObjectId
 
   @Length(3, 30)
   @Column({ unique: true, nullable: false })
-  private name: string;
+  private name: string
 
   @Exclude()
   @IsMongoId()
   @Column()
   @Transform((params: { value: ObjectId }) => params.value?.toString())
-  private creator: ObjectId;
+  private creator: ObjectId
 
   @IsNumber()
   @Column()
   @CreateDateColumn()
   @Transform((params: { value: Date }) => params.value?.getTime())
-  private created: Date;
+  private created: Date
 
   @IsOptional()
   @IsNumber()
   @Column()
   @UpdateDateColumn()
   @Transform((params: { value: Date }) => params.value?.getTime())
-  private updated: Date;
+  private updated: Date
 
   @Exclude()
   @IsOptional()
@@ -42,29 +40,29 @@ export default class Category {
   @Column()
   @DeleteDateColumn()
   @Transform((params: { value: Date }) => params.value?.getTime())
-  private deleted: Date;
+  private deleted: Date
 
   public getId(): ObjectId {
-    return this.id;
+    return this.id
   }
 
   public setName(name: string): this {
-    this.name = name;
+    this.name = name
 
-    return this;
+    return this
   }
 
   public getName(): string {
-    return this.name;
+    return this.name
   }
 
   public setCreator(creator: ObjectId): this {
-    this.creator = creator;
+    this.creator = creator
 
-    return this;
+    return this
   }
 
   public getCreator(): ObjectId {
-    return this.creator;
+    return this.creator
   }
 }

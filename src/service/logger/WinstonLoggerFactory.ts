@@ -1,6 +1,6 @@
-import WinstonLogger from "./WinstonLogger";
-import { Inject, Service } from "typedi";
-import winston, { configure, format, transports } from 'winston';
+import WinstonLogger from './WinstonLogger'
+import { Inject, Service } from 'typedi'
+import winston, { configure, format, transports } from 'winston'
 
 @Service()
 export class WinstonLoggerFactory {
@@ -12,7 +12,7 @@ export class WinstonLoggerFactory {
   }
 
   public create(): WinstonLogger {
-    const winstonLogger: winston.Logger = winston.clear();
+    const winstonLogger: winston.Logger = winston.clear()
 
     configure({
       transports: [
@@ -30,8 +30,8 @@ export class WinstonLoggerFactory {
             ),
         }),
       ],
-    });
+    })
 
-    return new WinstonLogger(winstonLogger);
+    return new WinstonLogger(winstonLogger)
   }
 }

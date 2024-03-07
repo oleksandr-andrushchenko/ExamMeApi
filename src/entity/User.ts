@@ -1,12 +1,8 @@
-import {
-  Entity, ObjectIdColumn, Column, CreateDateColumn, UpdateDateColumn, DeleteDateColumn,
-} from "typeorm";
-import { Exclude, Transform } from "class-transformer";
-import { ObjectId } from "mongodb";
-import {
-  ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length,
-} from "class-validator";
-import Permission from "../enum/auth/Permission";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn, } from 'typeorm'
+import { Exclude, Transform } from 'class-transformer'
+import { ObjectId } from 'mongodb'
+import { ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length, } from 'class-validator'
+import Permission from '../enum/auth/Permission'
 
 @Entity({ name: 'users' })
 export default class User {
@@ -14,46 +10,46 @@ export default class User {
   @IsMongoId()
   @ObjectIdColumn()
   @Transform((params: { value: ObjectId }) => params.value.toString())
-  private id: ObjectId;
+  private id: ObjectId
 
   @IsOptional()
   @Length(2, 30)
   @Column()
-  private name: string;
+  private name: string
 
   @IsEmail()
   @Column({ unique: true, nullable: false })
-  private email: string;
+  private email: string
 
   @Exclude()
   @Length(5, 15)
   @Column({ nullable: false })
-  private password: string;
+  private password: string
 
   @ArrayNotEmpty()
   @IsEnum(Permission, { each: true })
   @ArrayUnique()
   @Column({ type: 'set', enum: Permission, default: [ Permission.REGULAR ] })
-  private permissions: Permission[];
+  private permissions: Permission[]
 
   @Exclude()
   @IsMongoId()
   @Column()
   @Transform((params: { value: ObjectId }) => params.value?.toString())
-  private creator: ObjectId;
+  private creator: ObjectId
 
   @IsNumber()
   @Column()
   @CreateDateColumn()
   @Transform((params: { value: Date }) => params.value?.getTime())
-  private created: Date;
+  private created: Date
 
   @IsOptional()
   @IsNumber()
   @Column()
   @UpdateDateColumn()
   @Transform((params: { value: Date }) => params.value?.getTime())
-  private updated: Date;
+  private updated: Date
 
   @Exclude()
   @IsOptional()
@@ -61,59 +57,59 @@ export default class User {
   @Column()
   @DeleteDateColumn()
   @Transform((params: { value: Date }) => params.value?.getTime())
-  private deleted: Date;
+  private deleted: Date
 
   public getId(): ObjectId {
-    return this.id;
+    return this.id
   }
 
   public setName(name: string | undefined): this {
-    this.name = name;
+    this.name = name
 
-    return this;
+    return this
   }
 
   public getName(): string | undefined {
-    return this.name;
+    return this.name
   }
 
   public setEmail(email: string): this {
-    this.email = email;
+    this.email = email
 
-    return this;
+    return this
   }
 
   public getEmail(): string {
-    return this.email;
+    return this.email
   }
 
   public setPassword(password: string): this {
-    this.password = password;
+    this.password = password
 
-    return this;
+    return this
   }
 
   public getPassword(): string {
-    return this.password;
+    return this.password
   }
 
   public setPermissions(permissions: Permission[]): this {
-    this.permissions = permissions;
+    this.permissions = permissions
 
-    return this;
+    return this
   }
 
   public getPermissions(): Permission[] {
-    return this.permissions;
+    return this.permissions
   }
 
   public setCreator(creator: ObjectId): this {
-    this.creator = creator;
+    this.creator = creator
 
-    return this;
+    return this
   }
 
   public getCreator(): ObjectId {
-    return this.creator;
+    return this.creator
   }
 }

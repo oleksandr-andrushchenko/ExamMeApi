@@ -1,7 +1,7 @@
-import { Inject, Service } from "typedi";
-import { validateOrReject, ValidationError, ValidatorOptions } from "class-validator";
-import ValidatorInterface from "./ValidatorInterface";
-import ValidatorError from "../../error/validator/ValidatorError";
+import { Inject, Service } from 'typedi'
+import { validateOrReject, ValidationError, ValidatorOptions } from 'class-validator'
+import ValidatorInterface from './ValidatorInterface'
+import ValidatorError from '../../error/validator/ValidatorError'
 
 @Service()
 export default class ClassValidatorValidator implements ValidatorInterface {
@@ -13,9 +13,9 @@ export default class ClassValidatorValidator implements ValidatorInterface {
 
   public async validate(object: object): Promise<void> {
     try {
-      await validateOrReject(object, this.options);
+      await validateOrReject(object, this.options)
     } catch (errors) {
-      throw new ValidatorError((errors as ValidationError[]));
+      throw new ValidatorError((errors as ValidationError[]))
     }
   }
 }

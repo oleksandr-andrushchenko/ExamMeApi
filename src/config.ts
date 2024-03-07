@@ -1,8 +1,8 @@
-import Joi from 'joi';
-import path from "path";
+import Joi from 'joi'
+import path from 'path'
 // @ts-ignore
-import pkg from "../package.json";
-import Permission from "./enum/auth/Permission";
+import pkg from '../package.json'
+import Permission from './enum/auth/Permission'
 
 const schema: Joi.ObjectSchema = Joi.object()
   .keys({
@@ -11,15 +11,15 @@ const schema: Joi.ObjectSchema = Joi.object()
     DATABASE_TYPE: Joi.string().required().valid('mongodb').example('mongodb').description('Database typeorm type'),
     DATABASE_URL: Joi.string().uri().required().example('mongodb://root:1111@mongo:27017/test?authSource=admin').description('Database connection url'),
   })
-  .unknown();
+  .unknown()
 
-const { value: env, error } = schema.prefs({ errors: { label: 'key' } }).validate(process.env);
+const { value: env, error } = schema.prefs({ errors: { label: 'key' } }).validate(process.env)
 
 if (error) {
-  throw new Error(`Config validation error: ${ error.message }`);
+  throw new Error(`Config validation error: ${ error.message }`)
 }
 
-const environment: string = env.NODE_ENV;
+const environment: string = env.NODE_ENV
 
 export default {
   env: environment,
@@ -66,4 +66,4 @@ export default {
     username: 'any',
     password: 'any',
   },
-};
+}
