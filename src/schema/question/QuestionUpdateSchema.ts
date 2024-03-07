@@ -17,7 +17,7 @@ export default class QuestionUpdateSchema {
   public readonly difficulty: QuestionDifficulty
 
   @IsOptional()
-  @Length(50, 3000)
+  @Length(5, 3000)
   public readonly title: string
 
   @IsOptional()
@@ -35,6 +35,6 @@ export default class QuestionUpdateSchema {
 
   @IsOptional()
   @ValidateIf(question => question.type === QuestionType.TYPE)
-  @Length(10, 1000)
+  @Length(5, 1000)
   public readonly explanation: string
 }
