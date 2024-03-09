@@ -57,7 +57,6 @@ export default class QuestionService {
     if (question.getType() === QuestionType.TYPE) {
       question
         .setAnswers(transfer.answers)
-        .setExplanation(transfer.explanation)
 
     } else if (question.getType() === QuestionType.CHOICE) {
       question
@@ -126,7 +125,6 @@ export default class QuestionService {
     if (question.getType() === QuestionType.TYPE) {
       question
         .setAnswers(transfer.answers)
-        .setExplanation(transfer.explanation)
 
     } else if (question.getType() === QuestionType.CHOICE) {
       question
@@ -180,10 +178,6 @@ export default class QuestionService {
     if (question.getType() === QuestionType.TYPE) {
       if (transfer.hasOwnProperty('answers')) {
         question.setAnswers(transfer.answers)
-      }
-
-      if (transfer.hasOwnProperty('explanation')) {
-        question.setExplanation(transfer.explanation)
       }
     } else if (question.getType() === QuestionType.CHOICE) {
       if (transfer.hasOwnProperty('choices')) {
