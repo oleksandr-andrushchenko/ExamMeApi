@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn, } from 'typeorm'
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn } from 'typeorm'
 import { Exclude, Transform, Type } from 'class-transformer'
 import { ObjectId } from 'mongodb'
 import {
@@ -71,6 +71,53 @@ export class QuestionChoice {
   }
 }
 
+export class QuestionAnswer {
+
+  @ArrayNotEmpty()
+  @Length(2, 10, { each: true })
+  @Column()
+  private variants: string[]
+
+  @IsBoolean()
+  @Column({ nullable: false })
+  private correct: boolean
+
+  @IsOptional()
+  @Length(10, 1000)
+  @Column()
+  private explanation: string
+
+  public setVariants(variants: string[]): this {
+    this.variants = variants
+
+    return this
+  }
+
+  public getVariants(): string[] {
+    return this.variants
+  }
+
+  public setIsCorrect(isCorrect: boolean): this {
+    this.correct = isCorrect
+
+    return this
+  }
+
+  public isCorrect(): boolean {
+    return this.correct
+  }
+
+  public setExplanation(explanation: string | undefined): this {
+    this.explanation = explanation
+
+    return this
+  }
+
+  public getExplanation(): string | undefined {
+    return this.explanation
+  }
+}
+
 @Entity({ name: 'questions' })
 export default class Question {
 
@@ -105,9 +152,10 @@ export default class Question {
 
   @ValidateIf(question => question.type === QuestionType.TYPE)
   @ArrayNotEmpty()
-  @Length(2, 10, { each: true })
-  @Column()
-  private answers: string[]
+  @ValidateNested({ each: true })
+  @Type(() => QuestionAnswer)
+  @Column(() => QuestionAnswer)
+  private answers: QuestionAnswer[]
 
   @ValidateIf(question => question.type === QuestionType.TYPE)
   @Length(10, 1000)
@@ -195,13 +243,13 @@ export default class Question {
     return this.choices
   }
 
-  public setAnswers(answers: string[] | undefined): this {
+  public setAnswers(answers: QuestionAnswer[] | undefined): this {
     this.answers = answers
 
     return this
   }
 
-  public getAnswers(): string[] | undefined {
+  public getAnswers(): QuestionAnswer[] | undefined {
     return this.answers
   }
 

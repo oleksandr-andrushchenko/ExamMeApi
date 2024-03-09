@@ -1,5 +1,5 @@
 import { ArrayNotEmpty, IsEnum, IsMongoId, Length, ValidateIf, ValidateNested } from 'class-validator'
-import { QuestionChoice, QuestionDifficulty, QuestionType } from '../../entity/Question'
+import { QuestionAnswer, QuestionChoice, QuestionDifficulty, QuestionType } from '../../entity/Question'
 import { Type } from 'class-transformer'
 
 export default class QuestionSchema {
@@ -24,10 +24,7 @@ export default class QuestionSchema {
 
   @ValidateIf(question => question.type === QuestionType.TYPE)
   @ArrayNotEmpty()
-  @Length(2, 10, { each: true })
-  public readonly answers: string[]
-
-  @ValidateIf(question => question.type === QuestionType.TYPE)
-  @Length(5, 1000)
-  public readonly explanation: string
+  @ValidateNested({ each: true })
+  @Type(() => QuestionAnswer)
+  public readonly answers: QuestionAnswer[]
 }

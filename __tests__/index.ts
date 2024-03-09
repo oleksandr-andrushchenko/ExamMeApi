@@ -13,7 +13,7 @@ import UserRepository from '../src/repository/UserRepository'
 import Permission from '../src/enum/auth/Permission'
 import { ObjectId } from 'mongodb'
 import QuestionRepository from '../src/repository/QuestionRepository'
-import Question, { QuestionChoice, QuestionDifficulty, QuestionType } from '../src/entity/Question'
+import Question, { QuestionAnswer, QuestionChoice, QuestionDifficulty, QuestionType } from '../src/entity/Question'
 
 export const api = (): Application => {
   const { app, up, down } = application().api()
@@ -62,11 +62,15 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
         const answers = []
 
         for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
-          answers.push(faker.lorem.word())
+          answers.push(
+            (new QuestionAnswer())
+              .setVariants([ faker.lorem.word() ])
+              .setIsCorrect(faker.datatype.boolean())
+              .setExplanation(faker.datatype.boolean() ? faker.lorem.sentence() : undefined),
+          )
         }
 
         object.setAnswers(answers)
-        object.setExplanation(faker.lorem.sentence())
       } else if (object.getType() === QuestionType.CHOICE) {
         const choices = []
 

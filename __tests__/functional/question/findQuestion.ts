@@ -3,7 +3,7 @@ import request from 'supertest'
 // @ts-ignore
 import { api, error, fakeId, fixture } from '../../index'
 import Category from '../../../src/entity/Category'
-import Question, { QuestionChoice, QuestionType } from '../../../src/entity/Question'
+import Question, { QuestionAnswer, QuestionChoice, QuestionType } from '../../../src/entity/Question'
 
 describe('GET /questions/:question_id', () => {
   const app = api()
@@ -32,9 +32,13 @@ describe('GET /questions/:question_id', () => {
 
     if (question.getType() === QuestionType.TYPE) {
       expect(res.body).toHaveProperty('answers')
-      expect(res.body.answers).toEqual(question.getAnswers())
-      expect(res.body).toHaveProperty('explanation')
-      expect(res.body.explanation).toEqual(question.getExplanation())
+      question.getAnswers().forEach((choice: QuestionAnswer, index: number) => {
+        expect(res.body.answers[index]).toMatchObject({
+          variants: choice.getVariants(),
+          correct: choice.isCorrect(),
+          explanation: choice.getExplanation() ?? null,
+        })
+      })
     } else if (question.getType() === QuestionType.CHOICE) {
       expect(res.body).toHaveProperty('choices')
       question.getChoices().forEach((choice: QuestionChoice, index: number) => {

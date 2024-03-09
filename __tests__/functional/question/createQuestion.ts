@@ -108,8 +108,13 @@ describe('POST /questions', () => {
         title: question.getTitle(),
         type: QuestionType.TYPE,
         difficulty: QuestionDifficulty.EASY,
-        answers: [ faker.lorem.word() ],
-        explanation: faker.lorem.sentence(),
+        answers: [
+          {
+            variants: [ faker.lorem.word() ],
+            correct: true,
+            explanation: faker.lorem.sentence(),
+          },
+        ],
       })
       .auth(token, { type: 'bearer' })
 
@@ -129,8 +134,13 @@ describe('POST /questions', () => {
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
-      answers: [ faker.lorem.word() ],
-      explanation: faker.lorem.sentence(),
+      answers: [
+        {
+          variants: [ faker.lorem.word() ],
+          correct: true,
+          explanation: faker.lorem.sentence(),
+        },
+      ],
     }
     const res = await request(app)
       .post(`/questions`)
