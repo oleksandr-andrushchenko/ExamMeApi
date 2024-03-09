@@ -25,12 +25,12 @@ export default class PermissionController {
             schema: {
               type: 'array',
               items: { type: 'string', enum: Object.values(Permission) },
-              example: Object.values(Permission)
-            }
-          }
-        }
-      }
-    }
+              example: Object.values(Permission),
+            },
+          },
+        },
+      },
+    },
   })
   public async queryPermissions(): Promise<Permission[]> {
     return Object.values(Permission) as Permission[]
@@ -52,18 +52,18 @@ export default class PermissionController {
                 properties: {
                   [Permission.ROOT]: {
                     type: 'array',
-                    items: { type: 'string', enum: [ Permission.ALL ] }
-                  }
+                    items: { type: 'string', enum: [ Permission.ALL ] },
+                  },
                 },
               },
               example: {
-                [Permission.REGULAR]: [ Permission.CREATE_CATEGORY, Permission.UPDATE_QUESTION ]
-              }
-            }
-          }
-        }
-      }
-    }
+                [Permission.REGULAR]: [ Permission.CREATE_CATEGORY, Permission.UPDATE_QUESTION ],
+              },
+            },
+          },
+        },
+      },
+    },
   })
   public async queryPermissionHierarchy(): Promise<PermissionHierarchy> {
     return this.permissionHierarchy
