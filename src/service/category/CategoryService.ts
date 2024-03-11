@@ -58,6 +58,7 @@ export default class CategoryService {
    * @throws {CategoryNotFoundError}
    */
   public async getCategory(id: string): Promise<Category> {
+    this.validator.validateId(id)
     const category: Category = await this.categoryRepository.findOneById(id)
 
     if (!category) {
@@ -78,6 +79,7 @@ export default class CategoryService {
    * @throws {CategoryNameTakenError}
    */
   public async updateCategory(id: string, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
+    this.validator.validateId(id)
     const category: Category = await this.getCategory(id)
 
     await this.authService.verifyAuthorization(initiator, Permission.UPDATE_CATEGORY)
@@ -110,6 +112,7 @@ export default class CategoryService {
    * @throws {CategoryNameTakenError}
    */
   public async replaceCategory(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
+    this.validator.validateId(id)
     const category: Category = await this.getCategory(id)
 
     await this.authService.verifyAuthorization(initiator, Permission.REPLACE_CATEGORY)
@@ -137,6 +140,7 @@ export default class CategoryService {
    * @throws {CategoryOwnershipError}
    */
   public async deleteCategory(id: string, initiator: User): Promise<Category> {
+    this.validator.validateId(id)
     const category: Category = await this.getCategory(id)
 
     await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY)

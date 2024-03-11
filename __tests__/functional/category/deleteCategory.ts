@@ -18,6 +18,16 @@ describe('DELETE /categories/:category_id', () => {
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
 
+  test('Bad request (invalid id)', async () => {
+    const user = await fixture<User>(User, { permissions: [ Permission.DELETE_CATEGORY ] })
+    const token = (await auth(user)).token
+    const id = 'invalid'
+    const res = await request(app).delete(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(400)
+    expect(res.body).toMatchObject(error('BadRequestError'))
+  })
+
   test('Not found', async () => {
     const user = await fixture<User>(User, { permissions: [ Permission.DELETE_CATEGORY ] })
     const token = (await auth(user)).token

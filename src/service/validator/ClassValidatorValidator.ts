@@ -18,4 +18,14 @@ export default class ClassValidatorValidator implements ValidatorInterface {
       throw new ValidatorError((errors as ValidationError[]))
     }
   }
+
+  public validateId(id: string): void {
+    if (id.length !== 24) {
+      const error = new ValidationError()
+      error.property = 'id'
+      error.value = id
+
+      throw new ValidatorError([ error ])
+    }
+  }
 }

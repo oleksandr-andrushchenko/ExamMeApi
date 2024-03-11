@@ -83,6 +83,7 @@ export default class QuestionService {
    * @throws {QuestionNotFoundError}
    */
   public async getQuestion(id: string, categoryId: string = undefined): Promise<Question> {
+    this.validator.validateId(id)
     const question: Question = await this.questionRepository.findOneById(id)
 
     if (!question || (categoryId && question.getCategory().toString() !== categoryId)) {
@@ -103,6 +104,7 @@ export default class QuestionService {
    * @throws {QuestionTitleTakenError}
    */
   public async replaceQuestion(id: string, transfer: QuestionSchema, initiator: User): Promise<Question> {
+    this.validator.validateId(id)
     const question = await this.getQuestion(id)
 
     await this.authService.verifyAuthorization(initiator, Permission.REPLACE_QUESTION)
@@ -149,6 +151,7 @@ export default class QuestionService {
    * @throws {QuestionTitleTakenError}
    */
   public async updateQuestion(id: string, transfer: QuestionUpdateSchema, initiator: User): Promise<Question> {
+    this.validator.validateId(id)
     const question = await this.getQuestion(id)
 
     await this.authService.verifyAuthorization(initiator, Permission.UPDATE_QUESTION)
@@ -201,6 +204,7 @@ export default class QuestionService {
    * @throws {QuestionOwnershipError}
    */
   public async deleteQuestion(id: string, initiator: User): Promise<Question> {
+    this.validator.validateId(id)
     const question: Question = await this.getQuestion(id)
 
     await this.authService.verifyAuthorization(initiator, Permission.DELETE_QUESTION)

@@ -81,6 +81,7 @@ export default class QuestionController {
   @OpenAPI({
     responses: {
       200: { description: 'OK' },
+      400: { description: 'Bad Request' },
       404: { description: 'Not Found' },
     },
   })
@@ -94,6 +95,8 @@ export default class QuestionController {
       return this.questionRepository.findByCategory(category)
     } catch (error) {
       switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
         case error instanceof CategoryNotFoundError:
           throw new NotFoundError((error as CategoryNotFoundError).message)
       }
@@ -104,6 +107,7 @@ export default class QuestionController {
   @OpenAPI({
     responses: {
       200: { description: 'OK' },
+      400: { description: 'Bad Request' },
       404: { description: 'Not Found' },
     },
   })
@@ -115,6 +119,8 @@ export default class QuestionController {
       return await this.questionService.getQuestion(id)
     } catch (error) {
       switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
         case error instanceof QuestionNotFoundError:
           throw new NotFoundError((error as QuestionNotFoundError).message)
       }
@@ -209,6 +215,7 @@ export default class QuestionController {
     security: [ { bearerAuth: [] } ],
     responses: {
       204: { description: 'No Content' },
+      400: { description: 'Bad Request' },
       401: { description: 'Unauthorized' },
       403: { description: 'Forbidden' },
       404: { description: 'Not Found' },
@@ -222,6 +229,8 @@ export default class QuestionController {
       await this.questionService.deleteQuestion(id, user)
     } catch (error) {
       switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
         case error instanceof AuthorizationFailedError:
           throw new ForbiddenError((error as AuthorizationFailedError).message)
         case error instanceof QuestionOwnershipError:

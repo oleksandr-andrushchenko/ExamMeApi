@@ -15,6 +15,14 @@ describe('GET /categories/:category_id', () => {
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
 
+  test('Bad request (invalid id)', async () => {
+    const id = 'invalid'
+    const res = await request(app).get(`/categories/${ id.toString() }`)
+
+    expect(res.status).toEqual(400)
+    expect(res.body).toMatchObject(error('BadRequestError'))
+  })
+
   test('Found', async () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()

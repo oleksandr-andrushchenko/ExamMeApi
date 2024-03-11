@@ -88,6 +88,7 @@ export default class CategoryController {
   @OpenAPI({
     responses: {
       200: { description: 'OK' },
+      400: { description: 'Bad Request' },
       404: { description: 'Not Found' },
     },
   })
@@ -99,6 +100,8 @@ export default class CategoryController {
       return await this.categoryService.getCategory(id)
     } catch (error) {
       switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
         case error instanceof CategoryNotFoundError:
           throw new NotFoundError((error as CategoryNotFoundError).message)
       }
@@ -189,6 +192,7 @@ export default class CategoryController {
     security: [ { bearerAuth: [] } ],
     responses: {
       204: { description: 'No Content' },
+      400: { description: 'Bad Request' },
       401: { description: 'Unauthorized' },
       403: { description: 'Forbidden' },
       404: { description: 'Not Found' },
@@ -202,6 +206,8 @@ export default class CategoryController {
       await this.categoryService.deleteCategory(id, user)
     } catch (error) {
       switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
         case error instanceof AuthorizationFailedError:
           throw new ForbiddenError((error as AuthorizationFailedError).message)
         case error instanceof CategoryOwnershipError:
