@@ -37,7 +37,6 @@ describe('PUT /categories/:category_id', () => {
       .send({ name: 'any' })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
@@ -63,7 +62,6 @@ describe('PUT /categories/:category_id', () => {
       .send({ name: 'any' })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
@@ -77,7 +75,6 @@ describe('PUT /categories/:category_id', () => {
       .put(`/categories/${ id.toString() }`)
       .send({ name: 'any' })
       .auth(token, { type: 'bearer' })
-
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -93,7 +90,6 @@ describe('PUT /categories/:category_id', () => {
       .put(`/categories/${ id.toString() }`)
       .send({ name: category1.getName() })
       .auth(token, { type: 'bearer' })
-
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))

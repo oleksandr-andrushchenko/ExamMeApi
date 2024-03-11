@@ -61,7 +61,6 @@ describe('POST /users', () => {
       .send({ ...schema, ...{ password: '123123' } })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(201)
     expect(res.body).toHaveProperty('id')
     const id = new ObjectId(res.body.id)

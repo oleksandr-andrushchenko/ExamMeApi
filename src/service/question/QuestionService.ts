@@ -57,11 +57,9 @@ export default class QuestionService {
     if (question.getType() === QuestionType.TYPE) {
       question
         .setAnswers(transfer.answers)
-
     } else if (question.getType() === QuestionType.CHOICE) {
       question
         .setChoices(transfer.choices)
-
     }
 
     category.setQuestionCount(category.getQuestionCount() + 1)
@@ -123,15 +121,12 @@ export default class QuestionService {
       .setTitle(title)
       .setCreator(initiator.getId())
 
-
     if (question.getType() === QuestionType.TYPE) {
       question
         .setAnswers(transfer.answers)
-
     } else if (question.getType() === QuestionType.CHOICE) {
       question
         .setChoices(transfer.choices)
-
     }
     await this.entityManager.save<Question>(question)
 

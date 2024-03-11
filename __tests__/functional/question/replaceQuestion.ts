@@ -124,7 +124,6 @@ describe('PUT /questions/:question_id', () => {
       .send(schema)
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')
     expect(await load<Question>(Question, id)).toMatchObject({ ...schema, ...{ category: category.getId() } })

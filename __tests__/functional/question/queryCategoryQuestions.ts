@@ -55,7 +55,7 @@ describe('GET /categories/:category_id/questions', () => {
           category: question.getCategory().toString(),
           type: question.getType(),
           difficulty: question.getDifficulty(),
-          title: question.getTitle()
+          title: question.getTitle(),
         })
 
         if (question.getType() === QuestionType.TYPE) {
@@ -78,6 +78,5 @@ describe('GET /categories/:category_id/questions', () => {
           })
         }
       })
-
   })
 })

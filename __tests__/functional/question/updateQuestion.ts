@@ -38,7 +38,6 @@ describe('PATCH /questions/:question_id', () => {
       .send({ title: 'any' })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
@@ -64,7 +63,6 @@ describe('PATCH /questions/:question_id', () => {
       .send({ title: 'any' })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
@@ -78,7 +76,6 @@ describe('PATCH /questions/:question_id', () => {
       .patch(`/questions/${ id.toString() }`)
       .send({ title: 'any' })
       .auth(token, { type: 'bearer' })
-
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -95,7 +92,6 @@ describe('PATCH /questions/:question_id', () => {
       .send({ title: question1.getTitle() })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
@@ -110,7 +106,6 @@ describe('PATCH /questions/:question_id', () => {
       .patch(`/questions/${ id.toString() }`)
       .send(schema)
       .auth(token, { type: 'bearer' })
-
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')

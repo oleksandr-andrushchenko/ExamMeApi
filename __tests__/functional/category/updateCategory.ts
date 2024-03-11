@@ -37,7 +37,6 @@ describe('PATCH /categories/:category_id', () => {
       .send({ name: 'any' })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
@@ -63,7 +62,6 @@ describe('PATCH /categories/:category_id', () => {
       .send({ name: 'any' })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
@@ -77,7 +75,6 @@ describe('PATCH /categories/:category_id', () => {
       .patch(`/categories/${ id.toString() }`)
       .send({ name: 'any' })
       .auth(token, { type: 'bearer' })
-
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -94,7 +91,6 @@ describe('PATCH /categories/:category_id', () => {
       .send({ name: category1.getName() })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
@@ -109,7 +105,6 @@ describe('PATCH /categories/:category_id', () => {
       .patch(`/categories/${ id.toString() }`)
       .send(schema)
       .auth(token, { type: 'bearer' })
-
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')

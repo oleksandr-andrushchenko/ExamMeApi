@@ -45,7 +45,6 @@ export default class UserService {
       .setPermissions(transfer.permissions ?? [ Permission.REGULAR ])
       .setCreator(initiator.getId())
 
-
     if (transfer.hasOwnProperty('name')) {
       user.setName(transfer.name)
     }

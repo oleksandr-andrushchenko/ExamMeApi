@@ -36,7 +36,6 @@ export default class MeService {
       .setPassword(transfer.password)
       .setPermissions([ Permission.REGULAR ])
 
-
     if (transfer.hasOwnProperty('name')) {
       user.setName(transfer.name)
     }
@@ -64,7 +63,6 @@ export default class MeService {
       .setName(transfer.name)
       .setEmail(email)
       .setPassword(transfer.password)
-
 
     if (transfer.hasOwnProperty('name')) {
       initiator.setName(transfer.name)

@@ -28,7 +28,6 @@ describe('POST /questions', () => {
       .send({ title: 'any', category: categoryId })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
@@ -74,7 +73,6 @@ describe('POST /questions', () => {
       .send({ ...body, ...{ category: categoryId } })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
@@ -89,7 +87,6 @@ describe('POST /questions', () => {
       .post(`/questions`)
       .send({ title: 'any', category: categoryId })
       .auth(token, { type: 'bearer' })
-
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -118,7 +115,6 @@ describe('POST /questions', () => {
       })
       .auth(token, { type: 'bearer' })
 
-
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
@@ -146,7 +142,6 @@ describe('POST /questions', () => {
       .post(`/questions`)
       .send(schema)
       .auth(token, { type: 'bearer' })
-
 
     expect(res.status).toEqual(201)
     expect(res.body).toHaveProperty('id')
