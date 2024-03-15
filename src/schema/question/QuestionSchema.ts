@@ -13,7 +13,7 @@ export default class QuestionSchema {
   @IsEnum(QuestionDifficulty)
   public readonly difficulty: QuestionDifficulty
 
-  @Length(50, 3000)
+  @Length(10, 3000)
   public readonly title: string
 
   @ValidateIf(question => question.type === QuestionType.CHOICE)

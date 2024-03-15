@@ -27,7 +27,7 @@ export enum QuestionDifficulty {
 
 export class QuestionChoice {
 
-  @Length(3, 1000)
+  @Length(10, 3000)
   @Column({ nullable: false })
   private title: string
 
@@ -36,7 +36,7 @@ export class QuestionChoice {
   private correct: boolean
 
   @IsOptional()
-  @Length(10, 1000)
+  @Length(10, 3000)
   @Column()
   private explanation: string
 
@@ -83,7 +83,7 @@ export class QuestionAnswer {
   private correct: boolean
 
   @IsOptional()
-  @Length(10, 1000)
+  @Length(10, 3000)
   @Column()
   private explanation: string
 
@@ -139,7 +139,7 @@ export default class Question {
   @Column({ type: 'enum', enum: QuestionDifficulty, nullable: false })
   private difficulty: QuestionDifficulty
 
-  @Length(50, 3000)
+  @Length(10, 3000)
   @Column({ unique: true, nullable: false })
   private title: string
 
