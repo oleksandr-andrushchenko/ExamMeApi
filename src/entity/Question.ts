@@ -157,11 +157,6 @@ export default class Question {
   @Column(() => QuestionAnswer)
   private answers: QuestionAnswer[]
 
-  @ValidateIf(question => question.type === QuestionType.TYPE)
-  @Length(10, 1000)
-  @Column()
-  private explanation: string
-
   @Exclude()
   @IsMongoId()
   @Column()
@@ -251,16 +246,6 @@ export default class Question {
 
   public getAnswers(): QuestionAnswer[] | undefined {
     return this.answers
-  }
-
-  public setExplanation(explanation: string | undefined): this {
-    this.explanation = explanation
-
-    return this
-  }
-
-  public getExplanation(): string | undefined {
-    return this.explanation
   }
 
   public setCreator(creator: ObjectId): this {
