@@ -11,7 +11,7 @@ export default class Category {
   @Transform((params: { value: ObjectId }) => params.value.toString())
   private id: ObjectId
 
-  @Length(3, 30)
+  @Length(3, 100)
   @Column({ unique: true, nullable: false })
   private name: string
 
