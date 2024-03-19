@@ -30,8 +30,7 @@
    "scripts": {
       "dev": "nodemon",
       "test:functional": "DOTENV_CONFIG_PATH=.env.test jest --runInBand --testPathPattern=__tests__/functional",
-      "build": "tsc",
-      "typeorm": "typeorm-ts-node-commonjs"
+      "build": "tsc"
    },
    "author": "Oleksandr Andrushchenko",
    "license": "ISC",
@@ -57,7 +56,6 @@
       "routing-controllers-openapi": "^4.0.0",
       "swagger-ui-express": "^5.0.0",
       "typedi": "^0.10.0",
-      "typeorm": "^0.3.19",
       "winston": "^3.11.0"
    }
 }
