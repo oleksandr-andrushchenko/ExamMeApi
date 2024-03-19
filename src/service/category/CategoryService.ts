@@ -13,6 +13,9 @@ import Permission from '../../enum/auth/Permission'
 import { ObjectId } from 'mongodb'
 import CategoryUpdateSchema from '../../schema/category/CategoryUpdateSchema'
 import ValidatorInterface from '../validator/ValidatorInterface'
+import PaginationSchema from '../../schema/pagination/PaginationSchema'
+import Cursor from '../../model/Cursor'
+import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
 
 @Service()
 export default class CategoryService {
@@ -66,6 +69,21 @@ export default class CategoryService {
     }
 
     return category
+  }
+
+  /**
+   * @param {PaginationSchema} pagination
+   * @returns {Promise<PaginatedSchema<Category>>}
+   * @throws {ValidatorError}
+   */
+  public async queryCategories(pagination: PaginationSchema): Promise<PaginatedSchema<Category>> {
+    await this.validator.validate(pagination)
+
+    const cursor = new Cursor<Category>(pagination)
+    cursor.setRepository(this.categoryRepository)
+    const data = await this.categoryRepository.findAll(cursor)
+
+    return cursor.getPaginated(data)
   }
 
   /**
