@@ -14,11 +14,10 @@ import {
   Patch,
   Post,
   Put,
+  QueryParams,
 } from 'routing-controllers'
 import { Inject, Service } from 'typedi'
 import Category from '../entity/Category'
-import CategoryRepository from '../repository/CategoryRepository'
-import InjectRepository from '../decorator/InjectRepository'
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi'
 import CategoryService from '../service/category/CategoryService'
 import User from '../entity/User'
@@ -30,13 +29,14 @@ import ConflictHttpError from '../error/http/ConflictHttpError'
 import AuthorizationFailedError from '../error/auth/AuthorizationFailedError'
 import CategoryUpdateSchema from '../schema/category/CategoryUpdateSchema'
 import ValidatorError from '../error/validator/ValidatorError'
+import PaginationSchema from '../schema/pagination/PaginationSchema'
+import PaginatedCategories from '../schema/category/PaginatedCategories'
 
 @Service()
 @JsonController('/categories')
 export default class CategoryController {
 
   constructor(
-    @InjectRepository() private readonly categoryRepository: CategoryRepository,
     @Inject() private readonly categoryService: CategoryService,
   ) {
   }
@@ -79,9 +79,18 @@ export default class CategoryController {
       200: { description: 'OK' },
     },
   })
-  @ResponseSchema(Category, { isArray: true })
-  public async queryCategories(): Promise<Category[]> {
-    return this.categoryRepository.findAll()
+  @ResponseSchema(PaginatedCategories)
+  public async queryCategories(
+    @QueryParams() pagination: PaginationSchema,
+  ): Promise<PaginatedCategories> {
+    try {
+      return await this.categoryService.queryCategories(pagination)
+    } catch (error) {
+      switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
+      }
+    }
   }
 
   @Get('/:category_id')
