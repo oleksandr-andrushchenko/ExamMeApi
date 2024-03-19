@@ -1,7 +1,7 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn, } from 'typeorm'
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn } from 'typeorm'
 import { Exclude, Transform } from 'class-transformer'
 import { ObjectId } from 'mongodb'
-import { ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length, } from 'class-validator'
+import { ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length } from 'class-validator'
 import Permission from '../enum/auth/Permission'
 
 @Entity({ name: 'users' })
@@ -9,7 +9,7 @@ export default class User {
 
   @IsMongoId()
   @ObjectIdColumn()
-  @Transform((params: { value: ObjectId }) => params.value.toString())
+  @Transform(({ value }: { value: ObjectId }) => value.toString())
   private id: ObjectId
 
   @IsOptional()
@@ -35,20 +35,20 @@ export default class User {
   @Exclude()
   @IsMongoId()
   @Column()
-  @Transform((params: { value: ObjectId }) => params.value?.toString())
+  @Transform(({ value }: { value: ObjectId }) => value?.toString())
   private creator: ObjectId
 
   @IsNumber()
   @Column()
   @CreateDateColumn()
-  @Transform((params: { value: Date }) => params.value?.getTime())
+  @Transform(({ value }: { value: Date }) => value?.getTime())
   private created: Date
 
   @IsOptional()
   @IsNumber()
   @Column()
   @UpdateDateColumn()
-  @Transform((params: { value: Date }) => params.value?.getTime())
+  @Transform(({ value }: { value: Date }) => value?.getTime())
   private updated: Date
 
   @Exclude()
@@ -56,7 +56,7 @@ export default class User {
   @IsNumber()
   @Column()
   @DeleteDateColumn()
-  @Transform((params: { value: Date }) => params.value?.getTime())
+  @Transform(({ value }: { value: Date }) => value?.getTime())
   private deleted: Date
 
   public getId(): ObjectId {

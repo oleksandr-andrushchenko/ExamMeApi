@@ -123,12 +123,12 @@ export default class Question {
 
   @IsMongoId()
   @ObjectIdColumn()
-  @Transform((params: { value: ObjectId }) => params.value.toString())
+  @Transform(({ value }: { value: ObjectId }) => value.toString())
   private id: ObjectId
 
   @IsMongoId()
   @Column()
-  @Transform((params: { value: ObjectId }) => params.value?.toString())
+  @Transform(({ value }: { value: ObjectId }) => value?.toString())
   private category: ObjectId
 
   @IsEnum(QuestionType)
@@ -160,20 +160,20 @@ export default class Question {
   @Exclude()
   @IsMongoId()
   @Column()
-  @Transform((params: { value: ObjectId }) => params.value?.toString())
+  @Transform(({ value }: { value: ObjectId }) => value?.toString())
   private creator: ObjectId
 
   @IsNumber()
   @Column()
   @CreateDateColumn()
-  @Transform((params: { value: Date }) => params.value?.getTime())
+  @Transform(({ value }: { value: Date }) => value?.getTime())
   private created: Date
 
   @IsOptional()
   @IsNumber()
   @Column()
   @UpdateDateColumn()
-  @Transform((params: { value: Date }) => params.value?.getTime())
+  @Transform(({ value }: { value: Date }) => value?.getTime())
   private updated: Date
 
   @Exclude()
@@ -181,7 +181,7 @@ export default class Question {
   @IsNumber()
   @Column()
   @DeleteDateColumn()
-  @Transform((params: { value: Date }) => params.value?.getTime())
+  @Transform(({ value }: { value: Date }) => value?.getTime())
   private deleted: Date
 
   public getId(): ObjectId {

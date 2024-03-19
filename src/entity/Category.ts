@@ -8,7 +8,7 @@ export default class Category {
 
   @IsMongoId()
   @ObjectIdColumn()
-  @Transform((params: { value: ObjectId }) => params.value.toString())
+  @Transform(({ value }: { value: ObjectId }) => value.toString())
   private id: ObjectId
 
   @Length(3, 100)
@@ -22,20 +22,20 @@ export default class Category {
   @Exclude()
   @IsMongoId()
   @Column()
-  @Transform((params: { value: ObjectId }) => params.value?.toString())
+  @Transform(({ value }: { value: ObjectId }) => value?.toString())
   private creator: ObjectId
 
   @IsNumber()
   @Column()
   @CreateDateColumn()
-  @Transform((params: { value: Date }) => params.value?.getTime())
+  @Transform(({ value }: { value: Date }) => value?.getTime())
   private created: Date
 
   @IsOptional()
   @IsNumber()
   @Column()
   @UpdateDateColumn()
-  @Transform((params: { value: Date }) => params.value?.getTime())
+  @Transform(({ value }: { value: Date }) => value?.getTime())
   private updated: Date
 
   @Exclude()
@@ -43,7 +43,7 @@ export default class Category {
   @IsNumber()
   @Column()
   @DeleteDateColumn()
-  @Transform((params: { value: Date }) => params.value?.getTime())
+  @Transform(({ value }: { value: Date }) => value?.getTime())
   private deleted: Date
 
   public getId(): ObjectId {
