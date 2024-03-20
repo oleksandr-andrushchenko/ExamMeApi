@@ -3,22 +3,14 @@ import { ObjectId } from 'mongodb'
 import { MongoRepository } from 'typeorm'
 import PaginatedSchema, { PaginatedMetaSchema } from '../schema/pagination/PaginatedSchema'
 
-interface Where {
-  where: {}
-  limit: {}
-  sort: {}
-}
-
+/**
+ * @see https://engage.so/blog/a-deep-dive-into-offset-and-cursor-based-pagination-in-mongodb/#challenges-of-cursor-based-pagination
+ */
 export default class Cursor<Entity> {
 
   constructor(
     private readonly pagination: PaginationSchema,
-    private readonly baseUrl: string = '',
     private repository: MongoRepository<Entity> = undefined,
-    // todo: change
-    private readonly defaultLimit: number = 1,
-    private readonly maxLimit: number = 1,
-    private readonly defaultOrder: string = 'desc',
   ) {
   }
 
@@ -26,73 +18,149 @@ export default class Cursor<Entity> {
     this.repository = repository
   }
 
-  public getSize(): number {
-    return this.pagination.size
-  }
+  public async getPaginated(): Promise<PaginatedSchema<Entity>> {
+    const paginated = new PaginatedSchema<Entity>()
+    paginated.meta = new PaginatedMetaSchema()
+    paginated.meta.cursor = this.pagination.cursor
+    paginated.meta.order = this.pagination.order
 
-  public getOrder(): string {
-    return this.pagination.order
-  }
+    const where = {}
 
-  public getBefore(): string {
-    return this.pagination.before
-  }
-
-  public getAfter(): string {
-    return this.pagination.after
-  }
-
-  public getWhere(): Where {
-    // todo: use this.getOrder()
-    const sort = { _id: -1 }
-    const where: { _id?: object } = {}
-
-    if (this.getBefore()) {
-      sort._id = 1
-      where._id = { $gt: new ObjectId(this.getBefore()) }
-    } else if (this.getAfter()) {
-      where._id = { $lt: new ObjectId(this.getAfter()) }
+    const order = {
+      query: this.pagination.order,
+      key: '',
+      direction: -1,
     }
 
-    let limit = +this.getSize() || this.defaultLimit
+    let cursor: string
 
-    if (limit < 1) {
-      limit = this.defaultLimit
+    if (this.pagination.prevCursor) {
+      cursor = this.pagination.prevCursor
+
+      if (order.query === 'desc') {
+        order.key = '$gt'
+        order.direction = 1
+      } else {
+        order.key = '$lt'
+        order.direction = -1
+      }
+    } else if (this.pagination.nextCursor) {
+      cursor = this.pagination.nextCursor
+
+      if (order.query === 'desc') {
+        order.key = '$lt'
+        order.direction = -1
+      } else {
+        order.key = '$gt'
+        order.direction = 1
+      }
+    } else {
+      if (order.query === 'desc') {
+        order.direction = -1
+      } else {
+        order.direction = 1
+      }
     }
 
-    if (limit > this.maxLimit) {
-      limit = this.maxLimit
+    const sort = {}
+
+    let cursorParam: string | number | Date
+
+    if (cursor) {
+      let [ id, param ] = cursor.split('_')
+
+      const cursorId = new ObjectId(id)
+
+      if (param) {
+        if ([ 'created', 'updated' ].includes(param)) {
+          cursorParam = new Date(param)
+        }
+
+        where['$or'] = [
+          { [this.pagination.cursor]: { [order.key]: cursorParam } },
+          {
+            [this.pagination.cursor]: cursorParam,
+            _id: { [order.key]: cursorId },
+          },
+        ]
+        sort[this.pagination.cursor] = order.direction
+      } else {
+        where['_id'] = { [order.key]: cursorId }
+      }
     }
 
-    return { where, limit, sort }
-  }
+    sort['_id'] = order.direction
 
-  public getUrl(): string {
-    return `${ this.baseUrl }?size=${ this.getSize() }&order=${ this.getOrder() }`
-  }
+    const data = await this.repository.find({ where, take: this.pagination.size, order: sort })
+    paginated.data = data
 
-  public async getPaginated(data: Entity[]): Promise<PaginatedSchema<Entity>> {
-    if (this.getBefore()) {
+    if (this.pagination.prevCursor) {
       data.reverse()
     }
 
-    const paginated = new PaginatedSchema<Entity>()
-    paginated.data = data
-    paginated.meta = new PaginatedMetaSchema()
+    let hasNext: boolean, hasPrev: boolean
 
     if (data.length) {
-      const lastId = data[data.length - 1]['id']
+      order.key = (order.query === 'desc') ? '$lt' : '$gt'
+      cursorParam = data[data.length - 1][this.pagination.cursor === '_id' ? 'id' : this.pagination.cursor]
 
-      if (await this.repository.findOneBy({ _id: { $lt: lastId } })) {
-        paginated.meta.beforeCursor = lastId
-        paginated.meta.prevUrl = `${ this.getUrl() }&before=${ lastId.toString() }`
+      if (this.pagination.cursor === '_id') {
+        where['_id'] = { [order.key]: new ObjectId(cursorParam as string) }
+      } else {
+        if ([ 'created', 'updated' ].includes(this.pagination.cursor)) {
+          cursorParam = new Date(cursorParam)
+        }
+
+        where['$or'] = [
+          { [this.pagination.cursor]: { [order.key]: cursorParam } },
+          {
+            [this.pagination.cursor]: cursorParam,
+            _id: { [order.key]: new ObjectId(data[data.length - 1]['id']) },
+          },
+        ]
       }
 
-      const firstId = data[0]['id']
+      hasNext = !!await this.repository.findOne({ where })
 
-      if (await this.repository.findOneBy({ _id: { $gt: firstId } })) {
-        paginated.meta.afterCursor = firstId
-        paginated.meta.prevUrl = `${ this.getUrl() }&after=${ firstId.toString() }`
+      order.key = (order.query === 'desc') ? '$gt' : '$lt'
+      cursorParam = data[0][this.pagination.cursor === '_id' ? 'id' : this.pagination.cursor]
+
+      if (this.pagination.cursor === '_id') {
+        where['_id'] = { [order.key]: new ObjectId(cursorParam as string) }
+      } else {
+        if ([ 'created', 'updated' ].includes(this.pagination.cursor)) {
+          cursorParam = new Date(cursorParam)
+        }
+
+        where['$or'] = [
+          { [this.pagination.cursor]: { [order.key]: cursorParam } },
+          {
+            [this.pagination.cursor]: cursorParam,
+            _id: { [order.key]: new ObjectId(data[0]['id']) },
+          },
+        ]
+      }
+
+      hasPrev = !!await this.repository.findOne({ where })
+    }
+
+    paginated.meta.order = order.query
+    paginated.meta.hasNext = hasNext
+    paginated.meta.hasPrev = hasPrev
+
+    if (hasNext) {
+      paginated.meta.nextCursor = data[data.length - 1]['id']
+
+      if (this.pagination.cursor !== '_id') {
+        paginated.meta.nextCursor += '_' + data[data.length - 1][this.pagination.cursor]
+      }
+    }
+
+    if (hasPrev) {
+      paginated.meta.prevCursor = data[0]['id']
+
+      if (this.pagination.cursor !== '_id') {
+        paginated.meta.prevCursor += '_' + data[0][this.pagination.cursor]
       }
     }
 
