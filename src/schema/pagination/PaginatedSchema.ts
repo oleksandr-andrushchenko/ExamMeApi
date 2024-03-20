@@ -1,8 +1,13 @@
 import { ObjectId } from 'mongodb'
 import { Transform, Type } from 'class-transformer'
-import { IsBoolean, IsIn, IsMongoId, IsOptional, IsUrl, ValidateNested } from 'class-validator'
+import { IsIn, IsMongoId, IsNumber, IsOptional, IsPositive, IsUrl, Max, Min, ValidateNested } from 'class-validator'
 
 export class PaginatedMetaSchema {
+
+  @IsOptional()
+  @IsMongoId()
+  @Transform(({ value }: { value: ObjectId }) => value?.toString())
+  public prevCursor: ObjectId
 
   @IsOptional()
   @IsUrl()
@@ -11,36 +16,23 @@ export class PaginatedMetaSchema {
   @IsOptional()
   @IsMongoId()
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  public beforeCursor: ObjectId
+  public nextCursor: ObjectId
 
   @IsOptional()
   @IsUrl()
   public nextUrl: string
 
-  @IsOptional()
-  @IsMongoId()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  public afterCursor: ObjectId
-
   @IsIn([ '_id', 'created', 'updated' ])
   public cursor: string
-  public order: any
 
-  @IsOptional()
-  @IsMongoId()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  public nextCursor: any
+  @IsNumber()
+  @IsPositive()
+  @Min(1)
+  @Max(50)
+  public size: number = 1
 
-  @IsOptional()
-  @IsMongoId()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  public prevCursor: any
-
-  @IsBoolean()
-  public hasNext: boolean
-
-  @IsBoolean()
-  public hasPrev: boolean
+  @IsIn([ 'asc', 'desc' ])
+  public order: 'asc' | 'desc' = 'desc'
 }
 
 export default class PaginatedSchema<Entity> {
