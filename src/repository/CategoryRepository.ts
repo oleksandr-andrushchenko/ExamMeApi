@@ -2,7 +2,6 @@ import { MongoRepository } from 'typeorm'
 import Category from '../entity/Category'
 import Repository from '../decorator/Repository'
 import { ObjectId } from 'mongodb'
-import Cursor from '../model/Cursor'
 
 @Repository(Category)
 export default class CategoryRepository extends MongoRepository<Category> {
@@ -19,9 +18,5 @@ export default class CategoryRepository extends MongoRepository<Category> {
     }
 
     return await this.findOneBy(where)
-  }
-
-  public async findAll(cursor: Cursor<Category> = undefined): Promise<Category[]> {
-    return await this.find(cursor?.getWhere() || {})
   }
 }
