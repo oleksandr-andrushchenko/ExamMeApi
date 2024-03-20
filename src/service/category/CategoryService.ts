@@ -79,10 +79,9 @@ export default class CategoryService {
   public async queryCategories(pagination: PaginationSchema): Promise<PaginatedSchema<Category>> {
     await this.validator.validate(pagination)
 
-    const cursor = new Cursor<Category>(pagination)
-    cursor.setRepository(this.categoryRepository)
+    const cursor = new Cursor<Category>(pagination, this.categoryRepository)
 
-    return cursor.getPaginated()
+    return await cursor.getPaginated()
   }
 
   /**
