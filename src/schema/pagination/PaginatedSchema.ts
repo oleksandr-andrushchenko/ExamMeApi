@@ -1,22 +1,19 @@
-import { ObjectId } from 'mongodb'
-import { Transform, Type } from 'class-transformer'
-import { IsIn, IsMongoId, IsNumber, IsOptional, IsPositive, IsUrl, Max, Min, ValidateNested } from 'class-validator'
+import { Type } from 'class-transformer'
+import { IsIn, IsNumber, IsOptional, IsPositive, IsString, IsUrl, Max, Min, ValidateNested } from 'class-validator'
 
 export class PaginatedMetaSchema {
 
   @IsOptional()
-  @IsMongoId()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  public prevCursor: ObjectId
+  @IsString()
+  public prevCursor: string
 
   @IsOptional()
   @IsUrl()
   public prevUrl: string
 
   @IsOptional()
-  @IsMongoId()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  public nextCursor: ObjectId
+  @IsString()
+  public nextCursor: string
 
   @IsOptional()
   @IsUrl()
