@@ -14,14 +14,11 @@ export default class Cursor<Entity> {
   ) {
   }
 
-  public setRepository(repository: MongoRepository<Entity>): void {
-    this.repository = repository
-  }
-
   public async getPaginated(): Promise<PaginatedSchema<Entity>> {
     const paginated = new PaginatedSchema<Entity>()
     paginated.meta = new PaginatedMetaSchema()
     paginated.meta.cursor = this.pagination.cursor
+    paginated.meta.size = this.pagination.size
     paginated.meta.order = this.pagination.order
 
     const where = {}
@@ -145,8 +142,6 @@ export default class Cursor<Entity> {
     }
 
     paginated.meta.order = order.query
-    paginated.meta.hasNext = hasNext
-    paginated.meta.hasPrev = hasPrev
 
     if (hasNext) {
       paginated.meta.nextCursor = data[data.length - 1]['id']
@@ -154,6 +149,8 @@ export default class Cursor<Entity> {
       if (this.pagination.cursor !== '_id') {
         paginated.meta.nextCursor += '_' + data[data.length - 1][this.pagination.cursor]
       }
+
+      paginated.meta.nextUrl = `${ this.getUrl(paginated.meta) }&nextCursor=${ paginated.meta.nextCursor }`
     }
 
     if (hasPrev) {
@@ -162,8 +159,14 @@ export default class Cursor<Entity> {
       if (this.pagination.cursor !== '_id') {
         paginated.meta.prevCursor += '_' + data[0][this.pagination.cursor]
       }
+
+      paginated.meta.prevUrl = `${ this.getUrl(paginated.meta) }&prevCursor=${ paginated.meta.prevCursor }`
     }
 
     return paginated
+  }
+
+  private getUrl(meta: PaginatedMetaSchema): string {
+    return `?cursor=${ meta.cursor }&size=${ meta.size }&order=${ meta.order }`
   }
 }
