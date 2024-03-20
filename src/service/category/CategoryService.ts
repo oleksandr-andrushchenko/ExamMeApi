@@ -81,9 +81,8 @@ export default class CategoryService {
 
     const cursor = new Cursor<Category>(pagination)
     cursor.setRepository(this.categoryRepository)
-    const data = await this.categoryRepository.findAll(cursor)
 
-    return cursor.getPaginated(data)
+    return cursor.getPaginated()
   }
 
   /**
