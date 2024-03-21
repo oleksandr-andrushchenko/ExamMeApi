@@ -21,7 +21,7 @@ export default class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInt
       errors: (error[`errors`] || []) as [],
     }
 
-    if (code === 400 && data.name === 'ParamRequiredError') {
+    if (code === 400 && [ 'ParamRequiredError', 'ParamNormalizationError' ].includes(data.name)) {
       data.name = 'BadRequestError'
     }
 
