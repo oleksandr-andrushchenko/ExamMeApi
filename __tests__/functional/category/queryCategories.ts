@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 // @ts-ignore
-import { api, fixture } from '../../index'
+import { api, auth, error, fixture } from '../../index'
 import Category from '../../../src/entity/Category'
 import * as querystring from 'querystring'
 
@@ -13,6 +13,22 @@ describe('GET /categories', () => {
 
     expect(res.status).toEqual(200)
     expect(res.body.data).toEqual([])
+  })
+
+  test.each([
+    { case: 'invalid cursor type', query: { cursor: 1 } },
+    { case: 'not allowed cursor', query: { cursor: 'name' } },
+    { case: 'invalid size type', query: { size: 'any' } },
+    { case: 'negative size', query: { size: -1 } },
+    { case: 'zero size', query: { size: 0 } },
+    { case: 'size greater them max', query: { size: 1000 } },
+    { case: 'invalid order type', query: { order: 1 } },
+    { case: 'not allowed order', query: { order: 'any' } },
+  ])('Bad request ($case)', async ({ query }) => {
+    const res = await request(app).get('/categories').query(query)
+
+    expect(res.status).toEqual(400)
+    expect(res.body).toMatchObject(error('BadRequestError'))
   })
 
   test('Cursor (id, id:asc)', async () => {
