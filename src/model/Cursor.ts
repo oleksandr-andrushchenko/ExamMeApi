@@ -74,13 +74,13 @@ export default class Cursor<Entity> {
         }
 
         where['$or'] = [
-          { [this.pagination.cursor]: { [order.key]: cursorParam } },
+          { [this.pagination.cursor == 'id' ? '_id' : this.pagination.cursor]: { [order.key]: cursorParam } },
           {
-            [this.pagination.cursor]: cursorParam,
+            [this.pagination.cursor == 'id' ? '_id' : this.pagination.cursor]: cursorParam,
             _id: { [order.key]: cursorId },
           },
         ]
-        sort[this.pagination.cursor] = order.direction
+        sort[this.pagination.cursor == 'id' ? '_id' : this.pagination.cursor] = order.direction
       } else {
         where['_id'] = { [order.key]: cursorId }
       }
@@ -99,9 +99,9 @@ export default class Cursor<Entity> {
 
     if (data.length) {
       order.key = (order.query === 'desc') ? '$lt' : '$gt'
-      cursorParam = data[data.length - 1][this.pagination.cursor === '_id' ? 'id' : this.pagination.cursor]
+      cursorParam = data[data.length - 1][this.pagination.cursor]
 
-      if (this.pagination.cursor === '_id') {
+      if (this.pagination.cursor === 'id') {
         where['_id'] = { [order.key]: new ObjectId(cursorParam as string) }
       } else {
         if ([ 'created', 'updated' ].includes(this.pagination.cursor)) {
@@ -109,9 +109,9 @@ export default class Cursor<Entity> {
         }
 
         where['$or'] = [
-          { [this.pagination.cursor]: { [order.key]: cursorParam } },
+          { [this.pagination.cursor == 'id' ? '_id' : this.pagination.cursor]: { [order.key]: cursorParam } },
           {
-            [this.pagination.cursor]: cursorParam,
+            [this.pagination.cursor == 'id' ? '_id' : this.pagination.cursor]: cursorParam,
             _id: { [order.key]: new ObjectId(data[data.length - 1]['id']) },
           },
         ]
@@ -120,9 +120,9 @@ export default class Cursor<Entity> {
       hasNext = !!await this.repository.findOne({ where })
 
       order.key = (order.query === 'desc') ? '$gt' : '$lt'
-      cursorParam = data[0][this.pagination.cursor === '_id' ? 'id' : this.pagination.cursor]
+      cursorParam = data[0][this.pagination.cursor]
 
-      if (this.pagination.cursor === '_id') {
+      if (this.pagination.cursor === 'id') {
         where['_id'] = { [order.key]: new ObjectId(cursorParam as string) }
       } else {
         if ([ 'created', 'updated' ].includes(this.pagination.cursor)) {
@@ -130,9 +130,9 @@ export default class Cursor<Entity> {
         }
 
         where['$or'] = [
-          { [this.pagination.cursor]: { [order.key]: cursorParam } },
+          { [this.pagination.cursor == 'id' ? '_id' : this.pagination.cursor]: { [order.key]: cursorParam } },
           {
-            [this.pagination.cursor]: cursorParam,
+            [this.pagination.cursor == 'id' ? '_id' : this.pagination.cursor]: cursorParam,
             _id: { [order.key]: new ObjectId(data[0]['id']) },
           },
         ]
@@ -144,9 +144,9 @@ export default class Cursor<Entity> {
     paginated.meta.order = order.query
 
     if (hasNext) {
-      paginated.meta.nextCursor = data[data.length - 1]['id']
+      paginated.meta.nextCursor = data[data.length - 1]['id'].toString()
 
-      if (this.pagination.cursor !== '_id') {
+      if (this.pagination.cursor !== 'id') {
         paginated.meta.nextCursor += '_' + data[data.length - 1][this.pagination.cursor]
       }
 
@@ -154,9 +154,9 @@ export default class Cursor<Entity> {
     }
 
     if (hasPrev) {
-      paginated.meta.prevCursor = data[0]['id']
+      paginated.meta.prevCursor = data[0]['id'].toString()
 
-      if (this.pagination.cursor !== '_id') {
+      if (this.pagination.cursor !== 'id') {
         paginated.meta.prevCursor += '_' + data[0][this.pagination.cursor]
       }
 

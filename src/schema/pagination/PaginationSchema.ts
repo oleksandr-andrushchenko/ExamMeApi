@@ -13,8 +13,8 @@ export default class PaginationSchema {
   public readonly nextCursor: string
 
   @IsOptional()
-  @IsIn([ '_id', 'created', 'updated' ])
-  public readonly cursor: string = '_id'
+  @IsIn([ 'id', 'created', 'updated' ])
+  public readonly cursor: string = 'id'
 
   @IsOptional()
   @IsNumber()

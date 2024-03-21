@@ -19,8 +19,8 @@ export class PaginatedMetaSchema {
   @IsUrl()
   public nextUrl: string
 
-  @IsIn([ '_id', 'created', 'updated' ])
-  public cursor: string
+  @IsIn([ 'id', 'created', 'updated' ])
+  public cursor: string = 'id'
 
   @IsNumber()
   @IsPositive()
