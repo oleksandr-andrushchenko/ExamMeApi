@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 // @ts-ignore
-import { api, auth, error, fixture } from '../../index'
+import { api, error, fixture } from '../../index'
 import Category from '../../../src/entity/Category'
 import * as querystring from 'querystring'
 
@@ -31,33 +31,51 @@ describe('GET /categories', () => {
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
 
-  test('Cursor (id, id:asc)', async () => {
+  test.each([
+    { size: 1 },
+    { size: 2 },
+    { size: 3 },
+    { size: 4 },
+  ])('Cursor (id, id:asc, size:$size)', async ({ size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
-    const query = { cursor: 'id', size: 1, order: 'asc' }
+    const query = { cursor: 'id', size, order: 'asc' }
     const res = await request(app).get('/categories').query(query)
 
     expect(res.status).toEqual(200)
-    expect(res.body.data).toHaveLength(query.size)
-    const lastInBodyId = res.body.data[query.size - 1].id
-    const lastInStorageId = categories[query.size - 1].getId().toString()
+    const firstInStoragePosition = 0
+    const lastInStoragePosition = Math.min(categories.length, size) - 1
+    expect(res.body.data).toHaveLength(lastInStoragePosition - firstInStoragePosition + 1)
+    const firstInBodyId = res.body.data[0].id
+    const firstInStorageId = categories[firstInStoragePosition].getId().toString()
+    expect(firstInBodyId).toEqual(firstInStorageId)
+    const lastInBodyId = res.body.data[res.body.data.length - 1].id
+    const lastInStorageId = categories[lastInStoragePosition].getId().toString()
     expect(lastInBodyId).toEqual(lastInStorageId)
     expect(res.body.meta).toMatchObject(query)
-    expect(res.body.meta).toMatchObject({ nextCursor: lastInStorageId })
-    expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: lastInStorageId } }) })
+
+    if (lastInStoragePosition + 1 < categories.length) {
+      const nextInStorageId = categories[lastInStoragePosition]?.getId().toString()
+      expect(res.body.meta).toMatchObject({ nextCursor: nextInStorageId })
+      expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: nextInStorageId } }) })
+    }
   })
 
-  test('Cursor (id, id:desc)', async () => {
+  test.each([
+    { size: 1 },
+    { size: 2 },
+    { size: 3 },
+  ])('Cursor (id, id:desc, size:$size)', async ({ size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
-    const size = 2
+    const position = 0
     const query = { cursor: 'id', size, order: 'desc' }
     const res = await request(app).get('/categories').query(query)
 
     expect(res.status).toEqual(200)
-    expect(res.body.data).toHaveLength(query.size)
+    expect(res.body.data).toHaveLength(size)
     const firstInBodyId = res.body.data[0].id
     const lastInStorageId = categories[categories.length - 1].getId().toString()
     expect(firstInBodyId).toEqual(lastInStorageId)
@@ -65,47 +83,89 @@ describe('GET /categories', () => {
     const lastInBodyId = res.body.data[size - 1].id
     expect(lastInBodyId).toEqual(firstInStorage)
     expect(res.body.meta).toMatchObject(query)
-    expect(res.body.meta).toMatchObject({ nextCursor: firstInStorage })
-    expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: firstInStorage } }) })
+    const lastInStoragePosition = categories.length - position - size
+
+    if (lastInStoragePosition > 0) {
+      const nextInStorageId = categories[lastInStoragePosition]?.getId().toString()
+      expect(res.body.meta).toMatchObject({ nextCursor: nextInStorageId })
+      expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: nextInStorageId } }) })
+    }
+
+    const firstInStoragePosition = categories.length - position
+
+    if (firstInStoragePosition + 1 < categories.length) {
+      const prevInStorageId = categories[firstInStoragePosition]?.getId().toString()
+      expect(res.body.meta).toMatchObject({ prevCursor: prevInStorageId })
+      expect(res.body.meta).toMatchObject({ prevUrl: '?' + querystring.stringify({ ...query, ...{ prevUrl: prevInStorageId } }) })
+    }
   })
 
-  test('Cursor (id, id:asc, prev)', async () => {
+  test.each([
+    { prev: 1, size: 1 },
+    { prev: 1, size: 2 },
+    { prev: 1, size: 3 },
+    { prev: 2, size: 1 },
+    { prev: 2, size: 2 },
+    { prev: 2, size: 3 },
+  ])('Cursor (id, id:asc, prev:$prev, size:$size)', async ({ prev, size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
-    const firstInStorageId = categories[0].getId().toString()
-    const secondInStorageId = categories[1].getId().toString()
-    const query = { cursor: 'id', size: 1, order: 'asc' }
-    const res = await request(app).get('/categories').query({ ...query, ...{ prevCursor: secondInStorageId } })
+    const prevCursor = categories[prev].getId().toString()
+    const query = { cursor: 'id', size, order: 'asc' }
+    const res = await request(app).get('/categories').query({ ...query, ...{ prevCursor } })
 
     expect(res.status).toEqual(200)
-    expect(res.body.data).toHaveLength(query.size)
+    const firstInStoragePosition = Math.max(0, prev - size)
+    const lastInStoragePosition = Math.max(0, prev - 1)
+    expect(res.body.data).toHaveLength(lastInStoragePosition - firstInStoragePosition + 1)
     const firstInBodyId = res.body.data[0].id
+    const firstInStorageId = categories[firstInStoragePosition].getId().toString()
     expect(firstInBodyId).toEqual(firstInStorageId)
-    expect(res.body.meta).toMatchObject({ ...query, ...{ nextCursor: firstInStorageId } })
+    const lastInBodyId = res.body.data[res.body.data.length - 1].id
+    const lastInStorageId = categories[lastInStoragePosition].getId().toString()
+    expect(lastInBodyId).toEqual(lastInStorageId)
+    const nextCursor = categories[prev - 1].getId().toString()
+    expect(res.body.meta).toMatchObject({ ...query, ...{ nextCursor } })
+
+    if (firstInStoragePosition > 1) {
+      const prevInStorageId = categories[firstInStoragePosition - 1]?.getId().toString()
+      expect(res.body.meta).toMatchObject({ prevCursor: prevInStorageId })
+      expect(res.body.meta).toMatchObject({ prevUrl: '?' + querystring.stringify({ ...query, ...{ prevUrl: prevInStorageId } }) })
+    }
+
+    const nextInStorageId = categories[lastInStoragePosition]?.getId().toString()
+    expect(res.body.meta).toMatchObject({ nextCursor: nextInStorageId })
+    expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: nextInStorageId } }) })
   })
 
+  // todo: add more cases & improve
   test('Cursor (id, id:asc, next)', async () => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
-    const firstInStorageId = categories[0].getId().toString()
-    const secondInStorageId = categories[1].getId().toString()
-    const query = { cursor: 'id', size: 1, order: 'asc' }
-    const res = await request(app).get('/categories').query({ ...query, ...{ nextCursor: firstInStorageId } })
+    const size = 2
+    const position = 0
+    const nextCursor = categories[position].getId().toString()
+    const query = { cursor: 'id', size, order: 'asc' }
+    const res = await request(app).get('/categories').query({ ...query, ...{ nextCursor } })
 
     expect(res.status).toEqual(200)
-    expect(res.body.data).toHaveLength(query.size)
+    const length = Math.min(categories.length - position - 1, size)
+    expect(res.body.data).toHaveLength(length)
     const firstInBodyId = res.body.data[0].id
-    expect(firstInBodyId).toEqual(secondInStorageId)
-    expect(res.body.meta).toMatchObject({
-      ...query, ...{
-        prevCursor: secondInStorageId,
-        nextCursor: secondInStorageId,
-      },
-    })
+    const firstInStorageId = categories[position + 1].getId().toString()
+    expect(firstInBodyId).toEqual(firstInStorageId)
+    expect(res.body.meta).toMatchObject({ ...query, ...{ prevCursor: firstInStorageId } })
+    const lastInStoragePosition = position + size
+
+    if (lastInStoragePosition + 1 < categories.length) {
+      const lastInStorageId = categories[lastInStoragePosition]?.getId().toString()
+      expect(res.body.meta).toMatchObject({ nextCursor: lastInStorageId })
+    }
   })
 
+  // todo: add more cases & improve
   test('Cursor (id, id:desc, prev)', async () => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
@@ -122,6 +182,7 @@ describe('GET /categories', () => {
     expect(res.body.meta).toMatchObject({ ...query, ...{ nextCursor: firstInBodyId } })
   })
 
+  // todo: add more cases & improve
   test('Cursor (id, id:desc, next)', async () => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
