@@ -21,7 +21,7 @@ export default class PaginationSchema {
   @IsPositive()
   @Min(1)
   @Max(50)
-  public readonly size: number = 1
+  public readonly size: number = 10
 
   @IsOptional()
   @IsIn([ 'asc', 'desc' ])
