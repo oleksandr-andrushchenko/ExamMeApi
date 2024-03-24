@@ -14,6 +14,7 @@ import {
   Patch,
   Post,
   Put,
+  QueryParams,
 } from 'routing-controllers'
 import { Inject, Service } from 'typedi'
 import Question from '../entity/Question'
@@ -26,11 +27,12 @@ import AuthorizationFailedError from '../error/auth/AuthorizationFailedError'
 import QuestionService from '../service/question/QuestionService'
 import CategoryNotFoundError from '../error/category/CategoryNotFoundError'
 import ValidatorError from '../error/validator/ValidatorError'
-import QuestionRepository from '../repository/QuestionRepository'
 import CategoryService from '../service/category/CategoryService'
 import QuestionNotFoundError from '../error/question/QuestionNotFoundError'
 import QuestionOwnershipError from '../error/question/QuestionOwnershipError'
 import QuestionUpdateSchema from '../schema/question/QuestionUpdateSchema'
+import PaginationSchema from '../schema/pagination/PaginationSchema'
+import PaginatedQuestions from '../schema/question/PaginatedQuestions'
 
 @Service()
 @JsonController()
@@ -39,7 +41,6 @@ export default class QuestionController {
   constructor(
     @Inject() private readonly questionService: QuestionService,
     @Inject() private readonly categoryService: CategoryService,
-    @Inject() private readonly questionRepository: QuestionRepository,
   ) {
   }
 
@@ -85,14 +86,15 @@ export default class QuestionController {
       404: { description: 'Not Found' },
     },
   })
-  @ResponseSchema(Question, { isArray: true })
+  @ResponseSchema(PaginatedQuestions)
   public async queryCategoryQuestions(
     @Param('category_id') categoryId: string,
-  ): Promise<Question[]> {
+    @QueryParams() pagination: PaginationSchema,
+  ): Promise<PaginatedQuestions> {
     try {
       const category = await this.categoryService.getCategory(categoryId)
 
-      return this.questionRepository.findByCategory(category)
+      return this.questionService.queryCategoryQuestions(category, pagination)
     } catch (error) {
       switch (true) {
         case error instanceof ValidatorError:
