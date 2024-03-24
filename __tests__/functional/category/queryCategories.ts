@@ -47,6 +47,7 @@ describe('GET /categories', () => {
     const firstInStoragePosition = 0
     const lastInStoragePosition = Math.min(categories.length, size) - 1
     expect(res.body.data).toHaveLength(lastInStoragePosition - firstInStoragePosition + 1)
+
     const firstInBodyId = res.body.data[0].id
     const firstInStorageId = categories[firstInStoragePosition].getId().toString()
     expect(firstInBodyId).toEqual(firstInStorageId)
@@ -56,9 +57,8 @@ describe('GET /categories', () => {
     expect(res.body.meta).toMatchObject(query)
 
     if (lastInStoragePosition + 1 < categories.length) {
-      const nextInStorageId = categories[lastInStoragePosition].getId().toString()
-      expect(res.body.meta).toMatchObject({ nextCursor: nextInStorageId })
-      expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: nextInStorageId } }) })
+      expect(res.body.meta).toMatchObject({ nextCursor: lastInStorageId })
+      expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: lastInStorageId } }) })
     }
   })
 
@@ -82,7 +82,7 @@ describe('GET /categories', () => {
     }
 
     const firstInStoragePosition = Math.max(0, categories.length - size)
-    const lastInStoragePosition = categories.length - 1
+    const lastInStoragePosition = Math.max(0, categories.length - 1)
     expect(res.body.data).toHaveLength(lastInStoragePosition - firstInStoragePosition + 1)
 
     const firstInBodyId = res.body.data[0].id
@@ -172,9 +172,10 @@ describe('GET /categories', () => {
       return
     }
 
-    const firstInStoragePosition = next + 1
+    const firstInStoragePosition = Math.min(next + 1, categories.length - 1)
     const lastInStoragePosition = Math.min(next + size, categories.length - 1)
     expect(res.body.data).toHaveLength(lastInStoragePosition - firstInStoragePosition + 1)
+
     const firstInBodyId = res.body.data[0].id
     const firstInStorageId = categories[firstInStoragePosition].getId().toString()
     expect(firstInBodyId).toEqual(firstInStorageId)
@@ -265,7 +266,7 @@ describe('GET /categories', () => {
       return
     }
 
-    const firstInStoragePosition = next - 1
+    const firstInStoragePosition = Math.max(0, next - 1)
     const lastInStoragePosition = Math.max(0, next - size)
     expect(res.body.data).toHaveLength(firstInStoragePosition - lastInStoragePosition + 1)
 
