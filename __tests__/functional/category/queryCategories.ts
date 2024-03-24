@@ -75,21 +75,27 @@ describe('GET /categories', () => {
     const res = await request(app).get('/categories').query(query)
 
     expect(res.status).toEqual(200)
+
+    if (categories.length < 1) {
+      expect(res.body.data).toHaveLength(0)
+      return
+    }
+
     const firstInStoragePosition = Math.max(0, categories.length - size)
     const lastInStoragePosition = categories.length - 1
-    expect(res.body.data).toHaveLength(Math.min(size, lastInStoragePosition - firstInStoragePosition + 1))
+    expect(res.body.data).toHaveLength(lastInStoragePosition - firstInStoragePosition + 1)
 
     const firstInBodyId = res.body.data[0].id
     const lastInStorageId = categories[lastInStoragePosition].getId().toString()
     expect(firstInBodyId).toEqual(lastInStorageId)
-    const firstInStorage = categories[firstInStoragePosition].getId().toString()
+    const firstInStorageId = categories[firstInStoragePosition].getId().toString()
     const lastInBodyId = res.body.data[res.body.data.length - 1].id
-    expect(lastInBodyId).toEqual(firstInStorage)
+    expect(lastInBodyId).toEqual(firstInStorageId)
     expect(res.body.meta).toMatchObject(query)
 
     if (firstInStoragePosition > 0) {
-      expect(res.body.meta).toMatchObject({ nextCursor: firstInStorage })
-      expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: firstInStorage } }) })
+      expect(res.body.meta).toMatchObject({ nextCursor: firstInStorageId })
+      expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: firstInStorageId } }) })
     }
   })
 
@@ -121,6 +127,7 @@ describe('GET /categories', () => {
     const firstInStoragePosition = Math.max(0, prev - size)
     const lastInStoragePosition = Math.max(0, prev - 1)
     expect(res.body.data).toHaveLength(lastInStoragePosition - firstInStoragePosition + 1)
+
     const firstInBodyId = res.body.data[0].id
     const firstInStorageId = categories[firstInStoragePosition].getId().toString()
     expect(firstInBodyId).toEqual(firstInStorageId)
@@ -131,14 +138,13 @@ describe('GET /categories', () => {
     expect(res.body.meta).toMatchObject({ ...query, ...{ nextCursor } })
 
     if (firstInStoragePosition > 1) {
-      const prevInStorageId = categories[firstInStoragePosition - 1].getId().toString()
-      expect(res.body.meta).toMatchObject({ prevCursor: prevInStorageId })
-      expect(res.body.meta).toMatchObject({ prevUrl: '?' + querystring.stringify({ ...query, ...{ prevUrl: prevInStorageId } }) })
+      const prevFirstInStorageId = categories[firstInStoragePosition - 1].getId().toString()
+      expect(res.body.meta).toMatchObject({ prevCursor: prevFirstInStorageId })
+      expect(res.body.meta).toMatchObject({ prevUrl: '?' + querystring.stringify({ ...query, ...{ prevUrl: prevFirstInStorageId } }) })
     }
 
-    const nextInStorageId = categories[lastInStoragePosition].getId().toString()
-    expect(res.body.meta).toMatchObject({ nextCursor: nextInStorageId })
-    expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: nextInStorageId } }) })
+    expect(res.body.meta).toMatchObject({ nextCursor: lastInStorageId })
+    expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: lastInStorageId } }) })
   })
 
   test.each([
@@ -187,7 +193,18 @@ describe('GET /categories', () => {
   })
 
   test.each([
+    { prev: 0, size: 1 },
+    { prev: 0, size: 2 },
+    { prev: 0, size: 3 },
+    { prev: 0, size: 4 },
     { prev: 1, size: 1 },
+    { prev: 1, size: 2 },
+    { prev: 1, size: 3 },
+    { prev: 1, size: 4 },
+    { prev: 2, size: 1 },
+    { prev: 2, size: 2 },
+    { prev: 2, size: 3 },
+    { prev: 2, size: 4 },
   ])('Cursor (id, id:desc, prev:$prev, size:$size)', async ({ prev, size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
@@ -198,16 +215,29 @@ describe('GET /categories', () => {
 
     expect(res.status).toEqual(200)
 
-    // todo:
-    // const firstInStoragePosition = next + 1
-    // const lastInStoragePosition = Math.min(next + size, categories.length - 1)
+    if (prev + 2 > categories.length) {
+      expect(res.body.data).toHaveLength(0)
+      return
+    }
 
-    const lastInStorageId = categories[categories.length - 1].getId().toString()
+    const firstInStoragePosition = Math.min(prev + 1, categories.length - 1)
+    const lastInStoragePosition = Math.min(prev + size, categories.length - 1)
+    expect(res.body.data).toHaveLength(lastInStoragePosition - firstInStoragePosition + 1)
 
-    expect(res.body.data).toHaveLength(size)
     const firstInBodyId = res.body.data[0].id
+    const lastInStorageId = categories[lastInStoragePosition].getId().toString()
     expect(firstInBodyId).toEqual(lastInStorageId)
-    expect(res.body.meta).toMatchObject({ ...query, ...{ nextCursor: firstInBodyId } })
+    const lastInBodyId = res.body.data[res.body.data.length - 1].id
+    const firstInStorageId = categories[firstInStoragePosition].getId().toString()
+    expect(lastInBodyId).toEqual(firstInStorageId)
+
+    if (lastInStoragePosition + 1 < categories.length) {
+      expect(res.body.meta).toMatchObject({ ...query, ...{ prevCursor: lastInStorageId } })
+      expect(res.body.meta).toMatchObject({ prevUrl: '?' + querystring.stringify({ ...query, ...{ prevCursor: lastInStorageId } }) })
+    }
+
+    expect(res.body.meta).toMatchObject({ ...query, ...{ nextCursor: firstInStorageId } })
+    expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: firstInStorageId } }) })
   })
 
   test.each([
@@ -224,36 +254,36 @@ describe('GET /categories', () => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
-    const nextCursor = categories[categories.length - 1 - next].getId().toString()
+    const nextCursor = categories[next].getId().toString()
     const query = { cursor: 'id', size, order: 'desc' }
     const res = await request(app).get('/categories').query({ ...query, ...{ nextCursor } })
 
     expect(res.status).toEqual(200)
 
-    const firstInStoragePosition = Math.max(0, categories.length - 1 - next - size)
-    const lastInStoragePosition = categories.length - 1 - next - 1
-
-    if (lastInStoragePosition < 0) {
+    if (next < 1) {
       expect(res.body.data).toHaveLength(0)
       return
     }
 
-    expect(res.body.data).toHaveLength(lastInStoragePosition - firstInStoragePosition + 1)
+    const firstInStoragePosition = next - 1
+    const lastInStoragePosition = Math.max(0, next - size)
+    expect(res.body.data).toHaveLength(firstInStoragePosition - lastInStoragePosition + 1)
+
     const firstInBodyId = res.body.data[0].id
-    const lastInStorageId = categories[lastInStoragePosition].getId().toString()
-    expect(firstInBodyId).toEqual(lastInStorageId)
-    const lastInBodyId = res.body.data[res.body.data.length - 1].id
     const firstInStorageId = categories[firstInStoragePosition].getId().toString()
-    expect(lastInBodyId).toEqual(firstInStorageId)
+    expect(firstInBodyId).toEqual(firstInStorageId)
+    const lastInBodyId = res.body.data[res.body.data.length - 1].id
+    const lastInStorageId = categories[lastInStoragePosition].getId().toString()
+    expect(lastInBodyId).toEqual(lastInStorageId)
     expect(res.body.meta).toMatchObject({ ...query })
 
-    expect(res.body.meta).toMatchObject({ prevCursor: lastInStorageId })
-    expect(res.body.meta).toMatchObject({ prevUrl: '?' + querystring.stringify({ ...query, ...{ prevCursor: lastInStorageId } }) })
+    expect(res.body.meta).toMatchObject({ prevCursor: firstInStorageId })
+    expect(res.body.meta).toMatchObject({ prevUrl: '?' + querystring.stringify({ ...query, ...{ prevCursor: firstInStorageId } }) })
 
-    if (firstInStoragePosition > 1) {
-      const lastInStorageId = categories[firstInStoragePosition - 1].getId().toString()
-      expect(res.body.meta).toMatchObject({ nextCursor: lastInStorageId })
-      expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: lastInStorageId } }) })
+    if (lastInStoragePosition > 1) {
+      const prevLastInStorageId = categories[lastInStoragePosition - 1].getId().toString()
+      expect(res.body.meta).toMatchObject({ nextCursor: prevLastInStorageId })
+      expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: prevLastInStorageId } }) })
     }
   })
 
