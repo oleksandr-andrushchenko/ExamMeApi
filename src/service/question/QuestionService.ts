@@ -15,6 +15,9 @@ import CategoryService from '../category/CategoryService'
 import QuestionOwnershipError from '../../error/question/QuestionOwnershipError'
 import QuestionNotFoundError from '../../error/question/QuestionNotFoundError'
 import QuestionUpdateSchema from '../../schema/question/QuestionUpdateSchema'
+import PaginationSchema from '../../schema/pagination/PaginationSchema'
+import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
+import Cursor from '../../model/Cursor'
 
 @Service()
 export default class QuestionService {
@@ -72,6 +75,21 @@ export default class QuestionService {
     this.eventDispatcher.dispatch('questionCreated', { question })
 
     return question
+  }
+
+  /**
+   *
+   * @param {Category} category
+   * @param {PaginationSchema} pagination
+   * @returns {Promise<PaginatedSchema<Question>>}
+   * @throws {ValidatorError}
+   */
+  public async queryCategoryQuestions(category: Category, pagination: PaginationSchema): Promise<PaginatedSchema<Question>> {
+    await this.validator.validate(pagination)
+
+    const cursor = new Cursor<Question>(pagination, this.questionRepository)
+
+    return await cursor.getPaginated({ category: category.getId() })
   }
 
   /**
