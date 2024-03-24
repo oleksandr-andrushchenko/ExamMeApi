@@ -14,14 +14,12 @@ export default class Cursor<Entity> {
   ) {
   }
 
-  public async getPaginated(): Promise<PaginatedSchema<Entity>> {
+  public async getPaginated(where: object = {}): Promise<PaginatedSchema<Entity>> {
     const paginated = new PaginatedSchema<Entity>()
     paginated.meta = new PaginatedMetaSchema()
     paginated.meta.cursor = this.pagination.cursor
     paginated.meta.size = this.pagination.size
     paginated.meta.order = this.pagination.order
-
-    const where = {}
 
     const order = {
       query: this.pagination.order,
