@@ -26,7 +26,7 @@ export class PaginatedMetaSchema {
   @IsPositive()
   @Min(1)
   @Max(50)
-  public size: number = 1
+  public size: number = 10
 
   @IsIn([ 'asc', 'desc' ])
   public order: 'asc' | 'desc' = 'desc'
