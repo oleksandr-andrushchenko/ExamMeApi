@@ -30,7 +30,7 @@ describe('GET /categories/:category_id/questions', () => {
     const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`)
 
     expect(res.status).toEqual(200)
-    expect(res.body).toEqual([])
+    expect(res.body.data).toEqual([])
   })
 
   test('Not empty', async () => {
@@ -44,10 +44,10 @@ describe('GET /categories/:category_id/questions', () => {
     const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`)
 
     expect(res.status).toEqual(200)
-    expect(res.body).toHaveLength(questions.length)
+    expect(res.body.data).toHaveLength(questions.length)
 
     type resType = { [title: string]: string };
-    const body = res.body.sort((a: resType, b: resType) => a.title.localeCompare(b.title))
+    const body = res.body.data.sort((a: resType, b: resType) => a.title.localeCompare(b.title))
     questions
       .sort((a: Question, b: Question) => a.getTitle().localeCompare(b.getTitle()))
       .forEach((question: Question, index: number) => {
