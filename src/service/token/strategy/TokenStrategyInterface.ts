@@ -1,6 +1,6 @@
 export default interface TokenStrategyInterface {
 
-  encodeToken<Payload>(payload: Payload): Promise<string>
+  sign(payload: object): Promise<string>
 
-  decodeToken<Payload>(token: string): Promise<Payload>
+  verify<Payload>(token: string): Promise<Payload>
 }

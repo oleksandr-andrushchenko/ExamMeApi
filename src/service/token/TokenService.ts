@@ -27,8 +27,8 @@ export default class TokenService {
 
   public async generateAccessToken(user: User, expiresIn: number): Promise<GeneratedToken> {
     const expires = Date.now() + expiresIn
-    const payload = { userId: user.getId().toString(), expires, type: TokenType.ACCESS }
-    const token = await this.tokenStrategy.encodeToken<TokenPayload>(payload)
+    const payload = { userId: user.getId().toString(), type: TokenType.ACCESS }
+    const token = await this.tokenStrategy.sign(payload)
 
     return { token, expires }
   }
@@ -38,9 +38,9 @@ export default class TokenService {
   }
 
   public async verifyToken(encoded: string, type: TokenType): Promise<TokenPayload | null> {
-    const payload: TokenPayload = await this.tokenStrategy.decodeToken<TokenPayload>(encoded)
+    const payload = await this.tokenStrategy.verify<TokenPayload>(encoded)
 
-    if (!payload?.userId || payload?.type !== type || (payload?.expires && payload.expires < Date.now())) {
+    if (!payload?.userId || payload?.type !== type) {
       return null
     }
 
