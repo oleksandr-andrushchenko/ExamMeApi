@@ -78,18 +78,40 @@ export default class QuestionService {
   }
 
   /**
-   *
+   * @param {PaginationSchema} pagination
+   * @returns {Promise<PaginatedSchema<Question>>}
+   * @throws {ValidatorError}
+   */
+  public async queryQuestions(pagination: PaginationSchema): Promise<PaginatedSchema<Question>> {
+    await this.validator.validate(pagination)
+
+    const cursor = new Cursor<Question>(pagination, this.questionRepository)
+
+    const where = {}
+
+    for (const key of [ 'category', 'price', 'search', 'difficulty', 'type' ]) {
+      if (pagination.hasOwnProperty(key)) {
+        if (key === 'search') {
+          where['title'] = { $regex: pagination[key], $options: 'i' }
+        } else {
+          where[key] = pagination[key]
+        }
+      }
+    }
+
+    return await cursor.getPaginated(where)
+  }
+
+  /**
    * @param {Category} category
    * @param {PaginationSchema} pagination
    * @returns {Promise<PaginatedSchema<Question>>}
    * @throws {ValidatorError}
    */
   public async queryCategoryQuestions(category: Category, pagination: PaginationSchema): Promise<PaginatedSchema<Question>> {
-    await this.validator.validate(pagination)
+    pagination['category'] = category.getId()
 
-    const cursor = new Cursor<Question>(pagination, this.questionRepository)
-
-    return await cursor.getPaginated({ category: category.getId() })
+    return this.queryQuestions(pagination)
   }
 
   /**
