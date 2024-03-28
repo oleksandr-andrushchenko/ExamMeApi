@@ -78,6 +78,28 @@ export default class QuestionController {
     }
   }
 
+  @Get('/questions')
+  @OpenAPI({
+    responses: {
+      200: { description: 'OK' },
+      400: { description: 'Bad Request' },
+      404: { description: 'Not Found' },
+    },
+  })
+  @ResponseSchema(PaginatedQuestions)
+  public async queryQuestions(
+    @QueryParams() pagination: PaginationSchema,
+  ): Promise<PaginatedQuestions> {
+    try {
+      return this.questionService.queryQuestions(pagination)
+    } catch (error) {
+      switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
+      }
+    }
+  }
+
   @Get('/categories/:category_id/questions')
   @OpenAPI({
     responses: {
