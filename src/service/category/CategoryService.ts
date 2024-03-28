@@ -81,7 +81,19 @@ export default class CategoryService {
 
     const cursor = new Cursor<Category>(pagination, this.categoryRepository)
 
-    return await cursor.getPaginated()
+    const where = {}
+
+    for (const key of [ 'price', 'search' ]) {
+      if (pagination.hasOwnProperty(key)) {
+        if (key === 'search') {
+          where['name'] = { $regex: pagination[key], $options: 'i' }
+        } else {
+          where[key] = pagination[key]
+        }
+      }
+    }
+
+    return await cursor.getPaginated(where)
   }
 
   /**
