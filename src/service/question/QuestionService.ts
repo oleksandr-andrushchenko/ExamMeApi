@@ -93,6 +93,8 @@ export default class QuestionService {
       if (pagination.hasOwnProperty(key)) {
         if (key === 'search') {
           where['title'] = { $regex: pagination[key], $options: 'i' }
+        } else if (key === 'category') {
+          where[key] = new ObjectId(pagination[key])
         } else {
           where[key] = pagination[key]
         }
