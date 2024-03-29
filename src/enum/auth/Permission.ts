@@ -10,6 +10,8 @@ enum Permission {
   REPLACE_QUESTION = 'replaceQuestion',
   UPDATE_QUESTION = 'updateQuestion',
   DELETE_QUESTION = 'deleteQuestion',
+  CREATE_EXAM = 'createExam',
+  DELETE_EXAM = 'deleteExam',
   ALL = '*',
 }
 
