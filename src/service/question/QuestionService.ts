@@ -179,7 +179,7 @@ export default class QuestionService {
 
   /**
    * @param {string} id
-   * @param {QuestionSchema} transfer
+   * @param {QuestionUpdateSchema} transfer
    * @param {User} initiator
    * @returns {Promise<Question>}
    * @throws {QuestionNotFoundError}
