@@ -26,10 +26,11 @@ export default class UserService {
   }
 
   /**
-   * @param transfer
-   * @param initiator
-   * @throws AuthorizationFailedError
-   * @throws UserEmailTakenError
+   * @param {UserSchema} transfer
+   * @param {User} initiator
+   * @returns {Promise<User>}
+   * @throws {AuthorizationFailedError}
+   * @throws {UserEmailTakenError}
    */
   public async createUser(transfer: UserSchema, initiator: User): Promise<User> {
     await this.authService.verifyAuthorization(initiator, Permission.CREATE_USER)
@@ -56,6 +57,11 @@ export default class UserService {
     return user
   }
 
+  /**
+   * @param {AuthSchema} transfer
+   * @returns {Promise<User | null>}
+   * @throws {UserWrongCredentialsError}
+   */
   public async getUserByAuth(transfer: AuthSchema): Promise<User | null> {
     await this.validator.validate(transfer)
 
@@ -89,6 +95,11 @@ export default class UserService {
     })
   }
 
+  /**
+   * @param {string} email
+   * @returns {Promise<User>}
+   * @throws {UserNotFoundError}
+   */
   public async getUserByEmail(email: string): Promise<User> {
     const user: User = await this.userRepository.findOneByEmail(email)
 
@@ -99,6 +110,11 @@ export default class UserService {
     return user
   }
 
+  /**
+   * @param {string} email
+   * @returns {Promise<void>}
+   * @throws {UserEmailTakenError}
+   */
   public async verifyUserEmailNotExists(email: string): Promise<void> {
     if (await this.userRepository.findOneByEmail(email)) {
       throw new UserEmailTakenError(email)
