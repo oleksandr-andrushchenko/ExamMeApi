@@ -50,11 +50,6 @@ export default class Exam {
   private category: ObjectId
 
   @Exclude()
-  @IsMongoId()
-  @Column()
-  @Transform(({ value }: { value: ObjectId }) => value.toString())
-  private user: ObjectId
-
   @ValidateNested({ each: true })
   @Type(() => ExamAnswer)
   @Column(() => ExamAnswer)
@@ -72,6 +67,12 @@ export default class Exam {
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
   private creator: ObjectId
+
+  @Exclude()
+  @IsMongoId()
+  @Column()
+  @Transform(({ value }: { value: ObjectId }) => value?.toString())
+  private owner: ObjectId
 
   @IsNumber()
   @Column()
@@ -108,16 +109,6 @@ export default class Exam {
     return this.category
   }
 
-  public setUser(user: ObjectId): this {
-    this.user = user
-
-    return this
-  }
-
-  public getUser(): ObjectId {
-    return this.user
-  }
-
   public setCreator(creator: ObjectId): this {
     this.creator = creator
 
@@ -126,5 +117,15 @@ export default class Exam {
 
   public getCreator(): ObjectId {
     return this.creator
+  }
+
+  public setOwner(owner: ObjectId): this {
+    this.owner = owner
+
+    return this
+  }
+
+  public getOwner(): ObjectId {
+    return this.owner
   }
 }
