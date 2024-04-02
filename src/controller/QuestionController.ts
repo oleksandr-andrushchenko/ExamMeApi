@@ -136,7 +136,7 @@ export default class QuestionController {
     },
   })
   @ResponseSchema(Question)
-  public async findQuestion(
+  public async getQuestion(
     @Param('question_id') id: string,
   ): Promise<Question> {
     try {

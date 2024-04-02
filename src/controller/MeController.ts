@@ -66,7 +66,7 @@ export default class MeController {
     },
   })
   @ResponseSchema(User)
-  public async findMe(
+  public async getMe(
     @CurrentUser({ required: true }) user: User,
   ): Promise<User> {
     return user

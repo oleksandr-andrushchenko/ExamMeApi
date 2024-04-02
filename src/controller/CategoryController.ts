@@ -102,7 +102,7 @@ export default class CategoryController {
     },
   })
   @ResponseSchema(Category)
-  public async findCategory(
+  public async getCategory(
     @Param('category_id') id: string,
   ): Promise<Category> {
     try {

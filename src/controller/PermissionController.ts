@@ -65,7 +65,7 @@ export default class PermissionController {
       },
     },
   })
-  public async queryPermissionHierarchy(): Promise<PermissionHierarchy> {
+  public async getPermissionHierarchy(): Promise<PermissionHierarchy> {
     return this.permissionHierarchy
   }
 }
