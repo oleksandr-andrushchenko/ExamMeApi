@@ -163,6 +163,12 @@ export default class Question {
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
   private creator: ObjectId
 
+  @Exclude()
+  @IsMongoId()
+  @Column()
+  @Transform(({ value }: { value: ObjectId }) => value?.toString())
+  private owner: ObjectId
+
   @IsNumber()
   @Column()
   @CreateDateColumn()
@@ -256,5 +262,15 @@ export default class Question {
 
   public getCreator(): ObjectId {
     return this.creator
+  }
+
+  public setOwner(owner: ObjectId): this {
+    this.owner = owner
+
+    return this
+  }
+
+  public getOwner(): ObjectId {
+    return this.owner
   }
 }
