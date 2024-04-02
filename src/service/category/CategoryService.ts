@@ -6,7 +6,6 @@ import CategoryRepository from '../../repository/CategoryRepository'
 import CategoryNameTakenError from '../../error/category/CategoryNameTakenError'
 import User from '../../entity/User'
 import CategoryNotFoundError from '../../error/category/CategoryNotFoundError'
-import CategoryOwnershipError from '../../error/category/CategoryOwnershipError'
 import CategorySchema from '../../schema/category/CategorySchema'
 import AuthService from '../auth/AuthService'
 import Permission from '../../enum/auth/Permission'
@@ -47,6 +46,7 @@ export default class CategoryService {
     const category: Category = (new Category())
       .setName(name)
       .setCreator(initiator.getId())
+      .setOwner(initiator.getId())
 
     await this.entityManager.save<Category>(category)
 
@@ -103,15 +103,13 @@ export default class CategoryService {
    * @returns {Promise<Category>}
    * @throws {CategoryNotFoundError}
    * @throws {AuthorizationFailedError}
-   * @throws {CategoryOwnershipError}
    * @throws {CategoryNameTakenError}
    */
   public async updateCategory(id: string, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
     this.validator.validateId(id)
     const category: Category = await this.getCategory(id)
 
-    await this.authService.verifyAuthorization(initiator, Permission.UPDATE_CATEGORY)
-    this.verifyCategoryOwnership(category, initiator)
+    await this.authService.verifyAuthorization(initiator, Permission.UPDATE_CATEGORY, category)
 
     await this.validator.validate(transfer)
 
@@ -136,15 +134,13 @@ export default class CategoryService {
    * @returns {Promise<Category>}
    * @throws {CategoryNotFoundError}
    * @throws {AuthorizationFailedError}
-   * @throws {CategoryOwnershipError}
    * @throws {CategoryNameTakenError}
    */
   public async replaceCategory(id: string, transfer: CategorySchema, initiator: User): Promise<Category> {
     this.validator.validateId(id)
     const category: Category = await this.getCategory(id)
 
-    await this.authService.verifyAuthorization(initiator, Permission.REPLACE_CATEGORY)
-    this.verifyCategoryOwnership(category, initiator)
+    await this.authService.verifyAuthorization(initiator, Permission.REPLACE_CATEGORY, category)
 
     await this.validator.validate(transfer)
 
@@ -165,14 +161,12 @@ export default class CategoryService {
    * @returns {Promise<Category>}
    * @throws {CategoryNotFoundError}
    * @throws {AuthorizationFailedError}
-   * @throws {CategoryOwnershipError}
    */
   public async deleteCategory(id: string, initiator: User): Promise<Category> {
     this.validator.validateId(id)
     const category: Category = await this.getCategory(id)
 
-    await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY)
-    this.verifyCategoryOwnership(category, initiator)
+    await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY, category)
 
     // todo: soft delete
     await this.entityManager.remove<Category>(category)
@@ -191,17 +185,6 @@ export default class CategoryService {
   public async verifyCategoryNameNotExists(name: string, ignoreId: ObjectId = undefined): Promise<void> {
     if (await this.categoryRepository.findOneByName(name, ignoreId)) {
       throw new CategoryNameTakenError(name)
-    }
-  }
-
-  /**
-   * @param {Category} category
-   * @param {User} initiator
-   * @throws {CategoryOwnershipError}
-   */
-  public verifyCategoryOwnership(category: Category, initiator: User): void {
-    if (category.getCreator().toString() !== initiator.getId().toString()) {
-      throw new CategoryOwnershipError(category.getId().toString())
     }
   }
 }

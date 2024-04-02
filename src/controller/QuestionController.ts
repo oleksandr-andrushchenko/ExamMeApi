@@ -29,7 +29,6 @@ import CategoryNotFoundError from '../error/category/CategoryNotFoundError'
 import ValidatorError from '../error/validator/ValidatorError'
 import CategoryService from '../service/category/CategoryService'
 import QuestionNotFoundError from '../error/question/QuestionNotFoundError'
-import QuestionOwnershipError from '../error/question/QuestionOwnershipError'
 import QuestionUpdateSchema from '../schema/question/QuestionUpdateSchema'
 import PaginationSchema from '../schema/pagination/PaginationSchema'
 import PaginatedQuestions from '../schema/question/PaginatedQuestions'
@@ -183,8 +182,6 @@ export default class QuestionController {
           throw new BadRequestError((error as CategoryNotFoundError).message)
         case error instanceof QuestionNotFoundError:
           throw new NotFoundError((error as QuestionNotFoundError).message)
-        case error instanceof QuestionOwnershipError:
-          throw new ForbiddenError((error as QuestionOwnershipError).message)
         case error instanceof QuestionTitleTakenError:
           throw new ConflictHttpError((error as QuestionTitleTakenError).message)
       }
@@ -221,8 +218,6 @@ export default class QuestionController {
           throw new BadRequestError((error as ValidatorError).message)
         case error instanceof AuthorizationFailedError:
           throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof QuestionOwnershipError:
-          throw new ForbiddenError((error as QuestionOwnershipError).message)
         case error instanceof QuestionNotFoundError:
           throw new NotFoundError((error as QuestionNotFoundError).message)
         case error instanceof QuestionTitleTakenError:
@@ -257,8 +252,6 @@ export default class QuestionController {
           throw new BadRequestError((error as ValidatorError).message)
         case error instanceof AuthorizationFailedError:
           throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof QuestionOwnershipError:
-          throw new ForbiddenError((error as QuestionOwnershipError).message)
         case error instanceof QuestionNotFoundError:
           throw new NotFoundError((error as QuestionNotFoundError).message)
       }

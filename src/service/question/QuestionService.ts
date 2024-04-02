@@ -12,7 +12,6 @@ import QuestionSchema from '../../schema/question/QuestionSchema'
 import QuestionRepository from '../../repository/QuestionRepository'
 import QuestionTitleTakenError from '../../error/question/QuestionTitleTakenError'
 import CategoryService from '../category/CategoryService'
-import QuestionOwnershipError from '../../error/question/QuestionOwnershipError'
 import QuestionNotFoundError from '../../error/question/QuestionNotFoundError'
 import QuestionUpdateSchema from '../../schema/question/QuestionUpdateSchema'
 import PaginationSchema from '../../schema/pagination/PaginationSchema'
@@ -56,6 +55,7 @@ export default class QuestionService {
       .setDifficulty(transfer.difficulty)
       .setTitle(title)
       .setCreator(initiator.getId())
+      .setOwner(initiator.getId())
 
     if (question.getType() === QuestionType.TYPE) {
       question
@@ -147,8 +147,7 @@ export default class QuestionService {
     this.validator.validateId(id)
     const question = await this.getQuestion(id)
 
-    await this.authService.verifyAuthorization(initiator, Permission.REPLACE_QUESTION)
-    this.verifyQuestionOwnership(question, initiator)
+    await this.authService.verifyAuthorization(initiator, Permission.REPLACE_QUESTION, question)
 
     await this.validator.validate(transfer)
     const category: Category = await this.categoryService.getCategory(transfer.category)
@@ -161,7 +160,6 @@ export default class QuestionService {
       .setType(transfer.type)
       .setDifficulty(transfer.difficulty)
       .setTitle(title)
-      .setCreator(initiator.getId())
 
     if (question.getType() === QuestionType.TYPE) {
       question
@@ -191,8 +189,7 @@ export default class QuestionService {
     this.validator.validateId(id)
     const question = await this.getQuestion(id)
 
-    await this.authService.verifyAuthorization(initiator, Permission.UPDATE_QUESTION)
-    this.verifyQuestionOwnership(question, initiator)
+    await this.authService.verifyAuthorization(initiator, Permission.UPDATE_QUESTION, question)
 
     await this.validator.validate(transfer)
 
@@ -238,14 +235,12 @@ export default class QuestionService {
    * @returns {Promise<Question>}
    * @throws {QuestionNotFoundError}
    * @throws {AuthorizationFailedError}
-   * @throws {QuestionOwnershipError}
    */
   public async deleteQuestion(id: string, initiator: User): Promise<Question> {
     this.validator.validateId(id)
     const question: Question = await this.getQuestion(id)
 
-    await this.authService.verifyAuthorization(initiator, Permission.DELETE_QUESTION)
-    this.verifyQuestionOwnership(question, initiator)
+    await this.authService.verifyAuthorization(initiator, Permission.DELETE_QUESTION, question)
 
     const category: Category = await this.categoryService.getCategory(question.getCategory().toString())
     category.setQuestionCount(category.getQuestionCount() - 1)
@@ -270,17 +265,6 @@ export default class QuestionService {
   public async verifyQuestionTitleNotExists(title: string, ignoreId: ObjectId = undefined): Promise<void> {
     if (await this.questionRepository.findOneByTitle(title, ignoreId)) {
       throw new QuestionTitleTakenError(title)
-    }
-  }
-
-  /**
-   * @param {Question} question
-   * @param {User} initiator
-   * @throws {QuestionOwnershipError}
-   */
-  public verifyQuestionOwnership(question: Question, initiator: User): void {
-    if (question.getCreator().toString() !== initiator.getId().toString()) {
-      throw new QuestionOwnershipError(question.getId().toString())
     }
   }
 }

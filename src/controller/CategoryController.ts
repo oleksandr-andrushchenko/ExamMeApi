@@ -23,7 +23,6 @@ import CategoryService from '../service/category/CategoryService'
 import User from '../entity/User'
 import CategorySchema from '../schema/category/CategorySchema'
 import CategoryNotFoundError from '../error/category/CategoryNotFoundError'
-import CategoryOwnershipError from '../error/category/CategoryOwnershipError'
 import CategoryNameTakenError from '../error/category/CategoryNameTakenError'
 import ConflictHttpError from '../error/http/ConflictHttpError'
 import AuthorizationFailedError from '../error/auth/AuthorizationFailedError'
@@ -147,8 +146,6 @@ export default class CategoryController {
           throw new ForbiddenError((error as AuthorizationFailedError).message)
         case error instanceof CategoryNotFoundError:
           throw new NotFoundError((error as CategoryNotFoundError).message)
-        case error instanceof CategoryOwnershipError:
-          throw new ForbiddenError((error as CategoryOwnershipError).message)
         case error instanceof CategoryNameTakenError:
           throw new ConflictHttpError((error as CategoryNameTakenError).message)
       }
@@ -185,8 +182,6 @@ export default class CategoryController {
           throw new ForbiddenError((error as AuthorizationFailedError).message)
         case error instanceof CategoryNotFoundError:
           throw new NotFoundError((error as CategoryNotFoundError).message)
-        case error instanceof CategoryOwnershipError:
-          throw new ForbiddenError((error as CategoryOwnershipError).message)
         case error instanceof CategoryNameTakenError:
           throw new ConflictHttpError((error as CategoryNameTakenError).message)
       }
@@ -219,8 +214,6 @@ export default class CategoryController {
           throw new BadRequestError((error as ValidatorError).message)
         case error instanceof AuthorizationFailedError:
           throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof CategoryOwnershipError:
-          throw new ForbiddenError((error as CategoryOwnershipError).message)
         case error instanceof CategoryNotFoundError:
           throw new NotFoundError((error as CategoryNotFoundError).message)
       }
