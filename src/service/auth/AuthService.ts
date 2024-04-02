@@ -8,6 +8,7 @@ import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorator
 import TokenSchema from '../../schema/auth/TokenSchema'
 import AuthorizationFailedError from '../../error/auth/AuthorizationFailedError'
 import Permission from '../../enum/auth/Permission'
+import { ObjectId } from 'mongodb'
 
 @Service()
 export default class AuthService {
@@ -22,13 +23,24 @@ export default class AuthService {
   }
 
   /**
-   * @param user
-   * @param permission
-   * @param userPermissions
-   * @throws AuthorizationFailedError
+   * @param {User} user
+   * @param {Permission} permission
+   * @param {{getOwner: () => ObjectId}} resource
+   * @param {Permission[]} userPermissions
+   * @returns {Promise<boolean>}
+   * @throws {AuthorizationFailedError}
    */
-  public async verifyAuthorization(user: User, permission: Permission, userPermissions: Permission[] = null): Promise<boolean> {
+  public async verifyAuthorization(
+    user: User,
+    permission: Permission,
+    resource: { getOwner: () => ObjectId } = null,
+    userPermissions: Permission[] = null,
+  ): Promise<boolean> {
     userPermissions = userPermissions === null ? user.getPermissions() : userPermissions
+
+    if (resource && resource.getOwner().toString() === user.getId().toString()) {
+      return true
+    }
 
     if (userPermissions.indexOf(Permission.ALL) !== -1) {
       return true
@@ -40,7 +52,7 @@ export default class AuthService {
 
     for (const userPermission of userPermissions) {
       if (this.permissions.hasOwnProperty(userPermission)) {
-        if (await this.verifyAuthorization(user, permission, this.permissions[userPermission])) {
+        if (await this.verifyAuthorization(user, permission, resource, this.permissions[userPermission])) {
           return true
         }
       }
