@@ -10,7 +10,7 @@ import {
   JsonController,
   NotFoundError,
   OnUndefined,
-  Param,
+  Params,
   Patch,
   Post,
   Put,
@@ -30,6 +30,8 @@ import CategoryUpdateSchema from '../schema/category/CategoryUpdateSchema'
 import ValidatorError from '../error/validator/ValidatorError'
 import PaginationSchema from '../schema/pagination/PaginationSchema'
 import PaginatedCategories from '../schema/category/PaginatedCategories'
+import ValidatorInterface from '../service/validator/ValidatorInterface'
+import GetCategorySchema from '../schema/category/GetCategorySchema'
 
 @Service()
 @JsonController('/categories')
@@ -37,6 +39,7 @@ export default class CategoryController {
 
   constructor(
     @Inject() private readonly categoryService: CategoryService,
+    @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }
 
@@ -55,7 +58,7 @@ export default class CategoryController {
   })
   @ResponseSchema(Category)
   public async createCategory(
-    @Body({ required: true }) category: CategorySchema,
+    @Body({ type: CategorySchema, required: true }) category: CategorySchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<Category> {
     try {
@@ -80,10 +83,10 @@ export default class CategoryController {
   })
   @ResponseSchema(PaginatedCategories)
   public async queryCategories(
-    @QueryParams() pagination: PaginationSchema,
+    @QueryParams({ type: PaginationSchema }) pagination: PaginationSchema,
   ): Promise<PaginatedCategories> {
     try {
-      return await this.categoryService.queryCategories(pagination)
+      return await this.categoryService.queryCategories(pagination, true) as PaginatedCategories
     } catch (error) {
       switch (true) {
         case error instanceof ValidatorError:
@@ -92,7 +95,7 @@ export default class CategoryController {
     }
   }
 
-  @Get('/:category_id')
+  @Get('/:categoryId')
   @OpenAPI({
     responses: {
       200: { description: 'OK' },
@@ -102,10 +105,12 @@ export default class CategoryController {
   })
   @ResponseSchema(Category)
   public async getCategory(
-    @Param('category_id') id: string,
+    @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
   ): Promise<Category> {
     try {
-      return await this.categoryService.getCategory(id)
+      await this.validator.validate(getCategorySchema)
+
+      return await this.categoryService.getCategory(getCategorySchema.categoryId)
     } catch (error) {
       switch (true) {
         case error instanceof ValidatorError:
@@ -116,7 +121,7 @@ export default class CategoryController {
     }
   }
 
-  @Put('/:category_id')
+  @Put('/:categoryId')
   @Authorized()
   @HttpCode(205)
   @OnUndefined(205)
@@ -132,12 +137,16 @@ export default class CategoryController {
     },
   })
   public async replaceCategory(
-    @Param('category_id') id: string,
-    @Body({ required: true }) category: CategorySchema,
+    @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
+    @Body({ type: CategorySchema, required: true }) categorySchema: CategorySchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
     try {
-      await this.categoryService.replaceCategory(id, category, user)
+      await this.validator.validate(getCategorySchema)
+
+      const category = await this.categoryService.getCategory(getCategorySchema.categoryId)
+
+      await this.categoryService.replaceCategory(category, categorySchema, user)
     } catch (error) {
       switch (true) {
         case error instanceof ValidatorError:
@@ -152,7 +161,7 @@ export default class CategoryController {
     }
   }
 
-  @Patch('/:category_id')
+  @Patch('/:categoryId')
   @Authorized()
   @HttpCode(205)
   @OnUndefined(205)
@@ -168,12 +177,16 @@ export default class CategoryController {
     },
   })
   public async updateCategory(
-    @Param('category_id') id: string,
-    @Body({ required: true }) category: CategoryUpdateSchema,
+    @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
+    @Body({ type: CategoryUpdateSchema, required: true }) categoryUpdateSchema: CategoryUpdateSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
     try {
-      await this.categoryService.updateCategory(id, category, user)
+      await this.validator.validate(getCategorySchema)
+
+      const category = await this.categoryService.getCategory(getCategorySchema.categoryId)
+
+      await this.categoryService.updateCategory(category, categoryUpdateSchema, user)
     } catch (error) {
       switch (true) {
         case error instanceof ValidatorError:
@@ -188,7 +201,7 @@ export default class CategoryController {
     }
   }
 
-  @Delete('/:category_id')
+  @Delete('/:categoryId')
   @Authorized()
   @HttpCode(204)
   @OnUndefined(204)
@@ -203,11 +216,15 @@ export default class CategoryController {
     },
   })
   public async deleteCategory(
-    @Param('category_id') id: string,
+    @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
     try {
-      await this.categoryService.deleteCategory(id, user)
+      await this.validator.validate(getCategorySchema)
+
+      const category = await this.categoryService.getCategory(getCategorySchema.categoryId)
+
+      await this.categoryService.deleteCategory(category, user)
     } catch (error) {
       switch (true) {
         case error instanceof ValidatorError:
