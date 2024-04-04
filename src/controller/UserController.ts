@@ -42,7 +42,7 @@ export default class UserController {
   })
   @ResponseSchema(User)
   public async createUser(
-    @Body({ required: true }) user: UserSchema,
+    @Body({ type: UserSchema, required: true }) user: UserSchema,
     @CurrentUser({ required: true }) currentUser: User,
   ): Promise<User> {
     try {
