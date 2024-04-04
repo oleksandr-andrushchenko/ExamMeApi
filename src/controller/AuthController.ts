@@ -40,7 +40,7 @@ export default class AuthController {
   })
   @ResponseSchema(TokenSchema)
   public async createAuth(
-    @Body({ required: true }) auth: AuthSchema,
+    @Body({ type: AuthSchema, required: true }) auth: AuthSchema,
   ): Promise<TokenSchema> {
     try {
       const user: User = await this.userService.getUserByAuth(auth)
