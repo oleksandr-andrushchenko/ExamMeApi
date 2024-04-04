@@ -6,8 +6,8 @@ import { ObjectId } from 'mongodb'
 @Repository(Category)
 export default class CategoryRepository extends MongoRepository<Category> {
 
-  public async findOneById(id: string): Promise<Category | undefined> {
-    return await this.findOneBy({ _id: new ObjectId(id) })
+  public async findOneById(id: ObjectId): Promise<Category | null> {
+    return await this.findOneBy({ _id: id })
   }
 
   public async findOneByName(name: string, ignoreId: ObjectId = undefined): Promise<Category | undefined> {

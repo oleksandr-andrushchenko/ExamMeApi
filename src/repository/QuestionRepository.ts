@@ -6,8 +6,8 @@ import Question from '../entity/Question'
 @Repository(Question)
 export default class QuestionRepository extends MongoRepository<Question> {
 
-  public async findOneById(id: string): Promise<Question | undefined> {
-    return await this.findOneBy({ _id: new ObjectId(id) })
+  public async findOneById(id: ObjectId): Promise<Question | null> {
+    return await this.findOneBy({ _id: id })
   }
 
   public async findOneByTitle(title: string, ignoreId: ObjectId = undefined): Promise<Question | undefined> {
