@@ -81,7 +81,7 @@ export default class AuthService {
         return null
       }
 
-      return this.userRepository.findOneById(userId)
+      return this.userRepository.findOneById(new ObjectId(userId))
     }
   }
 
