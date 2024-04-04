@@ -4,7 +4,7 @@ import request from 'supertest'
 import { api, error, fakeId, fixture } from '../../index'
 import Category from '../../../src/entity/Category'
 
-describe('GET /categories/:category_id', () => {
+describe('GET /categories/:categoryId', () => {
   const app = api()
 
   test('Not found', async () => {

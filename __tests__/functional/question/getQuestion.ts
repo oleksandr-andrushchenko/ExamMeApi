@@ -5,7 +5,7 @@ import { api, error, fakeId, fixture } from '../../index'
 import Category from '../../../src/entity/Category'
 import Question, { QuestionAnswer, QuestionChoice, QuestionType } from '../../../src/entity/Question'
 
-describe('GET /questions/:question_id', () => {
+describe('GET /questions/:questionId', () => {
   const app = api()
 
   test('Not found (question)', async () => {

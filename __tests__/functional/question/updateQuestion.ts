@@ -7,7 +7,7 @@ import User from '../../../src/entity/User'
 import Permission from '../../../src/enum/auth/Permission'
 import { faker } from '@faker-js/faker'
 
-describe('PATCH /questions/:question_id', () => {
+describe('PATCH /questions/:questionId', () => {
   const app = api()
 
   test('Unauthorized', async () => {

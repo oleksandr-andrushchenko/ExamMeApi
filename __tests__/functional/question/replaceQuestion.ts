@@ -8,7 +8,7 @@ import Permission from '../../../src/enum/auth/Permission'
 import Question, { QuestionDifficulty, QuestionType } from '../../../src/entity/Question'
 import { faker } from '@faker-js/faker'
 
-describe('PUT /questions/:question_id', () => {
+describe('PUT /questions/:questionId', () => {
   const app = api()
 
   test('Unauthorized', async () => {

@@ -6,7 +6,7 @@ import Question from '../../../src/entity/Question'
 import User from '../../../src/entity/User'
 import Permission from '../../../src/enum/auth/Permission'
 
-describe('DELETE /questions/:question_id', () => {
+describe('DELETE /questions/:questionId', () => {
   const app = api()
 
   test('Unauthorized', async () => {

@@ -99,11 +99,11 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
 export const load = async <Entity>(entity: any, id: ObjectId): Promise<Entity> => {
   switch (entity) {
     case User:
-      return await Container.get<UserRepository>(UserRepository).findOneById(id.toString()) as any
+      return await Container.get<UserRepository>(UserRepository).findOneById(id) as any
     case Category:
-      return await Container.get<CategoryRepository>(CategoryRepository).findOneById(id.toString()) as any
+      return await Container.get<CategoryRepository>(CategoryRepository).findOneById(id) as any
     case Question:
-      return await Container.get<QuestionRepository>(QuestionRepository).findOneById(id.toString()) as any
+      return await Container.get<QuestionRepository>(QuestionRepository).findOneById(id) as any
     default:
       throw new Error(`Unknown "${ entity.toString() }" type passed`)
   }
