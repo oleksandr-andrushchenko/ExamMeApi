@@ -14,15 +14,8 @@ export default class Cursor<Entity> {
   ) {
   }
 
-  public async getPaginated(where: object = {}): Promise<PaginatedSchema<Entity>> {
-    const paginated = new PaginatedSchema<Entity>()
-    paginated.meta = new PaginatedMetaSchema()
-    paginated.meta.cursor = this.pagination.cursor
-    paginated.meta.size = this.pagination.size
-    paginated.meta.order = this.pagination.order
-
+  public async getPaginated(where: object = {}, meta: boolean = false): Promise<Entity[] | PaginatedSchema<Entity>> {
     const order = {
-      query: this.pagination.order,
       key: '',
       direction: -1,
     }
@@ -32,7 +25,7 @@ export default class Cursor<Entity> {
     if (this.pagination.prevCursor) {
       cursor = this.pagination.prevCursor
 
-      if (order.query === 'desc') {
+      if (this.pagination.order === 'desc') {
         order.key = '$gt'
         order.direction = 1
       } else {
@@ -42,7 +35,7 @@ export default class Cursor<Entity> {
     } else if (this.pagination.nextCursor) {
       cursor = this.pagination.nextCursor
 
-      if (order.query === 'desc') {
+      if (this.pagination.order === 'desc') {
         order.key = '$lt'
         order.direction = -1
       } else {
@@ -50,7 +43,7 @@ export default class Cursor<Entity> {
         order.direction = 1
       }
     } else {
-      if (order.query === 'desc') {
+      if (this.pagination.order === 'desc') {
         order.direction = -1
       } else {
         order.direction = 1
@@ -87,16 +80,19 @@ export default class Cursor<Entity> {
     sort['_id'] = order.direction
 
     const data = await this.repository.find({ where, take: this.pagination.size, order: sort })
-    paginated.data = data
 
     if (this.pagination.prevCursor) {
       data.reverse()
     }
 
+    if (!meta) {
+      return data
+    }
+
     let hasNext: boolean, hasPrev: boolean
 
     if (data.length) {
-      order.key = (order.query === 'desc') ? '$lt' : '$gt'
+      order.key = (this.pagination.order === 'desc') ? '$lt' : '$gt'
       cursorParam = data[data.length - 1][this.pagination.cursor]
 
       if (this.pagination.cursor === 'id') {
@@ -117,7 +113,7 @@ export default class Cursor<Entity> {
 
       hasNext = !!await this.repository.findOne({ where })
 
-      order.key = (order.query === 'desc') ? '$gt' : '$lt'
+      order.key = (this.pagination.order === 'desc') ? '$gt' : '$lt'
       cursorParam = data[0][this.pagination.cursor]
 
       if (this.pagination.cursor === 'id') {
@@ -139,7 +135,12 @@ export default class Cursor<Entity> {
       hasPrev = !!await this.repository.findOne({ where })
     }
 
-    paginated.meta.order = order.query
+    const paginated = new PaginatedSchema<Entity>()
+    paginated.data = data
+    paginated.meta = new PaginatedMetaSchema()
+    paginated.meta.cursor = this.pagination.cursor
+    paginated.meta.size = this.pagination.size
+    paginated.meta.order = this.pagination.order
 
     if (hasNext) {
       paginated.meta.nextCursor = data[data.length - 1]['id'].toString()
