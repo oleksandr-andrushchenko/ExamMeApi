@@ -79,10 +79,14 @@ export default class QuestionService {
 
   /**
    * @param {PaginationSchema} pagination
-   * @returns {Promise<PaginatedSchema<Question>>}
+   * @param {boolean} meta
+   * @returns {Promise<Question[] | PaginatedSchema<Question>>}
    * @throws {ValidatorError}
    */
-  public async queryQuestions(pagination: PaginationSchema): Promise<PaginatedSchema<Question>> {
+  public async queryQuestions(
+    pagination: PaginationSchema,
+    meta: boolean = false,
+  ): Promise<Question[] | PaginatedSchema<Question>> {
     await this.validator.validate(pagination)
 
     const cursor = new Cursor<Question>(pagination, this.questionRepository)
@@ -101,32 +105,41 @@ export default class QuestionService {
       }
     }
 
-    return await cursor.getPaginated(where)
+    return await cursor.getPaginated(where, meta)
   }
 
   /**
    * @param {Category} category
    * @param {PaginationSchema} pagination
-   * @returns {Promise<PaginatedSchema<Question>>}
+   * @param {boolean} meta
+   * @returns {Promise<Question[] | PaginatedSchema<Question>>}
    * @throws {ValidatorError}
    */
-  public async queryCategoryQuestions(category: Category, pagination: PaginationSchema): Promise<PaginatedSchema<Question>> {
+  public async queryCategoryQuestions(
+    category: Category,
+    pagination: PaginationSchema = {},
+    meta: boolean = false,
+  ): Promise<Question[] | PaginatedSchema<Question>> {
     pagination['category'] = category.getId()
 
-    return this.queryQuestions(pagination)
+    return this.queryQuestions(pagination, meta)
   }
 
   /**
-   * @param {string} id
-   * @param {string} categoryId
+   * @param {ObjectId | string} id
+   * @param {ObjectId | string} categoryId
    * @returns {Promise<Question>}
    * @throws {QuestionNotFoundError}
    */
-  public async getQuestion(id: string, categoryId: string = undefined): Promise<Question> {
-    this.validator.validateId(id)
+  public async getQuestion(id: ObjectId | string, categoryId: ObjectId | string = undefined): Promise<Question> {
+    if (typeof id === 'string') {
+      this.validator.validateId(id)
+      id = new ObjectId(id)
+    }
+
     const question: Question = await this.questionRepository.findOneById(id)
 
-    if (!question || (categoryId && question.getCategory().toString() !== categoryId)) {
+    if (!question || (categoryId && question.getCategory().toString() !== categoryId.toString())) {
       throw new QuestionNotFoundError(id)
     }
 
@@ -134,7 +147,7 @@ export default class QuestionService {
   }
 
   /**
-   * @param {string} id
+   * @param {Question} question
    * @param {QuestionSchema} transfer
    * @param {User} initiator
    * @returns {Promise<Question>}
@@ -143,10 +156,7 @@ export default class QuestionService {
    * @throws {AuthorizationFailedError}
    * @throws {QuestionTitleTakenError}
    */
-  public async replaceQuestion(id: string, transfer: QuestionSchema, initiator: User): Promise<Question> {
-    this.validator.validateId(id)
-    const question = await this.getQuestion(id)
-
+  public async replaceQuestion(question: Question, transfer: QuestionSchema, initiator: User): Promise<Question> {
     await this.authService.verifyAuthorization(initiator, Permission.REPLACE_QUESTION, question)
 
     await this.validator.validate(transfer)
@@ -176,7 +186,7 @@ export default class QuestionService {
   }
 
   /**
-   * @param {string} id
+   * @param {Question} question
    * @param {QuestionUpdateSchema} transfer
    * @param {User} initiator
    * @returns {Promise<Question>}
@@ -185,10 +195,7 @@ export default class QuestionService {
    * @throws {AuthorizationFailedError}
    * @throws {QuestionTitleTakenError}
    */
-  public async updateQuestion(id: string, transfer: QuestionUpdateSchema, initiator: User): Promise<Question> {
-    this.validator.validateId(id)
-    const question = await this.getQuestion(id)
-
+  public async updateQuestion(question: Question, transfer: QuestionUpdateSchema, initiator: User): Promise<Question> {
     await this.authService.verifyAuthorization(initiator, Permission.UPDATE_QUESTION, question)
 
     await this.validator.validate(transfer)
@@ -230,16 +237,13 @@ export default class QuestionService {
   }
 
   /**
-   * @param {string} id
+   * @param {Question} question
    * @param {User} initiator
    * @returns {Promise<Question>}
    * @throws {QuestionNotFoundError}
    * @throws {AuthorizationFailedError}
    */
-  public async deleteQuestion(id: string, initiator: User): Promise<Question> {
-    this.validator.validateId(id)
-    const question: Question = await this.getQuestion(id)
-
+  public async deleteQuestion(question: Question, initiator: User): Promise<Question> {
     await this.authService.verifyAuthorization(initiator, Permission.DELETE_QUESTION, question)
 
     const category: Category = await this.categoryService.getCategory(question.getCategory().toString())
