@@ -42,7 +42,7 @@ export default class MeController {
   })
   @ResponseSchema(User)
   public async createMe(
-    @Body({ required: true }) me: MeSchema,
+    @Body({ type: MeSchema, required: true }) me: MeSchema,
   ): Promise<User> {
     try {
       return await this.meService.createMe(me)
@@ -86,7 +86,7 @@ export default class MeController {
     },
   })
   public async replaceMe(
-    @Body({ required: true }) me: MeSchema,
+    @Body({ type: MeSchema, required: true }) me: MeSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
     try {
@@ -115,7 +115,7 @@ export default class MeController {
     },
   })
   public async updateMe(
-    @Body({ required: true }) me: MeUpdateSchema,
+    @Body({ type: MeUpdateSchema, required: true }) me: MeUpdateSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
     try {
