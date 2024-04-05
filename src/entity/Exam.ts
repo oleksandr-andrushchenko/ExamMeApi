@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn } from 'typeorm'
 import { Exclude, Transform, Type } from 'class-transformer'
 import { ObjectId } from 'mongodb'
-import { IsMongoId, IsNumber, IsOptional, Min, ValidateNested } from 'class-validator'
+import { IsDate, IsMongoId, IsNumber, IsOptional, Min, ValidateNested } from 'class-validator'
 
 export class ExamQuestion {
 
@@ -69,9 +69,8 @@ export default class Exam {
   private questions: ExamQuestion[]
 
   @IsOptional()
-  @IsNumber()
+  @IsDate()
   @Column()
-  @UpdateDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
   private completed: Date
 
