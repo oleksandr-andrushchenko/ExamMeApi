@@ -117,9 +117,10 @@ export default class QuestionService {
    */
   public async queryCategoryQuestions(
     category: Category,
-    pagination: PaginationSchema = {},
+    pagination: PaginationSchema = undefined,
     meta: boolean = false,
   ): Promise<Question[] | PaginatedSchema<Question>> {
+    pagination = pagination === undefined ? new PaginationSchema() : pagination
     pagination['category'] = category.getId()
 
     return this.queryQuestions(pagination, meta)
