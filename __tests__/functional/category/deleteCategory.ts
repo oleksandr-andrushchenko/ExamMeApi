@@ -50,8 +50,8 @@ describe('DELETE /categories/:categoryId', () => {
   })
 
   test('Forbidden (no ownership)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.DELETE_CATEGORY ] })
-    const category = await fixture<Category>(Category)
+    const user = await fixture<User>(User)
+    const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
     const id = category.getId()
     const token = (await auth(user)).token
     const res = await request(app).delete(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })

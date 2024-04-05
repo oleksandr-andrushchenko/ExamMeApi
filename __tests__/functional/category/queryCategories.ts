@@ -36,7 +36,7 @@ describe('GET /categories', () => {
     { size: 2 },
     { size: 3 },
     { size: 4 },
-  ])('Cursor (id, id:asc, size:$size)', async ({ size }) => {
+  ])('Cursor (id, id:asc, size: $size)', async ({ size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
@@ -67,7 +67,7 @@ describe('GET /categories', () => {
     { size: 2 },
     { size: 3 },
     { size: 4 },
-  ])('Cursor (id, id:desc, size:$size)', async ({ size }) => {
+  ])('Cursor (id, id:desc, size: $size)', async ({ size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
@@ -109,7 +109,7 @@ describe('GET /categories', () => {
     { prev: 2, size: 1 },
     { prev: 2, size: 2 },
     { prev: 2, size: 3 },
-  ])('Cursor (id, id:asc, prev:$prev, size:$size)', async ({ prev, size }) => {
+  ])('Cursor (id, id:asc, prev: $prev, size: $size)', async ({ prev, size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
@@ -157,7 +157,7 @@ describe('GET /categories', () => {
     { next: 2, size: 1 },
     { next: 2, size: 2 },
     { next: 2, size: 3 },
-  ])('Cursor (id, id:asc, next:$next, size:$size)', async ({ next, size }) => {
+  ])('Cursor (id, id:asc, next: $next, size: $size)', async ({ next, size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
@@ -206,7 +206,7 @@ describe('GET /categories', () => {
     { prev: 2, size: 2 },
     { prev: 2, size: 3 },
     { prev: 2, size: 4 },
-  ])('Cursor (id, id:desc, prev:$prev, size:$size)', async ({ prev, size }) => {
+  ])('Cursor (id, id:desc, prev: $prev, size: $size)', async ({ prev, size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
@@ -251,7 +251,7 @@ describe('GET /categories', () => {
     { next: 2, size: 1 },
     { next: 2, size: 2 },
     { next: 2, size: 3 },
-  ])('Cursor (id, id:desc, next:$next, size:$size)', async ({ next, size }) => {
+  ])('Cursor (id, id:desc, next: $next, size: $size)', async ({ next, size }) => {
     const categories = (await Promise.all([ fixture<Category>(Category), fixture<Category>(Category), fixture<Category>(Category) ]))
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
