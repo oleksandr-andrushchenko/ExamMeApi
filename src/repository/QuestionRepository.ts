@@ -10,7 +10,7 @@ export default class QuestionRepository extends MongoRepository<Question> {
     return await this.findOneBy({ _id: id })
   }
 
-  public async findOneByTitle(title: string, ignoreId: ObjectId = undefined): Promise<Question | undefined> {
+  public async findOneByTitle(title: string, ignoreId: ObjectId = undefined): Promise<Question | null> {
     const where = { title }
 
     if (ignoreId) {

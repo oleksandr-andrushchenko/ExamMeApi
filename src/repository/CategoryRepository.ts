@@ -10,7 +10,7 @@ export default class CategoryRepository extends MongoRepository<Category> {
     return await this.findOneBy({ _id: id })
   }
 
-  public async findOneByName(name: string, ignoreId: ObjectId = undefined): Promise<Category | undefined> {
+  public async findOneByName(name: string, ignoreId: ObjectId = undefined): Promise<Category | null> {
     const where = { name }
 
     if (ignoreId) {
