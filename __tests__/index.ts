@@ -14,6 +14,8 @@ import Permission from '../src/enum/auth/Permission'
 import { ObjectId } from 'mongodb'
 import QuestionRepository from '../src/repository/QuestionRepository'
 import Question, { QuestionAnswer, QuestionChoice, QuestionDifficulty, QuestionType } from '../src/entity/Question'
+import Exam from '../src/entity/Exam'
+import ExamRepository from '../src/repository/ExamRepository'
 
 export const api = (): Application => {
   const { app, up, down } = application().api()
@@ -22,6 +24,7 @@ export const api = (): Application => {
     await Container.get<UserRepository>(UserRepository).clear()
     await Container.get<CategoryRepository>(CategoryRepository).clear()
     await Container.get<QuestionRepository>(QuestionRepository).clear()
+    await Container.get<ExamRepository>(ExamRepository).clear()
   }
 
   beforeAll(() => up())
@@ -48,6 +51,8 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
         .setName(faker.lorem.word())
         .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
 
+      object.setOwner(options['owner'] ?? object.getCreator())
+
       break
     case Question:
       object = (new Question())
@@ -57,6 +62,7 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
         .setTitle(faker.lorem.sentences(3))
         .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
 
+      object.setOwner(options['owner'] ?? object.getCreator())
 
       if (object.getType() === QuestionType.TYPE) {
         const answers = []
@@ -79,12 +85,21 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
             (new QuestionChoice())
               .setTitle(faker.lorem.word())
               .setIsCorrect(faker.datatype.boolean())
-              .setExplanation(faker.datatype.boolean() ? faker.lorem.sentence() : undefined)
+              .setExplanation(faker.datatype.boolean() ? faker.lorem.sentence() : undefined),
           )
         }
 
         object.setChoices(choices)
       }
+
+      break
+    case Exam:
+      object = (new Exam())
+        .setCategory(options['category'] ?? (await fixture(Category, options) as Category).getId())
+        .setQuestions([])
+        .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
+
+      object.setOwner(options['owner'] ?? object.getCreator())
 
       break
     default:
@@ -104,6 +119,8 @@ export const load = async <Entity>(entity: any, id: ObjectId): Promise<Entity> =
       return await Container.get<CategoryRepository>(CategoryRepository).findOneById(id) as any
     case Question:
       return await Container.get<QuestionRepository>(QuestionRepository).findOneById(id) as any
+    case Exam:
+      return await Container.get<ExamRepository>(ExamRepository).findOneById(id) as any
     default:
       throw new Error(`Unknown "${ entity.toString() }" type passed`)
   }
