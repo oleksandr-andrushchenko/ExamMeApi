@@ -5,12 +5,14 @@ import {
   CurrentUser,
   Delete,
   ForbiddenError,
+  Get,
   HttpCode,
   JsonController,
   NotFoundError,
   OnUndefined,
   Params,
   Post,
+  QueryParams,
 } from 'routing-controllers'
 import { Inject, Service } from 'typedi'
 import Exam from '../entity/Exam'
@@ -23,9 +25,11 @@ import ExamService from '../service/exam/ExamService'
 import CategoryNotFoundError from '../error/category/CategoryNotFoundError'
 import ValidatorError from '../error/validator/ValidatorError'
 import ExamNotFoundError from '../error/exam/ExamNotFoundError'
+import PaginatedExams from '../schema/exam/PaginatedExams'
 import ExamTakenError from '../error/exam/ExamTakenError'
 import GetExamSchema from '../schema/exam/GetExamSchema'
 import ValidatorInterface from '../service/validator/ValidatorInterface'
+import ExamQuerySchema from '../schema/exam/ExamQuerySchema'
 
 @Service()
 @JsonController('/exams')
@@ -67,6 +71,31 @@ export default class ExamController {
           throw new ForbiddenError((error as AuthorizationFailedError).message)
         case error instanceof ExamTakenError:
           throw new ConflictHttpError((error as ExamTakenError).message)
+      }
+    }
+  }
+
+  @Get()
+  @Authorized()
+  @OpenAPI({
+    security: [ { bearerAuth: [] } ],
+    responses: {
+      200: { description: 'OK' },
+      400: { description: 'Bad Request' },
+      401: { description: 'Unauthorized' },
+    },
+  })
+  @ResponseSchema(PaginatedExams)
+  public async queryExams(
+    @QueryParams({ type: ExamQuerySchema }) query: ExamQuerySchema,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<PaginatedExams> {
+    try {
+      return await this.examService.queryExams(query, user, true) as PaginatedExams
+    } catch (error) {
+      switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
       }
     }
   }
