@@ -28,10 +28,10 @@ import ConflictHttpError from '../error/http/ConflictHttpError'
 import AuthorizationFailedError from '../error/auth/AuthorizationFailedError'
 import CategoryUpdateSchema from '../schema/category/CategoryUpdateSchema'
 import ValidatorError from '../error/validator/ValidatorError'
-import PaginationSchema from '../schema/pagination/PaginationSchema'
 import PaginatedCategories from '../schema/category/PaginatedCategories'
 import ValidatorInterface from '../service/validator/ValidatorInterface'
 import GetCategorySchema from '../schema/category/GetCategorySchema'
+import CategoryQuerySchema from '../schema/category/CategoryQuerySchema'
 
 @Service()
 @JsonController('/categories')
@@ -83,10 +83,10 @@ export default class CategoryController {
   })
   @ResponseSchema(PaginatedCategories)
   public async queryCategories(
-    @QueryParams({ type: PaginationSchema }) pagination: PaginationSchema,
+    @QueryParams({ type: CategoryQuerySchema }) query: CategoryQuerySchema,
   ): Promise<PaginatedCategories> {
     try {
-      return await this.categoryService.queryCategories(pagination, true) as PaginatedCategories
+      return await this.categoryService.queryCategories(query, true) as PaginatedCategories
     } catch (error) {
       switch (true) {
         case error instanceof ValidatorError:
@@ -221,7 +221,6 @@ export default class CategoryController {
   ): Promise<void> {
     try {
       await this.validator.validate(getCategorySchema)
-
       const category = await this.categoryService.getCategory(getCategorySchema.categoryId)
 
       await this.categoryService.deleteCategory(category, user)

@@ -12,9 +12,9 @@ import Permission from '../../enum/auth/Permission'
 import { ObjectId } from 'mongodb'
 import CategoryUpdateSchema from '../../schema/category/CategoryUpdateSchema'
 import ValidatorInterface from '../validator/ValidatorInterface'
-import PaginationSchema from '../../schema/pagination/PaginationSchema'
 import Cursor from '../../model/Cursor'
 import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
+import CategoryQuerySchema from '../../schema/category/CategoryQuerySchema'
 
 @Service()
 export default class CategoryService {
@@ -77,29 +77,27 @@ export default class CategoryService {
 
   /**
    *
-   * @param {PaginationSchema} pagination
+   * @param {CategoryQuerySchema} query
    * @param {boolean} meta
    * @returns {Promise<Category[] | PaginatedSchema<Category>>}
    * @throws {ValidatorError}
    */
   public async queryCategories(
-    pagination: PaginationSchema,
+    query: CategoryQuerySchema,
     meta: boolean = false,
   ): Promise<Category[] | PaginatedSchema<Category>> {
-    await this.validator.validate(pagination)
+    await this.validator.validate(query)
 
-    const cursor = new Cursor<Category>(pagination, this.categoryRepository)
+    const cursor = new Cursor<Category>(query, this.categoryRepository)
 
     const where = {}
 
-    for (const key of [ 'price', 'search' ]) {
-      if (pagination.hasOwnProperty(key)) {
-        if (key === 'search') {
-          where['name'] = { $regex: pagination[key], $options: 'i' }
-        } else {
-          where[key] = pagination[key]
-        }
-      }
+    if (query.price) {
+      where['price'] = query.price
+    }
+
+    if (query.search) {
+      where['name'] = { $regex: query.search, $options: 'i' }
     }
 
     return await cursor.getPaginated(where, meta)
