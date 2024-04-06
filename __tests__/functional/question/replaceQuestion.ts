@@ -100,9 +100,9 @@ describe('PUT /questions/:questionId', () => {
     expect(res.body).toMatchObject(error('ConflictError'))
   })
 
-  test('Replaced', async () => {
+  test('Replaced (has ownership)', async () => {
     const category = await fixture<Category>(Category)
-    const question = await fixture<Question>(Question, { permissions: [ Permission.REPLACE_QUESTION ] })
+    const question = await fixture<Question>(Question)
     const id = question.getId()
     const user = await load<User>(User, question.getCreator())
     const token = (await auth(user)).token
@@ -123,6 +123,35 @@ describe('PUT /questions/:questionId', () => {
       .put(`/questions/${ id.toString() }`)
       .send(schema)
       .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(205)
+    expect(res.body).toEqual('')
+    expect(await load<Question>(Question, id)).toMatchObject({ ...schema, ...{ category: category.getId() } })
+  })
+
+  test('Replaced (has permission)', async () => {
+    const category = await fixture<Category>(Category)
+    const question = await fixture<Question>(Question)
+    const id = question.getId()
+    const permissions = [
+      Permission.REPLACE_QUESTION,
+    ]
+    const user = await fixture<User>(User, { permissions })
+    const token = (await auth(user)).token
+    const schema = {
+      category: category.getId().toString(),
+      title: faker.lorem.sentences(3),
+      type: QuestionType.TYPE,
+      difficulty: QuestionDifficulty.EASY,
+      answers: [
+        {
+          variants: [ faker.lorem.word() ],
+          correct: true,
+          explanation: faker.lorem.sentence(),
+        },
+      ],
+    }
+    const res = await request(app).put(`/questions/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')

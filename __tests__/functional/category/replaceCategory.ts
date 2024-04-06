@@ -95,10 +95,26 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.body).toMatchObject(error('ConflictError'))
   })
 
-  test('Replaced', async () => {
-    const category = await fixture<Category>(Category, { permissions: [ Permission.REPLACE_CATEGORY ] })
+  test('Replaced (has ownership)', async () => {
+    const category = await fixture<Category>(Category)
     const id = category.getId()
     const user = await load<User>(User, category.getCreator())
+    const token = (await auth(user)).token
+    const schema = { name: 'any' }
+    const res = await request(app).put(`/categories/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(205)
+    expect(res.body).toEqual('')
+    expect(await load<Category>(Category, id)).toMatchObject(schema)
+  })
+
+  test('Replaced (has permission)', async () => {
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const permissions = [
+      Permission.REPLACE_CATEGORY,
+    ]
+    const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
     const schema = { name: 'any' }
     const res = await request(app).put(`/categories/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })

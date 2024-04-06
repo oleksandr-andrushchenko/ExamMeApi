@@ -96,8 +96,8 @@ describe('PATCH /questions/:questionId', () => {
     expect(res.body).toMatchObject(error('ConflictError'))
   })
 
-  test('Updated', async () => {
-    const question = await fixture<Question>(Question, { permissions: [ Permission.UPDATE_QUESTION ] })
+  test('Updated (has ownership)', async () => {
+    const question = await fixture<Question>(Question)
     const id = question.getId()
     const user = await load<User>(User, question.getCreator())
     const token = (await auth(user)).token
@@ -106,6 +106,22 @@ describe('PATCH /questions/:questionId', () => {
       .patch(`/questions/${ id.toString() }`)
       .send(schema)
       .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(205)
+    expect(res.body).toEqual('')
+    expect(await load<Question>(Question, id)).toMatchObject(schema)
+  })
+
+  test('Updated (has permission)', async () => {
+    const question = await fixture<Question>(Question)
+    const id = question.getId()
+    const permissions = [
+      Permission.UPDATE_QUESTION,
+    ]
+    const user = await fixture<User>(User, { permissions })
+    const token = (await auth(user)).token
+    const schema = { title: faker.lorem.sentences(3) }
+    const res = await request(app).patch(`/questions/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')

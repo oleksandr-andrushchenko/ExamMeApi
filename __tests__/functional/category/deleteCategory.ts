@@ -60,10 +60,25 @@ describe('DELETE /categories/:categoryId', () => {
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
 
-  test('Deleted', async () => {
-    const category = await fixture<Category>(Category, { permissions: [ Permission.DELETE_CATEGORY ] })
+  test('Deleted (has ownership)', async () => {
+    const category = await fixture<Category>(Category)
     const id = category.getId()
     const user = await load<User>(User, category.getCreator())
+    const token = (await auth(user)).token
+    const res = await request(app).delete(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(204)
+    expect(res.body).toEqual({})
+    expect(await load<Category>(Category, id)).toBeNull()
+  })
+
+  test('Deleted (has permission)', async () => {
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const permissions = [
+      Permission.DELETE_CATEGORY,
+    ]
+    const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
     const res = await request(app).delete(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
 
