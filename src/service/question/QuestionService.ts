@@ -14,9 +14,9 @@ import QuestionTitleTakenError from '../../error/question/QuestionTitleTakenErro
 import CategoryService from '../category/CategoryService'
 import QuestionNotFoundError from '../../error/question/QuestionNotFoundError'
 import QuestionUpdateSchema from '../../schema/question/QuestionUpdateSchema'
-import PaginationSchema from '../../schema/pagination/PaginationSchema'
 import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
 import Cursor from '../../model/Cursor'
+import QuestionQuerySchema from '../../schema/question/QuestionQuerySchema'
 
 @Service()
 export default class QuestionService {
@@ -78,31 +78,39 @@ export default class QuestionService {
   }
 
   /**
-   * @param {PaginationSchema} pagination
+   * @param {QuestionQuerySchema} query
    * @param {boolean} meta
    * @returns {Promise<Question[] | PaginatedSchema<Question>>}
    * @throws {ValidatorError}
    */
   public async queryQuestions(
-    pagination: PaginationSchema,
+    query: QuestionQuerySchema,
     meta: boolean = false,
   ): Promise<Question[] | PaginatedSchema<Question>> {
-    await this.validator.validate(pagination)
+    await this.validator.validate(query)
 
-    const cursor = new Cursor<Question>(pagination, this.questionRepository)
+    const cursor = new Cursor<Question>(query, this.questionRepository)
 
     const where = {}
 
-    for (const key of [ 'category', 'price', 'search', 'difficulty', 'type' ]) {
-      if (pagination.hasOwnProperty(key)) {
-        if (key === 'search') {
-          where['title'] = { $regex: pagination[key], $options: 'i' }
-        } else if (key === 'category') {
-          where[key] = new ObjectId(pagination[key])
-        } else {
-          where[key] = pagination[key]
-        }
-      }
+    if (query.category) {
+      where['category'] = new ObjectId(query.category)
+    }
+
+    if (query.price) {
+      where['price'] = query.price
+    }
+
+    if (query.search) {
+      where['title'] = { $regex: query.search, $options: 'i' }
+    }
+
+    if (query.difficulty) {
+      where['difficulty'] = query.difficulty
+    }
+
+    if (query.type) {
+      where['type'] = query.type
     }
 
     return await cursor.getPaginated(where, meta)
@@ -110,20 +118,20 @@ export default class QuestionService {
 
   /**
    * @param {Category} category
-   * @param {PaginationSchema} pagination
+   * @param {QuestionQuerySchema} query
    * @param {boolean} meta
    * @returns {Promise<Question[] | PaginatedSchema<Question>>}
    * @throws {ValidatorError}
    */
   public async queryCategoryQuestions(
     category: Category,
-    pagination: PaginationSchema = undefined,
+    query: QuestionQuerySchema = undefined,
     meta: boolean = false,
   ): Promise<Question[] | PaginatedSchema<Question>> {
-    pagination = pagination === undefined ? new PaginationSchema() : pagination
-    pagination['category'] = category.getId()
+    query = query === undefined ? new QuestionQuerySchema() : query
+    query.category = category.getId().toString()
 
-    return this.queryQuestions(pagination, meta)
+    return this.queryQuestions(query, meta)
   }
 
   /**

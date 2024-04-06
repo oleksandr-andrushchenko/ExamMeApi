@@ -30,11 +30,11 @@ import ValidatorError from '../error/validator/ValidatorError'
 import CategoryService from '../service/category/CategoryService'
 import QuestionNotFoundError from '../error/question/QuestionNotFoundError'
 import QuestionUpdateSchema from '../schema/question/QuestionUpdateSchema'
-import PaginationSchema from '../schema/pagination/PaginationSchema'
 import PaginatedQuestions from '../schema/question/PaginatedQuestions'
 import ValidatorInterface from '../service/validator/ValidatorInterface'
 import GetCategorySchema from '../schema/category/GetCategorySchema'
 import GetQuestionSchema from '../schema/question/GetQuestionSchema'
+import QuestionQuerySchema from '../schema/question/QuestionQuerySchema'
 
 @Service()
 @JsonController()
@@ -91,10 +91,10 @@ export default class QuestionController {
   })
   @ResponseSchema(PaginatedQuestions)
   public async queryQuestions(
-    @QueryParams({ type: PaginationSchema }) pagination: PaginationSchema,
+    @QueryParams({ type: QuestionQuerySchema }) query: QuestionQuerySchema,
   ): Promise<PaginatedQuestions> {
     try {
-      return await this.questionService.queryQuestions(pagination, true) as PaginatedQuestions
+      return await this.questionService.queryQuestions(query, true) as PaginatedQuestions
     } catch (error) {
       switch (true) {
         case error instanceof ValidatorError:
@@ -114,14 +114,14 @@ export default class QuestionController {
   @ResponseSchema(PaginatedQuestions)
   public async queryCategoryQuestions(
     @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
-    @QueryParams({ type: PaginationSchema }) pagination: PaginationSchema,
+    @QueryParams({ type: QuestionQuerySchema }) query: QuestionQuerySchema,
   ): Promise<PaginatedQuestions> {
     try {
       await this.validator.validate(getCategorySchema)
 
       const category = await this.categoryService.getCategory(getCategorySchema.categoryId)
 
-      return await this.questionService.queryCategoryQuestions(category, pagination, true) as PaginatedQuestions
+      return await this.questionService.queryCategoryQuestions(category, query, true) as PaginatedQuestions
     } catch (error) {
       switch (true) {
         case error instanceof ValidatorError:
