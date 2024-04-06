@@ -7,6 +7,8 @@ import AuthService from '../auth/AuthService'
 import Permission from '../../enum/auth/Permission'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import CategoryService from '../category/CategoryService'
+import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
+import Cursor from '../../model/Cursor'
 import ExamRepository from '../../repository/ExamRepository'
 import CreateExamSchema from '../../schema/exam/CreateExamSchema'
 import Exam, { ExamQuestion as ExamQuestionItem } from '../../entity/Exam'
@@ -15,6 +17,8 @@ import ExamNotFoundError from '../../error/exam/ExamNotFoundError'
 import QuestionService from '../question/QuestionService'
 import Question from '../../entity/Question'
 import { ObjectId } from 'mongodb'
+import AuthorizationFailedError from '../../error/auth/AuthorizationFailedError'
+import ExamQuerySchema from '../../schema/exam/ExamQuerySchema'
 
 @Service()
 export default class ExamService {
@@ -62,6 +66,40 @@ export default class ExamService {
     this.eventDispatcher.dispatch('examCreated', { exam })
 
     return exam
+  }
+
+  /**
+   * @param {ExamQuerySchema} query
+   * @param {User} initiator
+   * @param {boolean} meta
+   * @returns {Promise<Exam[] | PaginatedSchema<Exam>>}
+   * @throws {ValidatorError}
+   */
+  public async queryExams(
+    query: ExamQuerySchema,
+    initiator: User,
+    meta: boolean = false,
+  ): Promise<Exam[] | PaginatedSchema<Exam>> {
+    await this.validator.validate(query)
+
+    const cursor = new Cursor<Exam>(query, this.examRepository)
+    const where = {}
+
+    try {
+      await this.authService.verifyAuthorization(initiator, Permission.GET_EXAM)
+    } catch (error) {
+      if (error instanceof AuthorizationFailedError) {
+        where['owner'] = initiator.getId()
+      } else {
+        throw error
+      }
+    }
+
+    if (query.category) {
+      where['category'] = new ObjectId(query.category)
+    }
+
+    return await cursor.getPaginated(where, meta)
   }
 
   /**
