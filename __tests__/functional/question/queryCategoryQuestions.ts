@@ -16,9 +16,22 @@ describe('GET /categories/:categoryId/questions', () => {
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
 
-  test('Bad request (invalid category id)', async () => {
+  test.each([
+    { case: 'invalid category', query: { category: 'any' } },
+    { case: 'invalid price', query: { price: 'any' } },
+    { case: 'invalid difficulty', query: { difficulty: 'any' } },
+    { case: 'invalid type', query: { type: 'any' } },
+    { case: 'invalid cursor type', query: { cursor: 1 } },
+    { case: 'not allowed cursor', query: { cursor: 'name' } },
+    { case: 'invalid size type', query: { size: 'any' } },
+    { case: 'negative size', query: { size: -1 } },
+    { case: 'zero size', query: { size: 0 } },
+    { case: 'size greater them max', query: { size: 1000 } },
+    { case: 'invalid order type', query: { order: 1 } },
+    { case: 'not allowed order', query: { order: 'any' } },
+  ])('Bad request ($case)', async ({ query }) => {
     const categoryId = 'invalid'
-    const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`)
+    const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`).query(query)
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))

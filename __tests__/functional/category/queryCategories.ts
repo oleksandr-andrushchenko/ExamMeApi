@@ -16,6 +16,7 @@ describe('GET /categories', () => {
   })
 
   test.each([
+    { case: 'invalid price', query: { price: 'any' } },
     { case: 'invalid cursor type', query: { cursor: 1 } },
     { case: 'not allowed cursor', query: { cursor: 'name' } },
     { case: 'invalid size type', query: { size: 'any' } },
