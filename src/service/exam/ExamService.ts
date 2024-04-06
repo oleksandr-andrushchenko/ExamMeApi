@@ -11,8 +11,10 @@ import ExamRepository from '../../repository/ExamRepository'
 import CreateExamSchema from '../../schema/exam/CreateExamSchema'
 import Exam, { ExamQuestion as ExamQuestionItem } from '../../entity/Exam'
 import ExamTakenError from '../../error/exam/ExamTakenError'
+import ExamNotFoundError from '../../error/exam/ExamNotFoundError'
 import QuestionService from '../question/QuestionService'
 import Question from '../../entity/Question'
+import { ObjectId } from 'mongodb'
 
 @Service()
 export default class ExamService {
@@ -58,6 +60,47 @@ export default class ExamService {
     await this.entityManager.save<Exam>(exam)
 
     this.eventDispatcher.dispatch('examCreated', { exam })
+
+    return exam
+  }
+
+  /**
+   * @param {ObjectId | string} id
+   * @param {User} initiator
+   * @returns {Promise<Exam>}
+   * @throws {ExamNotFoundError}
+   * @throws {AuthorizationFailedError}
+   */
+  public async getExam(id: ObjectId | string, initiator: User): Promise<Exam> {
+    if (typeof id === 'string') {
+      this.validator.validateId(id)
+      id = new ObjectId(id)
+    }
+
+    const exam = await this.examRepository.findOneById(id)
+
+    if (!exam) {
+      throw new ExamNotFoundError(id)
+    }
+
+    await this.authService.verifyAuthorization(initiator, Permission.GET_EXAM, exam)
+
+    return exam
+  }
+
+  /**
+   * @param {Exam} exam
+   * @param {User} initiator
+   * @returns {Promise<Exam>}
+   * @throws {ExamNotFoundError}
+   * @throws {AuthorizationFailedError}
+   */
+  public async deleteExam(exam: Exam, initiator: User): Promise<Exam> {
+    await this.authService.verifyAuthorization(initiator, Permission.DELETE_EXAM, exam)
+
+    await this.entityManager.remove<Exam>(exam)
+
+    this.eventDispatcher.dispatch('examDeleted', { exam })
 
     return exam
   }
