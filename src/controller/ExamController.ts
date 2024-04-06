@@ -100,6 +100,39 @@ export default class ExamController {
     }
   }
 
+  @Get('/:examId')
+  @Authorized()
+  @OpenAPI({
+    security: [ { bearerAuth: [] } ],
+    responses: {
+      200: { description: 'OK' },
+      400: { description: 'Bad Request' },
+      401: { description: 'Unauthorized' },
+      403: { description: 'Forbidden' },
+      404: { description: 'Not Found' },
+    },
+  })
+  @ResponseSchema(Exam)
+  public async getExam(
+    @Params({ type: GetExamSchema, required: true }) getExamSchema: GetExamSchema,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<Exam> {
+    try {
+      await this.validator.validate(getExamSchema)
+
+      return await this.examService.getExam(getExamSchema.examId, user)
+    } catch (error) {
+      switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
+        case error instanceof AuthorizationFailedError:
+          throw new ForbiddenError((error as AuthorizationFailedError).message)
+        case error instanceof CategoryNotFoundError:
+          throw new NotFoundError((error as CategoryNotFoundError).message)
+      }
+    }
+  }
+
   @Delete('/:examId')
   @Authorized()
   @HttpCode(204)
