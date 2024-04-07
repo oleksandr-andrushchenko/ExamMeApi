@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn } from 'typeorm'
-import { Exclude, Transform, Type } from 'class-transformer'
+import { Exclude, Expose, Transform, Type } from 'class-transformer'
 import { ObjectId } from 'mongodb'
-import { IsDate, IsMongoId, IsNumber, IsOptional, Min, ValidateNested } from 'class-validator'
+import { IsDate, IsMongoId, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator'
 
 export class ExamQuestion {
 
@@ -10,13 +10,15 @@ export class ExamQuestion {
   @Transform(({ value }: { value: ObjectId }) => value.toString())
   private question: ObjectId
 
+  @IsOptional()
   @IsNumber()
-  @Min(0)
   @Column()
-  private answer?: number
+  public choice: number
 
   @IsOptional()
-  private current?: boolean
+  @IsString()
+  @Column()
+  public answer: string
 
   public setQuestion(question: ObjectId): this {
     this.question = question
@@ -28,24 +30,24 @@ export class ExamQuestion {
     return this.question
   }
 
-  public setAnswer(answer: number): this {
+  public setChoice(choice: number | undefined): this {
+    this.choice = choice
+
+    return this
+  }
+
+  public getChoice(): number {
+    return this.choice
+  }
+
+  public setAnswer(answer: string | undefined): this {
     this.answer = answer
 
     return this
   }
 
-  public getAnswer(): number {
+  public getAnswer(): string {
     return this.answer
-  }
-
-  public setCurrent(current: boolean): this {
-    this.current = current
-
-    return this
-  }
-
-  public isCurrent(): boolean {
-    return this.current
   }
 }
 
@@ -67,6 +69,11 @@ export default class Exam {
   @Type(() => ExamQuestion)
   @Column(() => ExamQuestion)
   private questions: ExamQuestion[]
+
+  @IsNumber()
+  @Min(0)
+  @Column({ default: 0, nullable: false })
+  private lastRequestedQuestionNumber: number = 0
 
   @IsOptional()
   @IsDate()
@@ -127,8 +134,23 @@ export default class Exam {
     return this.questions
   }
 
+  @Expose({ name: 'questionCount' })
+  public getQuestionCount(): number {
+    return this.questions.length
+  }
+
   public getCategory(): ObjectId {
     return this.category
+  }
+
+  public setLastRequestedQuestionNumber(lastRequestedQuestionNumber: number): this {
+    this.lastRequestedQuestionNumber = lastRequestedQuestionNumber
+
+    return this
+  }
+
+  public getLastRequestedQuestionNumber(): number {
+    return this.lastRequestedQuestionNumber
   }
 
   public setCreator(creator: ObjectId): this {
