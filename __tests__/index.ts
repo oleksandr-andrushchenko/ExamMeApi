@@ -14,7 +14,7 @@ import Permission from '../src/enum/auth/Permission'
 import { ObjectId } from 'mongodb'
 import QuestionRepository from '../src/repository/QuestionRepository'
 import Question, { QuestionAnswer, QuestionChoice, QuestionDifficulty, QuestionType } from '../src/entity/Question'
-import Exam from '../src/entity/Exam'
+import Exam, { ExamQuestion } from '../src/entity/Exam'
 import ExamRepository from '../src/repository/ExamRepository'
 
 export const api = (): Application => {
@@ -96,10 +96,32 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
     case Exam:
       object = (new Exam())
         .setCategory(options['category'] ?? (await fixture(Category, options) as Category).getId())
-        .setQuestions([])
         .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
 
       object.setOwner(options['owner'] ?? object.getCreator())
+
+      const questions = []
+
+      for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
+        const question = await fixture(Question, { ...options, ...{ category: object.getCategory() } }) as Question
+        const examQuestion = (new ExamQuestion())
+          .setQuestion(question.getId())
+
+        if (faker.datatype.boolean()) {
+          if (question.getType() === QuestionType.CHOICE) {
+            examQuestion.setChoice(faker.number.int({ min: 0, max: question.getChoices().length - 1 }))
+          } else if (question.getType() === QuestionType.TYPE) {
+            const variants = question.getAnswers()[faker.number.int({ min: 0, max: question.getAnswers().length - 1 })]
+              .getVariants()
+            examQuestion.setAnswer(variants[faker.number.int({ min: 0, max: variants.length - 1 })])
+          }
+        }
+
+        questions.push(examQuestion)
+      }
+
+      object.setQuestions(questions)
+        .setLastRequestedQuestionNumber(faker.number.int({ min: 0, max: questions.length - 1 }))
 
       break
     default:
