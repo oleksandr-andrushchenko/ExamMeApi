@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn } from 'typeorm'
 import { Exclude, Transform } from 'class-transformer'
 import { ObjectId } from 'mongodb'
-import { IsMongoId, IsNumber, IsOptional, Length, Min } from 'class-validator'
+import { IsMongoId, IsNumber, IsOptional, Length, Max, Min } from 'class-validator'
 
 @Entity({ name: 'categories' })
 export default class Category {
@@ -16,8 +16,15 @@ export default class Category {
   private name: string
 
   @Min(0)
+  @IsNumber({ maxDecimalPlaces: 0 })
   @Column({ default: 0, nullable: false })
   private questionCount: number = 0
+
+  @Min(0)
+  @Max(100)
+  @IsNumber({ maxDecimalPlaces: 0 })
+  @Column({ nullable: false })
+  private requiredScore: number = 0
 
   @Exclude()
   @IsMongoId()
@@ -74,6 +81,16 @@ export default class Category {
 
   public getQuestionCount(): number {
     return this.questionCount
+  }
+
+  public setRequiredScore(requiredScore: number): this {
+    this.requiredScore = requiredScore
+
+    return this
+  }
+
+  public getRequiredScore(): number {
+    return this.requiredScore
   }
 
   public setCreator(creator: ObjectId): this {
