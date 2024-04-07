@@ -36,15 +36,16 @@ export default class CategoryService {
    * @throws {CategoryNameTakenError}
    */
   public async createCategory(transfer: CategorySchema, initiator: User): Promise<Category> {
-    await this.authService.verifyAuthorization(initiator, CategoryPermission.CREATE)
-
     await this.validator.validate(transfer)
+
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.CREATE)
 
     const name = transfer.name
     await this.verifyCategoryNameNotExists(name)
 
     const category: Category = (new Category())
       .setName(name)
+      .setRequiredScore(transfer.requiredScore)
       .setCreator(initiator.getId())
       .setOwner(initiator.getId())
 
@@ -113,15 +114,19 @@ export default class CategoryService {
    * @throws {CategoryNameTakenError}
    */
   public async updateCategory(category: Category, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
-    await this.authService.verifyAuthorization(initiator, CategoryPermission.UPDATE, category)
-
     await this.validator.validate(transfer)
+
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.UPDATE, category)
 
     if (transfer.hasOwnProperty('name')) {
       const name = transfer.name
       await this.verifyCategoryNameNotExists(name, category.getId())
 
       category.setName(name)
+    }
+
+    if (transfer.hasOwnProperty('requiredScore')) {
+      category.setRequiredScore(transfer.requiredScore)
     }
 
     await this.entityManager.save<Category>(category)
@@ -141,14 +146,16 @@ export default class CategoryService {
    * @throws {CategoryNameTakenError}
    */
   public async replaceCategory(category: Category, transfer: CategorySchema, initiator: User): Promise<Category> {
-    await this.authService.verifyAuthorization(initiator, CategoryPermission.REPLACE, category)
-
     await this.validator.validate(transfer)
+
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.REPLACE, category)
 
     const name = transfer.name
     await this.verifyCategoryNameNotExists(name, category.getId())
 
     category.setName(name)
+      .setRequiredScore(transfer.requiredScore)
+
     await this.entityManager.save<Category>(category)
 
     this.eventDispatcher.dispatch('categoryReplaced', { category })
