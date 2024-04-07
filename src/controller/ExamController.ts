@@ -207,7 +207,7 @@ export default class ExamController {
         case error instanceof ValidatorError:
           throw new BadRequestError((error as ValidatorError).message)
         case error instanceof QuestionNotFoundError:
-          throw new BadRequestError((error as QuestionNotFoundError).message)
+          throw new NotFoundError((error as QuestionNotFoundError).message)
         case error instanceof ExamQuestionNumberNotFoundError:
           throw new NotFoundError((error as ExamQuestionNumberNotFoundError).message)
         case error instanceof AuthorizationFailedError:
