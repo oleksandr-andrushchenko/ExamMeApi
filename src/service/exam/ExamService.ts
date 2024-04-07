@@ -11,14 +11,16 @@ import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
 import Cursor from '../../model/Cursor'
 import ExamRepository from '../../repository/ExamRepository'
 import CreateExamSchema from '../../schema/exam/CreateExamSchema'
-import Exam, { ExamQuestion as ExamQuestionItem } from '../../entity/Exam'
+import Exam, { ExamQuestion } from '../../entity/Exam'
 import ExamTakenError from '../../error/exam/ExamTakenError'
 import ExamNotFoundError from '../../error/exam/ExamNotFoundError'
+import ExamQuestionSchema from '../../schema/exam/ExamQuestionSchema'
 import QuestionService from '../question/QuestionService'
-import Question from '../../entity/Question'
+import Question, { QuestionChoice, QuestionType } from '../../entity/Question'
 import { ObjectId } from 'mongodb'
 import AuthorizationFailedError from '../../error/auth/AuthorizationFailedError'
 import ExamQuerySchema from '../../schema/exam/ExamQuerySchema'
+import ExamQuestionNumberNotFoundError from '../../error/exam/ExamQuestionNumberNotFoundError'
 
 @Service()
 export default class ExamService {
@@ -52,7 +54,7 @@ export default class ExamService {
     await this.verifyExamNotTaken(category, initiator)
 
     const questions = (await this.questionService.queryCategoryQuestions(category) as Question[])
-      .map((question: Question): ExamQuestionItem => (new ExamQuestionItem())
+      .map((question: Question): ExamQuestion => (new ExamQuestion())
         .setQuestion(question.getId()))
 
     const exam = (new Exam())
@@ -64,6 +66,68 @@ export default class ExamService {
     await this.entityManager.save<Exam>(exam)
 
     this.eventDispatcher.dispatch('examCreated', { exam })
+
+    return exam
+  }
+
+  /**
+   * @param {Exam} exam
+   * @param {number} questionNumber
+   * @param {User} initiator
+   * @returns {Promise<ExamQuestionSchema>}
+   * @throws {AuthorizationFailedError}
+   * @throws {QuestionNotFoundError}
+   * @throws {ExamQuestionNumberNotFoundError}
+   */
+  public async getExamQuestion(exam: Exam, questionNumber: number, initiator: User): Promise<ExamQuestionSchema> {
+    await this.authService.verifyAuthorization(initiator, Permission.GET_EXAM_QUESTION, exam)
+
+    const questions = exam.getQuestions()
+
+    if (typeof questions[questionNumber] === 'undefined') {
+      throw new ExamQuestionNumberNotFoundError(questionNumber)
+    }
+
+    const examQuestion = new ExamQuestionSchema()
+    const question = await this.questionService.getQuestion(questions[questionNumber].getQuestion())
+
+    examQuestion.question = question.getTitle()
+    examQuestion.difficulty = question.getDifficulty()
+    examQuestion.type = question.getType()
+
+    if (examQuestion.type === QuestionType.CHOICE) {
+      examQuestion.choices = question.getChoices().map((choice: QuestionChoice) => choice.getTitle())
+      examQuestion.choice = questions[questionNumber].getChoice()
+    } else if (examQuestion.type === QuestionType.TYPE) {
+      examQuestion.answer = questions[questionNumber].getAnswer()
+    }
+
+    return examQuestion
+  }
+
+  /**
+   * @param {Exam} exam
+   * @param {number} questionNumber
+   * @param {User} initiator
+   * @returns {Promise<Exam>}
+   * @throws {AuthorizationFailedError}
+   * @throws {ExamQuestionNumberNotFoundError}
+   */
+  public async setExamLastRequestedQuestionNumber(exam: Exam, questionNumber: number, initiator: User): Promise<Exam> {
+    await this.authService.verifyAuthorization(initiator, Permission.GET_EXAM_QUESTION, exam)
+
+    const questions = exam.getQuestions()
+
+    if (typeof questions[questionNumber] === 'undefined') {
+      throw new ExamQuestionNumberNotFoundError(questionNumber)
+    }
+
+    if (exam.getOwner() !== initiator.getId()) {
+      return exam
+    }
+
+    exam.setLastRequestedQuestionNumber(questionNumber)
+    await this.entityManager.save<Exam>(exam)
 
     return exam
   }
