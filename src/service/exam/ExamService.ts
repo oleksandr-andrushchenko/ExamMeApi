@@ -15,6 +15,7 @@ import Exam, { ExamQuestion } from '../../entity/Exam'
 import ExamTakenError from '../../error/exam/ExamTakenError'
 import ExamNotFoundError from '../../error/exam/ExamNotFoundError'
 import ExamQuestionSchema from '../../schema/exam/ExamQuestionSchema'
+import CreateExamQuestionAnswerSchema from '../../schema/exam/CreateExamQuestionAnswerSchema'
 import QuestionService from '../question/QuestionService'
 import Question, { QuestionChoice, QuestionType } from '../../entity/Question'
 import { ObjectId } from 'mongodb'
@@ -130,6 +131,41 @@ export default class ExamService {
     await this.entityManager.save<Exam>(exam)
 
     return exam
+  }
+
+  /**
+   * @param {Exam} exam
+   * @param {number} questionNumber
+   * @param {CreateExamQuestionAnswerSchema} examQuestionAnswer
+   * @param {User} initiator
+   * @returns {Promise<void>}
+   * @throws {AuthorizationFailedError}
+   * @throws {QuestionNotFoundError}
+   * @throws {ValidatorError}
+   */
+  public async createExamQuestionAnswer(
+    exam: Exam,
+    questionNumber: number,
+    examQuestionAnswer: CreateExamQuestionAnswerSchema,
+    initiator: User,
+  ): Promise<void> {
+    await this.authService.verifyAuthorization(initiator, Permission.CREATE_EXAM_QUESTION_ANSWER, exam)
+    await this.validator.validate(examQuestionAnswer)
+
+    const questions = exam.getQuestions()
+    const question = await this.questionService.getQuestion(questions[questionNumber].getQuestion())
+
+    if (question.getType() === QuestionType.CHOICE) {
+      questions[questionNumber].setChoice(examQuestionAnswer.choice)
+    } else if (question.getType() === QuestionType.TYPE) {
+      questions[questionNumber].setAnswer(examQuestionAnswer.answer)
+    }
+
+    // todo: optimize
+    exam.setQuestions(questions)
+
+    // todo: optimize, run partial array query
+    await this.entityManager.save<Exam>(exam)
   }
 
   /**
