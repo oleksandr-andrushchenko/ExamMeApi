@@ -4,7 +4,7 @@ export default class CreateExamQuestionAnswerSchema {
 
   @IsOptional()
   @Min(0)
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 0 })
   public readonly choice: number
 
   @IsOptional()
