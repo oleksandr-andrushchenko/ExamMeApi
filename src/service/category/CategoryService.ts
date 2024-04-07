@@ -8,13 +8,13 @@ import User from '../../entity/User'
 import CategoryNotFoundError from '../../error/category/CategoryNotFoundError'
 import CategorySchema from '../../schema/category/CategorySchema'
 import AuthService from '../auth/AuthService'
-import Permission from '../../enum/auth/Permission'
 import { ObjectId } from 'mongodb'
 import CategoryUpdateSchema from '../../schema/category/CategoryUpdateSchema'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import Cursor from '../../model/Cursor'
 import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
 import CategoryQuerySchema from '../../schema/category/CategoryQuerySchema'
+import CategoryPermission from '../../enum/category/CategoryPermission'
 
 @Service()
 export default class CategoryService {
@@ -36,7 +36,7 @@ export default class CategoryService {
    * @throws {CategoryNameTakenError}
    */
   public async createCategory(transfer: CategorySchema, initiator: User): Promise<Category> {
-    await this.authService.verifyAuthorization(initiator, Permission.CREATE_CATEGORY)
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.CREATE)
 
     await this.validator.validate(transfer)
 
@@ -113,7 +113,7 @@ export default class CategoryService {
    * @throws {CategoryNameTakenError}
    */
   public async updateCategory(category: Category, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
-    await this.authService.verifyAuthorization(initiator, Permission.UPDATE_CATEGORY, category)
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.UPDATE, category)
 
     await this.validator.validate(transfer)
 
@@ -141,7 +141,7 @@ export default class CategoryService {
    * @throws {CategoryNameTakenError}
    */
   public async replaceCategory(category: Category, transfer: CategorySchema, initiator: User): Promise<Category> {
-    await this.authService.verifyAuthorization(initiator, Permission.REPLACE_CATEGORY, category)
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.REPLACE, category)
 
     await this.validator.validate(transfer)
 
@@ -164,7 +164,7 @@ export default class CategoryService {
    * @throws {AuthorizationFailedError}
    */
   public async deleteCategory(category: Category, initiator: User): Promise<Category> {
-    await this.authService.verifyAuthorization(initiator, Permission.DELETE_CATEGORY, category)
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.DELETE, category)
 
     // todo: soft delete
     await this.entityManager.remove<Category>(category)

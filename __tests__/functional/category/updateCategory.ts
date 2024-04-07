@@ -4,7 +4,7 @@ import request from 'supertest'
 import { api, auth, error, fakeId, fixture, load } from '../../index'
 import Category from '../../../src/entity/Category'
 import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/auth/Permission'
+import CategoryPermission from '../../../src/enum/category/CategoryPermission'
 
 describe('PATCH /categories/:categoryId', () => {
   const app = api()
@@ -19,7 +19,7 @@ describe('PATCH /categories/:categoryId', () => {
   })
 
   test('Bad request (invalid id)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_CATEGORY ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = 'invalid'
     const res = await request(app).patch(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
@@ -29,7 +29,7 @@ describe('PATCH /categories/:categoryId', () => {
   })
 
   test('Not found', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_CATEGORY ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = await fakeId()
     const res = await request(app)
@@ -42,7 +42,7 @@ describe('PATCH /categories/:categoryId', () => {
   })
 
   test('Bad request (empty body)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_CATEGORY ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
     const id = category.getId()
@@ -53,7 +53,7 @@ describe('PATCH /categories/:categoryId', () => {
   })
 
   test('Forbidden (no permissions)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] })
+    const user = await fixture<User>(User)
     const category = await fixture<Category>(Category)
     const id = category.getId()
     const token = (await auth(user)).token
@@ -82,7 +82,7 @@ describe('PATCH /categories/:categoryId', () => {
 
   test('Conflict', async () => {
     const category1 = await fixture<Category>(Category)
-    const category = await fixture<Category>(Category, { permissions: [ Permission.UPDATE_CATEGORY ] })
+    const category = await fixture<Category>(Category, { permissions: [ CategoryPermission.UPDATE ] })
     const id = category.getId()
     const user = await load<User>(User, category.getCreator())
     const token = (await auth(user)).token
@@ -115,7 +115,7 @@ describe('PATCH /categories/:categoryId', () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()
     const permissions = [
-      Permission.UPDATE_CATEGORY,
+      CategoryPermission.UPDATE,
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token

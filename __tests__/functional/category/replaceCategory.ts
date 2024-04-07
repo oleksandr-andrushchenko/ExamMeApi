@@ -4,7 +4,7 @@ import request from 'supertest'
 import { api, auth, error, fakeId, fixture, load } from '../../index'
 import Category from '../../../src/entity/Category'
 import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/auth/Permission'
+import CategoryPermission from '../../../src/enum/category/CategoryPermission'
 
 describe('PUT /categories/:categoryId', () => {
   const app = api()
@@ -19,7 +19,7 @@ describe('PUT /categories/:categoryId', () => {
   })
 
   test('Bad request (invalid id)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REPLACE_CATEGORY ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = 'invalid'
     const res = await request(app).put(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
@@ -29,20 +29,17 @@ describe('PUT /categories/:categoryId', () => {
   })
 
   test('Not found', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REPLACE_CATEGORY ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = await fakeId()
-    const res = await request(app)
-      .put(`/categories/${ id.toString() }`)
-      .send({ name: 'any' })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).put(`/categories/${ id.toString() }`).send({ name: 'any' }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
 
   test('Bad request (empty body)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REPLACE_CATEGORY ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
     const id = category.getId()
@@ -53,14 +50,11 @@ describe('PUT /categories/:categoryId', () => {
   })
 
   test('Forbidden (no permissions)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] })
+    const user = await fixture<User>(User)
     const category = await fixture<Category>(Category)
     const id = category.getId()
     const token = (await auth(user)).token
-    const res = await request(app)
-      .put(`/categories/${ id.toString() }`)
-      .send({ name: 'any' })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).put(`/categories/${ id.toString() }`).send({ name: 'any' }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -71,10 +65,7 @@ describe('PUT /categories/:categoryId', () => {
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
     const id = category.getId()
     const token = (await auth(user)).token
-    const res = await request(app)
-      .put(`/categories/${ id.toString() }`)
-      .send({ name: 'any' })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).put(`/categories/${ id.toString() }`).send({ name: 'any' }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -82,14 +73,11 @@ describe('PUT /categories/:categoryId', () => {
 
   test('Conflict', async () => {
     const category1 = await fixture<Category>(Category)
-    const category = await fixture<Category>(Category, { permissions: [ Permission.REPLACE_CATEGORY ] })
+    const category = await fixture<Category>(Category, { permissions: [ CategoryPermission.REPLACE ] })
     const id = category.getId()
     const user = await load<User>(User, category.getCreator())
     const token = (await auth(user)).token
-    const res = await request(app)
-      .put(`/categories/${ id.toString() }`)
-      .send({ name: category1.getName() })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).put(`/categories/${ id.toString() }`).send({ name: category1.getName() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
@@ -112,7 +100,7 @@ describe('PUT /categories/:categoryId', () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()
     const permissions = [
-      Permission.REPLACE_CATEGORY,
+      CategoryPermission.REPLACE,
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token

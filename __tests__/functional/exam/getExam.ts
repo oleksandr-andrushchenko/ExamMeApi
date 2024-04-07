@@ -4,7 +4,7 @@ import request from 'supertest'
 import { api, auth, error, fakeId, fixture, load } from '../../index'
 import Exam from '../../../src/entity/Exam'
 import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/auth/Permission'
+import ExamPermission from '../../../src/enum/exam/ExamPermission'
 
 describe('GET /exams/:examId', () => {
   const app = api()
@@ -64,7 +64,7 @@ describe('GET /exams/:examId', () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()
     const permissions = [
-      Permission.GET_EXAM,
+      ExamPermission.GET,
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token

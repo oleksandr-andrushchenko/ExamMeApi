@@ -9,9 +9,10 @@ import UserEmailTakenError from '../../error/user/UserEmailTakenError'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorator/InjectEntityManager'
 import UserSchema from '../../schema/user/UserSchema'
 import AuthSchema from '../../schema/auth/AuthSchema'
-import Permission from '../../enum/auth/Permission'
+import Permission from '../../enum/Permission'
 import AuthService from '../auth/AuthService'
 import ValidatorInterface from '../validator/ValidatorInterface'
+import UserPermission from '../../enum/user/UserPermission'
 
 @Service()
 export default class UserService {
@@ -33,7 +34,7 @@ export default class UserService {
    * @throws {UserEmailTakenError}
    */
   public async createUser(transfer: UserSchema, initiator: User): Promise<User> {
-    await this.authService.verifyAuthorization(initiator, Permission.CREATE_USER)
+    await this.authService.verifyAuthorization(initiator, UserPermission.CREATE)
 
     await this.validator.validate(transfer)
 

@@ -1,8 +1,10 @@
 import { Authorized, Get, JsonController } from 'routing-controllers'
 import { Inject, Service } from 'typedi'
 import { OpenAPI } from 'routing-controllers-openapi'
-import Permission from '../enum/auth/Permission'
+import Permission from '../enum/Permission'
 import PermissionHierarchy from '../type/auth/PermissionHierarchy'
+import CategoryPermission from '../enum/category/CategoryPermission'
+import QuestionPermission from '../enum/question/QuestionPermission'
 
 @Service()
 @JsonController('/permissions')
@@ -57,7 +59,7 @@ export default class PermissionController {
                 },
               },
               example: {
-                [Permission.REGULAR]: [ Permission.CREATE_CATEGORY, Permission.UPDATE_QUESTION ],
+                [Permission.REGULAR]: [ CategoryPermission.CREATE, QuestionPermission.UPDATE ],
               },
             },
           },

@@ -3,8 +3,8 @@ import request from 'supertest'
 // @ts-ignore
 import { api, auth, error, fixture, load } from '../../index'
 import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/auth/Permission'
 import { ObjectId } from 'mongodb'
+import UserPermission from '../../../src/enum/user/UserPermission'
 
 describe('POST /users', () => {
   const app = api()
@@ -17,7 +17,7 @@ describe('POST /users', () => {
   })
 
   test('Bad request (empty body)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.CREATE_USER ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const res = await request(app).post('/users').auth(token, { type: 'bearer' })
 
@@ -26,12 +26,12 @@ describe('POST /users', () => {
   })
 
   test('Forbidden', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const res = await request(app).post('/users').send({
       name: 'any',
       email: 'a@a.com',
-      password: '123123'
+      password: '123123',
     }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
@@ -40,12 +40,12 @@ describe('POST /users', () => {
 
   test('Conflict', async () => {
     const user1 = await fixture<User>(User)
-    const user = await fixture<User>(User, { permissions: [ Permission.CREATE_USER ] })
+    const user = await fixture<User>(User, { permissions: [ UserPermission.CREATE ] })
     const token = (await auth(user)).token
     const res = await request(app).post('/users').send({
       name: 'any',
       email: user1.getEmail(),
-      password: '123123'
+      password: '123123',
     }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
@@ -53,7 +53,7 @@ describe('POST /users', () => {
   })
 
   test('Created', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.CREATE_USER ] })
+    const user = await fixture<User>(User, { permissions: [ UserPermission.CREATE ] })
     const token = (await auth(user)).token
     const schema = { name: 'any', email: 'a@a.com' }
     const res = await request(app)

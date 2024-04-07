@@ -4,7 +4,7 @@ import request from 'supertest'
 import { api, auth, error, fakeId, fixture, load } from '../../index'
 import Question from '../../../src/entity/Question'
 import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/auth/Permission'
+import QuestionPermission from '../../../src/enum/question/QuestionPermission'
 
 describe('DELETE /questions/:questionId', () => {
   const app = api()
@@ -19,7 +19,7 @@ describe('DELETE /questions/:questionId', () => {
   })
 
   test('Bad request (invalid id)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.DELETE_QUESTION ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = 'invalid'
     const res = await request(app).delete(`/questions/${ id.toString() }`).auth(token, { type: 'bearer' })
@@ -29,7 +29,7 @@ describe('DELETE /questions/:questionId', () => {
   })
 
   test('Not found', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.DELETE_QUESTION ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = await fakeId()
     const res = await request(app).delete(`/questions/${ id.toString() }`).auth(token, { type: 'bearer' })
@@ -39,7 +39,7 @@ describe('DELETE /questions/:questionId', () => {
   })
 
   test('Forbidden (no permissions)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] })
+    const user = await fixture<User>(User)
     const question = await fixture<Question>(Question)
     const id = question.getId()
     const token = (await auth(user)).token
@@ -76,7 +76,7 @@ describe('DELETE /questions/:questionId', () => {
     const question = await fixture<Question>(Question)
     const id = question.getId()
     const permissions = [
-      Permission.DELETE_QUESTION,
+      QuestionPermission.DELETE,
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token

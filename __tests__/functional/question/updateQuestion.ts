@@ -4,8 +4,8 @@ import request from 'supertest'
 import { api, auth, error, fakeId, fixture, load } from '../../index'
 import Question from '../../../src/entity/Question'
 import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/auth/Permission'
 import { faker } from '@faker-js/faker'
+import QuestionPermission from '../../../src/enum/question/QuestionPermission'
 
 describe('PATCH /questions/:questionId', () => {
   const app = api()
@@ -20,7 +20,7 @@ describe('PATCH /questions/:questionId', () => {
   })
 
   test('Bad request (invalid id)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_QUESTION ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = 'invalid'
     const res = await request(app).patch(`/questions/${ id.toString() }`).auth(token, { type: 'bearer' })
@@ -30,20 +30,17 @@ describe('PATCH /questions/:questionId', () => {
   })
 
   test('Not found', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_QUESTION ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = await fakeId()
-    const res = await request(app)
-      .patch(`/questions/${ id.toString() }`)
-      .send({ title: 'any' })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/questions/${ id.toString() }`).send({ title: 'any' }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
 
   test('Bad request (empty body)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.UPDATE_QUESTION ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const question = await fixture<Question>(Question)
     const id = question.getId()
@@ -54,14 +51,12 @@ describe('PATCH /questions/:questionId', () => {
   })
 
   test('Forbidden (no permissions)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] })
+    const user = await fixture<User>(User)
     const question = await fixture<Question>(Question)
     const id = question.getId()
     const token = (await auth(user)).token
-    const res = await request(app)
-      .patch(`/questions/${ id.toString() }`)
-      .send({ title: 'any' })
-      .auth(token, { type: 'bearer' })
+    const schema = { title: faker.lorem.sentences(3) }
+    const res = await request(app).patch(`/questions/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -72,10 +67,8 @@ describe('PATCH /questions/:questionId', () => {
     const question = await fixture<Question>(Question, { owner: await fixture<User>(User) })
     const id = question.getId()
     const token = (await auth(user)).token
-    const res = await request(app)
-      .patch(`/questions/${ id.toString() }`)
-      .send({ title: 'any' })
-      .auth(token, { type: 'bearer' })
+    const schema = { title: faker.lorem.sentences(3) }
+    const res = await request(app).patch(`/questions/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -83,14 +76,11 @@ describe('PATCH /questions/:questionId', () => {
 
   test('Conflict', async () => {
     const question1 = await fixture<Question>(Question)
-    const question = await fixture<Question>(Question, { permissions: [ Permission.UPDATE_QUESTION ] })
+    const question = await fixture<Question>(Question, { permissions: [ QuestionPermission.UPDATE ] })
     const id = question.getId()
     const user = await load<User>(User, question.getCreator())
     const token = (await auth(user)).token
-    const res = await request(app)
-      .patch(`/questions/${ id.toString() }`)
-      .send({ title: question1.getTitle() })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/questions/${ id.toString() }`).send({ title: question1.getTitle() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
@@ -102,10 +92,7 @@ describe('PATCH /questions/:questionId', () => {
     const user = await load<User>(User, question.getCreator())
     const token = (await auth(user)).token
     const schema = { title: faker.lorem.sentences(3) }
-    const res = await request(app)
-      .patch(`/questions/${ id.toString() }`)
-      .send(schema)
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/questions/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')
@@ -116,7 +103,7 @@ describe('PATCH /questions/:questionId', () => {
     const question = await fixture<Question>(Question)
     const id = question.getId()
     const permissions = [
-      Permission.UPDATE_QUESTION,
+      QuestionPermission.UPDATE,
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token

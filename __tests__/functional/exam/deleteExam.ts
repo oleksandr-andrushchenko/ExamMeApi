@@ -3,8 +3,8 @@ import request from 'supertest'
 // @ts-ignore
 import { api, auth, error, fakeId, fixture, load } from '../../index'
 import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/auth/Permission'
 import Exam from '../../../src/entity/Exam'
+import ExamPermission from '../../../src/enum/exam/ExamPermission'
 
 describe('DELETE /exams/:examId', () => {
   const app = api()
@@ -19,7 +19,7 @@ describe('DELETE /exams/:examId', () => {
   })
 
   test('Bad request (invalid id)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.DELETE_EXAM ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = 'invalid'
     const res = await request(app).delete(`/exams/${ id.toString() }`).auth(token, { type: 'bearer' })
@@ -29,7 +29,7 @@ describe('DELETE /exams/:examId', () => {
   })
 
   test('Not found', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.DELETE_EXAM ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = await fakeId()
     const res = await request(app).delete(`/exams/${ id.toString() }`).auth(token, { type: 'bearer' })
@@ -65,8 +65,8 @@ describe('DELETE /exams/:examId', () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()
     const permissions = [
-      Permission.GET_EXAM,
-      Permission.DELETE_EXAM,
+      ExamPermission.GET,
+      ExamPermission.DELETE,
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token

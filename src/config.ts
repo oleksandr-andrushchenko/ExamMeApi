@@ -2,7 +2,7 @@ import Joi from 'joi'
 import path from 'path'
 // @ts-ignore
 import pkg from '../package.json'
-import Permission from './enum/auth/Permission'
+import Permission from './enum/Permission'
 
 const schema: Joi.ObjectSchema = Joi.object()
   .keys({

@@ -4,8 +4,8 @@ import request from 'supertest'
 import { api, auth, error, fixture } from '../../index'
 import User from '../../../src/entity/User'
 import Exam from '../../../src/entity/Exam'
-import Permission from '../../../src/enum/auth/Permission'
 import Category from '../../../src/entity/Category'
+import ExamPermission from '../../../src/enum/exam/ExamPermission'
 
 describe('GET /exams', () => {
   const app = api()
@@ -119,7 +119,7 @@ describe('GET /exams', () => {
   })
 
   test('No filter (permission)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.GET_EXAM ] })
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await auth(user)).token
     const owner = user.getId()
     const examOwnOptions = { owner }
@@ -153,7 +153,7 @@ describe('GET /exams', () => {
 
   test('Category filter (permission)', async () => {
     const category = await fixture<Category>(Category)
-    const user = await fixture<User>(User, { permissions: [ Permission.GET_EXAM ] })
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await auth(user)).token
     const owner = user.getId()
     const examOwnOptions = { owner }

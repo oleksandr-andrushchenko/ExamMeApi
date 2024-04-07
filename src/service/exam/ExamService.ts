@@ -4,7 +4,6 @@ import InjectEntityManager, { EntityManagerInterface } from '../../decorator/Inj
 import Category from '../../entity/Category'
 import User from '../../entity/User'
 import AuthService from '../auth/AuthService'
-import Permission from '../../enum/auth/Permission'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import CategoryService from '../category/CategoryService'
 import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
@@ -22,6 +21,7 @@ import { ObjectId } from 'mongodb'
 import AuthorizationFailedError from '../../error/auth/AuthorizationFailedError'
 import ExamQuerySchema from '../../schema/exam/ExamQuerySchema'
 import ExamQuestionNumberNotFoundError from '../../error/exam/ExamQuestionNumberNotFoundError'
+import ExamPermission from '../../enum/exam/ExamPermission'
 
 @Service()
 export default class ExamService {
@@ -47,7 +47,7 @@ export default class ExamService {
    * @throws {ExamTakenError}
    */
   public async createExam(transfer: CreateExamSchema, initiator: User): Promise<Exam> {
-    await this.authService.verifyAuthorization(initiator, Permission.CREATE_EXAM)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE)
 
     await this.validator.validate(transfer)
     const category = await this.categoryService.getCategory(transfer.category)
@@ -81,7 +81,7 @@ export default class ExamService {
    * @throws {ExamQuestionNumberNotFoundError}
    */
   public async getExamQuestion(exam: Exam, questionNumber: number, initiator: User): Promise<ExamQuestionSchema> {
-    await this.authService.verifyAuthorization(initiator, Permission.GET_EXAM_QUESTION, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.GET_QUESTION, exam)
 
     const questions = exam.getQuestions()
 
@@ -115,7 +115,7 @@ export default class ExamService {
    * @throws {ExamQuestionNumberNotFoundError}
    */
   public async setExamLastRequestedQuestionNumber(exam: Exam, questionNumber: number, initiator: User): Promise<Exam> {
-    await this.authService.verifyAuthorization(initiator, Permission.GET_EXAM_QUESTION, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.GET_QUESTION, exam)
 
     const questions = exam.getQuestions()
 
@@ -149,7 +149,7 @@ export default class ExamService {
     examQuestionAnswer: CreateExamQuestionAnswerSchema,
     initiator: User,
   ): Promise<void> {
-    await this.authService.verifyAuthorization(initiator, Permission.CREATE_EXAM_QUESTION_ANSWER, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_QUESTION_ANSWER, exam)
     await this.validator.validate(examQuestionAnswer)
 
     const questions = exam.getQuestions()
@@ -186,7 +186,7 @@ export default class ExamService {
     const where = {}
 
     try {
-      await this.authService.verifyAuthorization(initiator, Permission.GET_EXAM)
+      await this.authService.verifyAuthorization(initiator, ExamPermission.GET)
     } catch (error) {
       if (error instanceof AuthorizationFailedError) {
         where['owner'] = initiator.getId()
@@ -221,7 +221,7 @@ export default class ExamService {
       throw new ExamNotFoundError(id)
     }
 
-    await this.authService.verifyAuthorization(initiator, Permission.GET_EXAM, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.GET, exam)
 
     return exam
   }
@@ -234,7 +234,7 @@ export default class ExamService {
    * @throws {AuthorizationFailedError}
    */
   public async deleteExam(exam: Exam, initiator: User): Promise<Exam> {
-    await this.authService.verifyAuthorization(initiator, Permission.DELETE_EXAM, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.DELETE, exam)
 
     await this.entityManager.remove<Exam>(exam)
 

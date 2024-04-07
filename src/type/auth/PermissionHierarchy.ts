@@ -1,4 +1,4 @@
-import Permission from '../../enum/auth/Permission'
+import Permission from '../../enum/Permission'
 
 type PermissionHierarchy = {
   [value in Permission]: Permission[];

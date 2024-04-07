@@ -7,7 +7,7 @@ import { Request } from 'express'
 import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorator/InjectEventDispatcher'
 import TokenSchema from '../../schema/auth/TokenSchema'
 import AuthorizationFailedError from '../../error/auth/AuthorizationFailedError'
-import Permission from '../../enum/auth/Permission'
+import Permission from '../../enum/Permission'
 import { ObjectId } from 'mongodb'
 
 @Service()
@@ -24,17 +24,17 @@ export default class AuthService {
 
   /**
    * @param {User} user
-   * @param {Permission} permission
+   * @param {any} permission
    * @param {{getOwner: () => ObjectId}} resource
-   * @param {Permission[]} userPermissions
+   * @param {any[]} userPermissions
    * @returns {Promise<boolean>}
    * @throws {AuthorizationFailedError}
    */
   public async verifyAuthorization(
     user: User,
-    permission: Permission,
+    permission: any,
     resource: { getOwner: () => ObjectId } = null,
-    userPermissions: Permission[] = null,
+    userPermissions: any[] = null,
   ): Promise<boolean> {
     userPermissions = userPermissions === null ? user.getPermissions() : userPermissions
 

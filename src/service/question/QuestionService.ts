@@ -4,7 +4,6 @@ import InjectEntityManager, { EntityManagerInterface } from '../../decorator/Inj
 import Category from '../../entity/Category'
 import User from '../../entity/User'
 import AuthService from '../auth/AuthService'
-import Permission from '../../enum/auth/Permission'
 import { ObjectId } from 'mongodb'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import Question, { QuestionType } from '../../entity/Question'
@@ -17,6 +16,7 @@ import QuestionUpdateSchema from '../../schema/question/QuestionUpdateSchema'
 import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
 import Cursor from '../../model/Cursor'
 import QuestionQuerySchema from '../../schema/question/QuestionQuerySchema'
+import QuestionPermission from '../../enum/question/QuestionPermission'
 
 @Service()
 export default class QuestionService {
@@ -41,9 +41,9 @@ export default class QuestionService {
    * @throws {QuestionTitleTakenError}
    */
   public async createQuestion(transfer: QuestionSchema, initiator: User): Promise<Question> {
-    await this.authService.verifyAuthorization(initiator, Permission.CREATE_QUESTION)
-
     await this.validator.validate(transfer)
+    await this.authService.verifyAuthorization(initiator, QuestionPermission.CREATE)
+
     const category: Category = await this.categoryService.getCategory(transfer.category)
 
     const title = transfer.title
@@ -166,9 +166,9 @@ export default class QuestionService {
    * @throws {QuestionTitleTakenError}
    */
   public async replaceQuestion(question: Question, transfer: QuestionSchema, initiator: User): Promise<Question> {
-    await this.authService.verifyAuthorization(initiator, Permission.REPLACE_QUESTION, question)
-
     await this.validator.validate(transfer)
+    await this.authService.verifyAuthorization(initiator, QuestionPermission.REPLACE, question)
+
     const category: Category = await this.categoryService.getCategory(transfer.category)
 
     const title = transfer.title
@@ -205,9 +205,8 @@ export default class QuestionService {
    * @throws {QuestionTitleTakenError}
    */
   public async updateQuestion(question: Question, transfer: QuestionUpdateSchema, initiator: User): Promise<Question> {
-    await this.authService.verifyAuthorization(initiator, Permission.UPDATE_QUESTION, question)
-
     await this.validator.validate(transfer)
+    await this.authService.verifyAuthorization(initiator, QuestionPermission.UPDATE, question)
 
     if (transfer.hasOwnProperty('category')) {
       const category: Category = await this.categoryService.getCategory(transfer.category)
@@ -253,7 +252,7 @@ export default class QuestionService {
    * @throws {AuthorizationFailedError}
    */
   public async deleteQuestion(question: Question, initiator: User): Promise<Question> {
-    await this.authService.verifyAuthorization(initiator, Permission.DELETE_QUESTION, question)
+    await this.authService.verifyAuthorization(initiator, QuestionPermission.DELETE, question)
 
     const category: Category = await this.categoryService.getCategory(question.getCategory().toString())
     category.setQuestionCount(category.getQuestionCount() - 1)

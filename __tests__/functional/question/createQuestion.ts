@@ -4,10 +4,10 @@ import request from 'supertest'
 import { api, auth, error, fakeId, fixture, load } from '../../index'
 import Category from '../../../src/entity/Category'
 import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/auth/Permission'
 import { ObjectId } from 'mongodb'
 import Question, { QuestionDifficulty, QuestionType } from '../../../src/entity/Question'
 import { faker } from '@faker-js/faker'
+import QuestionPermission from '../../../src/enum/question/QuestionPermission'
 
 describe('POST /questions', () => {
   const app = api()
@@ -21,12 +21,9 @@ describe('POST /questions', () => {
 
   test('Bad request (category not found)', async () => {
     const categoryId = await fakeId()
-    const user = await fixture<User>(User, { permissions: [ Permission.CREATE_QUESTION ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const res = await request(app)
-      .post(`/questions`)
-      .send({ title: 'any', category: categoryId })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/questions`).send({ title: 'any', category: categoryId }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -43,7 +40,7 @@ describe('POST /questions', () => {
     { case: 'no choices', body: { title: 'any', type: QuestionType.CHOICE, difficulty: QuestionDifficulty.EASY } },
     {
       case: 'non-array choices',
-      body: { title: 'any', type: QuestionType.CHOICE, difficulty: QuestionDifficulty.EASY, choices: 'any' }
+      body: { title: 'any', type: QuestionType.CHOICE, difficulty: QuestionDifficulty.EASY, choices: 'any' },
     },
     {
       case: 'no choice title',
@@ -51,8 +48,8 @@ describe('POST /questions', () => {
         title: 'any',
         type: QuestionType.CHOICE,
         difficulty: QuestionDifficulty.EASY,
-        choices: [ { correct: false } ]
-      }
+        choices: [ { correct: false } ],
+      },
     },
     {
       case: 'no choice correct',
@@ -60,18 +57,15 @@ describe('POST /questions', () => {
         title: 'any',
         type: QuestionType.CHOICE,
         difficulty: QuestionDifficulty.EASY,
-        choices: [ { title: 'any' } ]
-      }
+        choices: [ { title: 'any' } ],
+      },
     },
   ])('Bad request ($case)', async ({ body }) => {
     const category = await fixture<Category>(Category)
     const categoryId = category.getId()
-    const user = await fixture<User>(User, { permissions: [ Permission.CREATE_QUESTION ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const res = await request(app)
-      .post(`/questions`)
-      .send({ ...body, ...{ category: categoryId } })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/questions`).send({ ...body, ...{ category: categoryId } }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -81,12 +75,22 @@ describe('POST /questions', () => {
   test('Forbidden', async () => {
     const category = await fixture<Category>(Category)
     const categoryId = category.getId()
-    const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const res = await request(app)
-      .post(`/questions`)
-      .send({ title: 'any', category: categoryId })
-      .auth(token, { type: 'bearer' })
+    const schema = {
+      category: categoryId.toString(),
+      title: faker.lorem.sentences(3),
+      type: QuestionType.TYPE,
+      difficulty: QuestionDifficulty.EASY,
+      answers: [
+        {
+          variants: [ faker.lorem.word() ],
+          correct: true,
+          explanation: faker.lorem.sentence(),
+        },
+      ],
+    }
+    const res = await request(app).post(`/questions`).send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -96,7 +100,7 @@ describe('POST /questions', () => {
     const category = await fixture<Category>(Category)
     const categoryId = category.getId()
     const question = await fixture<Question>(Question)
-    const user = await fixture<User>(User, { permissions: [ Permission.CREATE_QUESTION ] })
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/questions`)
@@ -123,7 +127,7 @@ describe('POST /questions', () => {
   test('Created', async () => {
     const category = await fixture<Category>(Category)
     const categoryId = category.getId()
-    const user = await fixture<User>(User, { permissions: [ Permission.CREATE_QUESTION ] })
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await auth(user)).token
     const schema = {
       category: categoryId.toString(),
@@ -138,10 +142,7 @@ describe('POST /questions', () => {
         },
       ],
     }
-    const res = await request(app)
-      .post(`/questions`)
-      .send(schema)
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/questions`).send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
     expect(res.body).toHaveProperty('id')

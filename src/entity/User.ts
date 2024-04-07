@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, Upd
 import { Exclude, Transform } from 'class-transformer'
 import { ObjectId } from 'mongodb'
 import { ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length } from 'class-validator'
-import Permission from '../enum/auth/Permission'
+import Permission from '../enum/Permission'
 
 @Entity({ name: 'users' })
 export default class User {

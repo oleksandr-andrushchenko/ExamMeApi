@@ -3,10 +3,10 @@ import request from 'supertest'
 // @ts-ignore
 import { api, auth, error, fixture, load } from '../../index'
 import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/auth/Permission'
 import Exam from '../../../src/entity/Exam'
 import Category from '../../../src/entity/Category'
 import { ObjectId } from 'mongodb'
+import ExamPermission from '../../../src/enum/exam/ExamPermission'
 
 describe('POST /exams', () => {
   const app = api()
@@ -21,7 +21,7 @@ describe('POST /exams', () => {
   })
 
   test('Bad request (empty body)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const res = await request(app).post('/exams').auth(token, { type: 'bearer' })
 
@@ -30,7 +30,7 @@ describe('POST /exams', () => {
   })
 
   test('Forbidden', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.REGULAR ] })
+    const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
     const id = category.getId()
@@ -41,7 +41,7 @@ describe('POST /exams', () => {
   })
 
   test('Conflict (exam taken)', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.CREATE_EXAM ] })
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam, { creator: user.getId() })
     const id = exam.getCategory()
@@ -52,7 +52,7 @@ describe('POST /exams', () => {
   })
 
   test('Created', async () => {
-    const user = await fixture<User>(User, { permissions: [ Permission.CREATE_EXAM ] })
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
     const res = await request(app).post('/exams').send({ category: category.getId() }).auth(token, { type: 'bearer' })
