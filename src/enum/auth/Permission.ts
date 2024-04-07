@@ -11,6 +11,7 @@ enum Permission {
   UPDATE_QUESTION = 'updateQuestion',
   DELETE_QUESTION = 'deleteQuestion',
   GET_EXAM = 'getExam',
+  GET_EXAM_QUESTION = 'getExamQuestion',
   CREATE_EXAM = 'createExam',
   DELETE_EXAM = 'deleteExam',
   ALL = '*',
