@@ -134,9 +134,16 @@ export default class Exam {
     return this.questions
   }
 
-  @Expose({ name: 'questionCount' })
-  public getQuestionCount(): number {
+  @Expose({ name: 'questionTotalCount' })
+  public getQuestionTotalCount(): number {
     return this.questions.length
+  }
+
+  @Expose({ name: 'questionLeftCount' })
+  public getQuestionLeftCount(): number {
+    return this.questions
+      .filter((question: ExamQuestion): boolean => typeof question.choice === 'undefined' && typeof question.answer === 'undefined')
+      .length
   }
 
   public getCategory(): ObjectId {
