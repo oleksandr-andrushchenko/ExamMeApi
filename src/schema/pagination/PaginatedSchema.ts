@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer'
-import { IsIn, IsNumber, IsOptional, IsPositive, IsString, IsUrl, Max, Min, ValidateNested } from 'class-validator'
+import { IsIn, IsNumber, IsOptional, IsString, IsUrl, Max, Min, ValidateNested } from 'class-validator'
 
 export class PaginatedMetaSchema {
 
@@ -22,10 +22,9 @@ export class PaginatedMetaSchema {
   @IsIn([ 'id', 'created', 'updated' ])
   public cursor: string = 'id'
 
-  @IsNumber()
-  @IsPositive()
   @Min(1)
   @Max(50)
+  @IsNumber({ maxDecimalPlaces: 0 })
   public size: number = 10
 
   @IsIn([ 'asc', 'desc' ])
