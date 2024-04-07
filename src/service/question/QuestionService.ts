@@ -17,6 +17,7 @@ import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
 import Cursor from '../../model/Cursor'
 import QuestionQuerySchema from '../../schema/question/QuestionQuerySchema'
 import QuestionPermission from '../../enum/question/QuestionPermission'
+import QuestionTypeError from '../../error/question/QuestionTypeError'
 
 @Service()
 export default class QuestionService {
@@ -278,5 +279,39 @@ export default class QuestionService {
     if (await this.questionRepository.findOneByTitle(title, ignoreId)) {
       throw new QuestionTitleTakenError(title)
     }
+  }
+
+  /**
+   * @param {number} choice
+   * @param {Question} question
+   * @returns {boolean}
+   * @throws {QuestionTypeError}
+   */
+  public checkChoice(choice: number, question: Question): boolean {
+    if (question.getType() !== QuestionType.CHOICE) {
+      throw new QuestionTypeError(question.getType())
+    }
+
+    return question.getChoices()[choice]?.isCorrect()
+  }
+
+  /**
+   * @param {string} answer
+   * @param {Question} question
+   * @returns {boolean}
+   * @throws {QuestionTypeError}
+   */
+  public checkAnswer(answer: string, question: Question): boolean {
+    if (question.getType() !== QuestionType.TYPE) {
+      throw new QuestionTypeError(question.getType())
+    }
+
+    for (const questionAnswer of question.getAnswers()) {
+      if (questionAnswer.isCorrect()) {
+        return questionAnswer.getVariants().indexOf(answer) !== -1
+      }
+    }
+
+    return false
   }
 }
