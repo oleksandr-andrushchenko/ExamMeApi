@@ -70,10 +70,15 @@ export default class Exam {
   @Column(() => ExamQuestion)
   private questions: ExamQuestion[]
 
-  @IsNumber()
   @Min(0)
+  @IsNumber({ maxDecimalPlaces: 0 })
   @Column({ default: 0, nullable: false })
   private lastRequestedQuestionNumber: number = 0
+
+  @Min(0)
+  @IsNumber({ maxDecimalPlaces: 0 })
+  @Column({ default: 0, nullable: false })
+  private correctAnswers: number = 0
 
   @IsOptional()
   @IsDate()
@@ -178,5 +183,25 @@ export default class Exam {
 
   public getOwner(): ObjectId {
     return this.owner
+  }
+
+  public setCorrectAnswers(correctAnswers: number): this {
+    this.correctAnswers = correctAnswers
+
+    return this
+  }
+
+  public getCorrectAnswers(): number {
+    return this.correctAnswers
+  }
+
+  public setCompleted(completed: Date): this {
+    this.completed = completed
+
+    return this
+  }
+
+  public getCompleted(): Date {
+    return this.completed
   }
 }
