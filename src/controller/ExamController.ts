@@ -29,6 +29,7 @@ import PaginatedExams from '../schema/exam/PaginatedExams'
 import ExamTakenError from '../error/exam/ExamTakenError'
 import GetExamSchema from '../schema/exam/GetExamSchema'
 import ExamQuestion from '../schema/exam/ExamQuestionSchema'
+import CreateExamQuestionAnswerSchema from '../schema/exam/CreateExamQuestionAnswerSchema'
 import GetExamQuestionSchema from '../schema/exam/GetExamQuestionSchema'
 import ValidatorInterface from '../service/validator/ValidatorInterface'
 import ExamQuerySchema from '../schema/exam/ExamQuerySchema'
@@ -149,7 +150,7 @@ export default class ExamController {
       404: { description: 'Not Found' },
     },
   })
-  @ResponseSchema(Exam)
+  @ResponseSchema(ExamQuestion)
   public async getExamQuestion(
     @Params({ type: GetExamQuestionSchema, required: true }) getExamQuestionSchema: GetExamQuestionSchema,
     @CurrentUser({ required: true }) user: User,
@@ -172,6 +173,45 @@ export default class ExamController {
           throw new NotFoundError((error as QuestionNotFoundError).message)
         case error instanceof ExamQuestionNumberNotFoundError:
           throw new NotFoundError((error as ExamQuestionNumberNotFoundError).message)
+      }
+    }
+  }
+
+  @Post('/:examId/questions/:question/answer')
+  @Authorized()
+  @HttpCode(201)
+  @OpenAPI({
+    security: [ { bearerAuth: [] } ],
+    responses: {
+      201: { description: 'Created' },
+      400: { description: 'Bad Request' },
+      401: { description: 'Unauthorized' },
+      403: { description: 'Forbidden' },
+    },
+  })
+  @ResponseSchema(ExamQuestion)
+  public async createExamQuestionAnswer(
+    @Params({ type: GetExamQuestionSchema, required: true }) getExamQuestionSchema: GetExamQuestionSchema,
+    @Body({ type: CreateExamQuestionAnswerSchema, required: true }) createAnswerSchema: CreateExamQuestionAnswerSchema,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<ExamQuestion> {
+    try {
+      await this.validator.validate(getExamQuestionSchema)
+      const exam = await this.examService.getExam(getExamQuestionSchema.examId, user)
+
+      await this.examService.createExamQuestionAnswer(exam, getExamQuestionSchema.question, createAnswerSchema, user)
+
+      return await this.examService.getExamQuestion(exam, getExamQuestionSchema.question, user)
+    } catch (error) {
+      switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
+        case error instanceof QuestionNotFoundError:
+          throw new BadRequestError((error as QuestionNotFoundError).message)
+        case error instanceof ExamQuestionNumberNotFoundError:
+          throw new NotFoundError((error as ExamQuestionNumberNotFoundError).message)
+        case error instanceof AuthorizationFailedError:
+          throw new ForbiddenError((error as AuthorizationFailedError).message)
       }
     }
   }
