@@ -229,6 +229,48 @@ export default class ExamService {
   /**
    * @param {Exam} exam
    * @param {User} initiator
+   * @returns {Promise<void>}
+   * @throws {AuthorizationFailedError}
+   */
+  public async createExamCompletion(exam: Exam, initiator: User): Promise<void> {
+    await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_COMPLETION, exam)
+
+    const category = await this.categoryService.getCategory(exam.getCategory())
+    const questions = await this.questionService.queryCategoryQuestions(category) as Question[]
+
+    const questionsHashedById = []
+
+    for (const question of questions) {
+      questionsHashedById[question.getId().toString()] = question
+    }
+
+    let correctAnswers = 0
+
+    for (const examQuestion of exam.getQuestions()) {
+      const question = questionsHashedById[examQuestion.getQuestion().toString()]
+
+      if (typeof examQuestion.getChoice() !== 'undefined') {
+        if (this.questionService.checkChoice(examQuestion.getChoice(), question)) {
+          correctAnswers++
+        }
+      } else if (typeof examQuestion.getAnswer() !== 'undefined') {
+        if (this.questionService.checkAnswer(examQuestion.getAnswer(), question)) {
+          correctAnswers++
+        }
+      }
+    }
+
+    exam.setCorrectAnswers(correctAnswers)
+      .setCompleted(new Date())
+
+    this.eventDispatcher.dispatch('examCompleted', { exam })
+
+    await this.entityManager.save<Exam>(exam)
+  }
+
+  /**
+   * @param {Exam} exam
+   * @param {User} initiator
    * @returns {Promise<Exam>}
    * @throws {ExamNotFoundError}
    * @throws {AuthorizationFailedError}
