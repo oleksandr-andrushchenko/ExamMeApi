@@ -216,6 +216,40 @@ export default class ExamController {
     }
   }
 
+  @Post('/:examId/completion')
+  @Authorized()
+  @HttpCode(201)
+  @OpenAPI({
+    security: [ { bearerAuth: [] } ],
+    responses: {
+      201: { description: 'Created' },
+      400: { description: 'Bad Request' },
+      401: { description: 'Unauthorized' },
+      403: { description: 'Forbidden' },
+    },
+  })
+  @ResponseSchema(ExamQuestion)
+  public async createExamCompletion(
+    @Params({ type: GetExamSchema, required: true }) getExamSchema: GetExamSchema,
+    @CurrentUser({ required: true }) user: User,
+  ): Promise<Exam> {
+    try {
+      await this.validator.validate(getExamSchema)
+      const exam = await this.examService.getExam(getExamSchema.examId, user)
+
+      await this.examService.createExamCompletion(exam, user)
+
+      return exam
+    } catch (error) {
+      switch (true) {
+        case error instanceof ValidatorError:
+          throw new BadRequestError((error as ValidatorError).message)
+        case error instanceof AuthorizationFailedError:
+          throw new ForbiddenError((error as AuthorizationFailedError).message)
+      }
+    }
+  }
+
   @Delete('/:examId')
   @Authorized()
   @HttpCode(204)
