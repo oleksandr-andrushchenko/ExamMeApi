@@ -38,12 +38,24 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
 
-  test('Bad request (empty body)', async () => {
+  test.each([
+    { case: 'empty body', body: {} },
+    { case: 'no name', body: { requiredScore: 80 } },
+    { case: 'name is null', body: { name: null, requiredScore: 80 } },
+    { case: 'name is undefined', body: { name: undefined, requiredScore: 80 } },
+    { case: 'name too short', body: { name: 'a', requiredScore: 80 } },
+    { case: 'name too long', body: { name: 'abc'.repeat(99), requiredScore: 80 } },
+    { case: 'required score is null', body: { name: 'Any category', requiredScore: null } },
+    { case: 'required score is string', body: { name: 'Any category', requiredScore: 'any' } },
+    { case: 'required score is float', body: { name: 'Any category', requiredScore: 0.1 } },
+    { case: 'required score is negative', body: { name: 'Any category', requiredScore: -1 } },
+    { case: 'required score is greater then 100', body: { name: 'Any category', requiredScore: 101 } },
+  ])('Bad request ($case)', async ({ body }) => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
     const id = category.getId()
-    const res = await request(app).put(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
+    const res = await request(app).put(`/categories/${ id.toString() }`).send(body).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))

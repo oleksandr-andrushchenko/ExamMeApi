@@ -29,6 +29,18 @@ describe('GET /categories/:categoryId', () => {
     const res = await request(app).get(`/categories/${ id.toString() }`)
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ id: id.toString(), name: category.getName() })
+    expect(res.body).toMatchObject({
+      id: id.toString(),
+      name: category.getName(),
+      requiredScore: category.getRequiredScore(),
+    })
+
+    for (const allowed of [ 'created', 'updated' ]) {
+      expect(res.body).toHaveProperty(allowed)
+    }
+
+    for (const forbidden of [ 'creator', 'owner' ]) {
+      expect(res.body).not.toHaveProperty(forbidden)
+    }
   })
 })

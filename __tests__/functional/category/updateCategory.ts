@@ -18,11 +18,11 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
 
-  test('Bad request (invalid id)', async () => {
+  test('Bad request (invalid category id)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const id = 'invalid'
-    const res = await request(app).patch(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: 'Any category' }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -41,12 +41,19 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
 
-  test('Bad request (empty body)', async () => {
-    const user = await fixture<User>(User)
-    const token = (await auth(user)).token
+  test.each([
+    { case: 'name too short', body: { name: 'a' } },
+    { case: 'name too long', body: { name: 'abc'.repeat(99) } },
+    { case: 'required score is string', body: { requiredScore: 'any' } },
+    { case: 'required score is float', body: { requiredScore: 0.1 } },
+    { case: 'required score is negative', body: { requiredScore: -1 } },
+    { case: 'required score is greater then 100', body: { requiredScore: 101 } },
+  ])('Bad request ($case)', async ({ body }) => {
     const category = await fixture<Category>(Category)
     const id = category.getId()
-    const res = await request(app).patch(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const res = await request(app).patch(`/categories/${ id.toString() }`).send(body).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -57,10 +64,7 @@ describe('PATCH /categories/:categoryId', () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()
     const token = (await auth(user)).token
-    const res = await request(app)
-      .patch(`/categories/${ id.toString() }`)
-      .send({ name: 'any' })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: 'any' }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -71,10 +75,7 @@ describe('PATCH /categories/:categoryId', () => {
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
     const id = category.getId()
     const token = (await auth(user)).token
-    const res = await request(app)
-      .patch(`/categories/${ id.toString() }`)
-      .send({ name: 'any' })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: 'any' }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -86,10 +87,7 @@ describe('PATCH /categories/:categoryId', () => {
     const id = category.getId()
     const user = await load<User>(User, category.getCreator())
     const token = (await auth(user)).token
-    const res = await request(app)
-      .patch(`/categories/${ id.toString() }`)
-      .send({ name: category1.getName() })
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: category1.getName() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
@@ -101,10 +99,7 @@ describe('PATCH /categories/:categoryId', () => {
     const user = await load<User>(User, category.getCreator())
     const token = (await auth(user)).token
     const schema = { name: 'any' }
-    const res = await request(app)
-      .patch(`/categories/${ id.toString() }`)
-      .send(schema)
-      .auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/categories/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')

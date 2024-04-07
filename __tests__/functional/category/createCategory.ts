@@ -17,10 +17,22 @@ describe('POST /categories', () => {
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
 
-  test('Bad request (empty body)', async () => {
+  test.each([
+    { case: 'empty body', body: {} },
+    { case: 'no name', body: { requiredScore: 80 } },
+    { case: 'name is null', body: { name: null, requiredScore: 80 } },
+    { case: 'name is undefined', body: { name: undefined, requiredScore: 80 } },
+    { case: 'name too short', body: { name: 'a', requiredScore: 80 } },
+    { case: 'name too long', body: { name: 'abc'.repeat(99), requiredScore: 80 } },
+    { case: 'required score is null', body: { name: 'Any category', requiredScore: null } },
+    { case: 'required score is string', body: { name: 'Any category', requiredScore: 'any' } },
+    { case: 'required score is float', body: { name: 'Any category', requiredScore: 0.1 } },
+    { case: 'required score is negative', body: { name: 'Any category', requiredScore: -1 } },
+    { case: 'required score is greater then 100', body: { name: 'Any category', requiredScore: 101 } },
+  ])('Bad request ($case)', async ({ body }) => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const res = await request(app).post('/categories').auth(token, { type: 'bearer' })
+    const res = await request(app).post('/categories').send(body).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -48,7 +60,7 @@ describe('POST /categories', () => {
   test('Created', async () => {
     const user = await fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await auth(user)).token
-    const schema = { name: 'any' }
+    const schema = { name: 'any', requiredScore: 80 }
     const res = await request(app).post('/categories').send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
