@@ -5,7 +5,7 @@ export default class GetExamQuestionSchema {
   @IsMongoId()
   public readonly examId: string
 
-  @IsNumber()
   @Min(0)
+  @IsNumber({ maxDecimalPlaces: 0 })
   public readonly question: number
 }
