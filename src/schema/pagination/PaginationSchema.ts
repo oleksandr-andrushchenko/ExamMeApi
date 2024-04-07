@@ -1,4 +1,4 @@
-import { IsIn, IsMongoId, IsNumber, IsOptional, IsPositive, IsString, Max, Min } from 'class-validator'
+import { IsIn, IsMongoId, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator'
 
 export default class PaginationSchema {
 
@@ -17,10 +17,9 @@ export default class PaginationSchema {
   public readonly cursor: string = 'id'
 
   @IsOptional()
-  @IsNumber()
-  @IsPositive()
   @Min(1)
   @Max(50)
+  @IsNumber({ maxDecimalPlaces: 0 })
   public readonly size: number = 10
 
   @IsOptional()
