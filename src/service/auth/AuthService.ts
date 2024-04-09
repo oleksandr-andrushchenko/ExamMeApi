@@ -24,33 +24,33 @@ export default class AuthService {
 
   /**
    * @param {User} user
-   * @param {any} permission
+   * @param {string} permission
    * @param {{getOwner: () => ObjectId}} resource
-   * @param {any[]} userPermissions
+   * @param {string[]} permissions
    * @returns {Promise<boolean>}
    * @throws {AuthorizationFailedError}
    */
   public async verifyAuthorization(
     user: User,
-    permission: any,
-    resource: { getOwner: () => ObjectId } = null,
-    userPermissions: any[] = null,
+    permission: string,
+    resource: { getOwner: () => ObjectId } = undefined,
+    permissions: string[] = undefined,
   ): Promise<boolean> {
-    userPermissions = userPermissions === null ? user.getPermissions() : userPermissions
-
     if (resource && resource.getOwner().toString() === user.getId().toString()) {
       return true
     }
 
-    if (userPermissions.indexOf(Permission.ALL) !== -1) {
+    permissions = permissions ?? user.getPermissions()
+
+    if (permissions.indexOf(Permission.ALL) !== -1) {
       return true
     }
 
-    if (userPermissions.indexOf(permission) !== -1) {
+    if (permissions.indexOf(permission) !== -1) {
       return true
     }
 
-    for (const userPermission of userPermissions) {
+    for (const userPermission of permissions) {
       if (this.permissions.hasOwnProperty(userPermission)) {
         if (await this.verifyAuthorization(user, permission, resource, this.permissions[userPermission])) {
           return true
