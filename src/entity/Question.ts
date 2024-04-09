@@ -8,7 +8,7 @@ import {
   IsMongoId,
   IsNumber,
   IsOptional,
-  Length,
+  Length, Min,
   ValidateIf,
   ValidateNested,
 } from 'class-validator'
@@ -156,6 +156,16 @@ export default class Question {
   @Type(() => QuestionAnswer)
   @Column(() => QuestionAnswer)
   private answers: QuestionAnswer[]
+
+  @Min(0)
+  @IsNumber({ maxDecimalPlaces: 0 })
+  @Column({ nullable: false })
+  private voters: number = 0
+
+  @Min(0)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Column({ nullable: false })
+  private rating: number = 0
 
   @Exclude()
   @IsMongoId()
