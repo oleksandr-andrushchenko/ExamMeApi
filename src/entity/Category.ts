@@ -26,6 +26,16 @@ export default class Category {
   @Column({ nullable: false })
   private requiredScore: number = 0
 
+  @Min(0)
+  @IsNumber({ maxDecimalPlaces: 0 })
+  @Column({ nullable: false })
+  private voters: number = 0
+
+  @Min(0)
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @Column({ nullable: false })
+  private rating: number = 0
+
   @Exclude()
   @IsMongoId()
   @Column()
