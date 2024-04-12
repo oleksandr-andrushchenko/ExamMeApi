@@ -12,13 +12,13 @@ export class ExamQuestion {
 
   @IsOptional()
   @IsNumber()
-  @Column()
-  public choice: number
+  @Column({nullable:false})
+  public choice?: number
 
   @IsOptional()
   @IsString()
-  @Column()
-  public answer: string
+  @Column({nullable:false})
+  public answer?: string
 
   public setQuestion(question: ObjectId): this {
     this.question = question
@@ -73,12 +73,13 @@ export default class Exam {
   @Min(0)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Column({ default: 0, nullable: false })
-  private lastRequestedQuestionNumber: number = 0
+  private questionNumber: number = 0
 
+  @Exclude()
   @Min(0)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Column({ default: 0, nullable: false })
-  private correctAnswers: number = 0
+  private correctCount: number = 0
 
   @IsOptional()
   @IsDate()
@@ -139,15 +140,15 @@ export default class Exam {
     return this.questions
   }
 
-  @Expose({ name: 'questionTotalCount' })
-  public getQuestionTotalCount(): number {
-    return this.questions.length
+  @Expose({ name: 'questionsCount' })
+  public getQuestionsCount(): number {
+    return this.questions?.length || 0
   }
 
-  @Expose({ name: 'questionLeftCount' })
-  public getQuestionLeftCount(): number {
-    return this.questions
-      .filter((question: ExamQuestion): boolean => typeof question.choice === 'undefined' && typeof question.answer === 'undefined')
+  @Expose({ name: 'answeredCount' })
+  public getQuestionsAnsweredCount(): number {
+    return (this?.questions || [])
+      .filter((question: ExamQuestion): boolean => typeof question.choice === 'number' || typeof question.answer === 'string')
       .length
   }
 
@@ -155,14 +156,14 @@ export default class Exam {
     return this.category
   }
 
-  public setLastRequestedQuestionNumber(lastRequestedQuestionNumber: number): this {
-    this.lastRequestedQuestionNumber = lastRequestedQuestionNumber
+  public setQuestionNumber(questionNumber: number): this {
+    this.questionNumber = questionNumber
 
     return this
   }
 
-  public getLastRequestedQuestionNumber(): number {
-    return this.lastRequestedQuestionNumber
+  public getQuestionNumber(): number {
+    return this.questionNumber
   }
 
   public setCreator(creator: ObjectId): this {
@@ -185,14 +186,14 @@ export default class Exam {
     return this.owner
   }
 
-  public setCorrectAnswers(correctAnswers: number): this {
-    this.correctAnswers = correctAnswers
+  public setCorrectCount(correctCount: number): this {
+    this.correctCount = correctCount
 
     return this
   }
 
-  public getCorrectAnswers(): number {
-    return this.correctAnswers
+  public getCorrectCount(): number {
+    return this.correctCount
   }
 
   public setCompleted(completed: Date): this {
