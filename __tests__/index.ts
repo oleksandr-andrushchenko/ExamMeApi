@@ -121,7 +121,7 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
       }
 
       object.setQuestions(questions)
-        .setLastRequestedQuestionNumber(faker.number.int({ min: 0, max: questions.length - 1 }))
+        .setQuestionNumber(faker.number.int({ min: 0, max: questions.length - 1 }))
 
       break
     default:
