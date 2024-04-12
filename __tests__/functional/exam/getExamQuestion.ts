@@ -77,11 +77,10 @@ describe('GET /exams/:examId/questions/:question', () => {
 
   test('Found (ownership)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
     const user = await load<User>(User, exam.getOwner())
     const token = (await auth(user)).token
-    const questionNumber = 0
-    const res = await request(app).get(`/exams/${ id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
+    const questionNumber = exam.getQuestionsCount() - 1
+    const res = await request(app).get(`/exams/${ exam.getId().toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     const examQuestion = exam.getQuestions()[questionNumber]
@@ -104,6 +103,8 @@ describe('GET /exams/:examId/questions/:question', () => {
         expect(res.body).toHaveProperty('answer')
       }
     }
+
+    expect((await load<Exam>(Exam, exam.getId())).getQuestionNumber()).toEqual(questionNumber)
   })
 
   test('Found (permission)', async () => {
@@ -139,5 +140,7 @@ describe('GET /exams/:examId/questions/:question', () => {
         expect(res.body).toHaveProperty('answer')
       }
     }
+
+    expect((await load<Exam>(Exam, exam.getId())).getQuestionNumber()).toEqual(exam.getQuestionNumber())
   })
 })
