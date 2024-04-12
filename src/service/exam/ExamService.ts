@@ -92,6 +92,7 @@ export default class ExamService {
     const examQuestion = new ExamQuestionSchema()
     const question = await this.questionService.getQuestion(questions[questionNumber].getQuestion())
 
+    examQuestion.number = questionNumber
     examQuestion.question = question.getTitle()
     examQuestion.difficulty = question.getDifficulty()
     examQuestion.type = question.getType()
@@ -123,11 +124,11 @@ export default class ExamService {
       throw new ExamQuestionNumberNotFoundError(questionNumber)
     }
 
-    if (exam.getOwner() !== initiator.getId()) {
+    if (exam.getOwner().toString() !== initiator.getId().toString()) {
       return exam
     }
 
-    exam.setLastRequestedQuestionNumber(questionNumber)
+    exam.setQuestionNumber(questionNumber)
     await this.entityManager.save<Exam>(exam)
 
     return exam
@@ -199,6 +200,10 @@ export default class ExamService {
       where['category'] = new ObjectId(query.category)
     }
 
+    if (typeof query.completion === 'boolean') {
+      where['completed'] = { $exists: query.completion }
+    }
+
     return await cursor.getPaginated(where, meta)
   }
 
@@ -260,7 +265,7 @@ export default class ExamService {
       }
     }
 
-    exam.setCorrectAnswers(correctAnswers)
+    exam.setCorrectCount(correctAnswers)
       .setCompleted(new Date())
 
     this.eventDispatcher.dispatch('examCompleted', { exam })
