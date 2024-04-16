@@ -23,12 +23,14 @@ import { MetadataStorage } from 'class-transformer/types/MetadataStorage'
 import NullLogger from './service/logger/NullLogger'
 import ClassValidatorValidator from './service/validator/ClassValidatorValidator'
 import WinstonLogger from './service/logger/WinstonLogger'
+import { createServer, Server } from 'http'
 
 type API = {
   dataSource: DataSource,
   app: Application,
   up: () => Promise<{
     app: Application,
+    httpServer: Server,
     dataSource: DataSource,
     port: number,
     logger: LoggerInterface,
@@ -92,6 +94,7 @@ export default (): {
     Container.set('tokenStrategy', tokenStrategy)
 
     const app = express()
+    const httpServer = createServer(app)
 
     const authService: AuthService = Container.get<AuthService>(AuthService)
 
@@ -139,7 +142,7 @@ export default (): {
           challenge: true,
         }),
         swaggerUiExpress.serve,
-        swaggerUiExpress.setup(spec)
+        swaggerUiExpress.setup(spec),
       )
     }
 
@@ -148,7 +151,7 @@ export default (): {
 
       const port = config.app.port
 
-      return { app, dataSource, port, logger }
+      return { app, httpServer, dataSource, port, logger }
     }
 
     const down = async () => {

@@ -1,8 +1,8 @@
 import application from './application'
 
 application().api().up()
-  .then(({ app, dataSource, port, logger }) => {
-    const server = app.listen(port, () => logger.info(`Server is running on port ${ port }`))
+  .then(({ httpServer, dataSource, port, logger }) => {
+    const server = httpServer.listen({ port }, () => logger.info(`Server is running on port ${ port }`))
 
     const closeProcesses = (code: number = 1) => {
       server.close(() => {
