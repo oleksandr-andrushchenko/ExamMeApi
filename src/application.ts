@@ -24,6 +24,9 @@ import NullLogger from './service/logger/NullLogger'
 import ClassValidatorValidator from './service/validator/ClassValidatorValidator'
 import WinstonLogger from './service/logger/WinstonLogger'
 import { createServer, Server } from 'http'
+import { ApolloServer } from '@apollo/server'
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
+import { expressMiddleware } from '@apollo/server/express4'
 
 type API = {
   dataSource: DataSource,
@@ -37,6 +40,24 @@ type API = {
   }>,
   down: () => Promise<void>,
 };
+
+interface ApolloContext {
+
+}
+
+// The GraphQL schema
+const typeDefs = `#graphql
+  type Query {
+    hello: String
+  }
+`
+
+// A map of functions which return data for the schema.
+const resolvers = {
+  Query: {
+    hello: () => 'world',
+  },
+}
 
 export default (): {
   dataSource: DataSource,
@@ -148,6 +169,26 @@ export default (): {
 
     const up = async () => {
       await upDataSource()
+
+      if (config.graphql.enabled) {
+        const apolloServer = new ApolloServer<ApolloContext>({
+          typeDefs,
+          resolvers,
+          plugins: [ ApolloServerPluginDrainHttpServer({ httpServer }) ],
+        })
+
+        await apolloServer.start()
+
+        app.use(
+          config.graphql.route,
+          basicAuth({
+            users: { [config.graphql.username]: config.graphql.password },
+            challenge: true,
+          }),
+          express.json(),
+          expressMiddleware(apolloServer),
+        )
+      }
 
       const port = config.app.port
 
