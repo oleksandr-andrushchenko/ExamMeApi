@@ -66,4 +66,10 @@ export default {
     username: 'any',
     password: 'any',
   },
+  graphql: {
+    enabled: true,
+    route: '/graphql',
+    username: 'any',
+    password: 'any',
+  },
 }
