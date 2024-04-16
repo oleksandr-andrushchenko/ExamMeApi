@@ -30,7 +30,8 @@
    "scripts": {
       "dev": "nodemon",
       "test:functional": "DOTENV_CONFIG_PATH=.env.test jest --runInBand --testPathPattern=__tests__/functional",
-      "build": "tsc"
+      "build": "tsc",
+      "start": "npm run build && node ./dist/index.js"
    },
    "author": "Oleksandr Andrushchenko",
    "license": "ISC",
