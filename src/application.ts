@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { ConnectionManager, DataSource, useContainer as typeormUseContainer } from 'typeorm'
+import { ConnectionManager, useContainer as typeormUseContainer } from 'typeorm'
 import { Container } from 'typedi'
 import config from './config'
 import {
@@ -23,23 +23,16 @@ import { MetadataStorage } from 'class-transformer/types/MetadataStorage'
 import NullLogger from './service/logger/NullLogger'
 import ClassValidatorValidator from './service/validator/ClassValidatorValidator'
 import WinstonLogger from './service/logger/WinstonLogger'
-import { createServer, Server } from 'http'
+import { createServer } from 'http'
 import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { expressMiddleware } from '@apollo/server/express4'
 
-type API = {
-  dataSource: DataSource,
+type Api = {
   app: Application,
-  up: () => Promise<{
-    app: Application,
-    httpServer: Server,
-    dataSource: DataSource,
-    port: number,
-    logger: LoggerInterface,
-  }>,
-  down: () => Promise<void>,
-};
+  up: (listen?: boolean) => Promise<void>,
+  down: (callback?: () => {}) => Promise<void>,
+}
 
 interface ApolloContext {
 
@@ -59,10 +52,7 @@ const resolvers = {
   },
 }
 
-export default (): {
-  dataSource: DataSource,
-  api: () => API,
-} => {
+export default (): { api: () => Api } => {
   typeormUseContainer(Container)
 
   Container.set('env', config.env)
@@ -82,6 +72,9 @@ export default (): {
   const connectionManager = new ConnectionManager()
   Container.set(ConnectionManager, connectionManager)
 
+  const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt)
+  Container.set('tokenStrategy', tokenStrategy)
+
   const dataSourceOptions: MongoConnectionOptions = {
     type: config.db.type,
     url: config.db.url,
@@ -93,88 +86,79 @@ export default (): {
     monitorCommands: mongoLogging,
   }
 
-  const dataSource = connectionManager.create(dataSourceOptions)
-  const upDataSource = async () => {
-    await dataSource.initialize()
+  const db = connectionManager.create(dataSourceOptions)
 
-    if (mongoLogging) {
-      const conn = (dataSource.driver as MongoDriver).queryRunner.databaseConnection
-      conn.on('commandStarted', (event) => logger.debug('commandStarted', event))
-      conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event))
-      conn.on('commandFailed', (event) => logger.error('commandFailed', event))
-    }
-  }
-  const downDataSource = async () => {
-    await dataSource.destroy()
-  }
-
-  const api = (): API => {
-    routingControllerUseContainer(Container)
-
-    const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt)
-    Container.set('tokenStrategy', tokenStrategy)
-
+  const api = (): Api => {
     const app = express()
-    const httpServer = createServer(app)
+    const server = createServer(app)
 
-    const authService: AuthService = Container.get<AuthService>(AuthService)
+    const up = async (listen?: boolean): Promise<void> => {
+      routingControllerUseContainer(Container)
 
-    const routingControllersOptions: RoutingControllersOptions = {
-      authorizationChecker: authService.getAuthorizationChecker(),
-      currentUserChecker: authService.getCurrentUserChecker(),
-      controllers: [ `${ projectDir }/src/controller/*.ts` ],
-      middlewares: [ `${ projectDir }/src/middleware/*.ts` ],
-      cors: config.app.cors,
-      validation: config.app.validator,
-      classTransformer: true,
-      defaultErrorHandler: false,
-    }
+      const authService: AuthService = Container.get<AuthService>(AuthService)
 
-    useExpressServer(app, routingControllersOptions)
+      const routingControllersOptions: RoutingControllersOptions = {
+        authorizationChecker: authService.getAuthorizationChecker(),
+        currentUserChecker: authService.getCurrentUserChecker(),
+        controllers: [ `${ projectDir }/src/controller/*.ts` ],
+        middlewares: [ `${ projectDir }/src/middleware/*.ts` ],
+        cors: config.app.cors,
+        validation: config.app.validator,
+        classTransformer: true,
+        defaultErrorHandler: false,
+      }
 
-    if (config.swagger.enabled) {
-      const { defaultMetadataStorage } = require('class-transformer/cjs/storage')
-      const spec = routingControllersToSpec(getMetadataArgsStorage(), routingControllersOptions, {
-        components: {
-          // @ts-expect-error non-documented property
-          schemas: validationMetadatasToSchemas({
-            classTransformerMetadataStorage: defaultMetadataStorage as MetadataStorage,
-            refPointerPrefix: '#/components/schemas/',
-          }),
-          securitySchemes: {
-            // todo: move this part to authService
-            bearerAuth: {
-              type: 'http',
-              scheme: 'bearer',
-              bearerFormat: 'JWT',
+      useExpressServer(app, routingControllersOptions)
+
+      await db.initialize()
+
+      if (mongoLogging) {
+        const conn = (db.driver as MongoDriver).queryRunner.databaseConnection
+        conn.on('commandStarted', (event) => logger.debug('commandStarted', event))
+        conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event))
+        conn.on('commandFailed', (event) => logger.error('commandFailed', event))
+      }
+
+      if (config.swagger.enabled) {
+        const { defaultMetadataStorage } = require('class-transformer/cjs/storage')
+        const spec = routingControllersToSpec(getMetadataArgsStorage(), routingControllersOptions, {
+          components: {
+            // @ts-expect-error non-documented property
+            schemas: validationMetadatasToSchemas({
+              classTransformerMetadataStorage: defaultMetadataStorage as MetadataStorage,
+              refPointerPrefix: '#/components/schemas/',
+            }),
+            securitySchemes: {
+              // todo: move this part to authService
+              bearerAuth: {
+                type: 'http',
+                scheme: 'bearer',
+                bearerFormat: 'JWT',
+              },
             },
           },
-        },
-        info: {
-          description: config.app.description,
-          title: config.app.name,
-          version: config.app.version,
-        },
-      })
-      app.use(
-        config.swagger.route,
-        basicAuth({
-          users: { [config.swagger.username]: config.swagger.password },
-          challenge: true,
-        }),
-        swaggerUiExpress.serve,
-        swaggerUiExpress.setup(spec),
-      )
-    }
-
-    const up = async () => {
-      await upDataSource()
+          info: {
+            description: config.app.description,
+            title: config.app.name,
+            version: config.app.version,
+          },
+        })
+        app.use(
+          config.swagger.route,
+          basicAuth({
+            users: { [config.swagger.username]: config.swagger.password },
+            challenge: true,
+          }),
+          swaggerUiExpress.serve,
+          swaggerUiExpress.setup(spec),
+        )
+      }
 
       if (config.graphql.enabled) {
         const apolloServer = new ApolloServer<ApolloContext>({
           typeDefs,
           resolvers,
-          plugins: [ ApolloServerPluginDrainHttpServer({ httpServer }) ],
+          plugins: [ ApolloServerPluginDrainHttpServer({ httpServer: server }) ],
         })
 
         await apolloServer.start()
@@ -192,15 +176,38 @@ export default (): {
 
       const port = config.app.port
 
-      return { app, httpServer, dataSource, port, logger }
+      if (listen) {
+        server.listen({ port }, () => logger.info(`Server is running on port ${ port }`))
+
+        const failureHandler = (error: string) => {
+          logger.error(error)
+          down(() => process.exit(1))
+        }
+
+        process.on('uncaughtException', failureHandler)
+        process.on('unhandledRejection', failureHandler)
+
+        const successHandler = () => {
+          logger.info('SIGTERM received')
+          down(() => process.exit(0))
+        }
+
+        process.on('SIGTERM', successHandler)
+      }
     }
 
-    const down = async () => {
-      await downDataSource()
+    const down = async (callback?: () => {}): Promise<void> => {
+      server.close(() => {
+        logger.info('Server closed')
+        db.destroy().then(() => {
+          logger.info('Database connection closed')
+          callback && callback()
+        })
+      })
     }
 
-    return { dataSource, app, up, down }
+    return { app, up, down }
   }
 
-  return { dataSource, api }
+  return { api }
 }
