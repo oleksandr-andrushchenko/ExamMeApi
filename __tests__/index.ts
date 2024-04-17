@@ -1,4 +1,4 @@
-import application from '../src/application'
+import application from '../src/app'
 import { afterAll, beforeAll, beforeEach } from '@jest/globals'
 import { Application } from 'express'
 import Category from '../src/entity/Category'
