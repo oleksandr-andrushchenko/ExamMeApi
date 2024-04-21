@@ -2,38 +2,46 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, Upd
 import { Exclude, Transform } from 'class-transformer'
 import { ObjectId } from 'mongodb'
 import { IsMongoId, IsNumber, IsOptional, Length, Max, Min } from 'class-validator'
+import { Field, Int, ID, ObjectType } from 'type-graphql'
 
+@ObjectType()
 @Entity({ name: 'categories' })
 export default class Category {
 
   @IsMongoId()
   @ObjectIdColumn()
   @Transform(({ value }: { value: ObjectId }) => value.toString())
+  @Field(_type => ID)
   private id: ObjectId
 
   @Length(3, 100)
   @Column({ unique: true, nullable: false })
+  @Field()
   private name: string
 
   @Min(0)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Column({ default: 0, nullable: false })
+  @Field(_type => Int)
   private questionCount: number = 0
 
   @Min(0)
   @Max(100)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Column({ nullable: false })
+  @Field(_type => Int)
   private requiredScore: number = 0
 
   @Min(0)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Column({ nullable: false })
+  @Field(_type => Int)
   private voters: number = 0
 
   @Min(0)
   @IsNumber({ maxDecimalPlaces: 2 })
   @Column({ nullable: false })
+  @Field(_type => Int)
   private rating: number = 0
 
   @Exclude()
@@ -46,6 +54,7 @@ export default class Category {
   @IsMongoId()
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
+  @Field(_type => ID)
   private owner: ObjectId
 
   @IsNumber()
