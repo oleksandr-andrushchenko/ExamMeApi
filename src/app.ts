@@ -27,6 +27,8 @@ import { createServer } from 'http'
 import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { expressMiddleware } from '@apollo/server/express4'
+import { buildSchema } from 'type-graphql'
+import graphqlResolvers from './graphql/resolvers'
 
 type Api = {
   app: Application,
@@ -36,20 +38,6 @@ type Api = {
 
 interface ApolloContext {
 
-}
-
-// The GraphQL schema
-const typeDefs = `#graphql
-  type Query {
-    hello: String
-  }
-`
-
-// A map of functions which return data for the schema.
-const resolvers = {
-  Query: {
-    hello: () => 'world',
-  },
 }
 
 export default (): { api: () => Api } => {
@@ -155,9 +143,14 @@ export default (): { api: () => Api } => {
       }
 
       if (config.graphql.enabled) {
+        const schema = await buildSchema({
+          // @ts-ignore
+          resolvers: graphqlResolvers,
+          container: Container,
+          emitSchemaFile: `${ projectDir }/src/graphql/schema.graphql`,
+        })
         const apolloServer = new ApolloServer<ApolloContext>({
-          typeDefs,
-          resolvers,
+          schema,
           plugins: [ ApolloServerPluginDrainHttpServer({ httpServer: server }) ],
         })
 
