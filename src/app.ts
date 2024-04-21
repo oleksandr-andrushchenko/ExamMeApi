@@ -158,10 +158,6 @@ export default (): { api: () => Api } => {
 
         app.use(
           config.graphql.route,
-          basicAuth({
-            users: { [config.graphql.username]: config.graphql.password },
-            challenge: true,
-          }),
           express.json(),
           expressMiddleware(apolloServer),
         )
