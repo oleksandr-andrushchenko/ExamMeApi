@@ -1,3 +1,6 @@
-import application from './app'
+import app from './app'
 
-application().api().up(true).catch(error => console.log(error))
+app()
+  .api()
+  .up(true)
+  .catch(error => console.log(error))

@@ -174,9 +174,8 @@ export default (): { api: () => Api } => {
         )
       }
 
-      const port = config.app.port
-
       if (listen) {
+        const port = config.app.port
         server.listen({ port }, () => logger.info(`Server is running on port ${ port }`))
 
         const failureHandler = (error: string) => {

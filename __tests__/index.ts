@@ -1,4 +1,4 @@
-import application from '../src/app'
+import app from '../src/app'
 import { afterAll, beforeAll, beforeEach } from '@jest/globals'
 import { Application } from 'express'
 import Category from '../src/entity/Category'
@@ -18,7 +18,7 @@ import Exam, { ExamQuestion } from '../src/entity/Exam'
 import ExamRepository from '../src/repository/ExamRepository'
 
 export const api = (): Application => {
-  const { app, up, down } = application().api()
+  const api = app().api()
 
   const clear = async () => {
     await Container.get<UserRepository>(UserRepository).clear()
@@ -27,11 +27,11 @@ export const api = (): Application => {
     await Container.get<ExamRepository>(ExamRepository).clear()
   }
 
-  beforeAll(() => up())
+  beforeAll(() => api.up())
   beforeEach(() => clear())
-  afterAll(() => down())
+  afterAll(() => api.down())
 
-  return app
+  return api.app
 }
 
 export const fixture = async <Entity>(entity: any, options: object = {}): Promise<Entity> => {
