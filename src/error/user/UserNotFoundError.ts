@@ -1,6 +1,8 @@
+import { ObjectId } from 'mongodb'
+
 export default class UserNotFoundError extends Error {
 
-  constructor(id: string) {
-    super(`User with id="${ id }" not found error`)
+  public constructor(id: ObjectId) {
+    super(`User with id="${ id.toString() }" not found error`)
   }
 }
