@@ -28,16 +28,15 @@ import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { expressMiddleware } from '@apollo/server/express4'
 import { buildSchema } from 'type-graphql'
-import graphqlResolvers from './graphql/resolvers'
+import { resolvers } from './graphql/resolvers'
+import Context from './graphql/context/Context'
+import ContextBuilder from './graphql/context/ContextBuilder'
+import AuthCheckerBuilder from './graphql/auth/AuthCheckerBuilder'
 
 type Api = {
   app: Application,
   up: (listen?: boolean) => Promise<void>,
   down: (callback?: () => {}) => Promise<void>,
-}
-
-interface ApolloContext {
-
 }
 
 export default (): { api: () => Api } => {
@@ -145,11 +144,12 @@ export default (): { api: () => Api } => {
       if (config.graphql.enabled) {
         const schema = await buildSchema({
           // @ts-ignore
-          resolvers: graphqlResolvers,
+          resolvers,
           container: Container,
+          authChecker: Container.get<AuthCheckerBuilder>(AuthCheckerBuilder).buildAuthChecker(),
           emitSchemaFile: `${ projectDir }/src/graphql/schema.graphql`,
         })
-        const apolloServer = new ApolloServer<ApolloContext>({
+        const apolloServer = new ApolloServer<Context>({
           schema,
           plugins: [ ApolloServerPluginDrainHttpServer({ httpServer: server }) ],
         })
@@ -159,7 +159,9 @@ export default (): { api: () => Api } => {
         app.use(
           config.graphql.route,
           express.json(),
-          expressMiddleware(apolloServer),
+          expressMiddleware(apolloServer, {
+            context: Container.get<ContextBuilder>(ContextBuilder).buildContext(),
+          }),
         )
       }
 
