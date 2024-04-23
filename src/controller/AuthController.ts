@@ -14,9 +14,9 @@ import AuthSchema from '../schema/auth/AuthSchema'
 import TokenSchema from '../schema/auth/TokenSchema'
 import UserService from '../service/user/UserService'
 import User from '../entity/User'
-import UserNotFoundError from '../error/user/UserNotFoundError'
 import UserWrongCredentialsError from '../error/user/UserWrongCredentialsError'
 import ValidatorError from '../error/validator/ValidatorError'
+import UserEmailNotFoundError from '../error/user/UserEmailNotFoundError'
 
 @Service()
 @JsonController()
@@ -50,8 +50,8 @@ export default class AuthController {
       switch (true) {
         case error instanceof ValidatorError:
           throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof UserNotFoundError:
-          throw new NotFoundError((error as UserNotFoundError).message)
+        case error instanceof UserEmailNotFoundError:
+          throw new NotFoundError((error as UserEmailNotFoundError).message)
         case error instanceof UserWrongCredentialsError:
           throw new ForbiddenError((error as UserWrongCredentialsError).message)
       }
