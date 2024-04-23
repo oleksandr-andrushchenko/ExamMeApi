@@ -13,6 +13,10 @@ import Permission from '../../enum/Permission'
 import AuthService from '../auth/AuthService'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import UserPermission from '../../enum/user/UserPermission'
+import { ObjectId } from 'mongodb'
+import Category from '../../entity/Category'
+import CategoryNotFoundError from '../../error/category/CategoryNotFoundError'
+import UserEmailNotFoundError from '../../error/user/UserEmailNotFoundError'
 
 @Service()
 export default class UserService {
@@ -62,6 +66,7 @@ export default class UserService {
    * @param {AuthSchema} transfer
    * @returns {Promise<User | null>}
    * @throws {UserWrongCredentialsError}
+   * @throws {UserEmailNotFoundError}
    */
   public async getUserByAuth(transfer: AuthSchema): Promise<User | null> {
     await this.validator.validate(transfer)
@@ -99,13 +104,13 @@ export default class UserService {
   /**
    * @param {string} email
    * @returns {Promise<User>}
-   * @throws {UserNotFoundError}
+   * @throws {UserEmailNotFoundError}
    */
   public async getUserByEmail(email: string): Promise<User> {
     const user: User = await this.userRepository.findOneByEmail(email)
 
     if (!user) {
-      throw new UserNotFoundError(email)
+      throw new UserEmailNotFoundError(email)
     }
 
     return user
@@ -120,5 +125,25 @@ export default class UserService {
     if (await this.userRepository.findOneByEmail(email)) {
       throw new UserEmailTakenError(email)
     }
+  }
+
+  /**
+   * @param {ObjectId | string} id
+   * @returns {Promise<User>}
+   * @throws {UserNotFoundError}
+   */
+  public async getUser(id: ObjectId | string): Promise<User> {
+    if (typeof id === 'string') {
+      this.validator.validateId(id)
+      id = new ObjectId(id)
+    }
+
+    const user: User = await this.userRepository.findOneById(id)
+
+    if (!user) {
+      throw new UserNotFoundError(id)
+    }
+
+    return user
   }
 }
