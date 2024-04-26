@@ -1,7 +1,5 @@
 import { Inject, Service } from 'typedi'
-import { Action } from 'routing-controllers'
 import User from '../../entity/User'
-import UserRepository from '../../repository/UserRepository'
 import TokenService, { TokenPayload } from '../token/TokenService'
 import { Request } from 'express'
 import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorator/InjectEventDispatcher'
@@ -15,7 +13,6 @@ export default class AuthService {
 
   constructor(
     @Inject() private readonly tokenService: TokenService,
-    @Inject() private readonly userRepository: UserRepository,
     @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
     @Inject('authPermissions') private readonly permissions: { [permission: string]: Permission[] },
     private readonly tokenExpiresIn: number = 60 * 60 * 24 * 7,
@@ -59,30 +56,6 @@ export default class AuthService {
     }
 
     throw new AuthorizationFailedError(permission)
-  }
-
-  public getAuthorizationChecker(): (action: Action) => Promise<boolean> {
-    return async (action: Action): Promise<boolean> => {
-      const req = action.request
-      const userId: string | null = await this.verifyAccessToken(req)
-
-      req.userId = userId
-
-      return userId !== null
-    }
-  }
-
-  public getCurrentUserChecker(): (action: Action) => Promise<User | null> {
-    return async (action: Action) => {
-      const req = action.request
-      const userId: string | null = req.hasOwnProperty('userId') ? req.userId : await this.verifyAccessToken(req)
-
-      if (userId === null) {
-        return null
-      }
-
-      return this.userRepository.findOneById(new ObjectId(userId))
-    }
   }
 
   public async createAuth(user: User): Promise<TokenSchema> {

@@ -10,7 +10,6 @@ import {
 import express, { Application } from 'express'
 import LoggerInterface from './service/logger/LoggerInterface'
 import JwtTokenStrategyFactory from './service/token/strategy/JwtTokenStrategyFactory'
-import AuthService from './service/auth/AuthService'
 import TokenStrategyInterface from './service/token/strategy/TokenStrategyInterface'
 import { MongoConnectionOptions } from 'typeorm/driver/mongodb/MongoConnectionOptions'
 import { MongoDriver } from 'typeorm/driver/mongodb/MongoDriver'
@@ -30,8 +29,7 @@ import { expressMiddleware } from '@apollo/server/express4'
 import { buildSchema } from 'type-graphql'
 import { resolvers } from './graphql/resolvers'
 import Context from './graphql/context/Context'
-import ContextBuilder from './graphql/context/ContextBuilder'
-import AuthCheckerBuilder from './graphql/auth/AuthCheckerBuilder'
+import { AuthCheckerService } from './service/auth/AuthCheckerService'
 
 type Api = {
   app: Application,
@@ -82,11 +80,11 @@ export default (): { api: () => Api } => {
     const up = async (listen?: boolean): Promise<void> => {
       routingControllerUseContainer(Container)
 
-      const authService: AuthService = Container.get<AuthService>(AuthService)
+      const authChecker = Container.get<AuthCheckerService>(AuthCheckerService)
 
       const routingControllersOptions: RoutingControllersOptions = {
-        authorizationChecker: authService.getAuthorizationChecker(),
-        currentUserChecker: authService.getCurrentUserChecker(),
+        authorizationChecker: authChecker.getRoutingControllersAuthorizationChecker(),
+        currentUserChecker: authChecker.getRoutingControllersCurrentUserChecker(),
         controllers: [ `${ projectDir }/src/controller/*.ts` ],
         middlewares: [ `${ projectDir }/src/middleware/*.ts` ],
         cors: config.app.cors,
@@ -146,7 +144,7 @@ export default (): { api: () => Api } => {
           // @ts-ignore
           resolvers,
           container: Container,
-          authChecker: Container.get<AuthCheckerBuilder>(AuthCheckerBuilder).buildAuthChecker(),
+          authChecker: authChecker.getTypeGraphqlAuthChecker(),
           emitSchemaFile: `${ projectDir }/src/graphql/schema.graphql`,
         })
         const apolloServer = new ApolloServer<Context>({
@@ -160,7 +158,11 @@ export default (): { api: () => Api } => {
           config.graphql.route,
           express.json(),
           expressMiddleware(apolloServer, {
-            context: Container.get<ContextBuilder>(ContextBuilder).buildContext(),
+            context: async ({ req }) => {
+              return {
+                user: await authChecker.getApolloContextUser(req),
+              }
+            },
           }),
         )
       }
