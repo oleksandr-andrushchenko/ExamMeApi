@@ -166,6 +166,10 @@ export const error = (name: string = '', message: string = '', errors: string[] 
   return body
 }
 
+export const graphqlError = (code: string) => {
+  return { errors: [ { extensions: { code } } ] }
+}
+
 export const auth = async (user: User): Promise<TokenSchema> => {
   const authService: AuthService = Container.get<AuthService>(AuthService)
 
