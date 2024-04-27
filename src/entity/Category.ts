@@ -112,6 +112,26 @@ export default class Category {
     return this.requiredScore
   }
 
+  public setVoters(voters: number): this {
+    this.voters = voters
+
+    return this
+  }
+
+  public getVoters(): number {
+    return this.voters
+  }
+
+  public setRating(rating: number): this {
+    this.rating = rating
+
+    return this
+  }
+
+  public getRating(): number {
+    return this.rating
+  }
+
   public setCreator(creator: ObjectId): this {
     this.creator = creator
 
