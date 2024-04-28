@@ -1,14 +1,11 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-// @ts-ignore
-import { api, auth, error, fakeId, fixture, load } from '../../index'
+import { auth, error, fakeId, fixture, load, server as app } from '../../index'
 import Question from '../../../src/entity/Question'
 import User from '../../../src/entity/User'
 import QuestionPermission from '../../../src/enum/question/QuestionPermission'
 
 describe('DELETE /questions/:questionId', () => {
-  const app = api()
-
   test('Unauthorized', async () => {
     const question = await fixture<Question>(Question)
     const id = question.getId()

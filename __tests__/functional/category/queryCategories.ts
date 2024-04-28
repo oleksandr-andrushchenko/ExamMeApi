@@ -1,13 +1,10 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-// @ts-ignore
-import { api, error, fixture } from '../../index'
+import { error, fixture, server as app } from '../../index'
 import Category from '../../../src/entity/Category'
 import * as querystring from 'querystring'
 
 describe('GET /categories', () => {
-  const app = api()
-
   test('Empty', async () => {
     const res = await request(app).get('/categories')
 

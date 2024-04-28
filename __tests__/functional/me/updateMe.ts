@@ -1,12 +1,9 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-// @ts-ignore
-import { api, auth, error, fixture, load } from '../../index'
+import { auth, error, fixture, load, server as app } from '../../index'
 import User from '../../../src/entity/User'
 
 describe('PATCH /me', () => {
-  const app = api()
-
   test('Unauthorized', async () => {
     const res = await request(app).patch(`/me`).send({ name: 'any' })
 

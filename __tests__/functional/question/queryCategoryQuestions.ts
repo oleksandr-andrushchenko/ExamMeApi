@@ -1,13 +1,10 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-// @ts-ignore
-import { api, error, fakeId, fixture } from '../../index'
+import { error, fakeId, fixture, server as app } from '../../index'
 import Category from '../../../src/entity/Category'
 import Question, { QuestionAnswer, QuestionChoice, QuestionType } from '../../../src/entity/Question'
 
 describe('GET /categories/:categoryId/questions', () => {
-  const app = api()
-
   test('Not Found', async () => {
     const categoryId = await fakeId()
     const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`)

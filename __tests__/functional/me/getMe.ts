@@ -1,12 +1,9 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-// @ts-ignore
-import { api, auth, error, fakeId, fixture } from '../../index'
+import { auth, error, fixture, server as app } from '../../index'
 import User from '../../../src/entity/User'
 
 describe('GET /me', () => {
-  const app = api()
-
   test('Unauthorized', async () => {
     const res = await request(app).get(`/me`)
 

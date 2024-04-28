@@ -1,7 +1,6 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-// @ts-ignore
-import { api, auth, error, fakeId, fixture, load } from '../../index'
+import { auth, error, fakeId, fixture, load, server as app } from '../../index'
 import Category from '../../../src/entity/Category'
 import User from '../../../src/entity/User'
 import { ObjectId } from 'mongodb'
@@ -10,8 +9,6 @@ import { faker } from '@faker-js/faker'
 import QuestionPermission from '../../../src/enum/question/QuestionPermission'
 
 describe('POST /questions', () => {
-  const app = api()
-
   test('Unauthorized', async () => {
     const res = await request(app).post(`/questions`)
 
@@ -23,7 +20,10 @@ describe('POST /questions', () => {
     const categoryId = await fakeId()
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const res = await request(app).post(`/questions`).send({ title: 'any', category: categoryId }).auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/questions`).send({
+      title: 'any',
+      category: categoryId,
+    }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))

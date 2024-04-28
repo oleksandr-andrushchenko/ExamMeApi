@@ -1,12 +1,9 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-// @ts-ignore
-import { api, fakeId, fixture, graphqlError } from '../../index'
+import { fakeId, fixture, graphqlError, server as app } from '../../index'
 import Category from '../../../src/entity/Category'
 
 describe('POST /graphql category', () => {
-  const app = api()
-
   test('Not found', async () => {
     const id = await fakeId()
     const res = await request(app)

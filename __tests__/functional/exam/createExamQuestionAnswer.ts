@@ -1,14 +1,11 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-// @ts-ignore
-import { api, auth, error, fakeId, fixture, load } from '../../index'
+import { auth, error, fakeId, fixture, load, server as app } from '../../index'
 import Exam from '../../../src/entity/Exam'
 import Question, { QuestionType } from '../../../src/entity/Question'
 import User from '../../../src/entity/User'
 
 describe('POST /exams/:examId/questions/:question/answer', () => {
-  const app = api()
-
   test('Unauthorized', async () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()

@@ -17,22 +17,20 @@ import Question, { QuestionAnswer, QuestionChoice, QuestionDifficulty, QuestionT
 import Exam, { ExamQuestion } from '../src/entity/Exam'
 import ExamRepository from '../src/repository/ExamRepository'
 
-export const api = (): Application => {
-  const api = app().api()
+const api = app().api()
 
-  const clear = async () => {
-    await Container.get<UserRepository>(UserRepository).clear()
-    await Container.get<CategoryRepository>(CategoryRepository).clear()
-    await Container.get<QuestionRepository>(QuestionRepository).clear()
-    await Container.get<ExamRepository>(ExamRepository).clear()
-  }
-
-  beforeAll(() => api.up())
-  beforeEach(() => clear())
-  afterAll(() => api.down())
-
-  return api.app
+const clear = async () => {
+  await Container.get<UserRepository>(UserRepository).clear()
+  await Container.get<CategoryRepository>(CategoryRepository).clear()
+  await Container.get<QuestionRepository>(QuestionRepository).clear()
+  await Container.get<ExamRepository>(ExamRepository).clear()
 }
+
+beforeAll(() => api.up())
+beforeEach(() => clear())
+afterAll(() => api.down())
+
+export const server = api.app
 
 export const fixture = async <Entity>(entity: any, options: object = {}): Promise<Entity> => {
   let object: any

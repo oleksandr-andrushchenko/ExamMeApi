@@ -1,14 +1,11 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-// @ts-ignore
-import { api, auth, error, fixture, load } from '../../index'
+import { auth, error, fixture, load, server as app } from '../../index'
 import User from '../../../src/entity/User'
 import { ObjectId } from 'mongodb'
 import UserPermission from '../../../src/enum/user/UserPermission'
 
 describe('POST /users', () => {
-  const app = api()
-
   test('Unauthorized', async () => {
     const res = await request(app).post('/users')
 
