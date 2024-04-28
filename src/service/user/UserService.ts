@@ -8,14 +8,12 @@ import UserWrongCredentialsError from '../../error/user/UserWrongCredentialsErro
 import UserEmailTakenError from '../../error/user/UserEmailTakenError'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorator/InjectEntityManager'
 import UserSchema from '../../schema/user/UserSchema'
-import AuthSchema from '../../schema/auth/AuthSchema'
+import { CredentialsSchema } from '../../schema/auth/CredentialsSchema'
 import Permission from '../../enum/Permission'
 import AuthService from '../auth/AuthService'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import UserPermission from '../../enum/user/UserPermission'
 import { ObjectId } from 'mongodb'
-import Category from '../../entity/Category'
-import CategoryNotFoundError from '../../error/category/CategoryNotFoundError'
 import UserEmailNotFoundError from '../../error/user/UserEmailNotFoundError'
 
 @Service()
@@ -63,12 +61,12 @@ export default class UserService {
   }
 
   /**
-   * @param {AuthSchema} transfer
+   * @param {CredentialsSchema} transfer
    * @returns {Promise<User | null>}
    * @throws {UserWrongCredentialsError}
    * @throws {UserEmailNotFoundError}
    */
-  public async getUserByAuth(transfer: AuthSchema): Promise<User | null> {
+  public async getUserByCredentials(transfer: CredentialsSchema): Promise<User | null> {
     await this.validator.validate(transfer)
 
     const email: string = transfer.email

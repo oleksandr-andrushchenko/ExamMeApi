@@ -10,7 +10,7 @@ import {
 import { Inject, Service } from 'typedi'
 import AuthService from '../service/auth/AuthService'
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi'
-import AuthSchema from '../schema/auth/AuthSchema'
+import { CredentialsSchema } from '../schema/auth/CredentialsSchema'
 import TokenSchema from '../schema/auth/TokenSchema'
 import UserService from '../service/user/UserService'
 import User from '../entity/User'
@@ -40,10 +40,10 @@ export default class AuthController {
   })
   @ResponseSchema(TokenSchema)
   public async createAuth(
-    @Body({ type: AuthSchema, required: true }) auth: AuthSchema,
+    @Body({ type: CredentialsSchema, required: true }) credentials: CredentialsSchema,
   ): Promise<TokenSchema> {
     try {
-      const user: User = await this.userService.getUserByAuth(auth)
+      const user: User = await this.userService.getUserByCredentials(credentials)
 
       return await this.authService.createAuth(user)
     } catch (error) {
