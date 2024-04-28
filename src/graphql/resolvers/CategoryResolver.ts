@@ -1,8 +1,9 @@
 import { Inject, Service } from 'typedi'
 import CategoryService from '../../service/category/CategoryService'
-import { Arg, Args, Query, Resolver } from 'type-graphql'
+import { Args, Query, Resolver } from 'type-graphql'
 import Category from '../../entity/Category'
 import CategoryQuerySchema from '../../schema/category/CategoryQuerySchema'
+import GetCategorySchema from '../../schema/category/GetCategorySchema'
 
 @Service()
 @Resolver(Category)
@@ -14,12 +15,12 @@ export default class CategoryResolver {
   }
 
   @Query(_returns => Category)
-  public async category(@Arg('id') id: string): Promise<Category> {
-    return await this.categoryService.getCategory(id)
+  public async category(@Args() args: GetCategorySchema): Promise<Category> {
+    return await this.categoryService.getCategory(args.categoryId)
   }
 
   @Query(_returns => [ Category ])
-  public async categories(@Args() query: CategoryQuerySchema): Promise<Category[]> {
-    return await this.categoryService.queryCategories(query) as Category[]
+  public async categories(@Args() args: CategoryQuerySchema): Promise<Category[]> {
+    return await this.categoryService.queryCategories(args) as Category[]
   }
 }
