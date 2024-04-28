@@ -10,7 +10,6 @@ describe('DELETE /me', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Deleted', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token

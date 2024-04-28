@@ -15,7 +15,6 @@ describe('POST /questions', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (category not found)', async () => {
     const categoryId = await fakeId()
     const user = await fixture<User>(User)
@@ -95,7 +94,6 @@ describe('POST /questions', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Conflict', async () => {
     const category = await fixture<Category>(Category)
     const categoryId = category.getId()

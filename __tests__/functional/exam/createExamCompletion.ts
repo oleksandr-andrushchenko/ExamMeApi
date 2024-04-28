@@ -13,7 +13,6 @@ describe('POST /exams/:examId/completion', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (invalid exam id)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -22,7 +21,6 @@ describe('POST /exams/:examId/completion', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Not found', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -32,7 +30,6 @@ describe('POST /exams/:examId/completion', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -42,7 +39,6 @@ describe('POST /exams/:examId/completion', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Created (has ownership)', async () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()
@@ -56,7 +52,6 @@ describe('POST /exams/:examId/completion', () => {
     expect(res.body.completed).toBeGreaterThan(0)
     expect((await load<Exam>(Exam, exam.getId())).getCompleted().getTime()).toEqual(res.body.completed)
   })
-
   test('Created (has permission)', async () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()

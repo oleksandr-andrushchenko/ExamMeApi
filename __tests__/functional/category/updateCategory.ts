@@ -14,7 +14,6 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (invalid category id)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -24,7 +23,6 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Not found', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -37,7 +35,6 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test.each([
     { case: 'name too short', body: { name: 'a' } },
     { case: 'name too long', body: { name: 'abc'.repeat(99) } },
@@ -55,7 +52,6 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category)
@@ -66,7 +62,6 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
@@ -77,7 +72,6 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Conflict', async () => {
     const category1 = await fixture<Category>(Category)
     const category = await fixture<Category>(Category, { permissions: [ CategoryPermission.UPDATE ] })
@@ -89,7 +83,6 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
-
   test('Updated (has ownership)', async () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()
@@ -102,7 +95,6 @@ describe('PATCH /categories/:categoryId', () => {
     expect(res.body).toEqual('')
     expect(await load<Category>(Category, id)).toMatchObject(schema)
   })
-
   test('Updated (has permission)', async () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()

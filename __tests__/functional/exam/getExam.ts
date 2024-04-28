@@ -14,7 +14,6 @@ describe('GET /exams/:examId', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (invalid id)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -24,7 +23,6 @@ describe('GET /exams/:examId', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Not found', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -34,7 +32,6 @@ describe('GET /exams/:examId', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const exam = await fixture<Exam>(Exam)
@@ -45,7 +42,6 @@ describe('GET /exams/:examId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Found (ownership)', async () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()
@@ -56,7 +52,6 @@ describe('GET /exams/:examId', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ id: id.toString() })
   })
-
   test('Found (permission)', async () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()

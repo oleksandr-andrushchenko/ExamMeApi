@@ -15,7 +15,6 @@ describe('PATCH /questions/:questionId', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (invalid id)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -25,7 +24,6 @@ describe('PATCH /questions/:questionId', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Not found', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -35,7 +33,6 @@ describe('PATCH /questions/:questionId', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test('Bad request (empty body)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -46,7 +43,6 @@ describe('PATCH /questions/:questionId', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question)
@@ -58,7 +54,6 @@ describe('PATCH /questions/:questionId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question, { owner: await fixture<User>(User) })
@@ -70,7 +65,6 @@ describe('PATCH /questions/:questionId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Conflict', async () => {
     const question1 = await fixture<Question>(Question)
     const question = await fixture<Question>(Question, { permissions: [ QuestionPermission.UPDATE ] })
@@ -82,7 +76,6 @@ describe('PATCH /questions/:questionId', () => {
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
-
   test('Updated (has ownership)', async () => {
     const question = await fixture<Question>(Question)
     const id = question.getId()
@@ -95,7 +88,6 @@ describe('PATCH /questions/:questionId', () => {
     expect(res.body).toEqual('')
     expect(await load<Question>(Question, id)).toMatchObject(schema)
   })
-
   test('Updated (has permission)', async () => {
     const question = await fixture<Question>(Question)
     const id = question.getId()

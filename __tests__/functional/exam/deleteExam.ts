@@ -14,7 +14,6 @@ describe('DELETE /exams/:examId', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (invalid id)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -24,7 +23,6 @@ describe('DELETE /exams/:examId', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Not found', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -34,7 +32,6 @@ describe('DELETE /exams/:examId', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const exam = await fixture<Exam>(Exam)
@@ -45,7 +42,6 @@ describe('DELETE /exams/:examId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Deleted (has ownership)', async () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()
@@ -57,7 +53,6 @@ describe('DELETE /exams/:examId', () => {
     expect(res.body).toEqual({})
     expect(await load<Exam>(Exam, id)).toBeNull()
   })
-
   test('Deleted (has permission)', async () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()

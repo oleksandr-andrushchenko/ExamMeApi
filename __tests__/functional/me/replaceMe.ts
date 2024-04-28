@@ -10,7 +10,6 @@ describe('PUT /me', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (empty body)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -19,7 +18,6 @@ describe('PUT /me', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Conflict', async () => {
     const user1 = await fixture<User>(User)
     const user = await fixture<User>(User)
@@ -30,7 +28,6 @@ describe('PUT /me', () => {
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
-
   test('Replaced', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token

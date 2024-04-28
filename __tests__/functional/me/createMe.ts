@@ -11,7 +11,6 @@ describe('POST /me', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Conflict', async () => {
     const user = await fixture<User>(User)
     const res = await request(app).post('/me').send({
@@ -23,7 +22,6 @@ describe('POST /me', () => {
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
-
   test('Created', async () => {
     const schema = { name: 'any', email: 'a@a.com' }
     const res = await request(app).post('/me').send({ ...schema, ...{ password: '123123' } })

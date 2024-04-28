@@ -13,7 +13,6 @@ describe('POST /categories', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test.each([
     { case: 'empty body', body: {} },
     { case: 'no name', body: { requiredScore: 80 } },
@@ -34,7 +33,6 @@ describe('POST /categories', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -43,7 +41,6 @@ describe('POST /categories', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Conflict', async () => {
     const category = await fixture<Category>(Category)
     const user = await fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
@@ -53,7 +50,6 @@ describe('POST /categories', () => {
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
-
   test('Created', async () => {
     const user = await fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await auth(user)).token

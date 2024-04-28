@@ -11,7 +11,6 @@ describe('GET /categories', () => {
     expect(res.status).toEqual(200)
     expect(res.body.data).toEqual([])
   })
-
   test.each([
     { case: 'invalid price', query: { price: 'any' } },
     { case: 'invalid cursor type', query: { cursor: 1 } },
@@ -28,7 +27,6 @@ describe('GET /categories', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test.each([
     { size: 1 },
     { size: 2 },
@@ -59,7 +57,6 @@ describe('GET /categories', () => {
       expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: lastInStorageId } }) })
     }
   })
-
   test.each([
     { size: 1 },
     { size: 2 },
@@ -96,7 +93,6 @@ describe('GET /categories', () => {
       expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: firstInStorageId } }) })
     }
   })
-
   test.each([
     { prev: 0, size: 1 },
     { prev: 0, size: 2 },
@@ -144,7 +140,6 @@ describe('GET /categories', () => {
     expect(res.body.meta).toMatchObject({ nextCursor: lastInStorageId })
     expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: lastInStorageId } }) })
   })
-
   test.each([
     { next: 0, size: 1 },
     { next: 0, size: 2 },
@@ -190,7 +185,6 @@ describe('GET /categories', () => {
       expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: lastInStorageId } }) })
     }
   })
-
   test.each([
     { prev: 0, size: 1 },
     { prev: 0, size: 2 },
@@ -238,7 +232,6 @@ describe('GET /categories', () => {
     expect(res.body.meta).toMatchObject({ ...query, ...{ nextCursor: firstInStorageId } })
     expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: firstInStorageId } }) })
   })
-
   test.each([
     { next: 0, size: 1 },
     { next: 0, size: 2 },
@@ -285,7 +278,6 @@ describe('GET /categories', () => {
       expect(res.body.meta).toMatchObject({ nextUrl: '?' + querystring.stringify({ ...query, ...{ nextCursor: prevLastInStorageId } }) })
     }
   })
-
   test('Not empty', async () => {
     const categories = await Promise.all([ fixture<Category>(Category), fixture<Category>(Category) ])
 

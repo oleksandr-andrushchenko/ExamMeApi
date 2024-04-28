@@ -22,7 +22,6 @@ describe('POST /graphql category', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('NotFoundError'))
   })
-
   test('Bad request (invalid id)', async () => {
     const id = 'invalid'
     const res = await request(app)
@@ -41,7 +40,6 @@ describe('POST /graphql category', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('BadRequestError'))
   })
-
   test('Found', async () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()

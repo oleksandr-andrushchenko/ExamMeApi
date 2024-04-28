@@ -24,7 +24,6 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Not found (exam)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -35,7 +34,6 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test('Not found (question)', async () => {
     const exam = await fixture<Exam>(Exam)
     const user = await load<User>(User, exam.getOwner())
@@ -46,7 +44,6 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test('Bad request (empty body)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -58,7 +55,6 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -79,7 +75,6 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Created', async () => {
     const exam = await fixture<Exam>(Exam)
     const id = exam.getId()

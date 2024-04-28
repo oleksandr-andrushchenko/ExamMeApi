@@ -16,7 +16,6 @@ describe('POST /exams', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (empty body)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -25,7 +24,6 @@ describe('POST /exams', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -36,7 +34,6 @@ describe('POST /exams', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Conflict (exam taken)', async () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
@@ -47,7 +44,6 @@ describe('POST /exams', () => {
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
-
   test('Created', async () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token

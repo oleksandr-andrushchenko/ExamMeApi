@@ -14,7 +14,6 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (invalid id)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -24,7 +23,6 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Not found', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -34,7 +32,6 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test.each([
     { case: 'empty body', body: {} },
     { case: 'no name', body: { requiredScore: 80 } },
@@ -57,7 +54,6 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category)
@@ -68,7 +64,6 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
@@ -79,7 +74,6 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Conflict', async () => {
     const category1 = await fixture<Category>(Category)
     const category = await fixture<Category>(Category, { permissions: [ CategoryPermission.REPLACE ] })
@@ -91,7 +85,6 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
-
   test('Replaced (has ownership)', async () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()
@@ -104,7 +97,6 @@ describe('PUT /categories/:categoryId', () => {
     expect(res.body).toEqual('')
     expect(await load<Category>(Category, id)).toMatchObject(schema)
   })
-
   test('Replaced (has permission)', async () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()

@@ -11,7 +11,6 @@ describe('GET /permissions', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('OK', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token

@@ -14,7 +14,6 @@ describe('DELETE /questions/:questionId', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test('Bad request (invalid id)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -24,7 +23,6 @@ describe('DELETE /questions/:questionId', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Not found', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -34,7 +32,6 @@ describe('DELETE /questions/:questionId', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question)
@@ -45,7 +42,6 @@ describe('DELETE /questions/:questionId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question, { owner: await fixture<User>(User) })
@@ -56,7 +52,6 @@ describe('DELETE /questions/:questionId', () => {
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
-
   test('Deleted (has ownership)', async () => {
     const question = await fixture<Question>(Question)
     const id = question.getId()
@@ -68,7 +63,6 @@ describe('DELETE /questions/:questionId', () => {
     expect(res.body).toEqual({})
     expect(await load<Question>(Question, id)).toBeNull()
   })
-
   test('Deleted (has permission)', async () => {
     const question = await fixture<Question>(Question)
     const id = question.getId()

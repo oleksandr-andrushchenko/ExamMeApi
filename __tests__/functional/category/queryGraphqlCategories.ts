@@ -18,7 +18,6 @@ describe('POST /graphql categories', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toEqual({ data: { categories: [] } })
   })
-
   test.each([
     { case: 'invalid price', query: { price: 'any' } },
     { case: 'invalid cursor type', query: { cursor: 1 } },
@@ -44,7 +43,6 @@ describe('POST /graphql categories', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('BadRequestError'))
   })
-
   test.each([
     { size: 1 },
     { size: 2 },
@@ -78,7 +76,6 @@ describe('POST /graphql categories', () => {
     const lastInStorageId = categories[lastInStoragePosition].getId().toString()
     expect(lastInBodyId).toEqual(lastInStorageId)
   })
-
   test.each([
     { size: 1 },
     { size: 2 },
@@ -118,7 +115,6 @@ describe('POST /graphql categories', () => {
     const lastInBodyId = res.body.data.categories[res.body.data.categories.length - 1].id
     expect(lastInBodyId).toEqual(firstInStorageId)
   })
-
   test.each([
     { prev: 0, size: 1 },
     { prev: 0, size: 2 },
@@ -164,7 +160,6 @@ describe('POST /graphql categories', () => {
     const lastInStorageId = categories[lastInStoragePosition].getId().toString()
     expect(lastInBodyId).toEqual(lastInStorageId)
   })
-
   test.each([
     { next: 0, size: 1 },
     { next: 0, size: 2 },
@@ -210,7 +205,6 @@ describe('POST /graphql categories', () => {
     const lastInStorageId = categories[lastInStoragePosition].getId().toString()
     expect(lastInBodyId).toEqual(lastInStorageId)
   })
-
   test.each([
     { prev: 0, size: 1 },
     { prev: 0, size: 2 },
@@ -259,7 +253,6 @@ describe('POST /graphql categories', () => {
     const firstInStorageId = categories[firstInStoragePosition].getId().toString()
     expect(lastInBodyId).toEqual(firstInStorageId)
   })
-
   test.each([
     { next: 0, size: 1 },
     { next: 0, size: 2 },
@@ -305,7 +298,6 @@ describe('POST /graphql categories', () => {
     const lastInStorageId = categories[lastInStoragePosition].getId().toString()
     expect(lastInBodyId).toEqual(lastInStorageId)
   })
-
   test('Not empty', async () => {
     const categories = await Promise.all([ fixture<Category>(Category), fixture<Category>(Category) ])
 

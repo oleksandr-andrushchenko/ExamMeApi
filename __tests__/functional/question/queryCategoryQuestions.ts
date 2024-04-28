@@ -12,7 +12,6 @@ describe('GET /categories/:categoryId/questions', () => {
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
-
   test.each([
     { case: 'invalid category', query: { category: 'any' } },
     { case: 'invalid price', query: { price: 'any' } },
@@ -33,7 +32,6 @@ describe('GET /categories/:categoryId/questions', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Empty', async () => {
     const category = await fixture<Category>(Category)
     const categoryId = category.getId()
@@ -42,7 +40,6 @@ describe('GET /categories/:categoryId/questions', () => {
     expect(res.status).toEqual(200)
     expect(res.body.data).toEqual([])
   })
-
   test('Not empty', async () => {
     const category = await fixture<Category>(Category)
     const categoryId = category.getId()

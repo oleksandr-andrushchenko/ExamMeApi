@@ -13,7 +13,6 @@ describe('GET /exams', () => {
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
-
   test.each([
     { case: 'invalid category type', query: { category: 1 } },
     { case: 'invalid category', query: { category: 'any' } },
@@ -33,7 +32,6 @@ describe('GET /exams', () => {
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
-
   test('Empty', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -42,7 +40,6 @@ describe('GET /exams', () => {
     expect(res.status).toEqual(200)
     expect(res.body.data).toEqual([])
   })
-
   test('No filter (ownership)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
@@ -76,7 +73,6 @@ describe('GET /exams', () => {
       expect(resExam.id).toEqual(ownExams[index].getId().toString())
     }
   })
-
   test('Category filter (ownership)', async () => {
     const category = await fixture<Category>(Category)
     const user = await fixture<User>(User)
@@ -114,7 +110,6 @@ describe('GET /exams', () => {
       expect(resExam.id).toEqual(ownCategoryExams[index].getId().toString())
     }
   })
-
   test('No filter (permission)', async () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await auth(user)).token
@@ -147,7 +142,6 @@ describe('GET /exams', () => {
       expect(resExam.id).toEqual(exams[index].getId().toString())
     }
   })
-
   test('Category filter (permission)', async () => {
     const category = await fixture<Category>(Category)
     const user = await fixture<User>(User, { permissions: [ ExamPermission.GET ] })
