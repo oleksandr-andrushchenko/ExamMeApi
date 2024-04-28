@@ -2,40 +2,22 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { fakeId, fixture, graphqlError, server as app } from '../../index'
 import Category from '../../../src/entity/Category'
+// @ts-ignore
+import { categoryQuery } from '../../graphql/category/categoryQuery'
 
 describe('POST /graphql category', () => {
   test('Not found', async () => {
     const id = await fakeId()
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Category($categoryId: String!) {
-          category(id: $categoryId) {
-            id
-          }
-        }`,
-        variables: {
-          categoryId: id.toString(),
-        },
-      })
+    const variables = { categoryId: id.toString() }
+    const res = await request(app).post(`/graphql`).send(categoryQuery([ 'id' ], variables))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('NotFoundError'))
   })
   test('Bad request (invalid id)', async () => {
     const id = 'invalid'
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Category($categoryId: String!) {
-          category(id: $categoryId) {
-            id
-          }
-        }`,
-        variables: {
-          categoryId: id.toString(),
-        },
-      })
+    const variables = { categoryId: id.toString() }
+    const res = await request(app).post(`/graphql`).send(categoryQuery([ 'id' ], variables))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('BadRequestError'))
@@ -43,23 +25,9 @@ describe('POST /graphql category', () => {
   test('Found', async () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Category($categoryId: String!) {
-          category(id: $categoryId) {
-            id
-            name
-            questionCount
-            requiredScore
-            voters
-            rating
-          }
-        }`,
-        variables: {
-          categoryId: id.toString(),
-        },
-      })
+    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating' ]
+    const variables = { categoryId: id.toString() }
+    const res = await request(app).post(`/graphql`).send(categoryQuery(fields, variables))
 
     expect(res.status).toEqual(200)
     expect(res.body).toEqual({

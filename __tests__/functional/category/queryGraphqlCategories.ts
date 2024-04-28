@@ -2,18 +2,12 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { fixture, graphqlError, server as app } from '../../index'
 import Category from '../../../src/entity/Category'
+// @ts-ignore
+import { categoriesQuery } from '../../graphql/category/categoriesQuery'
 
 describe('POST /graphql categories', () => {
   test('Empty', async () => {
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Categories {
-          categories {
-            id
-          }
-        }`,
-      })
+    const res = await request(app).post(`/graphql`).send(categoriesQuery())
 
     expect(res.status).toEqual(200)
     expect(res.body).toEqual({ data: { categories: [] } })
@@ -29,16 +23,7 @@ describe('POST /graphql categories', () => {
     { case: 'invalid order type', query: { order: 1 } },
     { case: 'not allowed order', query: { order: 'any' } },
   ])('Bad request ($case)', async ({ query }) => {
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Categories($prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
-          categories(prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
-            id
-          }
-        }`,
-        variables: query,
-      })
+    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], query))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('BadRequestError'))
@@ -53,16 +38,7 @@ describe('POST /graphql categories', () => {
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
     const query = { cursor: 'id', size, order: 'asc' }
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Categories($prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
-          categories(prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
-            id
-          }
-        }`,
-        variables: query,
-      })
+    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], query))
 
     expect(res.status).toEqual(200)
     const firstInStoragePosition = 0
@@ -86,16 +62,7 @@ describe('POST /graphql categories', () => {
       .sort((a: Category, b: Category) => a.getId().toString().localeCompare(b.getId().toString()))
 
     const query = { cursor: 'id', size, order: 'desc' }
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Categories($prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
-          categories(prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
-            id
-          }
-        }`,
-        variables: query,
-      })
+    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], query))
 
     expect(res.status).toEqual(200)
 
@@ -131,16 +98,7 @@ describe('POST /graphql categories', () => {
 
     const prevCursor = categories[prev].getId().toString()
     const query = { cursor: 'id', size, order: 'asc' }
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Categories($prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
-          categories(prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
-            id
-          }
-        }`,
-        variables: { ...query, ...{ prevCursor } },
-      })
+    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], { ...query, ...{ prevCursor } }))
 
     expect(res.status).toEqual(200)
 
@@ -176,16 +134,7 @@ describe('POST /graphql categories', () => {
 
     const nextCursor = categories[next].getId().toString()
     const query = { cursor: 'id', size, order: 'asc' }
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Categories($prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
-          categories(prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
-            id
-          }
-        }`,
-        variables: { ...query, ...{ nextCursor } },
-      })
+    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], { ...query, ...{ nextCursor } }))
 
     expect(res.status).toEqual(200)
 
@@ -224,16 +173,7 @@ describe('POST /graphql categories', () => {
 
     const prevCursor = categories[prev].getId().toString()
     const query = { cursor: 'id', size, order: 'desc' }
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Categories($prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
-          categories(prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
-            id
-          }
-        }`,
-        variables: { ...query, ...{ prevCursor } },
-      })
+    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], { ...query, ...{ prevCursor } }))
 
     expect(res.status).toEqual(200)
 
@@ -269,16 +209,7 @@ describe('POST /graphql categories', () => {
 
     const nextCursor = categories[next].getId().toString()
     const query = { cursor: 'id', size, order: 'desc' }
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Categories($prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
-          categories(prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
-            id
-          }
-        }`,
-        variables: { ...query, ...{ nextCursor } },
-      })
+    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], { ...query, ...{ nextCursor } }))
 
     expect(res.status).toEqual(200)
 
@@ -301,17 +232,7 @@ describe('POST /graphql categories', () => {
   test('Not empty', async () => {
     const categories = await Promise.all([ fixture<Category>(Category), fixture<Category>(Category) ])
 
-    const res = await request(app)
-      .post(`/graphql`)
-      .send({
-        query: `query Categories($prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
-          categories(prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
-            id
-            name
-          }
-        }`,
-        variables: { size: 50 },
-      })
+    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id', 'name' ], { size: 50 }))
 
     expect(res.status).toEqual(200)
     expect(res.body.data.categories).toHaveLength(categories.length)
