@@ -15,5 +15,5 @@ type Category {
 
 type Query {
   categories(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10): [Category!]!
-  category(id: String!): Category!
+  category(categoryId: ID!): Category!
 }
