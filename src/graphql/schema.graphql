@@ -13,7 +13,20 @@ type Category {
   voters: Int!
 }
 
+input CredentialsSchema {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  authenticate(credentials: CredentialsSchema!): TokenSchema!
+}
+
 type Query {
   categories(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10): [Category!]!
   category(categoryId: ID!): Category!
+}
+
+type TokenSchema {
+  token: String!
 }
