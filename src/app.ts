@@ -27,7 +27,7 @@ import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { expressMiddleware } from '@apollo/server/express4'
 import { buildSchema } from 'type-graphql'
-import { resolvers } from './graphql/resolvers'
+import { resolvers as graphqlResolvers } from './graphql/resolvers'
 import { errors as graphqlErrors } from './graphql/errors'
 import Context from './graphql/context/Context'
 import { AuthCheckerService } from './service/auth/AuthCheckerService'
@@ -145,7 +145,7 @@ export default (): { api: () => Api } => {
       if (config.graphql.enabled) {
         const schema = await buildSchema({
           // @ts-ignore
-          resolvers,
+          resolvers: graphqlResolvers,
           container: Container,
           authChecker: authChecker.getTypeGraphqlAuthChecker(),
           emitSchemaFile: `${ projectDir }/src/graphql/schema.graphql`,
@@ -154,16 +154,13 @@ export default (): { api: () => Api } => {
           schema,
           plugins: [ ApolloServerPluginDrainHttpServer({ httpServer: server }) ],
           formatError: (formattedError: GraphQLFormattedError, error: GraphQLError) => {
-            const originalError = error.originalError.constructor.name
-
-            if (graphqlErrors.hasOwnProperty(originalError)) {
-              return { ...formattedError, extensions: { code: graphqlErrors[originalError] } }
-            }
-
-            const code = formattedError.extensions?.code as string
-
-            if (code && graphqlErrors.hasOwnProperty(code)) {
-              return { ...formattedError, extensions: { code: graphqlErrors[code] } }
+            for (const key of [
+              error.originalError.constructor.name,
+              formattedError.extensions.code as string,
+            ]) {
+              if (key && graphqlErrors.hasOwnProperty(key)) {
+                return { ...formattedError, extensions: { code: graphqlErrors[key] } }
+              }
             }
 
             return formattedError
