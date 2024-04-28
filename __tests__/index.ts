@@ -1,6 +1,5 @@
 import app from '../src/app'
 import { afterAll, beforeAll, beforeEach } from '@jest/globals'
-import { Application } from 'express'
 import Category from '../src/entity/Category'
 import User from '../src/entity/User'
 import { faker } from '@faker-js/faker'
@@ -40,7 +39,7 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
       object = (new User())
         .setName(faker.person.fullName())
         .setEmail(faker.internet.email())
-        .setPassword(faker.internet.password())
+        .setPassword(options['password'] ?? faker.internet.password())
         .setPermissions(options['permissions'] ?? [ Permission.REGULAR ])
 
       break
