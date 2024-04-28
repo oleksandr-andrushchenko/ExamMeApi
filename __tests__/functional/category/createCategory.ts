@@ -1,5 +1,6 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
+// @ts-ignore
 import { auth, error, fixture, load, server as app } from '../../index'
 import Category from '../../../src/entity/Category'
 import User from '../../../src/entity/User'
