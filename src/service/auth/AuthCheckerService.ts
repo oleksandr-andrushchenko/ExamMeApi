@@ -56,6 +56,10 @@ export class AuthCheckerService {
         return false
       }
 
+      if (permissions.length === 0) {
+        return true
+      }
+
       for (const permission of permissions) {
         if (await this.authService.verifyAuthorization(user, permission)) {
           return true
