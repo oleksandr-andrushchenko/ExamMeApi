@@ -6,4 +6,6 @@ export const errors = {
   [ApolloServerErrorCode.BAD_USER_INPUT]: 'BadRequestError',
   'UserEmailNotFoundError': 'NotFoundError',
   'UserWrongCredentialsError': 'ForbiddenError',
+  'UNAUTHENTICATED': 'AuthorizationRequiredError',
+  'AuthorizationFailedError': 'ForbiddenError',
 }
