@@ -8,4 +8,5 @@ export const errors = {
   'UserWrongCredentialsError': 'ForbiddenError',
   'UNAUTHENTICATED': 'AuthorizationRequiredError',
   'AuthorizationFailedError': 'ForbiddenError',
+  'CategoryNameTakenError': 'ConflictError',
 }
