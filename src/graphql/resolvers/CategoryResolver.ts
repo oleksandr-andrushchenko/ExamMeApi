@@ -1,9 +1,11 @@
 import { Inject, Service } from 'typedi'
 import CategoryService from '../../service/category/CategoryService'
-import { Args, Query, Resolver } from 'type-graphql'
+import { Arg, Args, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
 import Category from '../../entity/Category'
 import CategoryQuerySchema from '../../schema/category/CategoryQuerySchema'
 import GetCategorySchema from '../../schema/category/GetCategorySchema'
+import CategorySchema from '../../schema/category/CategorySchema'
+import User from '../../entity/User'
 import ValidatorInterface from '../../service/validator/ValidatorInterface'
 
 @Service()
@@ -30,5 +32,14 @@ export class CategoryResolver {
     @Args() categoryQuery: CategoryQuerySchema,
   ): Promise<Category[]> {
     return await this.categoryService.queryCategories(categoryQuery) as Category[]
+  }
+
+  @Authorized()
+  @Mutation(_returns => Category)
+  public async addCategory(
+    @Arg('category') category: CategorySchema,
+    @Ctx('user') user: User,
+  ): Promise<Category> {
+    return await this.categoryService.createCategory(category, user)
   }
 }
