@@ -35,7 +35,7 @@ describe('POST /categories', () => {
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
   test('Forbidden', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [] })
     const token = (await auth(user)).token
     const res = await request(app).post('/categories').send({ name: 'any' }).auth(token, { type: 'bearer' })
 
