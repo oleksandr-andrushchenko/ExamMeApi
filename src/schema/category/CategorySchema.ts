@@ -11,6 +11,6 @@ export default class CategorySchema {
   @Min(0)
   @Max(100)
   @IsNumber({ maxDecimalPlaces: 0 })
-  @Field(_type => Int, { defaultValue: 0 })
-  public readonly requiredScore: number = 0
+  @Field(_type => Int, { nullable: true, defaultValue: 0 })
+  public readonly requiredScore?: number = 0
 }
