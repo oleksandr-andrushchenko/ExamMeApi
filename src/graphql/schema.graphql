@@ -13,12 +13,18 @@ type Category {
   voters: Int!
 }
 
+input CategorySchema {
+  name: String!
+  requiredScore: Int = 0
+}
+
 input CredentialsSchema {
   email: String!
   password: String!
 }
 
 type Mutation {
+  addCategory(category: CategorySchema!): Category!
   authenticate(credentials: CredentialsSchema!): TokenSchema!
 }
 
