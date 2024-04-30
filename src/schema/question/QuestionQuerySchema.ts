@@ -1,26 +1,33 @@
 import PaginationSchema from '../pagination/PaginationSchema'
 import { IsEnum, IsIn, IsMongoId, IsOptional, IsString } from 'class-validator'
 import { QuestionDifficulty, QuestionType } from '../../entity/Question'
+import { ArgsType, Field, ID } from 'type-graphql'
 
+@ArgsType()
 export default class QuestionQuerySchema extends PaginationSchema {
 
   @IsOptional()
   @IsMongoId()
-  public category: string
+  @Field(_type => ID, { nullable: true })
+  public category?: string
 
   @IsOptional()
   @IsIn([ 'free', 'subscription' ])
-  public readonly price: string
+  @Field({ nullable: true })
+  public readonly price?: string
 
   @IsOptional()
   @IsString()
-  public readonly search: string
+  @Field({ nullable: true })
+  public readonly search?: string
 
   @IsOptional()
   @IsEnum(QuestionDifficulty)
-  public readonly difficulty: QuestionDifficulty
+  @Field({ nullable: true })
+  public readonly difficulty?: QuestionDifficulty
 
   @IsOptional()
   @IsEnum(QuestionType)
-  public readonly type: QuestionType
+  @Field({ nullable: true })
+  public readonly type?: QuestionType
 }
