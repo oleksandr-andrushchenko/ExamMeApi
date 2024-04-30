@@ -1,5 +1,5 @@
 import { IsIn, IsMongoId, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator'
-import { ArgsType, Field, ID, Int } from 'type-graphql'
+import { ArgsType, Field, Int } from 'type-graphql'
 
 @ArgsType()
 export default class PaginationSchema {
@@ -8,28 +8,28 @@ export default class PaginationSchema {
   @IsString()
   @IsMongoId()
   @Field({ nullable: true })
-  public readonly prevCursor: string
+  public readonly prevCursor?: string
 
   @IsOptional()
   @IsString()
   @IsMongoId()
   @Field({ nullable: true })
-  public readonly nextCursor: string
+  public readonly nextCursor?: string
 
   @IsOptional()
   @IsIn([ 'id', 'created', 'updated' ])
   @Field({ nullable: true })
-  public readonly cursor: string = 'id'
+  public readonly cursor?: string = 'id'
 
   @IsOptional()
   @Min(1)
   @Max(50)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Field(_type => Int, { nullable: true })
-  public readonly size: number = 10
+  public readonly size?: number = 10
 
   @IsOptional()
   @IsIn([ 'asc', 'desc' ])
   @Field({ nullable: true })
-  public readonly order: 'asc' | 'desc' = 'desc'
+  public readonly order?: 'asc' | 'desc' = 'desc'
 }
