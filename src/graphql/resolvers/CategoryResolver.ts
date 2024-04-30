@@ -56,4 +56,18 @@ export class CategoryResolver {
 
     return await this.categoryService.updateCategory(category, categoryUpdate, user)
   }
+
+  @Authorized()
+  @Mutation(_returns => Boolean)
+  public async removeCategory(
+    @Args() getCategory: GetCategorySchema,
+    @Ctx('user') user: User,
+  ): Promise<boolean> {
+    await this.validator.validate(getCategory)
+    const category = await this.categoryService.getCategory(getCategory.categoryId)
+
+    await this.categoryService.deleteCategory(category, user)
+
+    return true
+  }
 }

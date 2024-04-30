@@ -1,11 +1,13 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import { auth, error, fakeId, fixture, load, server as app } from '../../index'
+import { auth, error, fakeId, fixture, graphqlError, load, server as app } from '../../index'
 import Category from '../../../src/entity/Category'
 import User from '../../../src/entity/User'
 import CategoryPermission from '../../../src/enum/category/CategoryPermission'
+// @ts-ignore
+import { removeCategoryMutation } from '../../graphql/category/removeCategoryMutation'
 
-describe('DELETE /categories/:categoryId', () => {
+describe('Delete category', () => {
   test('Unauthorized', async () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()
@@ -75,6 +77,91 @@ describe('DELETE /categories/:categoryId', () => {
 
     expect(res.status).toEqual(204)
     expect(res.body).toEqual({})
+    expect(await load<Category>(Category, id)).toBeNull()
+  })
+  test('Unauthorized (GraphQL)', async () => {
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const res = await request(app).post(`/graphql`).send(removeCategoryMutation({ categoryId: id.toString() }))
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
+  })
+  test('Bad request (invalid id) (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const id = 'invalid'
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(removeCategoryMutation({ categoryId: id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('BadRequestError'))
+  })
+  test('Not found (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const id = await fakeId()
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(removeCategoryMutation({ categoryId: id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('NotFoundError'))
+  })
+  test('Forbidden (no permissions) (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const token = (await auth(user)).token
+    const res = await request(app).post(`/graphql`)
+      .send(removeCategoryMutation({ categoryId: id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('ForbiddenError'))
+  })
+  test('Forbidden (no ownership) (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
+    const id = category.getId()
+    const token = (await auth(user)).token
+    const res = await request(app).post(`/graphql`)
+      .send(removeCategoryMutation({ categoryId: id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('ForbiddenError'))
+  })
+  test('Deleted (has ownership) (GraphQL)', async () => {
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const user = await load<User>(User, category.getCreator())
+    const token = (await auth(user)).token
+    const res = await request(app).post(`/graphql`)
+      .send(removeCategoryMutation({ categoryId: id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject({ data: { removeCategory: true } })
+    expect(await load<Category>(Category, id)).toBeNull()
+  })
+  test('Deleted (has permission) (GraphQL)', async () => {
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const permissions = [
+      CategoryPermission.DELETE,
+    ]
+    const user = await fixture<User>(User, { permissions })
+    const token = (await auth(user)).token
+    const res = await request(app).post(`/graphql`)
+      .send(removeCategoryMutation({ categoryId: id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject({ data: { removeCategory: true } })
     expect(await load<Category>(Category, id)).toBeNull()
   })
 })
