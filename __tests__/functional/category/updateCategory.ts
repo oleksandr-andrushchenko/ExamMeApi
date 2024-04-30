@@ -1,11 +1,13 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import { auth, error, fakeId, fixture, load, server as app } from '../../index'
+import { auth, error, fakeId, fixture, graphqlError, load, server as app } from '../../index'
 import Category from '../../../src/entity/Category'
 import User from '../../../src/entity/User'
 import CategoryPermission from '../../../src/enum/category/CategoryPermission'
+// @ts-ignore
+import { updateCategoryMutation } from '../../graphql/category/updateCategoryMutation'
 
-describe('PATCH /categories/:categoryId', () => {
+describe('Update category', () => {
   test('Unauthorized', async () => {
     const category = await fixture<Category>(Category)
     const id = category.getId()
@@ -108,6 +110,160 @@ describe('PATCH /categories/:categoryId', () => {
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')
+    expect(await load<Category>(Category, id)).toMatchObject(schema)
+  })
+  test('Unauthorized (GraphQL)', async () => {
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(updateCategoryMutation([ 'id' ], {
+        categoryId: id.toString(),
+        categoryUpdate: { name: 'Any' },
+      }))
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
+  })
+  test('Bad request (invalid category id) (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const id = 'invalid'
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(updateCategoryMutation([ 'id' ], {
+        categoryId: id.toString(),
+        categoryUpdate: { name: 'Any' },
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('BadRequestError'))
+  })
+  test('Not found (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const id = await fakeId()
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(updateCategoryMutation([ 'id' ], {
+        categoryId: id.toString(),
+        categoryUpdate: { name: 'Any' },
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('NotFoundError'))
+  })
+  test.each([
+    { case: 'name too short', body: { name: 'a' } },
+    { case: 'name too long', body: { name: 'abc'.repeat(99) } },
+    { case: 'required score is string', body: { requiredScore: 'any' } },
+    { case: 'required score is float', body: { requiredScore: 0.1 } },
+    { case: 'required score is negative', body: { requiredScore: -1 } },
+    { case: 'required score is greater then 100', body: { requiredScore: 101 } },
+  ])('Bad request ($case) (GraphQL)', async ({ body }) => {
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(updateCategoryMutation([ 'id' ], {
+        categoryId: id.toString(),
+        categoryUpdate: body,
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('BadRequestError'))
+  })
+  test('Forbidden (no permissions) (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const token = (await auth(user)).token
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(updateCategoryMutation([ 'id' ], {
+        categoryId: id.toString(),
+        categoryUpdate: { name: 'Any' },
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('ForbiddenError'))
+  })
+  test('Forbidden (no ownership) (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
+    const id = category.getId()
+    const token = (await auth(user)).token
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(updateCategoryMutation([ 'id' ], {
+        categoryId: id.toString(),
+        categoryUpdate: { name: 'Any' },
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('ForbiddenError'))
+  })
+  test('Conflict (GraphQL)', async () => {
+    const category1 = await fixture<Category>(Category)
+    const category = await fixture<Category>(Category, { permissions: [ CategoryPermission.UPDATE ] })
+    const id = category.getId()
+    const user = await load<User>(User, category.getCreator())
+    const token = (await auth(user)).token
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(updateCategoryMutation([ 'id' ], {
+        categoryId: id.toString(),
+        categoryUpdate: { name: category1.getName() },
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('ConflictError'))
+  })
+  test('Updated (has ownership) (GraphQL)', async () => {
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const user = await load<User>(User, category.getCreator())
+    const token = (await auth(user)).token
+    const schema = { name: 'any' }
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(updateCategoryMutation([ 'id' ], {
+        categoryId: id.toString(),
+        categoryUpdate: schema,
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject({ data: { updateCategory: { id: id.toString() } } })
+    expect(await load<Category>(Category, id)).toMatchObject(schema)
+  })
+  test('Updated (has permission) (GraphQL)', async () => {
+    const category = await fixture<Category>(Category)
+    const id = category.getId()
+    const permissions = [
+      CategoryPermission.UPDATE,
+    ]
+    const user = await fixture<User>(User, { permissions })
+    const token = (await auth(user)).token
+    const schema = { name: 'any' }
+    const res = await request(app)
+      .post(`/graphql`)
+      .send(updateCategoryMutation([ 'id' ], {
+        categoryId: id.toString(),
+        categoryUpdate: schema,
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject({ data: { updateCategory: { id: id.toString() } } })
     expect(await load<Category>(Category, id)).toMatchObject(schema)
   })
 })

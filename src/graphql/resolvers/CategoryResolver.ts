@@ -6,6 +6,7 @@ import CategoryQuerySchema from '../../schema/category/CategoryQuerySchema'
 import GetCategorySchema from '../../schema/category/GetCategorySchema'
 import CategorySchema from '../../schema/category/CategorySchema'
 import User from '../../entity/User'
+import CategoryUpdateSchema from '../../schema/category/CategoryUpdateSchema'
 import ValidatorInterface from '../../service/validator/ValidatorInterface'
 
 @Service()
@@ -41,5 +42,18 @@ export class CategoryResolver {
     @Ctx('user') user: User,
   ): Promise<Category> {
     return await this.categoryService.createCategory(category, user)
+  }
+
+  @Authorized()
+  @Mutation(_returns => Category)
+  public async updateCategory(
+    @Args() getCategory: GetCategorySchema,
+    @Arg('categoryUpdate') categoryUpdate: CategoryUpdateSchema,
+    @Ctx('user') user: User,
+  ): Promise<Category> {
+    await this.validator.validate(getCategory)
+    const category = await this.categoryService.getCategory(getCategory.categoryId)
+
+    return await this.categoryService.updateCategory(category, categoryUpdate, user)
   }
 }

@@ -18,6 +18,11 @@ input CategorySchema {
   requiredScore: Int = 0
 }
 
+input CategoryUpdateSchema {
+  name: String
+  requiredScore: Int = 0
+}
+
 input CredentialsSchema {
   email: String!
   password: String!
@@ -26,6 +31,7 @@ input CredentialsSchema {
 type Mutation {
   addCategory(category: CategorySchema!): Category!
   authenticate(credentials: CredentialsSchema!): TokenSchema!
+  updateCategory(categoryId: ID!, categoryUpdate: CategoryUpdateSchema!): Category!
 }
 
 type Query {
