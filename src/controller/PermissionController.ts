@@ -10,7 +10,7 @@ import QuestionPermission from '../enum/question/QuestionPermission'
 @JsonController('/permissions')
 export default class PermissionController {
 
-  constructor(
+  public constructor(
     @Inject('authPermissions') private readonly permissionHierarchy: PermissionHierarchy,
   ) {
   }

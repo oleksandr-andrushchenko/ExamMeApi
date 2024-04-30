@@ -1,6 +1,5 @@
 import {
   Authorized,
-  BadRequestError,
   Body,
   CurrentUser,
   Delete,
@@ -15,18 +14,15 @@ import {
 import { Inject, Service } from 'typedi'
 import User from '../entity/User'
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi'
-import UserEmailTakenError from '../error/user/UserEmailTakenError'
-import ConflictHttpError from '../error/http/ConflictHttpError'
 import MeSchema from '../schema/user/MeSchema'
 import MeService from '../service/user/MeService'
 import MeUpdateSchema from '../schema/user/MeUpdateSchema'
-import ValidatorError from '../error/validator/ValidatorError'
 
 @Service()
 @JsonController('/me')
 export default class MeController {
 
-  constructor(
+  public constructor(
     @Inject() private readonly meService: MeService,
   ) {
   }
@@ -44,16 +40,7 @@ export default class MeController {
   public async createMe(
     @Body({ type: MeSchema, required: true }) me: MeSchema,
   ): Promise<User> {
-    try {
-      return await this.meService.createMe(me)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof UserEmailTakenError:
-          throw new ConflictHttpError((error as UserEmailTakenError).message)
-      }
-    }
+    return await this.meService.createMe(me)
   }
 
   @Get()
@@ -89,16 +76,7 @@ export default class MeController {
     @Body({ type: MeSchema, required: true }) me: MeSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
-    try {
-      await this.meService.replaceMe(me, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof UserEmailTakenError:
-          throw new ConflictHttpError((error as UserEmailTakenError).message)
-      }
-    }
+    await this.meService.replaceMe(me, user)
   }
 
   @Patch()
@@ -115,19 +93,10 @@ export default class MeController {
     },
   })
   public async updateMe(
-    @Body({ type: MeUpdateSchema, required: true }) me: MeUpdateSchema,
+    @Body({ type: MeUpdateSchema, required: true }) meUpdate: MeUpdateSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
-    try {
-      await this.meService.updateMe(me, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof UserEmailTakenError:
-          throw new ConflictHttpError((error as UserEmailTakenError).message)
-      }
-    }
+    await this.meService.updateMe(meUpdate, user)
   }
 
   @Delete()

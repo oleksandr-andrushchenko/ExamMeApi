@@ -1,14 +1,11 @@
 import {
   Authorized,
-  BadRequestError,
   Body,
   CurrentUser,
   Delete,
-  ForbiddenError,
   Get,
   HttpCode,
   JsonController,
-  NotFoundError,
   OnUndefined,
   Params,
   Post,
@@ -19,28 +16,20 @@ import Exam from '../entity/Exam'
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi'
 import User from '../entity/User'
 import CreateExamSchema from '../schema/exam/CreateExamSchema'
-import ConflictHttpError from '../error/http/ConflictHttpError'
-import AuthorizationFailedError from '../error/auth/AuthorizationFailedError'
 import ExamService from '../service/exam/ExamService'
-import CategoryNotFoundError from '../error/category/CategoryNotFoundError'
-import ValidatorError from '../error/validator/ValidatorError'
-import ExamNotFoundError from '../error/exam/ExamNotFoundError'
 import PaginatedExams from '../schema/exam/PaginatedExams'
-import ExamTakenError from '../error/exam/ExamTakenError'
 import GetExamSchema from '../schema/exam/GetExamSchema'
 import ExamQuestion from '../schema/exam/ExamQuestionSchema'
 import CreateExamQuestionAnswerSchema from '../schema/exam/CreateExamQuestionAnswerSchema'
 import GetExamQuestionSchema from '../schema/exam/GetExamQuestionSchema'
 import ValidatorInterface from '../service/validator/ValidatorInterface'
 import ExamQuerySchema from '../schema/exam/ExamQuerySchema'
-import QuestionNotFoundError from '../error/question/QuestionNotFoundError'
-import ExamQuestionNumberNotFoundError from '../error/exam/ExamQuestionNumberNotFoundError'
 
 @Service()
 @JsonController('/exams')
 export default class ExamController {
 
-  constructor(
+  public constructor(
     @Inject() private readonly examService: ExamService,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
@@ -61,23 +50,10 @@ export default class ExamController {
   })
   @ResponseSchema(Exam)
   public async createExam(
-    @Body({ type: CreateExamSchema, required: true }) createExamSchema: CreateExamSchema,
+    @Body({ type: CreateExamSchema, required: true }) createExam: CreateExamSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<Exam> {
-    try {
-      return await this.examService.createExam(createExamSchema, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof CategoryNotFoundError:
-          throw new BadRequestError((error as CategoryNotFoundError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof ExamTakenError:
-          throw new ConflictHttpError((error as ExamTakenError).message)
-      }
-    }
+    return await this.examService.createExam(createExam, user)
   }
 
   @Get()
@@ -92,17 +68,10 @@ export default class ExamController {
   })
   @ResponseSchema(PaginatedExams)
   public async queryExams(
-    @QueryParams({ type: ExamQuerySchema }) query: ExamQuerySchema,
+    @QueryParams({ type: ExamQuerySchema }) examQuery: ExamQuerySchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<PaginatedExams> {
-    try {
-      return await this.examService.queryExams(query, user, true) as PaginatedExams
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-      }
-    }
+    return await this.examService.queryExams(examQuery, user, true) as PaginatedExams
   }
 
   @Get('/:examId')
@@ -119,23 +88,12 @@ export default class ExamController {
   })
   @ResponseSchema(Exam)
   public async getExam(
-    @Params({ type: GetExamSchema, required: true }) getExamSchema: GetExamSchema,
+    @Params({ type: GetExamSchema, required: true }) getExam: GetExamSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<Exam> {
-    try {
-      await this.validator.validate(getExamSchema)
+    await this.validator.validate(getExam)
 
-      return await this.examService.getExam(getExamSchema.examId, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof CategoryNotFoundError:
-          throw new NotFoundError((error as CategoryNotFoundError).message)
-      }
-    }
+    return await this.examService.getExam(getExam.examId, user)
   }
 
   @Get('/:examId/questions/:question')
@@ -152,29 +110,16 @@ export default class ExamController {
   })
   @ResponseSchema(ExamQuestion)
   public async getExamQuestion(
-    @Params({ type: GetExamQuestionSchema, required: true }) getExamQuestionSchema: GetExamQuestionSchema,
+    @Params({ type: GetExamQuestionSchema, required: true }) getExamQuestion: GetExamQuestionSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<ExamQuestion> {
-    try {
-      await this.validator.validate(getExamQuestionSchema)
-      const exam = await this.examService.getExam(getExamQuestionSchema.examId, user)
+    await this.validator.validate(getExamQuestion)
+    const exam = await this.examService.getExam(getExamQuestion.examId, user)
 
-      const examQuestion = await this.examService.getExamQuestion(exam, getExamQuestionSchema.question, user)
-      await this.examService.setExamLastRequestedQuestionNumber(exam, getExamQuestionSchema.question, user)
+    const examQuestion = await this.examService.getExamQuestion(exam, getExamQuestion.question, user)
+    await this.examService.setExamLastRequestedQuestionNumber(exam, getExamQuestion.question, user)
 
-      return examQuestion
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof QuestionNotFoundError:
-          throw new NotFoundError((error as QuestionNotFoundError).message)
-        case error instanceof ExamQuestionNumberNotFoundError:
-          throw new NotFoundError((error as ExamQuestionNumberNotFoundError).message)
-      }
-    }
+    return examQuestion
   }
 
   @Post('/:examId/questions/:question/answer')
@@ -191,29 +136,19 @@ export default class ExamController {
   })
   @ResponseSchema(ExamQuestion)
   public async createExamQuestionAnswer(
-    @Params({ type: GetExamQuestionSchema, required: true }) getExamQuestionSchema: GetExamQuestionSchema,
-    @Body({ type: CreateExamQuestionAnswerSchema, required: true }) createAnswerSchema: CreateExamQuestionAnswerSchema,
+    @Params({ type: GetExamQuestionSchema, required: true }) getExamQuestion: GetExamQuestionSchema,
+    @Body({
+      type: CreateExamQuestionAnswerSchema,
+      required: true,
+    }) createExamQuestionAnswer: CreateExamQuestionAnswerSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<ExamQuestion> {
-    try {
-      await this.validator.validate(getExamQuestionSchema)
-      const exam = await this.examService.getExam(getExamQuestionSchema.examId, user)
+    await this.validator.validate(getExamQuestion)
+    const exam = await this.examService.getExam(getExamQuestion.examId, user)
 
-      await this.examService.createExamQuestionAnswer(exam, getExamQuestionSchema.question, createAnswerSchema, user)
+    await this.examService.createExamQuestionAnswer(exam, getExamQuestion.question, createExamQuestionAnswer, user)
 
-      return await this.examService.getExamQuestion(exam, getExamQuestionSchema.question, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof QuestionNotFoundError:
-          throw new NotFoundError((error as QuestionNotFoundError).message)
-        case error instanceof ExamQuestionNumberNotFoundError:
-          throw new NotFoundError((error as ExamQuestionNumberNotFoundError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-      }
-    }
+    return await this.examService.getExamQuestion(exam, getExamQuestion.question, user)
   }
 
   @Post('/:examId/completion')
@@ -230,24 +165,15 @@ export default class ExamController {
   })
   @ResponseSchema(ExamQuestion)
   public async createExamCompletion(
-    @Params({ type: GetExamSchema, required: true }) getExamSchema: GetExamSchema,
+    @Params({ type: GetExamSchema, required: true }) getExam: GetExamSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<Exam> {
-    try {
-      await this.validator.validate(getExamSchema)
-      const exam = await this.examService.getExam(getExamSchema.examId, user)
+    await this.validator.validate(getExam)
+    const exam = await this.examService.getExam(getExam.examId, user)
 
-      await this.examService.createExamCompletion(exam, user)
+    await this.examService.createExamCompletion(exam, user)
 
-      return exam
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-      }
-    }
+    return exam
   }
 
   @Delete('/:examId')
@@ -265,23 +191,12 @@ export default class ExamController {
     },
   })
   public async deleteExam(
-    @Params({ type: GetExamSchema, required: true }) getExamSchema: GetExamSchema,
+    @Params({ type: GetExamSchema, required: true }) getExam: GetExamSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
-    try {
-      await this.validator.validate(getExamSchema)
-      const exam = await this.examService.getExam(getExamSchema.examId, user)
+    await this.validator.validate(getExam)
+    const exam = await this.examService.getExam(getExam.examId, user)
 
-      await this.examService.deleteExam(exam, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof ExamNotFoundError:
-          throw new NotFoundError((error as ExamNotFoundError).message)
-      }
-    }
+    await this.examService.deleteExam(exam, user)
   }
 }

@@ -22,6 +22,7 @@ import AuthorizationFailedError from '../../error/auth/AuthorizationFailedError'
 import ExamQuerySchema from '../../schema/exam/ExamQuerySchema'
 import ExamQuestionNumberNotFoundError from '../../error/exam/ExamQuestionNumberNotFoundError'
 import ExamPermission from '../../enum/exam/ExamPermission'
+import QuestionNotFoundError from '../../error/question/QuestionNotFoundError'
 
 @Service()
 export default class ExamService {
@@ -154,6 +155,12 @@ export default class ExamService {
     await this.validator.validate(examQuestionAnswer)
 
     const questions = exam.getQuestions()
+    const questionId = questions[questionNumber]
+
+    if (questionId === undefined) {
+      throw new QuestionNotFoundError('undefined' as any)
+    }
+
     const question = await this.questionService.getQuestion(questions[questionNumber].getQuestion())
 
     if (question.getType() === QuestionType.CHOICE) {

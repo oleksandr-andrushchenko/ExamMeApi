@@ -1,14 +1,11 @@
 import {
   Authorized,
-  BadRequestError,
   Body,
   CurrentUser,
   Delete,
-  ForbiddenError,
   Get,
   HttpCode,
   JsonController,
-  NotFoundError,
   OnUndefined,
   Params,
   Patch,
@@ -21,14 +18,8 @@ import Question from '../entity/Question'
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi'
 import User from '../entity/User'
 import QuestionSchema from '../schema/question/QuestionSchema'
-import QuestionTitleTakenError from '../error/question/QuestionTitleTakenError'
-import ConflictHttpError from '../error/http/ConflictHttpError'
-import AuthorizationFailedError from '../error/auth/AuthorizationFailedError'
 import QuestionService from '../service/question/QuestionService'
-import CategoryNotFoundError from '../error/category/CategoryNotFoundError'
-import ValidatorError from '../error/validator/ValidatorError'
 import CategoryService from '../service/category/CategoryService'
-import QuestionNotFoundError from '../error/question/QuestionNotFoundError'
 import QuestionUpdateSchema from '../schema/question/QuestionUpdateSchema'
 import PaginatedQuestions from '../schema/question/PaginatedQuestions'
 import ValidatorInterface from '../service/validator/ValidatorInterface'
@@ -40,7 +31,7 @@ import QuestionQuerySchema from '../schema/question/QuestionQuerySchema'
 @JsonController()
 export default class QuestionController {
 
-  constructor(
+  public constructor(
     @Inject() private readonly questionService: QuestionService,
     @Inject() private readonly categoryService: CategoryService,
     @Inject('validator') private readonly validator: ValidatorInterface,
@@ -62,23 +53,10 @@ export default class QuestionController {
   })
   @ResponseSchema(Question)
   public async createQuestion(
-    @Body({ type: QuestionSchema, required: true }) questionSchema: QuestionSchema,
+    @Body({ type: QuestionSchema, required: true }) question: QuestionSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<Question> {
-    try {
-      return await this.questionService.createQuestion(questionSchema, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof CategoryNotFoundError:
-          throw new BadRequestError((error as CategoryNotFoundError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof QuestionTitleTakenError:
-          throw new ConflictHttpError((error as QuestionTitleTakenError).message)
-      }
-    }
+    return await this.questionService.createQuestion(question, user)
   }
 
   @Get('/questions')
@@ -91,16 +69,9 @@ export default class QuestionController {
   })
   @ResponseSchema(PaginatedQuestions)
   public async queryQuestions(
-    @QueryParams({ type: QuestionQuerySchema }) query: QuestionQuerySchema,
+    @QueryParams({ type: QuestionQuerySchema }) questionQuery: QuestionQuerySchema,
   ): Promise<PaginatedQuestions> {
-    try {
-      return await this.questionService.queryQuestions(query, true) as PaginatedQuestions
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-      }
-    }
+    return await this.questionService.queryQuestions(questionQuery, true) as PaginatedQuestions
   }
 
   @Get('/categories/:categoryId/questions')
@@ -113,23 +84,13 @@ export default class QuestionController {
   })
   @ResponseSchema(PaginatedQuestions)
   public async queryCategoryQuestions(
-    @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
-    @QueryParams({ type: QuestionQuerySchema }) query: QuestionQuerySchema,
+    @Params({ type: GetCategorySchema, required: true }) getCategory: GetCategorySchema,
+    @QueryParams({ type: QuestionQuerySchema }) questionQuery: QuestionQuerySchema,
   ): Promise<PaginatedQuestions> {
-    try {
-      await this.validator.validate(getCategorySchema)
+    await this.validator.validate(getCategory)
+    const category = await this.categoryService.getCategory(getCategory.categoryId)
 
-      const category = await this.categoryService.getCategory(getCategorySchema.categoryId)
-
-      return await this.questionService.queryCategoryQuestions(category, query, true) as PaginatedQuestions
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof CategoryNotFoundError:
-          throw new NotFoundError((error as CategoryNotFoundError).message)
-      }
-    }
+    return await this.questionService.queryCategoryQuestions(category, questionQuery, true) as PaginatedQuestions
   }
 
   @Get('/questions/:questionId')
@@ -142,20 +103,11 @@ export default class QuestionController {
   })
   @ResponseSchema(Question)
   public async getQuestion(
-    @Params({ type: GetQuestionSchema, required: true }) getQuestionSchema: GetQuestionSchema,
+    @Params({ type: GetQuestionSchema, required: true }) getQuestion: GetQuestionSchema,
   ): Promise<Question> {
-    try {
-      await this.validator.validate(getQuestionSchema)
+    await this.validator.validate(getQuestion)
 
-      return await this.questionService.getQuestion(getQuestionSchema.questionId)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof QuestionNotFoundError:
-          throw new NotFoundError((error as QuestionNotFoundError).message)
-      }
-    }
+    return await this.questionService.getQuestion(getQuestion.questionId)
   }
 
   @Put('/questions/:questionId')
@@ -174,30 +126,14 @@ export default class QuestionController {
     },
   })
   public async replaceQuestion(
-    @Params({ type: GetQuestionSchema, required: true }) getQuestionSchema: GetQuestionSchema,
-    @Body({ type: QuestionSchema, required: true }) questionSchema: QuestionSchema,
+    @Params({ type: GetQuestionSchema, required: true }) getQuestion: GetQuestionSchema,
+    @Body({ type: QuestionSchema, required: true }) questionReplace: QuestionSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
-    try {
-      await this.validator.validate(getQuestionSchema)
+    await this.validator.validate(getQuestion)
+    const question = await this.questionService.getQuestion(getQuestion.questionId)
 
-      const question = await this.questionService.getQuestion(getQuestionSchema.questionId)
-
-      await this.questionService.replaceQuestion(question, questionSchema, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof CategoryNotFoundError:
-          throw new BadRequestError((error as CategoryNotFoundError).message)
-        case error instanceof QuestionNotFoundError:
-          throw new NotFoundError((error as QuestionNotFoundError).message)
-        case error instanceof QuestionTitleTakenError:
-          throw new ConflictHttpError((error as QuestionTitleTakenError).message)
-      }
-    }
+    await this.questionService.replaceQuestion(question, questionReplace, user)
   }
 
   @Patch('/questions/:questionId')
@@ -216,30 +152,14 @@ export default class QuestionController {
     },
   })
   public async updateQuestion(
-    @Params({ type: GetQuestionSchema, required: true }) getQuestionSchema: GetQuestionSchema,
-    @Body({ type: QuestionUpdateSchema, required: true }) questionUpdateSchema: QuestionUpdateSchema,
+    @Params({ type: GetQuestionSchema, required: true }) getQuestion: GetQuestionSchema,
+    @Body({ type: QuestionUpdateSchema, required: true }) questionUpdate: QuestionUpdateSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
-    try {
-      await this.validator.validate(getQuestionSchema)
+    await this.validator.validate(getQuestion)
+    const question = await this.questionService.getQuestion(getQuestion.questionId)
 
-      const question = await this.questionService.getQuestion(getQuestionSchema.questionId)
-
-      await this.questionService.updateQuestion(question, questionUpdateSchema, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof CategoryNotFoundError:
-          throw new BadRequestError((error as CategoryNotFoundError).message)
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof QuestionNotFoundError:
-          throw new NotFoundError((error as QuestionNotFoundError).message)
-        case error instanceof QuestionTitleTakenError:
-          throw new ConflictHttpError((error as QuestionTitleTakenError).message)
-      }
-    }
+    await this.questionService.updateQuestion(question, questionUpdate, user)
   }
 
   @Delete('/questions/:questionId')
@@ -257,24 +177,12 @@ export default class QuestionController {
     },
   })
   public async deleteQuestion(
-    @Params({ type: GetQuestionSchema, required: true }) getQuestionSchema: GetQuestionSchema,
+    @Params({ type: GetQuestionSchema, required: true }) getQuestion: GetQuestionSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
-    try {
-      await this.validator.validate(getQuestionSchema)
+    await this.validator.validate(getQuestion)
+    const question = await this.questionService.getQuestion(getQuestion.questionId)
 
-      const question = await this.questionService.getQuestion(getQuestionSchema.questionId)
-
-      await this.questionService.deleteQuestion(question, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof QuestionNotFoundError:
-          throw new NotFoundError((error as QuestionNotFoundError).message)
-      }
-    }
+    await this.questionService.deleteQuestion(question, user)
   }
 }

@@ -28,7 +28,7 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { expressMiddleware } from '@apollo/server/express4'
 import { buildSchema } from 'type-graphql'
 import { resolvers as graphqlResolvers } from './graphql/resolvers'
-import { errors as graphqlErrors } from './graphql/errors'
+import { errors } from './errors'
 import Context from './graphql/context/Context'
 import { AuthCheckerService } from './service/auth/AuthCheckerService'
 import { GraphQLError } from 'graphql/error'
@@ -154,12 +154,21 @@ export default (): { api: () => Api } => {
           schema,
           plugins: [ ApolloServerPluginDrainHttpServer({ httpServer: server }) ],
           formatError: (formattedError: GraphQLFormattedError, error: GraphQLError) => {
+
             for (const key of [
               error.originalError.constructor.name,
               formattedError.extensions.code as string,
             ]) {
-              if (key && graphqlErrors.hasOwnProperty(key)) {
-                return { ...formattedError, extensions: { code: graphqlErrors[key] } }
+              if (key && errors.hasOwnProperty(key)) {
+                return { ...formattedError, extensions: { code: errors[key] } }
+              }
+            }
+
+            for (const name in errors) {
+              for (const key of [ error.originalError.constructor.name, formattedError.extensions.code as string ]) {
+                if (key && errors[name].types.includes(key)) {
+                  return { ...formattedError, extensions: { name, code: errors[name].code } }
+                }
               }
             }
 

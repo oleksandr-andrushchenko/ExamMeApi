@@ -1,28 +1,15 @@
-import {
-  Authorized,
-  BadRequestError,
-  Body,
-  CurrentUser,
-  ForbiddenError,
-  HttpCode,
-  JsonController,
-  Post,
-} from 'routing-controllers'
+import { Authorized, Body, CurrentUser, HttpCode, JsonController, Post } from 'routing-controllers'
 import { Inject, Service } from 'typedi'
 import User from '../entity/User'
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi'
 import UserService from '../service/user/UserService'
 import UserSchema from '../schema/user/UserSchema'
-import UserEmailTakenError from '../error/user/UserEmailTakenError'
-import ConflictHttpError from '../error/http/ConflictHttpError'
-import AuthorizationFailedError from '../error/auth/AuthorizationFailedError'
-import ValidatorError from '../error/validator/ValidatorError'
 
 @Service()
 @JsonController('/users')
 export default class UserController {
 
-  constructor(
+  public constructor(
     @Inject() private readonly userService: UserService,
   ) {
   }
@@ -45,17 +32,6 @@ export default class UserController {
     @Body({ type: UserSchema, required: true }) user: UserSchema,
     @CurrentUser({ required: true }) currentUser: User,
   ): Promise<User> {
-    try {
-      return await this.userService.createUser(user, currentUser)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof UserEmailTakenError:
-          throw new ConflictHttpError((error as UserEmailTakenError).message)
-      }
-    }
+    return await this.userService.createUser(user, currentUser)
   }
 }

@@ -1,14 +1,11 @@
 import {
   Authorized,
-  BadRequestError,
   Body,
   CurrentUser,
   Delete,
-  ForbiddenError,
   Get,
   HttpCode,
   JsonController,
-  NotFoundError,
   OnUndefined,
   Params,
   Patch,
@@ -22,12 +19,7 @@ import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi'
 import CategoryService from '../service/category/CategoryService'
 import User from '../entity/User'
 import CategorySchema from '../schema/category/CategorySchema'
-import CategoryNotFoundError from '../error/category/CategoryNotFoundError'
-import CategoryNameTakenError from '../error/category/CategoryNameTakenError'
-import ConflictHttpError from '../error/http/ConflictHttpError'
-import AuthorizationFailedError from '../error/auth/AuthorizationFailedError'
 import CategoryUpdateSchema from '../schema/category/CategoryUpdateSchema'
-import ValidatorError from '../error/validator/ValidatorError'
 import PaginatedCategories from '../schema/category/PaginatedCategories'
 import ValidatorInterface from '../service/validator/ValidatorInterface'
 import GetCategorySchema from '../schema/category/GetCategorySchema'
@@ -37,7 +29,7 @@ import CategoryQuerySchema from '../schema/category/CategoryQuerySchema'
 @JsonController('/categories')
 export default class CategoryController {
 
-  constructor(
+  public constructor(
     @Inject() private readonly categoryService: CategoryService,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
@@ -61,18 +53,7 @@ export default class CategoryController {
     @Body({ type: CategorySchema, required: true }) category: CategorySchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<Category> {
-    try {
-      return await this.categoryService.createCategory(category, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof CategoryNameTakenError:
-          throw new ConflictHttpError((error as CategoryNameTakenError).message)
-      }
-    }
+    return await this.categoryService.createCategory(category, user)
   }
 
   @Get()
@@ -83,16 +64,9 @@ export default class CategoryController {
   })
   @ResponseSchema(PaginatedCategories)
   public async queryCategories(
-    @QueryParams({ type: CategoryQuerySchema }) query: CategoryQuerySchema,
+    @QueryParams({ type: CategoryQuerySchema }) categoryQuery: CategoryQuerySchema,
   ): Promise<PaginatedCategories> {
-    try {
-      return await this.categoryService.queryCategories(query, true) as PaginatedCategories
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-      }
-    }
+    return await this.categoryService.queryCategories(categoryQuery, true) as PaginatedCategories
   }
 
   @Get('/:categoryId')
@@ -105,20 +79,11 @@ export default class CategoryController {
   })
   @ResponseSchema(Category)
   public async getCategory(
-    @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
+    @Params({ type: GetCategorySchema, required: true }) getCategory: GetCategorySchema,
   ): Promise<Category> {
-    try {
-      await this.validator.validate(getCategorySchema)
+    await this.validator.validate(getCategory)
 
-      return await this.categoryService.getCategory(getCategorySchema.categoryId)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof CategoryNotFoundError:
-          throw new NotFoundError((error as CategoryNotFoundError).message)
-      }
-    }
+    return await this.categoryService.getCategory(getCategory.categoryId)
   }
 
   @Put('/:categoryId')
@@ -137,28 +102,14 @@ export default class CategoryController {
     },
   })
   public async replaceCategory(
-    @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
-    @Body({ type: CategorySchema, required: true }) categorySchema: CategorySchema,
+    @Params({ type: GetCategorySchema, required: true }) getCategory: GetCategorySchema,
+    @Body({ type: CategorySchema, required: true }) categoryReplace: CategorySchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
-    try {
-      await this.validator.validate(getCategorySchema)
+    await this.validator.validate(getCategory)
+    const category = await this.categoryService.getCategory(getCategory.categoryId)
 
-      const category = await this.categoryService.getCategory(getCategorySchema.categoryId)
-
-      await this.categoryService.replaceCategory(category, categorySchema, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof CategoryNotFoundError:
-          throw new NotFoundError((error as CategoryNotFoundError).message)
-        case error instanceof CategoryNameTakenError:
-          throw new ConflictHttpError((error as CategoryNameTakenError).message)
-      }
-    }
+    await this.categoryService.replaceCategory(category, categoryReplace, user)
   }
 
   @Patch('/:categoryId')
@@ -177,28 +128,14 @@ export default class CategoryController {
     },
   })
   public async updateCategory(
-    @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
-    @Body({ type: CategoryUpdateSchema, required: true }) categoryUpdateSchema: CategoryUpdateSchema,
+    @Params({ type: GetCategorySchema, required: true }) getCategory: GetCategorySchema,
+    @Body({ type: CategoryUpdateSchema, required: true }) categoryUpdate: CategoryUpdateSchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
-    try {
-      await this.validator.validate(getCategorySchema)
+    await this.validator.validate(getCategory)
+    const category = await this.categoryService.getCategory(getCategory.categoryId)
 
-      const category = await this.categoryService.getCategory(getCategorySchema.categoryId)
-
-      await this.categoryService.updateCategory(category, categoryUpdateSchema, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof CategoryNotFoundError:
-          throw new NotFoundError((error as CategoryNotFoundError).message)
-        case error instanceof CategoryNameTakenError:
-          throw new ConflictHttpError((error as CategoryNameTakenError).message)
-      }
-    }
+    await this.categoryService.updateCategory(category, categoryUpdate, user)
   }
 
   @Delete('/:categoryId')
@@ -216,23 +153,12 @@ export default class CategoryController {
     },
   })
   public async deleteCategory(
-    @Params({ type: GetCategorySchema, required: true }) getCategorySchema: GetCategorySchema,
+    @Params({ type: GetCategorySchema, required: true }) getCategory: GetCategorySchema,
     @CurrentUser({ required: true }) user: User,
   ): Promise<void> {
-    try {
-      await this.validator.validate(getCategorySchema)
-      const category = await this.categoryService.getCategory(getCategorySchema.categoryId)
+    await this.validator.validate(getCategory)
+    const category = await this.categoryService.getCategory(getCategory.categoryId)
 
-      await this.categoryService.deleteCategory(category, user)
-    } catch (error) {
-      switch (true) {
-        case error instanceof ValidatorError:
-          throw new BadRequestError((error as ValidatorError).message)
-        case error instanceof AuthorizationFailedError:
-          throw new ForbiddenError((error as AuthorizationFailedError).message)
-        case error instanceof CategoryNotFoundError:
-          throw new NotFoundError((error as CategoryNotFoundError).message)
-      }
-    }
+    await this.categoryService.deleteCategory(category, user)
   }
 }
