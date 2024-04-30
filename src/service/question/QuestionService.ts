@@ -22,7 +22,7 @@ import QuestionTypeError from '../../error/question/QuestionTypeError'
 @Service()
 export default class QuestionService {
 
-  constructor(
+  public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly categoryService: CategoryService,
     @Inject() private readonly questionRepository: QuestionRepository,

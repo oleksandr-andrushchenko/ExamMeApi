@@ -6,7 +6,7 @@ import ValidatorError from '../../error/validator/ValidatorError'
 @Service()
 export default class ClassValidatorValidator implements ValidatorInterface {
 
-  constructor(
+  public constructor(
     @Inject('validatorOptions') private readonly options: ValidatorOptions,
   ) {
   }

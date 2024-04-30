@@ -11,7 +11,7 @@ import { ObjectId } from 'mongodb'
 @Service()
 export default class AuthService {
 
-  constructor(
+  public constructor(
     @Inject() private readonly tokenService: TokenService,
     @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
     @Inject('authPermissions') private readonly permissions: { [permission: string]: Permission[] },

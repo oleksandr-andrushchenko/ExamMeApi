@@ -19,7 +19,7 @@ import UserEmailNotFoundError from '../../error/user/UserEmailNotFoundError'
 @Service()
 export default class UserService {
 
-  constructor(
+  public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly userRepository: UserRepository,
     @Inject() private readonly authService: AuthService,

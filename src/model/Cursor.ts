@@ -8,7 +8,7 @@ import PaginatedSchema, { PaginatedMetaSchema } from '../schema/pagination/Pagin
  */
 export default class Cursor<Entity> {
 
-  constructor(
+  public constructor(
     private readonly pagination: PaginationSchema,
     private repository: MongoRepository<Entity> = undefined,
   ) {

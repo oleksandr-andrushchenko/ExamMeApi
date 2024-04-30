@@ -8,7 +8,7 @@ import LoggerInterface from '../service/logger/LoggerInterface'
 @Middleware({ type: 'before' })
 export default class LogMiddleware implements ExpressMiddlewareInterface {
 
-  constructor(
+  public constructor(
     @Inject('logger') private readonly logger: LoggerInterface,
     @Inject('loggerFormat') private readonly format: string,
   ) {

@@ -7,7 +7,7 @@ import UserService from '../service/user/UserService'
 @EventSubscriber()
 export default class UserSubscriber implements EntitySubscriberInterface {
 
-  constructor(
+  public constructor(
     @Inject() private readonly userService: UserService,
   ) {
   }

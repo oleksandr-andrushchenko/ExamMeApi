@@ -1,6 +1,6 @@
 export default class CategoryNameTakenError extends Error {
 
-  constructor(name: string) {
+  public constructor(name: string) {
     super(`Name "${ name }" is already taken`)
   }
 }

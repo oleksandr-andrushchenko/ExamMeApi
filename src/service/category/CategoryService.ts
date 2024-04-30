@@ -19,7 +19,7 @@ import CategoryPermission from '../../enum/category/CategoryPermission'
 @Service()
 export default class CategoryService {
 
-  constructor(
+  public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly categoryRepository: CategoryRepository,
     @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,

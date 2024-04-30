@@ -11,7 +11,7 @@ import MeUpdateSchema from '../../schema/user/MeUpdateSchema'
 @Service()
 export default class MeService {
 
-  constructor(
+  public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
     @Inject('validator') private readonly validator: ValidatorInterface,

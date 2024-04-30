@@ -1,6 +1,6 @@
 export default class UserWrongCredentialsError extends Error {
 
-  constructor() {
+  public constructor() {
     super('Passwords not matched')
   }
 }

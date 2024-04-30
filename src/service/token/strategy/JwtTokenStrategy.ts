@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken'
 
 export default class JwtTokenStrategy implements TokenStrategyInterface {
 
-  constructor(
+  public constructor(
     private readonly secret: string,
   ) {
   }

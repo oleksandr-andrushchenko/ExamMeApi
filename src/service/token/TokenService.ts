@@ -20,7 +20,7 @@ export type TokenPayload = {
 @Service()
 export default class TokenService {
 
-  constructor(
+  public constructor(
     @Inject('tokenStrategy') private readonly tokenStrategy: TokenStrategyInterface,
   ) {
   }

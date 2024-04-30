@@ -7,7 +7,7 @@ import { WinstonLoggerFactory } from './WinstonLoggerFactory'
 @Service({ factory: [ WinstonLoggerFactory, 'create' ] })
 export default class WinstonLogger extends Logger implements LoggerInterface {
 
-  constructor(private readonly winstonLogger: winston.Logger) {
+  public constructor(private readonly winstonLogger: winston.Logger) {
     super()
   }
 

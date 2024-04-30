@@ -7,7 +7,7 @@ import Question from '../entity/Question'
 @EventSubscriber()
 export default class QuestionSubscriber implements EntitySubscriberInterface {
 
-  constructor(
+  public constructor(
     @Inject() private readonly escapeHtmlSpecialCharsService: EscapeHtmlSpecialCharsService,
   ) {
   }

@@ -8,7 +8,7 @@ import { errors } from '../errors'
 @Middleware({ type: 'after' })
 export default class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
 
-  constructor(
+  public constructor(
     @Inject('env') private readonly env: string,
     @Inject('logger') private readonly logger: LoggerInterface,
   ) {

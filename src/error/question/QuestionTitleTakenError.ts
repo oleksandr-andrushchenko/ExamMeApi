@@ -1,6 +1,6 @@
 export default class QuestionTitleTakenError extends Error {
 
-  constructor(title: string) {
+  public constructor(title: string) {
     super(`Title "${ title }" is already taken`)
   }
 }

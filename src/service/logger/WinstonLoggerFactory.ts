@@ -5,7 +5,7 @@ import winston, { configure, format, transports } from 'winston'
 @Service()
 export class WinstonLoggerFactory {
 
-  constructor(
+  public constructor(
     @Inject('loggerLevel') private readonly level: string,
     @Inject('loggerFormat') private readonly format: string,
   ) {
