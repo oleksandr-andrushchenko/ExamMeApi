@@ -150,7 +150,7 @@ export default (): { api: () => Api } => {
           scalarsMap: scalars,
           container: Container,
           authChecker: authChecker.getTypeGraphqlAuthChecker(),
-          emitSchemaFile: `${ projectDir }/src/schema.graphql`,
+          emitSchemaFile: `${ projectDir }/schema.graphql`,
         })
         const apolloServer = new ApolloServer<Context>({
           schema,
