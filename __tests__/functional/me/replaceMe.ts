@@ -22,7 +22,7 @@ describe('PUT /me', () => {
     const user1 = await fixture<User>(User)
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const schema = { name: 'any', email: user1.getEmail(), password: '123123' }
+    const schema = { name: 'any', email: user1.email, password: '123123' }
     const res = await request(app).put(`/me`).send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
@@ -36,6 +36,6 @@ describe('PUT /me', () => {
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')
-    expect(await load<User>(User, user.getId())).toMatchObject(schema)
+    expect(await load<User>(User, user.id)).toMatchObject(schema)
   })
 })

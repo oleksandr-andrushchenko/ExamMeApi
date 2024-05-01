@@ -34,7 +34,7 @@ describe('GET /categories/:categoryId/questions', () => {
   })
   test('Empty', async () => {
     const category = await fixture<Category>(Category)
-    const categoryId = category.getId()
+    const categoryId = category.id
     const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`)
 
     expect(res.status).toEqual(200)
@@ -42,7 +42,7 @@ describe('GET /categories/:categoryId/questions', () => {
   })
   test('Not empty', async () => {
     const category = await fixture<Category>(Category)
-    const categoryId = category.getId()
+    const categoryId = category.id
     const questions = await Promise.all([
       fixture<Question>(Question, { category: categoryId }),
       fixture<Question>(Question, { category: categoryId }),
@@ -56,31 +56,31 @@ describe('GET /categories/:categoryId/questions', () => {
     type resType = { [title: string]: string };
     const body = res.body.data.sort((a: resType, b: resType) => a.title.localeCompare(b.title))
     questions
-      .sort((a: Question, b: Question) => a.getTitle().localeCompare(b.getTitle()))
+      .sort((a: Question, b: Question) => a.title.localeCompare(b.title))
       .forEach((question: Question, index: number) => {
         expect(body[index]).toMatchObject({
-          category: question.getCategory().toString(),
-          type: question.getType(),
-          difficulty: question.getDifficulty(),
-          title: question.getTitle(),
+          category: question.category.toString(),
+          type: question.type,
+          difficulty: question.difficulty,
+          title: question.title,
         })
 
-        if (question.getType() === QuestionType.TYPE) {
+        if (question.type === QuestionType.TYPE) {
           expect(body[index]).toHaveProperty('answers')
-          question.getAnswers().forEach((choice: QuestionAnswer, index2: number) => {
+          question.answers.forEach((choice: QuestionAnswer, index2: number) => {
             expect(body[index].answers[index2]).toMatchObject({
-              variants: choice.getVariants(),
-              correct: choice.isCorrect(),
-              explanation: choice.getExplanation() ?? null,
+              variants: choice.variants,
+              correct: choice.correct,
+              explanation: choice.explanation ?? null,
             })
           })
-        } else if (question.getType() === QuestionType.CHOICE) {
+        } else if (question.type === QuestionType.CHOICE) {
           expect(body[index]).toHaveProperty('choices')
-          question.getChoices().forEach((choice: QuestionChoice, index2: number) => {
+          question.choices.forEach((choice: QuestionChoice, index2: number) => {
             expect(body[index].choices[index2]).toMatchObject({
-              title: choice.getTitle(),
-              correct: choice.isCorrect(),
-              explanation: choice.getExplanation() ?? null,
+              title: choice.title,
+              correct: choice.correct,
+              explanation: choice.explanation ?? null,
             })
           })
         }

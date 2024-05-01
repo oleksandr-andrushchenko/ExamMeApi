@@ -10,7 +10,7 @@ import { updateCategoryMutation } from '../../graphql/category/updateCategoryMut
 describe('Update category', () => {
   test('Unauthorized', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: 'any' })
 
     expect(res.status).toEqual(401)
@@ -46,7 +46,7 @@ describe('Update category', () => {
     { case: 'required score is greater then 100', body: { requiredScore: 101 } },
   ])('Bad request ($case)', async ({ body }) => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const res = await request(app).patch(`/categories/${ id.toString() }`).send(body).auth(token, { type: 'bearer' })
@@ -57,7 +57,7 @@ describe('Update category', () => {
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: 'any' }).auth(token, { type: 'bearer' })
 
@@ -67,7 +67,7 @@ describe('Update category', () => {
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: 'any' }).auth(token, { type: 'bearer' })
 
@@ -77,18 +77,18 @@ describe('Update category', () => {
   test('Conflict', async () => {
     const category1 = await fixture<Category>(Category)
     const category = await fixture<Category>(Category, { permissions: [ CategoryPermission.UPDATE ] })
-    const id = category.getId()
-    const user = await load<User>(User, category.getCreator())
+    const id = category.id
+    const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
-    const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: category1.getName() }).auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/categories/${ id.toString() }`).send({ name: category1.name }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
   test('Updated (has ownership)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
-    const user = await load<User>(User, category.getCreator())
+    const id = category.id
+    const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
     const schema = { name: 'any' }
     const res = await request(app).patch(`/categories/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
@@ -99,7 +99,7 @@ describe('Update category', () => {
   })
   test('Updated (has permission)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const permissions = [
       CategoryPermission.UPDATE,
     ]
@@ -114,7 +114,7 @@ describe('Update category', () => {
   })
   test('Unauthorized (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const res = await request(app)
       .post(`/graphql`)
       .send(updateCategoryMutation([ 'id' ], {
@@ -164,7 +164,7 @@ describe('Update category', () => {
     { case: 'required score is greater then 100', body: { requiredScore: 101 } },
   ])('Bad request ($case) (GraphQL)', async ({ body }) => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const res = await request(app)
@@ -181,7 +181,7 @@ describe('Update category', () => {
   test('Forbidden (no permissions) (GraphQL)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
@@ -197,7 +197,7 @@ describe('Update category', () => {
   test('Forbidden (no ownership) (GraphQL)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
@@ -213,14 +213,14 @@ describe('Update category', () => {
   test('Conflict (GraphQL)', async () => {
     const category1 = await fixture<Category>(Category)
     const category = await fixture<Category>(Category, { permissions: [ CategoryPermission.UPDATE ] })
-    const id = category.getId()
-    const user = await load<User>(User, category.getCreator())
+    const id = category.id
+    const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
       .send(updateCategoryMutation([ 'id' ], {
         categoryId: id.toString(),
-        categoryUpdate: { name: category1.getName() },
+        categoryUpdate: { name: category1.name },
       }))
       .auth(token, { type: 'bearer' })
 
@@ -229,8 +229,8 @@ describe('Update category', () => {
   })
   test('Updated (has ownership) (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
-    const user = await load<User>(User, category.getCreator())
+    const id = category.id
+    const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
     const schema = { name: 'any' }
     const res = await request(app)
@@ -247,7 +247,7 @@ describe('Update category', () => {
   })
   test('Updated (has permission) (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const permissions = [
       CategoryPermission.UPDATE,
     ]

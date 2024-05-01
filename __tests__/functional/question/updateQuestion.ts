@@ -9,7 +9,7 @@ import QuestionPermission from '../../../src/enum/question/QuestionPermission'
 describe('PATCH /questions/:questionId', () => {
   test('Unauthorized', async () => {
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const res = await request(app).patch(`/questions/${ id.toString() }`).send({ title: 'any' })
 
     expect(res.status).toEqual(401)
@@ -37,7 +37,7 @@ describe('PATCH /questions/:questionId', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const res = await request(app).patch(`/questions/${ id.toString() }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
@@ -46,7 +46,7 @@ describe('PATCH /questions/:questionId', () => {
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const token = (await auth(user)).token
     const schema = { title: faker.lorem.sentences(3) }
     const res = await request(app).patch(`/questions/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
@@ -57,7 +57,7 @@ describe('PATCH /questions/:questionId', () => {
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question, { owner: await fixture<User>(User) })
-    const id = question.getId()
+    const id = question.id
     const token = (await auth(user)).token
     const schema = { title: faker.lorem.sentences(3) }
     const res = await request(app).patch(`/questions/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
@@ -68,18 +68,18 @@ describe('PATCH /questions/:questionId', () => {
   test('Conflict', async () => {
     const question1 = await fixture<Question>(Question)
     const question = await fixture<Question>(Question, { permissions: [ QuestionPermission.UPDATE ] })
-    const id = question.getId()
-    const user = await load<User>(User, question.getCreator())
+    const id = question.id
+    const user = await load<User>(User, question.creator)
     const token = (await auth(user)).token
-    const res = await request(app).patch(`/questions/${ id.toString() }`).send({ title: question1.getTitle() }).auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/questions/${ id.toString() }`).send({ title: question1.title }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
   test('Updated (has ownership)', async () => {
     const question = await fixture<Question>(Question)
-    const id = question.getId()
-    const user = await load<User>(User, question.getCreator())
+    const id = question.id
+    const user = await load<User>(User, question.creator)
     const token = (await auth(user)).token
     const schema = { title: faker.lorem.sentences(3) }
     const res = await request(app).patch(`/questions/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
@@ -90,7 +90,7 @@ describe('PATCH /questions/:questionId', () => {
   })
   test('Updated (has permission)', async () => {
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const permissions = [
       QuestionPermission.UPDATE,
     ]

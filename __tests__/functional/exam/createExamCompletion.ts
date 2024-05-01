@@ -8,7 +8,7 @@ import ExamPermission from '../../../src/enum/exam/ExamPermission'
 describe('POST /exams/:examId/completion', () => {
   test('Unauthorized', async () => {
     const exam = await fixture<Exam>(Exam)
-    const res = await request(app).post(`/exams/${ exam.getId().toString() }/completion`)
+    const res = await request(app).post(`/exams/${ exam.id.toString() }/completion`)
 
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
@@ -34,27 +34,27 @@ describe('POST /exams/:examId/completion', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
-    const res = await request(app).post(`/exams/${ exam.getId().toString() }/completion`).auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/exams/${ exam.id.toString() }/completion`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
   })
   test('Created (has ownership)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
-    const user = await load<User>(User, exam.getOwner())
+    const id = exam.id
+    const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const res = await request(app).post(`/exams/${ id.toString() }/completion`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
-    expect(res.body).toMatchObject({ id: exam.getId().toString() })
+    expect(res.body).toMatchObject({ id: exam.id.toString() })
     expect(res.body).toHaveProperty('completed')
     expect(res.body.completed).toBeGreaterThan(0)
-    expect((await load<Exam>(Exam, exam.getId())).getCompleted().getTime()).toEqual(res.body.completed)
+    expect((await load<Exam>(Exam, exam.id)).completed.getTime()).toEqual(res.body.completed)
   })
   test('Created (has permission)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const permissions = [
       ExamPermission.GET,
       ExamPermission.CREATE_COMPLETION,
@@ -64,9 +64,9 @@ describe('POST /exams/:examId/completion', () => {
     const res = await request(app).post(`/exams/${ id.toString() }/completion`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
-    expect(res.body).toMatchObject({ id: exam.getId().toString() })
+    expect(res.body).toMatchObject({ id: exam.id.toString() })
     expect(res.body).toHaveProperty('completed')
     expect(res.body.completed).toBeGreaterThan(0)
-    expect((await load<Exam>(Exam, exam.getId())).getCompleted().getTime()).toEqual(res.body.completed)
+    expect((await load<Exam>(Exam, exam.id)).completed.getTime()).toEqual(res.body.completed)
   })
 })

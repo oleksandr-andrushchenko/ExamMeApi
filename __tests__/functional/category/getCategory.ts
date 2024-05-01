@@ -22,14 +22,14 @@ describe('Get category', () => {
   })
   test('Found', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const res = await request(app).get(`/categories/${ id.toString() }`)
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({
       id: id.toString(),
-      name: category.getName(),
-      requiredScore: category.getRequiredScore(),
+      name: category.name,
+      requiredScore: category.requiredScore,
     })
 
     for (const allowed of [ 'created', 'updated' ]) {
@@ -58,7 +58,7 @@ describe('Get category', () => {
   })
   test('Found (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating' ]
     const variables = { categoryId: id.toString() }
     const res = await request(app).post(`/graphql`).send(categoryQuery(fields, variables))
@@ -68,11 +68,11 @@ describe('Get category', () => {
       data: {
         category: {
           id: id.toString(),
-          name: category.getName(),
-          questionCount: category.getQuestionCount(),
-          requiredScore: category.getRequiredScore(),
-          voters: category.getVoters(),
-          rating: category.getRating(),
+          name: category.name,
+          questionCount: category.questionCount,
+          requiredScore: category.requiredScore,
+          voters: category.voters,
+          rating: category.rating,
         },
       },
     })

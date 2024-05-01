@@ -10,46 +10,46 @@ export default class User {
   @IsMongoId()
   @ObjectIdColumn()
   @Transform(({ value }: { value: ObjectId }) => value.toString())
-  private id: ObjectId
+  public readonly id: ObjectId
 
   @IsOptional()
   @Length(2, 30)
   @Column()
-  private name: string
+  public name: string
 
   @IsEmail()
-  @Column({ unique: true, nullable: false })
-  private email: string
+  @Column({ unique: true })
+  public email: string
 
   @Exclude()
   @Length(5, 15)
-  @Column({ nullable: false })
-  private password: string
+  @Column()
+  public password: string
 
   @ArrayNotEmpty()
   @IsEnum(Permission, { each: true })
   @ArrayUnique()
   @Column({ type: 'set', enum: Permission, default: [ Permission.REGULAR ] })
-  private permissions: Permission[]
+  public permissions: Permission[]
 
   @Exclude()
   @IsMongoId()
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  private creator: ObjectId
+  public creator: ObjectId
 
   @IsNumber()
   @Column()
   @CreateDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  private created: Date
+  public created: Date
 
   @IsOptional()
   @IsNumber()
   @Column()
   @UpdateDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  private updated: Date
+  public updated: Date
 
   @Exclude()
   @IsOptional()
@@ -57,59 +57,5 @@ export default class User {
   @Column()
   @DeleteDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  private deleted: Date
-
-  public getId(): ObjectId {
-    return this.id
-  }
-
-  public setName(name: string | undefined): this {
-    this.name = name
-
-    return this
-  }
-
-  public getName(): string | undefined {
-    return this.name
-  }
-
-  public setEmail(email: string): this {
-    this.email = email
-
-    return this
-  }
-
-  public getEmail(): string {
-    return this.email
-  }
-
-  public setPassword(password: string): this {
-    this.password = password
-
-    return this
-  }
-
-  public getPassword(): string {
-    return this.password
-  }
-
-  public setPermissions(permissions: Permission[]): this {
-    this.permissions = permissions
-
-    return this
-  }
-
-  public getPermissions(): Permission[] {
-    return this.permissions
-  }
-
-  public setCreator(creator: ObjectId): this {
-    this.creator = creator
-
-    return this
-  }
-
-  public getCreator(): ObjectId {
-    return this.creator
-  }
+  public deleted: Date
 }

@@ -9,7 +9,7 @@ import ExamPermission from '../../../src/enum/exam/ExamPermission'
 describe('GET /exams/:examId/questions/:question', () => {
   test('Unauthorized', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const res = await request(app).get(`/exams/${ id.toString() }/questions/0`)
 
     expect(res.status).toEqual(401)
@@ -31,7 +31,7 @@ describe('GET /exams/:examId/questions/:question', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const res = await request(app).get(`/exams/${ id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
@@ -48,8 +48,8 @@ describe('GET /exams/:examId/questions/:question', () => {
   })
   test('Not found (question number)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
-    const user = await load<User>(User, exam.getCreator())
+    const id = exam.id
+    const user = await load<User>(User, exam.creator)
     const token = (await auth(user)).token
     const res = await request(app).get(`/exams/${ id.toString() }/questions/999`).auth(token, { type: 'bearer' })
 
@@ -59,7 +59,7 @@ describe('GET /exams/:examId/questions/:question', () => {
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const token = (await auth(user)).token
     const res = await request(app).get(`/exams/${ id.toString() }/questions/0`).auth(token, { type: 'bearer' })
 
@@ -68,38 +68,38 @@ describe('GET /exams/:examId/questions/:question', () => {
   })
   test('Found (ownership)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const user = await load<User>(User, exam.getOwner())
+    const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const questionNumber = exam.getQuestionsCount() - 1
-    const res = await request(app).get(`/exams/${ exam.getId().toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
+    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    const examQuestion = exam.getQuestions()[questionNumber]
-    const question = await load<Question>(Question, examQuestion.getQuestion())
+    const examQuestion = exam.questions[questionNumber]
+    const question = await load<Question>(Question, examQuestion.question)
 
     expect(res.body).toMatchObject({
-      question: question.getTitle(),
-      type: question.getType(),
-      difficulty: question.getDifficulty(),
+      question: question.title,
+      type: question.type,
+      difficulty: question.difficulty,
     })
 
-    if (question.getType() === QuestionType.CHOICE) {
-      expect(res.body).toMatchObject({ choices: question.getChoices().map((choice: QuestionChoice) => choice.getTitle()) })
+    if (question.type === QuestionType.CHOICE) {
+      expect(res.body).toMatchObject({ choices: question.choices.map((choice: QuestionChoice) => choice.title) })
 
       if (examQuestion.choice) {
         expect(res.body).toHaveProperty('choice')
       }
-    } else if (question.getType() === QuestionType.TYPE) {
+    } else if (question.type === QuestionType.TYPE) {
       if (examQuestion.answer) {
         expect(res.body).toHaveProperty('answer')
       }
     }
 
-    expect((await load<Exam>(Exam, exam.getId())).getQuestionNumber()).toEqual(questionNumber)
+    expect((await load<Exam>(Exam, exam.id)).questionNumber).toEqual(questionNumber)
   })
   test('Found (permission)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const permissions = [
       ExamPermission.GET,
       ExamPermission.GET_QUESTION,
@@ -110,27 +110,27 @@ describe('GET /exams/:examId/questions/:question', () => {
     const res = await request(app).get(`/exams/${ id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    const examQuestion = exam.getQuestions()[questionNumber]
-    const question = await load<Question>(Question, examQuestion.getQuestion())
+    const examQuestion = exam.questions[questionNumber]
+    const question = await load<Question>(Question, examQuestion.question)
 
     expect(res.body).toMatchObject({
-      question: question.getTitle(),
-      type: question.getType(),
-      difficulty: question.getDifficulty(),
+      question: question.title,
+      type: question.type,
+      difficulty: question.difficulty,
     })
 
-    if (question.getType() === QuestionType.CHOICE) {
-      expect(res.body).toMatchObject({ choices: question.getChoices().map((choice: QuestionChoice) => choice.getTitle()) })
+    if (question.type === QuestionType.CHOICE) {
+      expect(res.body).toMatchObject({ choices: question.choices.map((choice: QuestionChoice) => choice.title) })
 
       if (examQuestion.choice) {
         expect(res.body).toHaveProperty('choice')
       }
-    } else if (question.getType() === QuestionType.TYPE) {
+    } else if (question.type === QuestionType.TYPE) {
       if (examQuestion.answer) {
         expect(res.body).toHaveProperty('answer')
       }
     }
 
-    expect((await load<Exam>(Exam, exam.getId())).getQuestionNumber()).toEqual(exam.getQuestionNumber())
+    expect((await load<Exam>(Exam, exam.id)).questionNumber).toEqual(exam.questionNumber)
   })
 })

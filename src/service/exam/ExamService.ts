@@ -56,14 +56,18 @@ export default class ExamService {
     await this.verifyExamNotTaken(category, initiator)
 
     const questions = (await this.questionService.queryCategoryQuestions(category) as Question[])
-      .map((question: Question): ExamQuestion => (new ExamQuestion())
-        .setQuestion(question.getId()))
+      .map((question: Question): ExamQuestion => {
+        const examQuestion = new ExamQuestion()
+        examQuestion.question = question.id
 
-    const exam = (new Exam())
-      .setCategory(category.getId())
-      .setQuestions(questions)
-      .setCreator(initiator.getId())
-      .setOwner(initiator.getId())
+        return examQuestion
+      })
+
+    const exam = new Exam()
+    exam.category = category.id
+    exam.questions = questions
+    exam.creator = initiator.id
+    exam.owner = initiator.id
 
     await this.entityManager.save<Exam>(exam)
 
@@ -84,25 +88,25 @@ export default class ExamService {
   public async getExamQuestion(exam: Exam, questionNumber: number, initiator: User): Promise<ExamQuestionSchema> {
     await this.authService.verifyAuthorization(initiator, ExamPermission.GET_QUESTION, exam)
 
-    const questions = exam.getQuestions()
+    const questions = exam.questions
 
     if (typeof questions[questionNumber] === 'undefined') {
       throw new ExamQuestionNumberNotFoundError(questionNumber)
     }
 
     const examQuestion = new ExamQuestionSchema()
-    const question = await this.questionService.getQuestion(questions[questionNumber].getQuestion())
+    const question = await this.questionService.getQuestion(questions[questionNumber].question)
 
     examQuestion.number = questionNumber
-    examQuestion.question = question.getTitle()
-    examQuestion.difficulty = question.getDifficulty()
-    examQuestion.type = question.getType()
+    examQuestion.question = question.title
+    examQuestion.difficulty = question.difficulty
+    examQuestion.type = question.type
 
     if (examQuestion.type === QuestionType.CHOICE) {
-      examQuestion.choices = question.getChoices().map((choice: QuestionChoice) => choice.getTitle())
-      examQuestion.choice = questions[questionNumber].getChoice()
+      examQuestion.choices = question.choices.map((choice: QuestionChoice) => choice.title)
+      examQuestion.choice = questions[questionNumber].choice
     } else if (examQuestion.type === QuestionType.TYPE) {
-      examQuestion.answer = questions[questionNumber].getAnswer()
+      examQuestion.answer = questions[questionNumber].answer
     }
 
     return examQuestion
@@ -119,17 +123,17 @@ export default class ExamService {
   public async setExamLastRequestedQuestionNumber(exam: Exam, questionNumber: number, initiator: User): Promise<Exam> {
     await this.authService.verifyAuthorization(initiator, ExamPermission.GET_QUESTION, exam)
 
-    const questions = exam.getQuestions()
+    const questions = exam.questions
 
     if (typeof questions[questionNumber] === 'undefined') {
       throw new ExamQuestionNumberNotFoundError(questionNumber)
     }
 
-    if (exam.getOwner().toString() !== initiator.getId().toString()) {
+    if (exam.owner.toString() !== initiator.id.toString()) {
       return exam
     }
 
-    exam.setQuestionNumber(questionNumber)
+    exam.questionNumber = questionNumber
     await this.entityManager.save<Exam>(exam)
 
     return exam
@@ -154,23 +158,23 @@ export default class ExamService {
     await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_QUESTION_ANSWER, exam)
     await this.validator.validate(examQuestionAnswer)
 
-    const questions = exam.getQuestions()
+    const questions = exam.questions
     const questionId = questions[questionNumber]
 
     if (questionId === undefined) {
       throw new QuestionNotFoundError('undefined' as any)
     }
 
-    const question = await this.questionService.getQuestion(questions[questionNumber].getQuestion())
+    const question = await this.questionService.getQuestion(questions[questionNumber].question)
 
-    if (question.getType() === QuestionType.CHOICE) {
-      questions[questionNumber].setChoice(examQuestionAnswer.choice)
-    } else if (question.getType() === QuestionType.TYPE) {
-      questions[questionNumber].setAnswer(examQuestionAnswer.answer)
+    if (question.type === QuestionType.CHOICE) {
+      questions[questionNumber].choice = examQuestionAnswer.choice
+    } else if (question.type === QuestionType.TYPE) {
+      questions[questionNumber].answer = examQuestionAnswer.answer
     }
 
     // todo: optimize
-    exam.setQuestions(questions)
+    exam.questions = questions
 
     // todo: optimize, run partial array query
     await this.entityManager.save<Exam>(exam)
@@ -197,7 +201,7 @@ export default class ExamService {
       await this.authService.verifyAuthorization(initiator, ExamPermission.GET)
     } catch (error) {
       if (error instanceof AuthorizationFailedError) {
-        where['owner'] = initiator.getId()
+        where['owner'] = initiator.id
       } else {
         throw error
       }
@@ -247,33 +251,33 @@ export default class ExamService {
   public async createExamCompletion(exam: Exam, initiator: User): Promise<void> {
     await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_COMPLETION, exam)
 
-    const category = await this.categoryService.getCategory(exam.getCategory())
+    const category = await this.categoryService.getCategory(exam.category)
     const questions = await this.questionService.queryCategoryQuestions(category) as Question[]
 
     const questionsHashedById = []
 
     for (const question of questions) {
-      questionsHashedById[question.getId().toString()] = question
+      questionsHashedById[question.id.toString()] = question
     }
 
     let correctAnswers = 0
 
-    for (const examQuestion of exam.getQuestions()) {
-      const question = questionsHashedById[examQuestion.getQuestion().toString()]
+    for (const examQuestion of exam.questions) {
+      const question = questionsHashedById[examQuestion.question.toString()]
 
-      if (typeof examQuestion.getChoice() !== 'undefined') {
-        if (this.questionService.checkChoice(examQuestion.getChoice(), question)) {
+      if (typeof examQuestion.choice !== 'undefined') {
+        if (this.questionService.checkChoice(examQuestion.choice, question)) {
           correctAnswers++
         }
-      } else if (typeof examQuestion.getAnswer() !== 'undefined') {
-        if (this.questionService.checkAnswer(examQuestion.getAnswer(), question)) {
+      } else if (typeof examQuestion.answer !== 'undefined') {
+        if (this.questionService.checkAnswer(examQuestion.answer, question)) {
           correctAnswers++
         }
       }
     }
 
-    exam.setCorrectCount(correctAnswers)
-      .setCompleted(new Date())
+    exam.correctCount = correctAnswers
+    exam.completed = new Date()
 
     this.eventDispatcher.dispatch('examCompleted', { exam })
 
@@ -304,7 +308,7 @@ export default class ExamService {
    * @throws {ExamTakenError}
    */
   public async verifyExamNotTaken(category: Category, user: User): Promise<void> {
-    const existing = await this.examRepository.findOneNotCompletedByCategoryAndCreator(category.getId(), user.getId())
+    const existing = await this.examRepository.findOneNotCompletedByCategoryAndCreator(category.id, user.id)
 
     if (existing) {
       throw new ExamTakenError(existing)

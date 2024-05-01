@@ -33,7 +33,7 @@ describe('POST /auth', () => {
   })
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
-    const credentials = { email: user.getEmail(), password: 'password' }
+    const credentials = { email: user.email, password: 'password' }
     const res = await request(app).post('/auth').send(credentials)
 
     expect(res.status).toEqual(403)
@@ -41,7 +41,7 @@ describe('POST /auth', () => {
   })
   test('Created', async () => {
     const user = await fixture<User>(User, { password: 'password' })
-    const credentials = { email: user.getEmail(), password: 'password' }
+    const credentials = { email: user.email, password: 'password' }
     const res = await request(app).post('/auth').send(credentials)
 
     expect(res.status).toEqual(201)
@@ -74,7 +74,7 @@ describe('POST /auth', () => {
   })
   test('Forbidden (GraphQL)', async () => {
     const user = await fixture<User>(User)
-    const credentials = { email: user.getEmail(), password: 'password' }
+    const credentials = { email: user.email, password: 'password' }
     const res = await request(app).post(`/graphql`).send(authenticateMutation([ 'token' ], { credentials }))
 
     expect(res.status).toEqual(200)
@@ -82,7 +82,7 @@ describe('POST /auth', () => {
   })
   test('Created (GraphQL)', async () => {
     const user = await fixture<User>(User, { password: 'password' })
-    const credentials = { email: user.getEmail(), password: 'password' }
+    const credentials = { email: user.email, password: 'password' }
     const res = await request(app).post(`/graphql`).send(authenticateMutation([ 'token' ], { credentials }))
 
     expect(res.status).toEqual(200)

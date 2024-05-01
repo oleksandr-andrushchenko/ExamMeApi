@@ -43,14 +43,14 @@ export default class UserService {
     const email = transfer.email
     await this.verifyUserEmailNotExists(email)
 
-    const user: User = (new User())
-      .setEmail(email)
-      .setPassword(transfer.password)
-      .setPermissions(transfer.permissions ?? [ Permission.REGULAR ])
-      .setCreator(initiator.getId())
+    const user = new User()
+    user.email = email
+    user.password = transfer.password
+    user.permissions = transfer.permissions ?? [ Permission.REGULAR ]
+    user.creator = initiator.id
 
     if (transfer.name) {
-      user.setName(transfer.name)
+      user.name = transfer.name
     }
 
     await this.entityManager.save<User>(user)
@@ -93,7 +93,7 @@ export default class UserService {
 
   public async compareUserPassword(user: User, password: string): Promise<boolean> {
     return new Promise((resolve) => {
-      bcrypt.compare(password, user.getPassword(), (_, res) => {
+      bcrypt.compare(password, user.password, (_, res) => {
         resolve(res === true)
       })
     })

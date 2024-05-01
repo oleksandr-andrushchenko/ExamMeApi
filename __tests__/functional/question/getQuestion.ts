@@ -21,34 +21,34 @@ describe('GET /questions/:questionId', () => {
   })
   test('Found', async () => {
     const category = await fixture<Category>(Category)
-    const question = await fixture<Question>(Question, { category: category.getId() })
-    const questionId = question.getId()
+    const question = await fixture<Question>(Question, { category: category.id })
+    const questionId = question.id
     const res = await request(app).get(`/questions/${ questionId.toString() }`)
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({
       id: questionId.toString(),
-      type: question.getType(),
-      difficulty: question.getDifficulty(),
-      title: question.getTitle(),
+      type: question.type,
+      difficulty: question.difficulty,
+      title: question.title,
     })
 
-    if (question.getType() === QuestionType.TYPE) {
+    if (question.type === QuestionType.TYPE) {
       expect(res.body).toHaveProperty('answers')
-      question.getAnswers().forEach((choice: QuestionAnswer, index: number) => {
+      question.answers.forEach((choice: QuestionAnswer, index: number) => {
         expect(res.body.answers[index]).toMatchObject({
-          variants: choice.getVariants(),
-          correct: choice.isCorrect(),
-          explanation: choice.getExplanation() ?? null,
+          variants: choice.variants,
+          correct: choice.correct,
+          explanation: choice.explanation ?? null,
         })
       })
-    } else if (question.getType() === QuestionType.CHOICE) {
+    } else if (question.type === QuestionType.CHOICE) {
       expect(res.body).toHaveProperty('choices')
-      question.getChoices().forEach((choice: QuestionChoice, index: number) => {
+      question.choices.forEach((choice: QuestionChoice, index: number) => {
         expect(res.body.choices[index]).toMatchObject({
-          title: choice.getTitle(),
-          correct: choice.isCorrect(),
-          explanation: choice.getExplanation() ?? null,
+          title: choice.title,
+          correct: choice.correct,
+          explanation: choice.explanation ?? null,
         })
       })
     }

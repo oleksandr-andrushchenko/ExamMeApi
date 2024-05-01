@@ -36,89 +36,86 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
 
   switch (entity) {
     case User:
-      object = (new User())
-        .setName(faker.person.fullName())
-        .setEmail(faker.internet.email())
-        .setPassword(options['password'] ?? faker.internet.password())
-        .setPermissions(options['permissions'] ?? [ Permission.REGULAR ])
+      object = new User()
+      object.name = faker.person.fullName()
+      object.email = faker.internet.email()
+      object.password = options['password'] ?? faker.internet.password()
+      object.permissions = options['permissions'] ?? [ Permission.REGULAR ]
 
       break
     case Category:
-      object = (new Category())
-        .setName(faker.lorem.word())
-        .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
-
-      object.setOwner(options['owner'] ?? object.getCreator())
+      object = new Category()
+      object.name = faker.lorem.word()
+      object.creator = options['creator'] ?? (await fixture(User, options) as User).id
+      object.owner = options['owner'] ?? object.creator
 
       break
     case Question:
-      object = (new Question())
-        .setCategory(options['category'] ?? (await fixture(Category, options) as Category).getId())
-        .setType(faker.helpers.enumValue(QuestionType))
-        .setDifficulty(faker.helpers.enumValue(QuestionDifficulty))
-        .setTitle(faker.lorem.sentences(3))
-        .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
+      object = new Question()
+      object.category = options['category'] ?? (await fixture(Category, options) as Category).id
+      object.type = faker.helpers.enumValue(QuestionType)
+      object.difficulty = faker.helpers.enumValue(QuestionDifficulty)
+      object.title = faker.lorem.sentences(3)
+      object.creator = options['creator'] ?? (await fixture(User, options) as User).id
+      object.owner = options['owner'] ?? object.creator
 
-      object.setOwner(options['owner'] ?? object.getCreator())
-
-      if (object.getType() === QuestionType.TYPE) {
+      if (object.type === QuestionType.TYPE) {
         const answers = []
 
         for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
-          answers.push(
-            (new QuestionAnswer())
-              .setVariants([ faker.lorem.word() ])
-              .setIsCorrect(faker.datatype.boolean())
-              .setExplanation(faker.datatype.boolean() ? faker.lorem.sentence() : undefined),
-          )
+          const answer = new QuestionAnswer()
+          answer.variants = [ faker.lorem.word() ]
+          answer.correct = faker.datatype.boolean()
+          answer.explanation = faker.datatype.boolean() ? faker.lorem.sentence() : undefined
+          answers.push(answer)
         }
 
-        object.setAnswers(answers)
-      } else if (object.getType() === QuestionType.CHOICE) {
+        object.answers = answers
+      } else if (object.type === QuestionType.CHOICE) {
         const choices = []
 
         for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
-          choices.push(
-            (new QuestionChoice())
-              .setTitle(faker.lorem.word())
-              .setIsCorrect(faker.datatype.boolean())
-              .setExplanation(faker.datatype.boolean() ? faker.lorem.sentence() : undefined),
-          )
+          const choice = new QuestionChoice()
+          choice.title = faker.lorem.word()
+          choice.correct = faker.datatype.boolean()
+          choice.explanation = faker.datatype.boolean() ? faker.lorem.sentence() : undefined
+          choices.push(choice)
         }
 
-        object.setChoices(choices)
+        object.choices = choices
       }
 
       break
     case Exam:
-      object = (new Exam())
-        .setCategory(options['category'] ?? (await fixture(Category, options) as Category).getId())
-        .setCreator(options['creator'] ?? (await fixture(User, options) as User).getId())
-
-      object.setOwner(options['owner'] ?? object.getCreator())
+      object = new Exam()
+      object.category = options['category'] ?? (await fixture(Category, options) as Category).id
+      object.creator = options['creator'] ?? (await fixture(User, options) as User).id
+      object.owner = options['owner'] ?? object.creator
 
       const questions = []
 
       for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
-        const question = await fixture(Question, { ...options, ...{ category: object.getCategory() } }) as Question
-        const examQuestion = (new ExamQuestion())
-          .setQuestion(question.getId())
+        const question = await fixture(Question, { ...options, ...{ category: object.category } }) as Question
+        const examQuestion = new ExamQuestion()
+        examQuestion.question = question.id
 
         if (faker.datatype.boolean()) {
-          if (question.getType() === QuestionType.CHOICE) {
-            examQuestion.setChoice(faker.number.int({ min: 0, max: question.getChoices().length - 1 }))
-          } else if (question.getType() === QuestionType.TYPE) {
-            const variants = question.getAnswers()[faker.number.int({ min: 0, max: question.getAnswers().length - 1 })]
-              .getVariants()
-            examQuestion.setAnswer(variants[faker.number.int({ min: 0, max: variants.length - 1 })])
+          if (question.type === QuestionType.CHOICE) {
+            examQuestion.choice = faker.number.int({ min: 0, max: question.choices.length - 1 })
+          } else if (question.type === QuestionType.TYPE) {
+            const variants = question.answers[faker.number.int({
+              min: 0,
+              max: question.answers.length - 1,
+            })].variants
+            examQuestion.answer = variants[faker.number.int({ min: 0, max: variants.length - 1 })]
           }
         }
 
         questions.push(examQuestion)
       }
 
-      object.setQuestions(questions)
-        .setQuestionNumber(faker.number.int({ min: 0, max: questions.length - 1 }))
+      object.questions = questions
+      object.questionNumber = faker.number.int({ min: 0, max: questions.length - 1 })
 
       break
     default:

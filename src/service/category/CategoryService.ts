@@ -43,11 +43,11 @@ export default class CategoryService {
     const name = transfer.name
     await this.verifyCategoryNameNotExists(name)
 
-    const category: Category = (new Category())
-      .setName(name)
-      .setRequiredScore(transfer.requiredScore)
-      .setCreator(initiator.getId())
-      .setOwner(initiator.getId())
+    const category: Category = new Category()
+    category.name = name
+    category.requiredScore = transfer.requiredScore
+    category.creator = initiator.id
+    category.owner = initiator.id
 
     await this.entityManager.save<Category>(category)
 
@@ -120,13 +120,13 @@ export default class CategoryService {
 
     if (transfer.hasOwnProperty('name')) {
       const name = transfer.name
-      await this.verifyCategoryNameNotExists(name, category.getId())
+      await this.verifyCategoryNameNotExists(name, category.id)
 
-      category.setName(name)
+      category.name = name
     }
 
     if (transfer.hasOwnProperty('requiredScore')) {
-      category.setRequiredScore(transfer.requiredScore)
+      category.requiredScore = transfer.requiredScore
     }
 
     await this.entityManager.save<Category>(category)
@@ -151,10 +151,10 @@ export default class CategoryService {
     await this.authService.verifyAuthorization(initiator, CategoryPermission.REPLACE, category)
 
     const name = transfer.name
-    await this.verifyCategoryNameNotExists(name, category.getId())
+    await this.verifyCategoryNameNotExists(name, category.id)
 
-    category.setName(name)
-      .setRequiredScore(transfer.requiredScore)
+    category.name = name
+    category.requiredScore = transfer.requiredScore
 
     await this.entityManager.save<Category>(category)
 

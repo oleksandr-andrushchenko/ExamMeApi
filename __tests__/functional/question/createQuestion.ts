@@ -61,7 +61,7 @@ describe('POST /questions', () => {
     },
   ])('Bad request ($case)', async ({ body }) => {
     const category = await fixture<Category>(Category)
-    const categoryId = category.getId()
+    const categoryId = category.id
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const res = await request(app).post(`/questions`).send({ ...body, ...{ category: categoryId } }).auth(token, { type: 'bearer' })
@@ -73,7 +73,7 @@ describe('POST /questions', () => {
   // todo: add cases
   test('Forbidden', async () => {
     const category = await fixture<Category>(Category)
-    const categoryId = category.getId()
+    const categoryId = category.id
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const schema = {
@@ -96,7 +96,7 @@ describe('POST /questions', () => {
   })
   test('Conflict', async () => {
     const category = await fixture<Category>(Category)
-    const categoryId = category.getId()
+    const categoryId = category.id
     const question = await fixture<Question>(Question)
     const user = await fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await auth(user)).token
@@ -104,7 +104,7 @@ describe('POST /questions', () => {
       .post(`/questions`)
       .send({
         category: categoryId,
-        title: question.getTitle(),
+        title: question.title,
         type: QuestionType.TYPE,
         difficulty: QuestionDifficulty.EASY,
         answers: [
@@ -124,7 +124,7 @@ describe('POST /questions', () => {
   // todo: add cases
   test('Created', async () => {
     const category = await fixture<Category>(Category)
-    const categoryId = category.getId()
+    const categoryId = category.id
     const user = await fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await auth(user)).token
     const schema = {

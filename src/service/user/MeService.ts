@@ -31,13 +31,13 @@ export default class MeService {
     const email = transfer.email
     await this.userService.verifyUserEmailNotExists(email)
 
-    const user: User = (new User())
-      .setEmail(email)
-      .setPassword(transfer.password)
-      .setPermissions([ Permission.REGULAR ])
+    const user = new User()
+    user.email = email
+    user.password = transfer.password
+    user.permissions = [ Permission.REGULAR ]
 
     if (transfer.hasOwnProperty('name')) {
-      user.setName(transfer.name)
+      user.name = transfer.name
     }
 
     await this.entityManager.save<User>(user)
@@ -59,13 +59,12 @@ export default class MeService {
     const email = transfer.email
     await this.userService.verifyUserEmailNotExists(email)
 
-    initiator
-      .setName(transfer.name)
-      .setEmail(email)
-      .setPassword(transfer.password)
+    initiator.name = transfer.name
+    initiator.email = email
+    initiator.password = transfer.password
 
     if (transfer.hasOwnProperty('name')) {
-      initiator.setName(transfer.name)
+      initiator.name = transfer.name
     }
 
     await this.entityManager.save<User>(initiator)
@@ -81,15 +80,15 @@ export default class MeService {
     if (transfer.hasOwnProperty('email')) {
       const email = transfer.email
       await this.userService.verifyUserEmailNotExists(email)
-      initiator.setEmail(email)
+      initiator.email = email
     }
 
     if (transfer.hasOwnProperty('name')) {
-      initiator.setName(transfer.name)
+      initiator.name = transfer.name
     }
 
     if (transfer.hasOwnProperty('password')) {
-      initiator.setPassword(transfer.password)
+      initiator.password = transfer.password
     }
 
     await this.entityManager.save<User>(initiator)

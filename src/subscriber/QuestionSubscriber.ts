@@ -25,7 +25,7 @@ export default class QuestionSubscriber implements EntitySubscriberInterface {
   }
 
   private escapeTitle(question: Question, update: boolean = false): void {
-    let title = question.getTitle()
+    let title = question.title
 
     if (update) {
       title = this.escapeHtmlSpecialCharsService.unescapeHtmlSpecialChars(title)
@@ -33,6 +33,6 @@ export default class QuestionSubscriber implements EntitySubscriberInterface {
 
     title = this.escapeHtmlSpecialCharsService.escapeHtmlSpecialChars(title)
 
-    question.setTitle(title)
+    question.title = title
   }
 }

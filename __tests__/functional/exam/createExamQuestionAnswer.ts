@@ -8,14 +8,14 @@ import User from '../../../src/entity/User'
 describe('POST /exams/:examId/questions/:question/answer', () => {
   test('Unauthorized', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const questionNumber = 0
-    const question = await load<Question>(Question, exam.getQuestions()[questionNumber].getQuestion())
+    const question = await load<Question>(Question, exam.questions[questionNumber].question)
     const body = {}
 
-    if (question.getType() === QuestionType.CHOICE) {
+    if (question.type === QuestionType.CHOICE) {
       body['choice'] = 0
-    } else if (question.getType() === QuestionType.TYPE) {
+    } else if (question.type === QuestionType.TYPE) {
       body['answer'] = 'any'
     }
 
@@ -36,10 +36,10 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
   })
   test('Not found (question)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const user = await load<User>(User, exam.getOwner())
+    const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const questionNumber = 999
-    const res = await request(app).post(`/exams/${ exam.getId().toString() }/questions/${ questionNumber }/answer`).send({ choice: 0 }).auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/exams/${ exam.id.toString() }/questions/${ questionNumber }/answer`).send({ choice: 0 }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
@@ -48,7 +48,7 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const questionNumber = 0
     const res = await request(app).post(`/exams/${ id.toString() }/questions/${ questionNumber }/answer`).auth(token, { type: 'bearer' })
 
@@ -59,14 +59,14 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const questionNumber = 0
-    const question = await load<Question>(Question, exam.getQuestions()[questionNumber].getQuestion())
+    const question = await load<Question>(Question, exam.questions[questionNumber].question)
     const body = {}
 
-    if (question.getType() === QuestionType.CHOICE) {
+    if (question.type === QuestionType.CHOICE) {
       body['choice'] = 0
-    } else if (question.getType() === QuestionType.TYPE) {
+    } else if (question.type === QuestionType.TYPE) {
       body['answer'] = 'any'
     }
 
@@ -77,16 +77,16 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
   })
   test('Created', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
-    const user = await load<User>(User, exam.getOwner())
+    const id = exam.id
+    const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const questionNumber = 0
-    const question = await load<Question>(Question, exam.getQuestions()[questionNumber].getQuestion())
+    const question = await load<Question>(Question, exam.questions[questionNumber].question)
     const body = {}
 
-    if (question.getType() === QuestionType.CHOICE) {
+    if (question.type === QuestionType.CHOICE) {
       body['choice'] = 0
-    } else if (question.getType() === QuestionType.TYPE) {
+    } else if (question.type === QuestionType.TYPE) {
       body['answer'] = 'any'
     }
 

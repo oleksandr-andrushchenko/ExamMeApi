@@ -43,13 +43,13 @@ describe('GET /exams', () => {
   test('No filter (ownership)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const owner = user.getId()
+    const owner = user.id
     const examOwnOptions = { owner }
     const exams = (await Promise.all([
       fixture<Exam>(Exam, examOwnOptions),
       fixture<Exam>(Exam),
       fixture<Exam>(Exam, examOwnOptions),
-    ])).sort((a: Exam, b: Exam) => a.getId().toString().localeCompare(b.getId().toString()))
+    ])).sort((a: Exam, b: Exam) => a.id.toString().localeCompare(b.id.toString()))
 
     const res = await request(app).get('/exams').auth(token, { type: 'bearer' })
 
@@ -57,7 +57,7 @@ describe('GET /exams', () => {
 
     expect(res.body).toHaveProperty('data')
 
-    const ownExams = exams.filter(exam => exam.getOwner().toString() === owner.toString())
+    const ownExams = exams.filter(exam => exam.owner.toString() === owner.toString())
     expect(res.body.data).toHaveLength(ownExams.length)
     expect(res.body).toHaveProperty('meta')
 
@@ -70,31 +70,31 @@ describe('GET /exams', () => {
         expect(resExam).toHaveProperty(key)
       }
 
-      expect(resExam.id).toEqual(ownExams[index].getId().toString())
+      expect(resExam.id).toEqual(ownExams[index].id.toString())
     }
   })
   test('Category filter (ownership)', async () => {
     const category = await fixture<Category>(Category)
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const owner = user.getId()
+    const owner = user.id
     const examOwnOptions = { owner }
-    const examCategoryOptions = { category: category.getId() }
+    const examCategoryOptions = { category: category.id }
     const exams = (await Promise.all([
       fixture<Exam>(Exam, examOwnOptions),
       fixture<Exam>(Exam, examCategoryOptions),
       fixture<Exam>(Exam, { ...examOwnOptions, ...examCategoryOptions }),
-    ])).sort((a: Exam, b: Exam) => a.getId().toString().localeCompare(b.getId().toString()))
+    ])).sort((a: Exam, b: Exam) => a.id.toString().localeCompare(b.id.toString()))
 
-    const res = await request(app).get('/exams').query({ category: category.getId().toString() }).auth(token, { type: 'bearer' })
+    const res = await request(app).get('/exams').query({ category: category.id.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
 
     expect(res.body).toHaveProperty('data')
 
     const ownCategoryExams = exams
-      .filter(exam => exam.getOwner().toString() === owner.toString())
-      .filter(exam => exam.getCategory().toString() === category.getId().toString())
+      .filter(exam => exam.owner.toString() === owner.toString())
+      .filter(exam => exam.category.toString() === category.id.toString())
     expect(res.body.data).toHaveLength(ownCategoryExams.length)
     expect(res.body).toHaveProperty('meta')
 
@@ -107,19 +107,19 @@ describe('GET /exams', () => {
         expect(resExam).toHaveProperty(key)
       }
 
-      expect(resExam.id).toEqual(ownCategoryExams[index].getId().toString())
+      expect(resExam.id).toEqual(ownCategoryExams[index].id.toString())
     }
   })
   test('No filter (permission)', async () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await auth(user)).token
-    const owner = user.getId()
+    const owner = user.id
     const examOwnOptions = { owner }
     const exams = (await Promise.all([
       fixture<Exam>(Exam),
       fixture<Exam>(Exam, examOwnOptions),
       fixture<Exam>(Exam),
-    ])).sort((a: Exam, b: Exam) => a.getId().toString().localeCompare(b.getId().toString()))
+    ])).sort((a: Exam, b: Exam) => a.id.toString().localeCompare(b.id.toString()))
 
     const res = await request(app).get('/exams').auth(token, { type: 'bearer' })
 
@@ -139,30 +139,30 @@ describe('GET /exams', () => {
         expect(resExam).toHaveProperty(key)
       }
 
-      expect(resExam.id).toEqual(exams[index].getId().toString())
+      expect(resExam.id).toEqual(exams[index].id.toString())
     }
   })
   test('Category filter (permission)', async () => {
     const category = await fixture<Category>(Category)
     const user = await fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await auth(user)).token
-    const owner = user.getId()
+    const owner = user.id
     const examOwnOptions = { owner }
-    const examCategoryOptions = { category: category.getId() }
+    const examCategoryOptions = { category: category.id }
     const exams = (await Promise.all([
       fixture<Exam>(Exam),
       fixture<Exam>(Exam, examOwnOptions),
       fixture<Exam>(Exam, { ...examOwnOptions, ...examCategoryOptions }),
-    ])).sort((a: Exam, b: Exam) => a.getId().toString().localeCompare(b.getId().toString()))
+    ])).sort((a: Exam, b: Exam) => a.id.toString().localeCompare(b.id.toString()))
 
-    const res = await request(app).get('/exams').query({ category: category.getId().toString() }).auth(token, { type: 'bearer' })
+    const res = await request(app).get('/exams').query({ category: category.id.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
 
     expect(res.body).toHaveProperty('data')
 
     const categoryExams = exams
-      .filter(exam => exam.getCategory().toString() === category.getId().toString())
+      .filter(exam => exam.category.toString() === category.id.toString())
     expect(res.body.data).toHaveLength(categoryExams.length)
     expect(res.body).toHaveProperty('meta')
 
@@ -175,7 +175,7 @@ describe('GET /exams', () => {
         expect(resExam).toHaveProperty(key)
       }
 
-      expect(resExam.id).toEqual(categoryExams[index].getId().toString())
+      expect(resExam.id).toEqual(categoryExams[index].id.toString())
     }
   })
 })

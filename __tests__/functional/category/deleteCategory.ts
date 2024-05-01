@@ -10,7 +10,7 @@ import { removeCategoryMutation } from '../../graphql/category/removeCategoryMut
 describe('Delete category', () => {
   test('Unauthorized', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const res = await request(app).delete(`/categories/${ id.toString() }`)
 
     expect(res.status).toEqual(401)
@@ -37,7 +37,7 @@ describe('Delete category', () => {
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app).delete(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -47,7 +47,7 @@ describe('Delete category', () => {
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app).delete(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -56,8 +56,8 @@ describe('Delete category', () => {
   })
   test('Deleted (has ownership)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
-    const user = await load<User>(User, category.getCreator())
+    const id = category.id
+    const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
     const res = await request(app).delete(`/categories/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -67,7 +67,7 @@ describe('Delete category', () => {
   })
   test('Deleted (has permission)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const permissions = [
       CategoryPermission.DELETE,
     ]
@@ -81,7 +81,7 @@ describe('Delete category', () => {
   })
   test('Unauthorized (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const res = await request(app).post(`/graphql`).send(removeCategoryMutation({ categoryId: id.toString() }))
 
     expect(res.status).toEqual(200)
@@ -114,7 +114,7 @@ describe('Delete category', () => {
   test('Forbidden (no permissions) (GraphQL)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app).post(`/graphql`)
       .send(removeCategoryMutation({ categoryId: id.toString() }))
@@ -126,7 +126,7 @@ describe('Delete category', () => {
   test('Forbidden (no ownership) (GraphQL)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app).post(`/graphql`)
       .send(removeCategoryMutation({ categoryId: id.toString() }))
@@ -137,8 +137,8 @@ describe('Delete category', () => {
   })
   test('Deleted (has ownership) (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
-    const user = await load<User>(User, category.getCreator())
+    const id = category.id
+    const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
     const res = await request(app).post(`/graphql`)
       .send(removeCategoryMutation({ categoryId: id.toString() }))
@@ -150,7 +150,7 @@ describe('Delete category', () => {
   })
   test('Deleted (has permission) (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const permissions = [
       CategoryPermission.DELETE,
     ]

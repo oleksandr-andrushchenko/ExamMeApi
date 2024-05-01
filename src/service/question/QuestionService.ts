@@ -50,23 +50,21 @@ export default class QuestionService {
     const title = transfer.title
     await this.verifyQuestionTitleNotExists(title)
 
-    const question: Question = (new Question())
-      .setCategory(category.getId())
-      .setType(transfer.type)
-      .setDifficulty(transfer.difficulty)
-      .setTitle(title)
-      .setCreator(initiator.getId())
-      .setOwner(initiator.getId())
+    const question: Question = new Question()
+    question.category = category.id
+    question.type = transfer.type
+    question.difficulty = transfer.difficulty
+    question.title = title
+    question.creator = initiator.id
+    question.owner = initiator.id
 
-    if (question.getType() === QuestionType.TYPE) {
-      question
-        .setAnswers(transfer.answers)
-    } else if (question.getType() === QuestionType.CHOICE) {
-      question
-        .setChoices(transfer.choices)
+    if (question.type === QuestionType.TYPE) {
+      question.answers = transfer.answers
+    } else if (question.type === QuestionType.CHOICE) {
+      question.choices = transfer.choices
     }
 
-    category.setQuestionCount(category.getQuestionCount() + 1)
+    category.questionCount = category.questionCount + 1
 
     await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
       await entityManager.save<Question>(question)
@@ -130,7 +128,7 @@ export default class QuestionService {
     meta: boolean = false,
   ): Promise<Question[] | PaginatedSchema<Question>> {
     query = query === undefined ? new QuestionQuerySchema() : query
-    query.category = category.getId().toString()
+    query.category = category.id.toString()
 
     return this.queryQuestions(query, meta)
   }
@@ -149,7 +147,7 @@ export default class QuestionService {
 
     const question: Question = await this.questionRepository.findOneById(id)
 
-    if (!question || (categoryId && question.getCategory().toString() !== categoryId.toString())) {
+    if (!question || (categoryId && question.category.toString() !== categoryId.toString())) {
       throw new QuestionNotFoundError(id)
     }
 
@@ -175,18 +173,15 @@ export default class QuestionService {
     const title = transfer.title
     await this.verifyQuestionTitleNotExists(title)
 
-    question
-      .setCategory(category.getId())
-      .setType(transfer.type)
-      .setDifficulty(transfer.difficulty)
-      .setTitle(title)
+    question.category = category.id
+    question.type = transfer.type
+    question.difficulty = transfer.difficulty
+    question.title = title
 
-    if (question.getType() === QuestionType.TYPE) {
-      question
-        .setAnswers(transfer.answers)
-    } else if (question.getType() === QuestionType.CHOICE) {
-      question
-        .setChoices(transfer.choices)
+    if (question.type === QuestionType.TYPE) {
+      question.answers = transfer.answers
+    } else if (question.type === QuestionType.CHOICE) {
+      question.choices = transfer.choices
     }
     await this.entityManager.save<Question>(question)
 
@@ -211,30 +206,30 @@ export default class QuestionService {
 
     if (transfer.hasOwnProperty('category')) {
       const category: Category = await this.categoryService.getCategory(transfer.category)
-      question.setCategory(category.getId())
+      question.category = category.id
     }
 
     if (transfer.hasOwnProperty('title')) {
       const title = transfer.title
       await this.verifyQuestionTitleNotExists(title)
-      question.setTitle(title)
+      question.title = title
     }
 
     if (transfer.hasOwnProperty('type')) {
-      question.setType(transfer.type)
+      question.type = transfer.type
     }
 
     if (transfer.hasOwnProperty('difficulty')) {
-      question.setDifficulty(transfer.difficulty)
+      question.difficulty = transfer.difficulty
     }
 
-    if (question.getType() === QuestionType.TYPE) {
+    if (question.type === QuestionType.TYPE) {
       if (transfer.hasOwnProperty('answers')) {
-        question.setAnswers(transfer.answers)
+        question.answers = transfer.answers
       }
-    } else if (question.getType() === QuestionType.CHOICE) {
+    } else if (question.type === QuestionType.CHOICE) {
       if (transfer.hasOwnProperty('choices')) {
-        question.setChoices(transfer.choices)
+        question.choices = transfer.choices
       }
     }
 
@@ -255,8 +250,8 @@ export default class QuestionService {
   public async deleteQuestion(question: Question, initiator: User): Promise<Question> {
     await this.authService.verifyAuthorization(initiator, QuestionPermission.DELETE, question)
 
-    const category: Category = await this.categoryService.getCategory(question.getCategory().toString())
-    category.setQuestionCount(category.getQuestionCount() - 1)
+    const category: Category = await this.categoryService.getCategory(question.category.toString())
+    category.questionCount = category.questionCount - 1
 
     await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
       // todo: soft delete
@@ -288,11 +283,11 @@ export default class QuestionService {
    * @throws {QuestionTypeError}
    */
   public checkChoice(choice: number, question: Question): boolean {
-    if (question.getType() !== QuestionType.CHOICE) {
-      throw new QuestionTypeError(question.getType())
+    if (question.type !== QuestionType.CHOICE) {
+      throw new QuestionTypeError(question.type)
     }
 
-    return question.getChoices()[choice]?.isCorrect()
+    return question.choices[choice]?.correct
   }
 
   /**
@@ -302,13 +297,13 @@ export default class QuestionService {
    * @throws {QuestionTypeError}
    */
   public checkAnswer(answer: string, question: Question): boolean {
-    if (question.getType() !== QuestionType.TYPE) {
-      throw new QuestionTypeError(question.getType())
+    if (question.type !== QuestionType.TYPE) {
+      throw new QuestionTypeError(question.type)
     }
 
-    for (const questionAnswer of question.getAnswers()) {
-      if (questionAnswer.isCorrect()) {
-        return questionAnswer.getVariants().indexOf(answer) !== -1
+    for (const questionAnswer of question.answers) {
+      if (questionAnswer.correct) {
+        return questionAnswer.variants.indexOf(answer) !== -1
       }
     }
 

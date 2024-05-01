@@ -8,7 +8,7 @@ import ExamPermission from '../../../src/enum/exam/ExamPermission'
 describe('DELETE /exams/:examId', () => {
   test('Unauthorized', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const res = await request(app).delete(`/exams/${ id.toString() }`)
 
     expect(res.status).toEqual(401)
@@ -35,7 +35,7 @@ describe('DELETE /exams/:examId', () => {
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const token = (await auth(user)).token
     const res = await request(app).delete(`/exams/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -44,8 +44,8 @@ describe('DELETE /exams/:examId', () => {
   })
   test('Deleted (has ownership)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
-    const user = await load<User>(User, exam.getCreator())
+    const id = exam.id
+    const user = await load<User>(User, exam.creator)
     const token = (await auth(user)).token
     const res = await request(app).delete(`/exams/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -55,7 +55,7 @@ describe('DELETE /exams/:examId', () => {
   })
   test('Deleted (has permission)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const permissions = [
       ExamPermission.GET,
       ExamPermission.DELETE,

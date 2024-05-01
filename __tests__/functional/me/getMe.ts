@@ -16,6 +16,6 @@ describe('GET /me', () => {
     const res = await request(app).get(`/me`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ id: user.getId().toString(), name: user.getName() })
+    expect(res.body).toMatchObject({ id: user.id.toString(), name: user.name })
   })
 })

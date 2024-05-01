@@ -22,7 +22,7 @@ describe('PATCH /me', () => {
     const user1 = await fixture<User>(User)
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const res = await request(app).patch(`/me`).send({ email: user1.getEmail() }).auth(token, { type: 'bearer' })
+    const res = await request(app).patch(`/me`).send({ email: user1.email }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
@@ -35,6 +35,6 @@ describe('PATCH /me', () => {
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')
-    expect(await load<User>(User, user.getId())).toMatchObject(schema)
+    expect(await load<User>(User, user.id)).toMatchObject(schema)
   })
 })

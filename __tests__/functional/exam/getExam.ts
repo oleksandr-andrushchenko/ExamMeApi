@@ -8,7 +8,7 @@ import ExamPermission from '../../../src/enum/exam/ExamPermission'
 describe('GET /exams/:examId', () => {
   test('Unauthorized', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const res = await request(app).get(`/exams/${ id.toString() }`)
 
     expect(res.status).toEqual(401)
@@ -35,7 +35,7 @@ describe('GET /exams/:examId', () => {
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const token = (await auth(user)).token
     const res = await request(app).get(`/exams/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -44,8 +44,8 @@ describe('GET /exams/:examId', () => {
   })
   test('Found (ownership)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
-    const user = await load<User>(User, exam.getOwner())
+    const id = exam.id
+    const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const res = await request(app).get(`/exams/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -54,7 +54,7 @@ describe('GET /exams/:examId', () => {
   })
   test('Found (permission)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.getId()
+    const id = exam.id
     const permissions = [
       ExamPermission.GET,
     ]

@@ -38,7 +38,7 @@ describe('POST /users', () => {
     const token = (await auth(user)).token
     const res = await request(app).post('/users').send({
       name: 'any',
-      email: user1.getEmail(),
+      email: user1.email,
       password: '123123',
     }).auth(token, { type: 'bearer' })
 

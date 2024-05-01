@@ -10,7 +10,7 @@ import QuestionPermission from '../../../src/enum/question/QuestionPermission'
 describe('PUT /questions/:questionId', () => {
   test('Unauthorized', async () => {
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const res = await request(app).put(`/questions/${ id.toString() }`).send({ title: 'any' })
 
     expect(res.status).toEqual(401)
@@ -38,7 +38,7 @@ describe('PUT /questions/:questionId', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const res = await request(app).put(`/questions/${ id.toString() }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
@@ -47,11 +47,11 @@ describe('PUT /questions/:questionId', () => {
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
     const schema = {
-      category: category.getId().toString(),
+      category: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -71,11 +71,11 @@ describe('PUT /questions/:questionId', () => {
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question, { owner: await fixture<User>(User) })
-    const id = question.getId()
+    const id = question.id
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
     const schema = {
-      category: category.getId().toString(),
+      category: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -95,12 +95,12 @@ describe('PUT /questions/:questionId', () => {
   test('Conflict', async () => {
     const question1 = await fixture<Question>(Question)
     const question = await fixture<Question>(Question, { permissions: [ QuestionPermission.REPLACE ] })
-    const id = question.getId()
-    const user = await load<User>(User, question.getCreator())
+    const id = question.id
+    const user = await load<User>(User, question.creator)
     const token = (await auth(user)).token
     const schema = {
-      category: question.getCategory(),
-      title: question1.getTitle(),
+      category: question.category,
+      title: question1.title,
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
       answers: [
@@ -118,12 +118,12 @@ describe('PUT /questions/:questionId', () => {
   })
   test('Replaced (has ownership)', async () => {
     const question = await fixture<Question>(Question)
-    const id = question.getId()
-    const user = await load<User>(User, question.getCreator())
+    const id = question.id
+    const user = await load<User>(User, question.creator)
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
     const schema = {
-      category: category.getId().toString(),
+      category: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -139,11 +139,11 @@ describe('PUT /questions/:questionId', () => {
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')
-    expect(await load<Question>(Question, id)).toMatchObject({ ...schema, ...{ category: category.getId() } })
+    expect(await load<Question>(Question, id)).toMatchObject({ ...schema, ...{ category: category.id } })
   })
   test('Replaced (has permission)', async () => {
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const permissions = [
       QuestionPermission.REPLACE,
     ]
@@ -151,7 +151,7 @@ describe('PUT /questions/:questionId', () => {
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
     const schema = {
-      category: category.getId().toString(),
+      category: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -167,6 +167,6 @@ describe('PUT /questions/:questionId', () => {
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')
-    expect(await load<Question>(Question, id)).toMatchObject({ ...schema, ...{ category: category.getId() } })
+    expect(await load<Question>(Question, id)).toMatchObject({ ...schema, ...{ category: category.id } })
   })
 })

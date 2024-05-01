@@ -48,7 +48,7 @@ describe('Create category', () => {
     const category = await fixture<Category>(Category)
     const user = await fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await auth(user)).token
-    const res = await request(app).post('/categories').send({ name: category.getName() }).auth(token, { type: 'bearer' })
+    const res = await request(app).post('/categories').send({ name: category.name }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
@@ -111,7 +111,7 @@ describe('Create category', () => {
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
-      .send(addCategoryMutation([ 'id' ], { category: { name: category.getName() } }))
+      .send(addCategoryMutation([ 'id' ], { category: { name: category.name } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)

@@ -10,7 +10,7 @@ import ExamPermission from '../../../src/enum/exam/ExamPermission'
 describe('POST /exams', () => {
   test('Unauthorized', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const res = await request(app).post('/exams').send({ category: id.toString() })
 
     expect(res.status).toEqual(401)
@@ -28,7 +28,7 @@ describe('POST /exams', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const res = await request(app).post('/exams').send({ category: id.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
@@ -37,8 +37,8 @@ describe('POST /exams', () => {
   test('Conflict (exam taken)', async () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
-    const exam = await fixture<Exam>(Exam, { creator: user.getId() })
-    const id = exam.getCategory()
+    const exam = await fixture<Exam>(Exam, { creator: user.id })
+    const id = exam.category
     const res = await request(app).post('/exams').send({ category: id.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
@@ -48,7 +48,7 @@ describe('POST /exams', () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
-    const res = await request(app).post('/exams').send({ category: category.getId() }).auth(token, { type: 'bearer' })
+    const res = await request(app).post('/exams').send({ category: category.id }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
     expect(res.body).toHaveProperty('id')

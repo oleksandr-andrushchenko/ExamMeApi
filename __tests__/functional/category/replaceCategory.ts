@@ -8,7 +8,7 @@ import CategoryPermission from '../../../src/enum/category/CategoryPermission'
 describe('PUT /categories/:categoryId', () => {
   test('Unauthorized', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const res = await request(app).put(`/categories/${ id.toString() }`).send({ name: 'any' })
 
     expect(res.status).toEqual(401)
@@ -48,7 +48,7 @@ describe('PUT /categories/:categoryId', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const res = await request(app).put(`/categories/${ id.toString() }`).send(body).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
@@ -57,7 +57,7 @@ describe('PUT /categories/:categoryId', () => {
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app).put(`/categories/${ id.toString() }`).send({ name: 'any' }).auth(token, { type: 'bearer' })
 
@@ -67,7 +67,7 @@ describe('PUT /categories/:categoryId', () => {
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
-    const id = category.getId()
+    const id = category.id
     const token = (await auth(user)).token
     const res = await request(app).put(`/categories/${ id.toString() }`).send({ name: 'any' }).auth(token, { type: 'bearer' })
 
@@ -77,18 +77,18 @@ describe('PUT /categories/:categoryId', () => {
   test('Conflict', async () => {
     const category1 = await fixture<Category>(Category)
     const category = await fixture<Category>(Category, { permissions: [ CategoryPermission.REPLACE ] })
-    const id = category.getId()
-    const user = await load<User>(User, category.getCreator())
+    const id = category.id
+    const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
-    const res = await request(app).put(`/categories/${ id.toString() }`).send({ name: category1.getName() }).auth(token, { type: 'bearer' })
+    const res = await request(app).put(`/categories/${ id.toString() }`).send({ name: category1.name }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
   })
   test('Replaced (has ownership)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
-    const user = await load<User>(User, category.getCreator())
+    const id = category.id
+    const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
     const schema = { name: 'any' }
     const res = await request(app).put(`/categories/${ id.toString() }`).send(schema).auth(token, { type: 'bearer' })
@@ -99,7 +99,7 @@ describe('PUT /categories/:categoryId', () => {
   })
   test('Replaced (has permission)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.getId()
+    const id = category.id
     const permissions = [
       CategoryPermission.REPLACE,
     ]

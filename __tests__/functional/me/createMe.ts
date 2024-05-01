@@ -15,7 +15,7 @@ describe('POST /me', () => {
     const user = await fixture<User>(User)
     const res = await request(app).post('/me').send({
       name: 'any',
-      email: user.getEmail(),
+      email: user.email,
       password: '123123',
     })
 

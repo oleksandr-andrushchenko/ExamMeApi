@@ -8,7 +8,7 @@ import QuestionPermission from '../../../src/enum/question/QuestionPermission'
 describe('DELETE /questions/:questionId', () => {
   test('Unauthorized', async () => {
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const res = await request(app).delete(`/questions/${ id.toString() }`)
 
     expect(res.status).toEqual(401)
@@ -35,7 +35,7 @@ describe('DELETE /questions/:questionId', () => {
   test('Forbidden (no permissions)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const token = (await auth(user)).token
     const res = await request(app).delete(`/questions/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -45,7 +45,7 @@ describe('DELETE /questions/:questionId', () => {
   test('Forbidden (no ownership)', async () => {
     const user = await fixture<User>(User)
     const question = await fixture<Question>(Question, { owner: await fixture<User>(User) })
-    const id = question.getId()
+    const id = question.id
     const token = (await auth(user)).token
     const res = await request(app).delete(`/questions/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -54,8 +54,8 @@ describe('DELETE /questions/:questionId', () => {
   })
   test('Deleted (has ownership)', async () => {
     const question = await fixture<Question>(Question)
-    const id = question.getId()
-    const user = await load<User>(User, question.getCreator())
+    const id = question.id
+    const user = await load<User>(User, question.creator)
     const token = (await auth(user)).token
     const res = await request(app).delete(`/questions/${ id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -65,7 +65,7 @@ describe('DELETE /questions/:questionId', () => {
   })
   test('Deleted (has permission)', async () => {
     const question = await fixture<Question>(Question)
-    const id = question.getId()
+    const id = question.id
     const permissions = [
       QuestionPermission.DELETE,
     ]

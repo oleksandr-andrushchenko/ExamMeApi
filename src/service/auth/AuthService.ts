@@ -30,14 +30,14 @@ export default class AuthService {
   public async verifyAuthorization(
     user: User,
     permission: string,
-    resource: { getOwner: () => ObjectId } = undefined,
+    resource: { owner: ObjectId } = undefined,
     permissions: string[] = undefined,
   ): Promise<boolean> {
-    if (resource && resource.getOwner().toString() === user.getId().toString()) {
+    if (resource && resource.owner.toString() === user.id.toString()) {
       return true
     }
 
-    permissions = permissions ?? user.getPermissions()
+    permissions = permissions ?? user.permissions
 
     if (permissions.indexOf(Permission.ALL) !== -1) {
       return true
