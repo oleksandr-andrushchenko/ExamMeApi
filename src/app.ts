@@ -28,6 +28,7 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { expressMiddleware } from '@apollo/server/express4'
 import { buildSchema } from 'type-graphql'
 import { resolvers as graphqlResolvers } from './graphql/resolvers'
+import { scalars as graphqlScalars } from './graphql/scalars'
 import { errors } from './errors'
 import Context from './graphql/context/Context'
 import { AuthCheckerService } from './service/auth/AuthCheckerService'
@@ -146,6 +147,7 @@ export default (): { api: () => Api } => {
         const schema = await buildSchema({
           // @ts-ignore
           resolvers: graphqlResolvers,
+          scalarsMap: graphqlScalars,
           container: Container,
           authChecker: authChecker.getTypeGraphqlAuthChecker(),
           emitSchemaFile: `${ projectDir }/src/graphql/schema.graphql`,
