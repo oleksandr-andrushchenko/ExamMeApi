@@ -1,8 +1,8 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { auth, error, fixture, server as app } from '../../index'
-import User from '../../../src/entity/User'
-import Permission from '../../../src/enum/Permission'
+import User from '../../../src/entities/User'
+import Permission from '../../../src/enums/Permission'
 
 describe('GET /permissions', () => {
   test('Unauthorized', async () => {

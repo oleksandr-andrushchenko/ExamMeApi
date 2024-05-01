@@ -1,5 +1,5 @@
 import PaginatedSchema from '../pagination/PaginatedSchema'
-import Category from '../../entity/Category'
+import Category from '../../entities/Category'
 import { ValidateNested } from 'class-validator'
 import { Type } from 'class-transformer'
 

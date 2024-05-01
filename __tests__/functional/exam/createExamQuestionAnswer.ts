@@ -1,9 +1,9 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { auth, error, fakeId, fixture, load, server as app } from '../../index'
-import Exam from '../../../src/entity/Exam'
-import Question, { QuestionType } from '../../../src/entity/Question'
-import User from '../../../src/entity/User'
+import Exam from '../../../src/entities/Exam'
+import Question, { QuestionType } from '../../../src/entities/Question'
+import User from '../../../src/entities/User'
 
 describe('POST /exams/:examId/questions/:question/answer', () => {
   test('Unauthorized', async () => {

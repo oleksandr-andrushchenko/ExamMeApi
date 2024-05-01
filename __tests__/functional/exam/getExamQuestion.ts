@@ -1,10 +1,10 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { auth, error, fakeId, fixture, load, server as app } from '../../index'
-import Exam from '../../../src/entity/Exam'
-import User from '../../../src/entity/User'
-import Question, { QuestionChoice, QuestionType } from '../../../src/entity/Question'
-import ExamPermission from '../../../src/enum/exam/ExamPermission'
+import Exam from '../../../src/entities/Exam'
+import User from '../../../src/entities/User'
+import Question, { QuestionChoice, QuestionType } from '../../../src/entities/Question'
+import ExamPermission from '../../../src/enums/exam/ExamPermission'
 
 describe('GET /exams/:examId/questions/:question', () => {
   test('Unauthorized', async () => {

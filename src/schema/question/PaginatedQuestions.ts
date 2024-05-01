@@ -1,7 +1,7 @@
 import PaginatedSchema from '../pagination/PaginatedSchema'
 import { ValidateNested } from 'class-validator'
 import { Type } from 'class-transformer'
-import Question from '../../entity/Question'
+import Question from '../../entities/Question'
 
 export default class PaginatedQuestions extends PaginatedSchema<Question> {
 

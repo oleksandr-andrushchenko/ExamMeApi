@@ -1,4 +1,4 @@
-import { QuestionDifficulty, QuestionType } from '../../entity/Question'
+import { QuestionDifficulty, QuestionType } from '../../entities/Question'
 
 export default class ExamQuestionSchema {
 

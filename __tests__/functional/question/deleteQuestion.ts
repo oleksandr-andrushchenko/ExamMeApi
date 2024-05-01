@@ -1,9 +1,9 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { auth, error, fakeId, fixture, load, server as app } from '../../index'
-import Question from '../../../src/entity/Question'
-import User from '../../../src/entity/User'
-import QuestionPermission from '../../../src/enum/question/QuestionPermission'
+import Question from '../../../src/entities/Question'
+import User from '../../../src/entities/User'
+import QuestionPermission from '../../../src/enums/question/QuestionPermission'
 
 describe('DELETE /questions/:questionId', () => {
   test('Unauthorized', async () => {

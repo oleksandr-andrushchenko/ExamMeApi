@@ -1,5 +1,5 @@
 import { ArrayNotEmpty, IsEnum, IsMongoId, IsOptional, Length, ValidateIf, ValidateNested } from 'class-validator'
-import { QuestionDifficulty, QuestionType } from '../../entity/Question'
+import { QuestionDifficulty, QuestionType } from '../../entities/Question'
 import { Type } from 'class-transformer'
 import { Field, ID, InputType } from 'type-graphql'
 import { QuestionChoiceSchema } from './QuestionChoiceSchema'

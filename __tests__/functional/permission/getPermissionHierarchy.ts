@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { auth, error, fixture, server as app } from '../../index'
-import User from '../../../src/entity/User'
+import User from '../../../src/entities/User'
 import config from '../../../src/config'
 
 describe('GET /permissions/hierarchy', () => {

@@ -1,12 +1,12 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { auth, error, fakeId, fixture, load, server as app } from '../../index'
-import Category from '../../../src/entity/Category'
-import User from '../../../src/entity/User'
+import Category from '../../../src/entities/Category'
+import User from '../../../src/entities/User'
 import { ObjectId } from 'mongodb'
-import Question, { QuestionDifficulty, QuestionType } from '../../../src/entity/Question'
+import Question, { QuestionDifficulty, QuestionType } from '../../../src/entities/Question'
 import { faker } from '@faker-js/faker'
-import QuestionPermission from '../../../src/enum/question/QuestionPermission'
+import QuestionPermission from '../../../src/enums/question/QuestionPermission'
 
 describe('POST /questions', () => {
   test('Unauthorized', async () => {

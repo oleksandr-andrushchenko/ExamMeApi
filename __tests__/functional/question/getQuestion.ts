@@ -1,8 +1,8 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { error, fakeId, fixture, server as app } from '../../index'
-import Category from '../../../src/entity/Category'
-import Question, { QuestionAnswer, QuestionChoice, QuestionType } from '../../../src/entity/Question'
+import Category from '../../../src/entities/Category'
+import Question, { QuestionAnswer, QuestionChoice, QuestionType } from '../../../src/entities/Question'
 
 describe('GET /questions/:questionId', () => {
   test('Not found (question)', async () => {

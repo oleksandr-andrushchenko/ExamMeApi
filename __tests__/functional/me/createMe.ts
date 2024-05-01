@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { error, fixture, load, server as app } from '../../index'
-import User from '../../../src/entity/User'
+import User from '../../../src/entities/User'
 import { ObjectId } from 'mongodb'
 
 describe('POST /me', () => {

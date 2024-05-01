@@ -1,10 +1,10 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { auth, error, fakeId, fixture, load, server as app } from '../../index'
-import Question from '../../../src/entity/Question'
-import User from '../../../src/entity/User'
+import Question from '../../../src/entities/Question'
+import User from '../../../src/entities/User'
 import { faker } from '@faker-js/faker'
-import QuestionPermission from '../../../src/enum/question/QuestionPermission'
+import QuestionPermission from '../../../src/enums/question/QuestionPermission'
 
 describe('PATCH /questions/:questionId', () => {
   test('Unauthorized', async () => {

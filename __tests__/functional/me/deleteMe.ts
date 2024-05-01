@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { auth, error, fixture, load, server as app } from '../../index'
-import User from '../../../src/entity/User'
+import User from '../../../src/entities/User'
 
 describe('DELETE /me', () => {
   test('Unauthorized', async () => {

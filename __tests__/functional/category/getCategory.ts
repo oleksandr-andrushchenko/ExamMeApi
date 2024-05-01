@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { error, fakeId, fixture, graphqlError, server as app } from '../../index'
-import Category from '../../../src/entity/Category'
+import Category from '../../../src/entities/Category'
 // @ts-ignore
 import { categoryQuery } from '../../graphql/category/categoryQuery'
 

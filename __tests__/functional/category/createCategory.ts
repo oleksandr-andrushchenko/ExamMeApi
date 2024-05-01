@@ -2,10 +2,10 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 // @ts-ignore
 import { auth, error, fixture, graphqlError, load, server as app } from '../../index'
-import Category from '../../../src/entity/Category'
-import User from '../../../src/entity/User'
+import Category from '../../../src/entities/Category'
+import User from '../../../src/entities/User'
 import { ObjectId } from 'mongodb'
-import CategoryPermission from '../../../src/enum/category/CategoryPermission'
+import CategoryPermission from '../../../src/enums/category/CategoryPermission'
 // @ts-ignore
 import { addCategoryMutation } from '../../graphql/category/addCategoryMutation'
 

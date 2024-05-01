@@ -1,5 +1,5 @@
 import { ArrayUnique, IsEnum, IsOptional } from 'class-validator'
-import Permission from '../../enum/Permission'
+import Permission from '../../enums/Permission'
 import MeSchema from './MeSchema'
 
 export default class UserSchema extends MeSchema {

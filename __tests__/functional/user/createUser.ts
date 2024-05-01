@@ -1,9 +1,9 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import { auth, error, fixture, load, server as app } from '../../index'
-import User from '../../../src/entity/User'
+import User from '../../../src/entities/User'
 import { ObjectId } from 'mongodb'
-import UserPermission from '../../../src/enum/user/UserPermission'
+import UserPermission from '../../../src/enums/user/UserPermission'
 
 describe('POST /users', () => {
   test('Unauthorized', async () => {

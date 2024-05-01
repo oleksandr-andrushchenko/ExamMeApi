@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 // @ts-ignore
 import { error, fixture, graphqlError, server as app } from '../../index'
-import User from '../../../src/entity/User'
+import User from '../../../src/entities/User'
 // @ts-ignore
 import { authenticateMutation } from '../../graphql/auth/authenticateMutation'
 

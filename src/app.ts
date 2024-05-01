@@ -8,9 +8,9 @@ import {
   useExpressServer,
 } from 'routing-controllers'
 import express, { Application } from 'express'
-import LoggerInterface from './service/logger/LoggerInterface'
-import JwtTokenStrategyFactory from './service/token/strategy/JwtTokenStrategyFactory'
-import TokenStrategyInterface from './service/token/strategy/TokenStrategyInterface'
+import LoggerInterface from './services/logger/LoggerInterface'
+import JwtTokenStrategyFactory from './services/token/strategy/JwtTokenStrategyFactory'
+import TokenStrategyInterface from './services/token/strategy/TokenStrategyInterface'
 import { MongoConnectionOptions } from 'typeorm/driver/mongodb/MongoConnectionOptions'
 import { MongoDriver } from 'typeorm/driver/mongodb/MongoDriver'
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema'
@@ -19,19 +19,19 @@ import { routingControllersToSpec } from 'routing-controllers-openapi'
 import { RoutingControllersOptions } from 'routing-controllers/types/RoutingControllersOptions'
 import basicAuth from 'express-basic-auth'
 import { MetadataStorage } from 'class-transformer/types/MetadataStorage'
-import NullLogger from './service/logger/NullLogger'
-import ClassValidatorValidator from './service/validator/ClassValidatorValidator'
-import WinstonLogger from './service/logger/WinstonLogger'
+import NullLogger from './services/logger/NullLogger'
+import ClassValidatorValidator from './services/validator/ClassValidatorValidator'
+import WinstonLogger from './services/logger/WinstonLogger'
 import { createServer } from 'http'
 import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { expressMiddleware } from '@apollo/server/express4'
 import { buildSchema } from 'type-graphql'
-import { resolvers as graphqlResolvers } from './graphql/resolvers'
-import { scalars as graphqlScalars } from './graphql/scalars'
-import { errors } from './errors'
-import Context from './graphql/context/Context'
-import { AuthCheckerService } from './service/auth/AuthCheckerService'
+import { resolvers } from './resolvers/resolvers'
+import { scalars } from './scalars/scalars'
+import { errors } from './errors/errors'
+import Context from './context/Context'
+import { AuthCheckerService } from './services/auth/AuthCheckerService'
 import { GraphQLError } from 'graphql/error'
 import type { GraphQLFormattedError } from 'graphql/index'
 
@@ -69,9 +69,9 @@ export default (): { api: () => Api } => {
     url: config.db.url,
     synchronize: config.db.synchronize,
     logging: config.db.logging,
-    entities: [ `${ projectDir }/src/entity/*.ts` ],
-    subscribers: [ `${ projectDir }/src/subscriber/*.ts` ],
-    migrations: [ `${ projectDir }/src/migration/*.ts` ],
+    entities: [ `${ projectDir }/src/entities/*.ts` ],
+    subscribers: [ `${ projectDir }/src/subscribers/*.ts` ],
+    migrations: [ `${ projectDir }/src/migrations/*.ts` ],
     monitorCommands: mongoLogging,
   }
 
@@ -89,8 +89,8 @@ export default (): { api: () => Api } => {
       const routingControllersOptions: RoutingControllersOptions = {
         authorizationChecker: authChecker.getRoutingControllersAuthorizationChecker(),
         currentUserChecker: authChecker.getRoutingControllersCurrentUserChecker(),
-        controllers: [ `${ projectDir }/src/controller/*.ts` ],
-        middlewares: [ `${ projectDir }/src/middleware/*.ts` ],
+        controllers: [ `${ projectDir }/src/controllers/*.ts` ],
+        middlewares: [ `${ projectDir }/src/middlewares/*.ts` ],
         cors: config.app.cors,
         validation: config.app.validator,
         classTransformer: true,
@@ -146,11 +146,11 @@ export default (): { api: () => Api } => {
       if (config.graphql.enabled) {
         const schema = await buildSchema({
           // @ts-ignore
-          resolvers: graphqlResolvers,
-          scalarsMap: graphqlScalars,
+          resolvers,
+          scalarsMap: scalars,
           container: Container,
           authChecker: authChecker.getTypeGraphqlAuthChecker(),
-          emitSchemaFile: `${ projectDir }/src/graphql/schema.graphql`,
+          emitSchemaFile: `${ projectDir }/src/schema.graphql`,
         })
         const apolloServer = new ApolloServer<Context>({
           schema,
