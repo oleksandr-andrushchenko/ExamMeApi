@@ -5,6 +5,7 @@ import Category from '../../../src/entities/Category'
 import * as querystring from 'querystring'
 // @ts-ignore
 import { categoriesQuery } from '../../graphql/category/categoriesQuery'
+import CategoryQuerySchema from '../../../src/schema/category/CategoryQuerySchema'
 
 describe('Query categories', () => {
   test('Empty', async () => {
@@ -309,7 +310,7 @@ describe('Query categories', () => {
     { case: 'invalid order type', query: { order: 1 } },
     { case: 'not allowed order', query: { order: 'any' } },
   ])('Bad request ($case)', async ({ query }) => {
-    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], query))
+    const res = await request(app).post(`/graphql`).send(categoriesQuery(query as CategoryQuerySchema))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('BadRequestError'))
@@ -324,7 +325,7 @@ describe('Query categories', () => {
       .sort((a: Category, b: Category) => a.id.toString().localeCompare(b.id.toString()))
 
     const query = { cursor: 'id', size, order: 'asc' }
-    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], query))
+    const res = await request(app).post(`/graphql`).send(categoriesQuery(query as CategoryQuerySchema))
 
     expect(res.status).toEqual(200)
     const firstInStoragePosition = 0
@@ -348,7 +349,7 @@ describe('Query categories', () => {
       .sort((a: Category, b: Category) => a.id.toString().localeCompare(b.id.toString()))
 
     const query = { cursor: 'id', size, order: 'desc' }
-    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], query))
+    const res = await request(app).post(`/graphql`).send(categoriesQuery(query as CategoryQuerySchema))
 
     expect(res.status).toEqual(200)
 
@@ -384,7 +385,7 @@ describe('Query categories', () => {
 
     const prevCursor = categories[prev].id.toString()
     const query = { cursor: 'id', size, order: 'asc' }
-    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], { ...query, ...{ prevCursor } }))
+    const res = await request(app).post(`/graphql`).send(categoriesQuery({ ...query, ...{ prevCursor } } as CategoryQuerySchema))
 
     expect(res.status).toEqual(200)
 
@@ -420,7 +421,7 @@ describe('Query categories', () => {
 
     const nextCursor = categories[next].id.toString()
     const query = { cursor: 'id', size, order: 'asc' }
-    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], { ...query, ...{ nextCursor } }))
+    const res = await request(app).post(`/graphql`).send(categoriesQuery({ ...query, ...{ nextCursor } } as CategoryQuerySchema))
 
     expect(res.status).toEqual(200)
 
@@ -459,7 +460,7 @@ describe('Query categories', () => {
 
     const prevCursor = categories[prev].id.toString()
     const query = { cursor: 'id', size, order: 'desc' }
-    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], { ...query, ...{ prevCursor } }))
+    const res = await request(app).post(`/graphql`).send(categoriesQuery({ ...query, ...{ prevCursor } } as CategoryQuerySchema))
 
     expect(res.status).toEqual(200)
 
@@ -495,7 +496,7 @@ describe('Query categories', () => {
 
     const nextCursor = categories[next].id.toString()
     const query = { cursor: 'id', size, order: 'desc' }
-    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id' ], { ...query, ...{ nextCursor } }))
+    const res = await request(app).post(`/graphql`).send(categoriesQuery({ ...query, ...{ nextCursor } } as CategoryQuerySchema))
 
     expect(res.status).toEqual(200)
 
@@ -518,7 +519,7 @@ describe('Query categories', () => {
   test('Not empty (GraphQL)', async () => {
     const categories = await Promise.all([ fixture<Category>(Category), fixture<Category>(Category) ])
 
-    const res = await request(app).post(`/graphql`).send(categoriesQuery([ 'id', 'name' ], { size: 50 }))
+    const res = await request(app).post(`/graphql`).send(categoriesQuery({ size: 50 }, [ 'id', 'name' ]))
 
     expect(res.status).toEqual(200)
     expect(res.body.data.categories).toHaveLength(categories.length)

@@ -1,4 +1,6 @@
-export const categoriesQuery = (fields: string[] = [ 'id' ], variables: object = {}) => {
+import CategoryQuerySchema from '../../../src/schema/category/CategoryQuerySchema'
+
+export const categoriesQuery = (variables: CategoryQuerySchema = {}, fields: string[] = [ 'id' ]) => {
   return {
     query: `
       query Categories($prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {

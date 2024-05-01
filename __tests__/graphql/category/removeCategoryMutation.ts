@@ -1,6 +1,6 @@
-export const removeCategoryMutation = (variables: Partial<{
-  categoryId: string,
-}> = {}) => {
+import GetCategorySchema from '../../../src/schema/category/GetCategorySchema'
+
+export const removeCategoryMutation = (variables: GetCategorySchema) => {
   return {
     query: `
       mutation RemoveCategory($categoryId: ID!) {

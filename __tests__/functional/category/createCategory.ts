@@ -66,7 +66,7 @@ describe('Create category', () => {
     expect(await load<Category>(Category, id)).toMatchObject(schema)
   })
   test('Unauthorized (GraphQL)', async () => {
-    const res = await request(app).post(`/graphql`).send(addCategoryMutation([ 'id' ], { category: { name: 'any' } }))
+    const res = await request(app).post(`/graphql`).send(addCategoryMutation({ category: { name: 'any' } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
@@ -88,7 +88,7 @@ describe('Create category', () => {
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
-      .send(addCategoryMutation([ 'id' ], { category }))
+      .send(addCategoryMutation({ category }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -99,7 +99,7 @@ describe('Create category', () => {
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
-      .send(addCategoryMutation([ 'id' ], { category: { name: 'any' } }))
+      .send(addCategoryMutation({ category: { name: 'any' } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -111,7 +111,7 @@ describe('Create category', () => {
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
-      .send(addCategoryMutation([ 'id' ], { category: { name: category.name } }))
+      .send(addCategoryMutation({ category: { name: category.name } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -123,7 +123,7 @@ describe('Create category', () => {
     const category = { name: 'any', requiredScore: 80 }
     const res = await request(app)
       .post(`/graphql`)
-      .send(addCategoryMutation([ 'id', 'name', 'requiredScore' ], { category }))
+      .send(addCategoryMutation({ category }, [ 'id', 'name', 'requiredScore' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)

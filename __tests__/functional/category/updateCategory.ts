@@ -6,6 +6,7 @@ import User from '../../../src/entities/User'
 import CategoryPermission from '../../../src/enums/category/CategoryPermission'
 // @ts-ignore
 import { updateCategoryMutation } from '../../graphql/category/updateCategoryMutation'
+import CategoryUpdateSchema from '../../../src/schema/category/CategoryUpdateSchema'
 
 describe('Update category', () => {
   test('Unauthorized', async () => {
@@ -117,7 +118,7 @@ describe('Update category', () => {
     const id = category.id
     const res = await request(app)
       .post(`/graphql`)
-      .send(updateCategoryMutation([ 'id' ], {
+      .send(updateCategoryMutation({
         categoryId: id.toString(),
         categoryUpdate: { name: 'Any' },
       }))
@@ -131,7 +132,7 @@ describe('Update category', () => {
     const id = 'invalid'
     const res = await request(app)
       .post(`/graphql`)
-      .send(updateCategoryMutation([ 'id' ], {
+      .send(updateCategoryMutation({
         categoryId: id.toString(),
         categoryUpdate: { name: 'Any' },
       }))
@@ -146,7 +147,7 @@ describe('Update category', () => {
     const id = await fakeId()
     const res = await request(app)
       .post(`/graphql`)
-      .send(updateCategoryMutation([ 'id' ], {
+      .send(updateCategoryMutation({
         categoryId: id.toString(),
         categoryUpdate: { name: 'Any' },
       }))
@@ -156,22 +157,22 @@ describe('Update category', () => {
     expect(res.body).toMatchObject(graphqlError('NotFoundError'))
   })
   test.each([
-    { case: 'name too short', body: { name: 'a' } },
-    { case: 'name too long', body: { name: 'abc'.repeat(99) } },
-    { case: 'required score is string', body: { requiredScore: 'any' } },
-    { case: 'required score is float', body: { requiredScore: 0.1 } },
-    { case: 'required score is negative', body: { requiredScore: -1 } },
-    { case: 'required score is greater then 100', body: { requiredScore: 101 } },
-  ])('Bad request ($case) (GraphQL)', async ({ body }) => {
+    { case: 'name too short', categoryUpdate: { name: 'a' } },
+    { case: 'name too long', categoryUpdate: { name: 'abc'.repeat(99) } },
+    { case: 'required score is string', categoryUpdate: { requiredScore: 'any' } },
+    { case: 'required score is float', categoryUpdate: { requiredScore: 0.1 } },
+    { case: 'required score is negative', categoryUpdate: { requiredScore: -1 } },
+    { case: 'required score is greater then 100', categoryUpdate: { requiredScore: 101 } },
+  ])('Bad request ($case) (GraphQL)', async ({ categoryUpdate }) => {
     const category = await fixture<Category>(Category)
     const id = category.id
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
-      .send(updateCategoryMutation([ 'id' ], {
+      .send(updateCategoryMutation({
         categoryId: id.toString(),
-        categoryUpdate: body,
+        categoryUpdate: categoryUpdate as CategoryUpdateSchema,
       }))
       .auth(token, { type: 'bearer' })
 
@@ -185,7 +186,7 @@ describe('Update category', () => {
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
-      .send(updateCategoryMutation([ 'id' ], {
+      .send(updateCategoryMutation({
         categoryId: id.toString(),
         categoryUpdate: { name: 'Any' },
       }))
@@ -201,7 +202,7 @@ describe('Update category', () => {
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
-      .send(updateCategoryMutation([ 'id' ], {
+      .send(updateCategoryMutation({
         categoryId: id.toString(),
         categoryUpdate: { name: 'Any' },
       }))
@@ -218,7 +219,7 @@ describe('Update category', () => {
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
-      .send(updateCategoryMutation([ 'id' ], {
+      .send(updateCategoryMutation({
         categoryId: id.toString(),
         categoryUpdate: { name: category1.name },
       }))
@@ -235,7 +236,7 @@ describe('Update category', () => {
     const schema = { name: 'any' }
     const res = await request(app)
       .post(`/graphql`)
-      .send(updateCategoryMutation([ 'id' ], {
+      .send(updateCategoryMutation({
         categoryId: id.toString(),
         categoryUpdate: schema,
       }))
@@ -256,7 +257,7 @@ describe('Update category', () => {
     const schema = { name: 'any' }
     const res = await request(app)
       .post(`/graphql`)
-      .send(updateCategoryMutation([ 'id' ], {
+      .send(updateCategoryMutation({
         categoryId: id.toString(),
         categoryUpdate: schema,
       }))

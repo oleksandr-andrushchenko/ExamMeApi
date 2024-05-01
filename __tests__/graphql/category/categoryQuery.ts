@@ -1,4 +1,6 @@
-export const categoryQuery = (fields: string[] = [ 'id' ], variables: object = {}) => {
+import GetCategorySchema from '../../../src/schema/category/GetCategorySchema'
+
+export const categoryQuery = (variables: GetCategorySchema, fields: string[] = [ 'id' ]) => {
   return {
     query: `
       query Category($categoryId: ID!) {
