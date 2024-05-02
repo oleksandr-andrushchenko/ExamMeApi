@@ -5,6 +5,7 @@ import ValidatorInterface from '../services/validator/ValidatorInterface'
 import Question from '../entities/Question'
 import QuestionService from '../services/question/QuestionService'
 import GetQuestionSchema from '../schema/question/GetQuestionSchema'
+import QuestionQuerySchema from '../schema/question/QuestionQuerySchema'
 import QuestionSchema from '../schema/question/QuestionSchema'
 
 @Service()
@@ -24,6 +25,13 @@ export class QuestionResolver {
     await this.validator.validate(getQuestion)
 
     return await this.questionService.getQuestion(getQuestion.questionId)
+  }
+
+  @Query(_returns => [ Question ])
+  public async questions(
+    @Args() questionQuery: QuestionQuerySchema,
+  ): Promise<Question[]> {
+    return await this.questionService.queryQuestions(questionQuery) as Question[]
   }
 
   @Authorized()
