@@ -1,13 +1,17 @@
 import { IsNumber, IsOptional, Length, Min } from 'class-validator'
+import { Field, InputType, Int } from 'type-graphql'
 
+@InputType()
 export default class CreateExamQuestionAnswerSchema {
 
   @IsOptional()
   @Min(0)
   @IsNumber({ maxDecimalPlaces: 0 })
-  public readonly choice: number
+  @Field(_type => Int, { nullable: true })
+  public readonly choice?: number
 
   @IsOptional()
   @Length(2, 10)
-  public readonly answer: string
+  @Field({ nullable: true })
+  public readonly answer?: string
 }
