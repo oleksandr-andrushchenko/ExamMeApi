@@ -12,12 +12,12 @@ export class QuestionChoiceSchema {
 
   @IsBoolean()
   @Column()
-  @Field()
-  public readonly correct: boolean
+  @Field({ nullable: true })
+  public readonly correct?: boolean
 
   @IsOptional()
   @Length(10, 3000)
   @Column()
-  @Field()
-  public readonly explanation: string
+  @Field({ nullable: true })
+  public readonly explanation?: string
 }
