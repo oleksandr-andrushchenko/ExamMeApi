@@ -163,7 +163,7 @@ export default class ExamController {
       403: { description: 'Forbidden' },
     },
   })
-  @ResponseSchema(ExamQuestion)
+  @ResponseSchema(Exam)
   public async createExamCompletion(
     @Params({ type: GetExamSchema, required: true }) getExam: GetExamSchema,
     @CurrentUser({ required: true }) user: User,
