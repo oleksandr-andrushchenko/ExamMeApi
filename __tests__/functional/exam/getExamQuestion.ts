@@ -9,8 +9,7 @@ import ExamPermission from '../../../src/enums/exam/ExamPermission'
 describe('GET /exams/:examId/questions/:question', () => {
   test('Unauthorized', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.id
-    const res = await request(app).get(`/exams/${ id.toString() }/questions/0`)
+    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/0`)
 
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
@@ -18,8 +17,7 @@ describe('GET /exams/:examId/questions/:question', () => {
   test('Bad request (invalid exam id)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const id = 'invalid'
-    const res = await request(app).get(`/exams/${ id.toString() }/questions/0`).auth(token, { type: 'bearer' })
+    const res = await request(app).get('/exams/invalid/questions/0').auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -31,8 +29,7 @@ describe('GET /exams/:examId/questions/:question', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
-    const id = exam.id
-    const res = await request(app).get(`/exams/${ id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
+    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -48,10 +45,9 @@ describe('GET /exams/:examId/questions/:question', () => {
   })
   test('Not found (question number)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.id
     const user = await load<User>(User, exam.creator)
     const token = (await auth(user)).token
-    const res = await request(app).get(`/exams/${ id.toString() }/questions/999`).auth(token, { type: 'bearer' })
+    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/999`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
@@ -59,9 +55,8 @@ describe('GET /exams/:examId/questions/:question', () => {
   test('Forbidden', async () => {
     const user = await fixture<User>(User)
     const exam = await fixture<Exam>(Exam)
-    const id = exam.id
     const token = (await auth(user)).token
-    const res = await request(app).get(`/exams/${ id.toString() }/questions/0`).auth(token, { type: 'bearer' })
+    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/0`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -99,18 +94,16 @@ describe('GET /exams/:examId/questions/:question', () => {
   })
   test('Found (permission)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.id
     const permissions = [
       ExamPermission.GET,
       ExamPermission.GET_QUESTION,
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
-    const questionNumber = 0
-    const res = await request(app).get(`/exams/${ id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
+    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/0`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    const examQuestion = exam.questions[questionNumber]
+    const examQuestion = exam.questions[0]
     const question = await load<Question>(Question, examQuestion.question)
 
     expect(res.body).toMatchObject({

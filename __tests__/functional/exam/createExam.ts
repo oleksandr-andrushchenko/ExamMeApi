@@ -7,11 +7,10 @@ import Category from '../../../src/entities/Category'
 import { ObjectId } from 'mongodb'
 import ExamPermission from '../../../src/enums/exam/ExamPermission'
 
-describe('POST /exams', () => {
+describe('Create exam', () => {
   test('Unauthorized', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.id
-    const res = await request(app).post('/exams').send({ category: id.toString() })
+    const res = await request(app).post('/exams').send({ category: category.id.toString() })
 
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
@@ -28,8 +27,7 @@ describe('POST /exams', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
-    const id = category.id
-    const res = await request(app).post('/exams').send({ category: id.toString() }).auth(token, { type: 'bearer' })
+    const res = await request(app).post('/exams').send({ category: category.id.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -38,8 +36,7 @@ describe('POST /exams', () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam, { creator: user.id })
-    const id = exam.category
-    const res = await request(app).post('/exams').send({ category: id.toString() }).auth(token, { type: 'bearer' })
+    const res = await request(app).post('/exams').send({ category: exam.category.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
@@ -48,7 +45,7 @@ describe('POST /exams', () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
     const category = await fixture<Category>(Category)
-    const res = await request(app).post('/exams').send({ category: category.id }).auth(token, { type: 'bearer' })
+    const res = await request(app).post('/exams').send({ category: category.id.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
     expect(res.body).toHaveProperty('id')

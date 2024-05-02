@@ -41,10 +41,9 @@ describe('POST /exams/:examId/completion', () => {
   })
   test('Created (has ownership)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.id
     const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
-    const res = await request(app).post(`/exams/${ id.toString() }/completion`).auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/exams/${ exam.id.toString() }/completion`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
     expect(res.body).toMatchObject({ id: exam.id.toString() })
@@ -54,14 +53,13 @@ describe('POST /exams/:examId/completion', () => {
   })
   test('Created (has permission)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const id = exam.id
     const permissions = [
       ExamPermission.GET,
       ExamPermission.CREATE_COMPLETION,
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
-    const res = await request(app).post(`/exams/${ id.toString() }/completion`).auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/exams/${ exam.id.toString() }/completion`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
     expect(res.body).toMatchObject({ id: exam.id.toString() })
