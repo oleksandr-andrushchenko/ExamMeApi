@@ -65,8 +65,15 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
         for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
           const answer = new QuestionAnswer()
           answer.variants = [ faker.lorem.word() ]
-          answer.correct = faker.datatype.boolean()
-          answer.explanation = faker.datatype.boolean() ? faker.lorem.sentence() : undefined
+
+          if (faker.datatype.boolean()) {
+            answer.correct = true
+          }
+
+          if (faker.datatype.boolean()) {
+            answer.explanation = faker.lorem.sentence()
+          }
+
           answers.push(answer)
         }
 
@@ -77,8 +84,15 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
         for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
           const choice = new QuestionChoice()
           choice.title = faker.lorem.word()
-          choice.correct = faker.datatype.boolean()
-          choice.explanation = faker.datatype.boolean() ? faker.lorem.sentence() : undefined
+
+          if (faker.datatype.boolean()) {
+            choice.correct = true
+          }
+
+          if (faker.datatype.boolean()) {
+            choice.explanation = faker.lorem.sentence()
+          }
+
           choices.push(choice)
         }
 
