@@ -5,6 +5,7 @@ import { error, fixture, graphqlError, server as app } from '../../index'
 import User from '../../../src/entities/User'
 // @ts-ignore
 import { authenticateMutation } from '../../graphql/auth/authenticateMutation'
+import { CredentialsSchema } from '../../../src/schema/auth/CredentialsSchema'
 
 describe('POST /auth', () => {
   test.each([
@@ -49,7 +50,7 @@ describe('POST /auth', () => {
     expect(res.body).toHaveProperty('expires')
   })
   test.each([
-    { case: 'empty credentials', credentials: {} },
+    { case: 'empty credentials', credentials: {}, times: 2 },
     { case: 'no email', credentials: { password: 'any' } },
     { case: 'email is null', credentials: { email: null, password: 'any' } },
     { case: 'email is undefined', credentials: { email: undefined, password: 'any' } },
@@ -59,15 +60,16 @@ describe('POST /auth', () => {
     { case: 'password is integer', credentials: { email: 'any@any.com', password: 111 } },
     { case: 'password is too short', credentials: { email: 'any@any.com', password: 'a' } },
     { case: 'password is too long', credentials: { email: 'any@any.com', password: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' } },
-  ])('Bad request ($case) (GraphQL)', async ({ credentials }) => {
-    const res = await request(app).post('/graphql').send(authenticateMutation([ 'token' ], credentials))
+  ])('Bad request ($case) (GraphQL)', async ({ credentials, times = 1 }) => {
+    const res = await request(app).post('/graphql')
+      .send(authenticateMutation({ credentials: credentials as CredentialsSchema }))
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject(graphqlError('BadRequestError'))
+    expect(res.body).toMatchObject(graphqlError(...Array(times).fill('BadRequestError')))
   })
   test('Not Found (GraphQL)', async () => {
     const credentials = { email: 'any@any.com', password: 'password' }
-    const res = await request(app).post('/graphql').send(authenticateMutation([ 'token' ], { credentials }))
+    const res = await request(app).post('/graphql').send(authenticateMutation({ credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('NotFoundError'))
@@ -75,7 +77,7 @@ describe('POST /auth', () => {
   test('Forbidden (GraphQL)', async () => {
     const user = await fixture<User>(User)
     const credentials = { email: user.email, password: 'password' }
-    const res = await request(app).post('/graphql').send(authenticateMutation([ 'token' ], { credentials }))
+    const res = await request(app).post('/graphql').send(authenticateMutation({ credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('ForbiddenError'))
@@ -83,7 +85,7 @@ describe('POST /auth', () => {
   test('Created (GraphQL)', async () => {
     const user = await fixture<User>(User, { password: 'password' })
     const credentials = { email: user.email, password: 'password' }
-    const res = await request(app).post('/graphql').send(authenticateMutation([ 'token' ], { credentials }))
+    const res = await request(app).post('/graphql').send(authenticateMutation({ credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body.data.authenticate).toHaveProperty('token')
