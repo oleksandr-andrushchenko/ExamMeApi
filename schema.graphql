@@ -34,6 +34,7 @@ type Mutation {
   authenticate(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
   updateCategory(categoryId: ID!, categoryUpdate: CategoryUpdateSchema!): Category!
+  updateQuestion(questionId: ID!, questionUpdate: QuestionUpdateSchema!): Question!
 }
 
 type Query {
@@ -86,6 +87,15 @@ input QuestionSchema {
   difficulty: String!
   title: String!
   type: String!
+}
+
+input QuestionUpdateSchema {
+  answers: [QuestionAnswerSchema!]
+  category: ID
+  choices: [QuestionChoiceSchema!]
+  difficulty: String
+  title: String
+  type: String
 }
 
 type TokenSchema {
