@@ -82,7 +82,7 @@ describe('Delete category', () => {
   test('Unauthorized (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
     const id = category.id
-    const res = await request(app).post(`/graphql`).send(removeCategoryMutation({ categoryId: id.toString() }))
+    const res = await request(app).post('/graphql').send(removeCategoryMutation({ categoryId: id.toString() }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
@@ -92,7 +92,7 @@ describe('Delete category', () => {
     const token = (await auth(user)).token
     const id = 'invalid'
     const res = await request(app)
-      .post(`/graphql`)
+      .post('/graphql')
       .send(removeCategoryMutation({ categoryId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
@@ -104,7 +104,7 @@ describe('Delete category', () => {
     const token = (await auth(user)).token
     const id = await fakeId()
     const res = await request(app)
-      .post(`/graphql`)
+      .post('/graphql')
       .send(removeCategoryMutation({ categoryId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
@@ -116,7 +116,7 @@ describe('Delete category', () => {
     const category = await fixture<Category>(Category)
     const id = category.id
     const token = (await auth(user)).token
-    const res = await request(app).post(`/graphql`)
+    const res = await request(app).post('/graphql')
       .send(removeCategoryMutation({ categoryId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
@@ -128,7 +128,7 @@ describe('Delete category', () => {
     const category = await fixture<Category>(Category, { owner: await fixture<User>(User) })
     const id = category.id
     const token = (await auth(user)).token
-    const res = await request(app).post(`/graphql`)
+    const res = await request(app).post('/graphql')
       .send(removeCategoryMutation({ categoryId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
@@ -140,7 +140,7 @@ describe('Delete category', () => {
     const id = category.id
     const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
-    const res = await request(app).post(`/graphql`)
+    const res = await request(app).post('/graphql')
       .send(removeCategoryMutation({ categoryId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
@@ -156,7 +156,7 @@ describe('Delete category', () => {
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
-    const res = await request(app).post(`/graphql`)
+    const res = await request(app).post('/graphql')
       .send(removeCategoryMutation({ categoryId: id.toString() }))
       .auth(token, { type: 'bearer' })
 

@@ -43,7 +43,7 @@ describe('Get category', () => {
   test('Not found (GraphQL)', async () => {
     const id = await fakeId()
     const variables = { categoryId: id.toString() }
-    const res = await request(app).post(`/graphql`).send(categoryQuery(variables))
+    const res = await request(app).post('/graphql').send(categoryQuery(variables))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('NotFoundError'))
@@ -51,7 +51,7 @@ describe('Get category', () => {
   test('Bad request (invalid id) (GraphQL)', async () => {
     const id = 'invalid'
     const variables = { categoryId: id.toString() }
-    const res = await request(app).post(`/graphql`).send(categoryQuery(variables))
+    const res = await request(app).post('/graphql').send(categoryQuery(variables))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('BadRequestError'))
@@ -59,7 +59,7 @@ describe('Get category', () => {
   test('Found (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
     const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating' ]
-    const res = await request(app).post(`/graphql`).send(categoryQuery({ categoryId: category.id.toString() }, fields))
+    const res = await request(app).post('/graphql').send(categoryQuery({ categoryId: category.id.toString() }, fields))
 
     expect(res.status).toEqual(200)
     expect(res.body).toEqual({

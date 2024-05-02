@@ -60,14 +60,14 @@ describe('POST /auth', () => {
     { case: 'password is too short', credentials: { email: 'any@any.com', password: 'a' } },
     { case: 'password is too long', credentials: { email: 'any@any.com', password: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' } },
   ])('Bad request ($case) (GraphQL)', async ({ credentials }) => {
-    const res = await request(app).post(`/graphql`).send(authenticateMutation([ 'token' ], credentials))
+    const res = await request(app).post('/graphql').send(authenticateMutation([ 'token' ], credentials))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('BadRequestError'))
   })
   test('Not Found (GraphQL)', async () => {
     const credentials = { email: 'any@any.com', password: 'password' }
-    const res = await request(app).post(`/graphql`).send(authenticateMutation([ 'token' ], { credentials }))
+    const res = await request(app).post('/graphql').send(authenticateMutation([ 'token' ], { credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('NotFoundError'))
@@ -75,7 +75,7 @@ describe('POST /auth', () => {
   test('Forbidden (GraphQL)', async () => {
     const user = await fixture<User>(User)
     const credentials = { email: user.email, password: 'password' }
-    const res = await request(app).post(`/graphql`).send(authenticateMutation([ 'token' ], { credentials }))
+    const res = await request(app).post('/graphql').send(authenticateMutation([ 'token' ], { credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('ForbiddenError'))
@@ -83,7 +83,7 @@ describe('POST /auth', () => {
   test('Created (GraphQL)', async () => {
     const user = await fixture<User>(User, { password: 'password' })
     const credentials = { email: user.email, password: 'password' }
-    const res = await request(app).post(`/graphql`).send(authenticateMutation([ 'token' ], { credentials }))
+    const res = await request(app).post('/graphql').send(authenticateMutation([ 'token' ], { credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body.data.authenticate).toHaveProperty('token')

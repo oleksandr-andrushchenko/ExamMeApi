@@ -67,7 +67,7 @@ describe('Create category', () => {
     expect(await load<Category>(Category, id)).toMatchObject(schema)
   })
   test('Unauthorized (GraphQL)', async () => {
-    const res = await request(app).post(`/graphql`).send(addCategoryMutation({ category: { name: 'any' } }))
+    const res = await request(app).post('/graphql').send(addCategoryMutation({ category: { name: 'any' } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
@@ -88,7 +88,7 @@ describe('Create category', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const res = await request(app)
-      .post(`/graphql`)
+      .post('/graphql')
       .send(addCategoryMutation({ category: category as CategorySchema }))
       .auth(token, { type: 'bearer' })
 
@@ -99,7 +99,7 @@ describe('Create category', () => {
     const user = await fixture<User>(User, { permissions: [] })
     const token = (await auth(user)).token
     const res = await request(app)
-      .post(`/graphql`)
+      .post('/graphql')
       .send(addCategoryMutation({ category: { name: 'any' } }))
       .auth(token, { type: 'bearer' })
 
@@ -111,7 +111,7 @@ describe('Create category', () => {
     const user = await fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await auth(user)).token
     const res = await request(app)
-      .post(`/graphql`)
+      .post('/graphql')
       .send(addCategoryMutation({ category: { name: category.name } }))
       .auth(token, { type: 'bearer' })
 
@@ -123,7 +123,7 @@ describe('Create category', () => {
     const token = (await auth(user)).token
     const category = { name: 'any', requiredScore: 80 }
     const res = await request(app)
-      .post(`/graphql`)
+      .post('/graphql')
       .send(addCategoryMutation({ category }, [ 'id', 'name', 'requiredScore' ]))
       .auth(token, { type: 'bearer' })
 
