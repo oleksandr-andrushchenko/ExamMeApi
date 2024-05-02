@@ -58,16 +58,14 @@ describe('Get category', () => {
   })
   test('Found (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.id
     const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating' ]
-    const variables = { categoryId: id.toString() }
-    const res = await request(app).post(`/graphql`).send(categoryQuery(variables, fields))
+    const res = await request(app).post(`/graphql`).send(categoryQuery({ categoryId: category.id.toString() }, fields))
 
     expect(res.status).toEqual(200)
     expect(res.body).toEqual({
       data: {
         category: {
-          id: id.toString(),
+          id: category.id.toString(),
           name: category.name,
           questionCount: category.questionCount,
           requiredScore: category.requiredScore,
