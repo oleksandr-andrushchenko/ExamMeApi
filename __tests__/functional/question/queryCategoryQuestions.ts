@@ -4,7 +4,7 @@ import { error, fakeId, fixture, server as app } from '../../index'
 import Category from '../../../src/entities/Category'
 import Question, { QuestionAnswer, QuestionChoice, QuestionType } from '../../../src/entities/Question'
 
-describe('GET /categories/:categoryId/questions', () => {
+describe('Query category questions', () => {
   test('Not Found', async () => {
     const categoryId = await fakeId()
     const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`)
@@ -26,29 +26,26 @@ describe('GET /categories/:categoryId/questions', () => {
     { case: 'invalid order type', query: { order: 1 } },
     { case: 'not allowed order', query: { order: 'any' } },
   ])('Bad request ($case)', async ({ query }) => {
-    const categoryId = 'invalid'
-    const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`).query(query)
+    const res = await request(app).get('/categories/invalid/questions').query(query)
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
   test('Empty', async () => {
     const category = await fixture<Category>(Category)
-    const categoryId = category.id
-    const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`)
+    const res = await request(app).get(`/categories/${ category.id.toString() }/questions`)
 
     expect(res.status).toEqual(200)
     expect(res.body.data).toEqual([])
   })
   test('Not empty', async () => {
     const category = await fixture<Category>(Category)
-    const categoryId = category.id
     const questions = await Promise.all([
-      fixture<Question>(Question, { category: categoryId }),
-      fixture<Question>(Question, { category: categoryId }),
+      fixture<Question>(Question, { category: category.id }),
+      fixture<Question>(Question, { category: category.id }),
     ])
 
-    const res = await request(app).get(`/categories/${ categoryId.toString() }/questions`)
+    const res = await request(app).get(`/categories/${ category.id.toString() }/questions`)
 
     expect(res.status).toEqual(200)
     expect(res.body.data).toHaveLength(questions.length)
@@ -67,21 +64,13 @@ describe('GET /categories/:categoryId/questions', () => {
 
         if (question.type === QuestionType.TYPE) {
           expect(body[index]).toHaveProperty('answers')
-          question.answers.forEach((choice: QuestionAnswer, index2: number) => {
-            expect(body[index].answers[index2]).toMatchObject({
-              variants: choice.variants,
-              correct: choice.correct,
-              explanation: choice.explanation ?? null,
-            })
+          question.answers.forEach((answer: QuestionAnswer, index2: number) => {
+            expect(body[index].answers[index2]).toMatchObject(Object.assign({}, answer) as Record<string, any>)
           })
         } else if (question.type === QuestionType.CHOICE) {
           expect(body[index]).toHaveProperty('choices')
           question.choices.forEach((choice: QuestionChoice, index2: number) => {
-            expect(body[index].choices[index2]).toMatchObject({
-              title: choice.title,
-              correct: choice.correct,
-              explanation: choice.explanation ?? null,
-            })
+            expect(body[index].choices[index2]).toMatchObject(Object.assign({}, choice) as Record<string, any>)
           })
         }
       })
