@@ -30,6 +30,7 @@ input CredentialsSchema {
 
 type Mutation {
   addCategory(category: CategorySchema!): Category!
+  addQuestion(question: QuestionSchema!): Question!
   authenticate(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
   updateCategory(categoryId: ID!, categoryUpdate: CategoryUpdateSchema!): Category!
@@ -38,6 +39,53 @@ type Mutation {
 type Query {
   categories(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10): [Category!]!
   category(categoryId: ID!): Category!
+  question(questionId: ID!): Question!
+  questions(category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
+}
+
+type Question {
+  answers: [QuestionAnswer!]
+  category: ID!
+  choices: [QuestionChoice!]
+  difficulty: String!
+  id: ID!
+  rating: Int
+  title: String!
+  type: String!
+  voters: Int
+}
+
+type QuestionAnswer {
+  correct: Boolean
+  explanation: String
+  variants: [String!]!
+}
+
+input QuestionAnswerSchema {
+  correct: Boolean
+  explanation: String
+  variants: [String!]!
+}
+
+type QuestionChoice {
+  correct: Boolean
+  explanation: String
+  title: String!
+}
+
+input QuestionChoiceSchema {
+  correct: Boolean
+  explanation: String
+  title: String!
+}
+
+input QuestionSchema {
+  answers: [QuestionAnswerSchema!]
+  category: ID!
+  choices: [QuestionChoiceSchema!]
+  difficulty: String!
+  title: String!
+  type: String!
 }
 
 type TokenSchema {
