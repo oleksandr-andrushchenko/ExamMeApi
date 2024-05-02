@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import { auth, fixture, load, server as app } from '../../index'
+import { auth, error, fixture, graphqlError, load, server as app } from '../../index'
 import User from '../../../src/entities/User'
 import Exam from '../../../src/entities/Exam'
 import Category from '../../../src/entities/Category'
@@ -8,6 +8,7 @@ import { ObjectId } from 'mongodb'
 import ExamPermission from '../../../src/enums/exam/ExamPermission'
 // @ts-ignore
 import { addExamMutation } from '../../graphql/exam/addExamMutation'
+import CreateExamSchema from '../../../src/schema/exam/CreateExamSchema'
 
 describe('Create exam', () => {
   test('Unauthorized', async () => {
