@@ -8,6 +8,7 @@ import { ObjectId } from 'mongodb'
 import CategoryPermission from '../../../src/enums/category/CategoryPermission'
 // @ts-ignore
 import { addCategoryMutation } from '../../graphql/category/addCategoryMutation'
+import CategorySchema from '../../../src/schema/category/CategorySchema'
 
 describe('Create category', () => {
   test('Unauthorized', async () => {
@@ -88,7 +89,7 @@ describe('Create category', () => {
     const token = (await auth(user)).token
     const res = await request(app)
       .post(`/graphql`)
-      .send(addCategoryMutation({ category }))
+      .send(addCategoryMutation({ category: category as CategorySchema }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
