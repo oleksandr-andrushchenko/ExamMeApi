@@ -92,23 +92,23 @@ export default class QuestionService {
 
     const where = {}
 
-    if (query.category) {
+    if (query.hasOwnProperty('category')) {
       where['category'] = new ObjectId(query.category)
     }
 
-    if (query.price) {
+    if (query.hasOwnProperty('price')) {
       where['price'] = query.price
     }
 
-    if (query.search) {
+    if (query.hasOwnProperty('search')) {
       where['title'] = { $regex: query.search, $options: 'i' }
     }
 
-    if (query.difficulty) {
+    if (query.hasOwnProperty('difficulty')) {
       where['difficulty'] = query.difficulty
     }
 
-    if (query.type) {
+    if (query.hasOwnProperty('type')) {
       where['type'] = query.type
     }
 

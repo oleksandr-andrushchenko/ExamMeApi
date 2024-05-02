@@ -93,11 +93,11 @@ export default class CategoryService {
 
     const where = {}
 
-    if (query.price) {
+    if (query.hasOwnProperty('price')) {
       where['price'] = query.price
     }
 
-    if (query.search) {
+    if (query.hasOwnProperty('search')) {
       where['name'] = { $regex: query.search, $options: 'i' }
     }
 

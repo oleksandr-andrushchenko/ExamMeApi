@@ -207,11 +207,11 @@ export default class ExamService {
       }
     }
 
-    if (query.category) {
+    if (query.hasOwnProperty('category')) {
       where['category'] = new ObjectId(query.category)
     }
 
-    if (typeof query.completion === 'boolean') {
+    if (query.hasOwnProperty('completion')) {
       where['completed'] = { $exists: query.completion }
     }
 
