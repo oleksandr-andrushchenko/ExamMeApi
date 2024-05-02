@@ -156,16 +156,6 @@ export default (): { api: () => Api } => {
           schema,
           plugins: [ ApolloServerPluginDrainHttpServer({ httpServer: server }) ],
           formatError: (formattedError: GraphQLFormattedError, error: GraphQLError) => {
-
-            for (const key of [
-              error.originalError.constructor.name,
-              formattedError.extensions.code as string,
-            ]) {
-              if (key && errors.hasOwnProperty(key)) {
-                return { ...formattedError, extensions: { code: errors[key] } }
-              }
-            }
-
             for (const name in errors) {
               for (const key of [ error.originalError.constructor.name, formattedError.extensions.code as string ]) {
                 if (key && errors[name].types.includes(key)) {
