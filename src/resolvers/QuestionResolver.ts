@@ -56,4 +56,18 @@ export class QuestionResolver {
 
     return await this.questionService.updateQuestion(question, questionUpdate, user)
   }
+
+  @Authorized()
+  @Mutation(_returns => Boolean)
+  public async removeQuestion(
+    @Args() getQuestion: GetQuestionSchema,
+    @Ctx('user') user: User,
+  ): Promise<boolean> {
+    await this.validator.validate(getQuestion)
+    const question = await this.questionService.getQuestion(getQuestion.questionId)
+
+    await this.questionService.deleteQuestion(question, user)
+
+    return true
+  }
 }

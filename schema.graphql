@@ -33,6 +33,7 @@ type Mutation {
   addQuestion(question: QuestionSchema!): Question!
   authenticate(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
+  removeQuestion(questionId: ID!): Boolean!
   updateCategory(categoryId: ID!, categoryUpdate: CategoryUpdateSchema!): Category!
   updateQuestion(questionId: ID!, questionUpdate: QuestionUpdateSchema!): Question!
 }
