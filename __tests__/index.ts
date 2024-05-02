@@ -160,8 +160,12 @@ export const error = (name: string = '', message: string = '', errors: string[] 
   return body
 }
 
-export const graphqlError = (name: string) => {
-  return { errors: [ { extensions: { name } } ] }
+export const graphqlError = (...names: string[]) => {
+  return {
+    errors: names.map(name => {
+      return { extensions: { name } }
+    }),
+  }
 }
 
 export const auth = async (user: User): Promise<TokenSchema> => {
