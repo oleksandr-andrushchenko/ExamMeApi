@@ -37,14 +37,14 @@ export class QuestionChoice {
 
   @IsBoolean()
   @Column()
-  @Field()
-  public correct: boolean
+  @Field({ nullable: true })
+  public correct?: boolean
 
   @IsOptional()
   @Length(10, 3000)
   @Column()
-  @Field()
-  public explanation: string
+  @Field({ nullable: true })
+  public explanation?: string
 }
 
 @ObjectType()
@@ -58,14 +58,14 @@ export class QuestionAnswer {
 
   @IsBoolean()
   @Column()
-  @Field()
-  public correct: boolean
+  @Field({ nullable: true })
+  public correct?: boolean
 
   @IsOptional()
   @Length(10, 3000)
   @Column()
-  @Field()
-  public explanation: string
+  @Field({ nullable: true })
+  public explanation?: string
 }
 
 @ObjectType()
