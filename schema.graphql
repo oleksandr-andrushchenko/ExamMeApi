@@ -29,7 +29,7 @@ input CreateExamQuestionAnswerSchema {
 }
 
 input CreateExamSchema {
-  category: ObjectId!
+  category: ID!
 }
 
 input CredentialsSchema {
