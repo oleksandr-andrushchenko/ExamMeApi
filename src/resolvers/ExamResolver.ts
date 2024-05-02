@@ -1,4 +1,3 @@
-import { Authorized } from 'routing-controllers'
 import { Inject, Service } from 'typedi'
 import Exam from '../entities/Exam'
 import User from '../entities/User'
@@ -10,7 +9,7 @@ import CreateExamQuestionAnswerSchema from '../schema/exam/CreateExamQuestionAns
 import GetExamQuestionSchema from '../schema/exam/GetExamQuestionSchema'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
 import ExamQuerySchema from '../schema/exam/ExamQuerySchema'
-import { Arg, Args, Ctx, Mutation, Query, Resolver } from 'type-graphql'
+import { Arg, Args, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
 
 @Service()
 @Resolver(Exam)
