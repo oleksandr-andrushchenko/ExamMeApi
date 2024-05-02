@@ -23,24 +23,75 @@ input CategoryUpdateSchema {
   requiredScore: Int = 0
 }
 
+input CreateExamQuestionAnswerSchema {
+  answer: String
+  choice: Int
+}
+
+input CreateExamSchema {
+  category: ObjectId!
+}
+
 input CredentialsSchema {
   email: String!
   password: String!
 }
 
+type Exam {
+  category: ObjectId!
+  completed: Timestamp
+  correctCount: Int!
+  created: Timestamp!
+  creator: ObjectId!
+  deleted: Timestamp
+  getQuestionsAnsweredCount: Int!
+  getQuestionsCount: Int!
+  id: ObjectId!
+  owner: ObjectId!
+  questionNumber: Int!
+  questions: [ExamQuestion!]!
+  updated: Timestamp
+}
+
+type ExamQuestion {
+  answer: String
+  choice: Int
+  question: ObjectId!
+}
+
+type ExamQuestionSchema {
+  answer: String
+  choice: Int
+  choices: [String!]
+  difficulty: String
+  number: Int!
+  question: String!
+  type: String
+}
+
 type Mutation {
   addCategory(category: CategorySchema!): Category!
+  addExam(exam: CreateExamSchema!): Exam!
+  addExamCompletion(examId: ObjectId!): Exam!
+  addExamQuestionAnswer(examId: ObjectId!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): ExamQuestionSchema!
   addQuestion(question: QuestionSchema!): Question!
   authenticate(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
+  removeExam(examId: ObjectId!): Boolean!
   removeQuestion(questionId: ID!): Boolean!
   updateCategory(categoryId: ID!, categoryUpdate: CategoryUpdateSchema!): Category!
   updateQuestion(questionId: ID!, questionUpdate: QuestionUpdateSchema!): Question!
 }
 
+"""Mongo object id scalar type"""
+scalar ObjectId
+
 type Query {
   categories(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10): [Category!]!
   category(categoryId: ID!): Category!
+  exam(examId: ObjectId!): Exam!
+  examQuestion(examId: ObjectId!, question: Int!): ExamQuestionSchema!
+  exams(category: String, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!
   question(questionId: ID!): Question!
   questions(category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
 }
@@ -98,6 +149,11 @@ input QuestionUpdateSchema {
   title: String
   type: String
 }
+
+"""
+The javascript `Date` as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
+"""
+scalar Timestamp
 
 type TokenSchema {
   token: String!
