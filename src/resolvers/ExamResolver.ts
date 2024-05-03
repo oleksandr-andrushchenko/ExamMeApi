@@ -36,7 +36,7 @@ export class ExamResolver {
     @Args() examQuery: ExamQuerySchema,
     @Ctx('user') user: User,
   ): Promise<Exam[]> {
-    return await this.examService.queryExams(examQuery, user, true) as Exam[]
+    return await this.examService.queryExams(examQuery, user) as Exam[]
   }
 
   @Authorized()
