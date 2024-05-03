@@ -73,7 +73,7 @@ type Mutation {
   addCategory(category: CategorySchema!): Category!
   addExam(exam: CreateExamSchema!): Exam!
   addExamCompletion(examId: ID!): Exam!
-  addExamQuestionAnswer(examId: ObjectId!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): ExamQuestionSchema!
+  addExamQuestionAnswer(examId: ID!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): ExamQuestionSchema!
   addQuestion(question: QuestionSchema!): Question!
   authenticate(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
@@ -90,7 +90,7 @@ type Query {
   categories(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10): [Category!]!
   category(categoryId: ID!): Category!
   exam(examId: ID!): Exam!
-  examQuestion(examId: ObjectId!, question: Int!): ExamQuestionSchema!
+  examQuestion(examId: ID!, question: Int!): ExamQuestionSchema!
   exams(category: String, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!
   question(questionId: ID!): Question!
   questions(category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
