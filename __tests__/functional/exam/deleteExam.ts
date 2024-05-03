@@ -1,11 +1,13 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import { auth, error, fakeId, fixture, load, server as app } from '../../index'
+import { auth, error, fakeId, fixture, graphqlError, load, server as app } from '../../index'
 import User from '../../../src/entities/User'
 import Exam from '../../../src/entities/Exam'
 import ExamPermission from '../../../src/enums/exam/ExamPermission'
+// @ts-ignore
+import { removeExamMutation } from '../../graphql/exam/removeExamMutation'
 
-describe('DELETE /exams/:examId', () => {
+describe('Delete exam', () => {
   test('Unauthorized', async () => {
     const exam = await fixture<Exam>(Exam)
     const res = await request(app).delete(`/exams/${ exam.id.toString() }`)
@@ -61,6 +63,74 @@ describe('DELETE /exams/:examId', () => {
 
     expect(res.status).toEqual(204)
     expect(res.body).toEqual({})
+    expect(await load<Exam>(Exam, exam.id)).toBeNull()
+  })
+  test('Unauthorized (GraphQL)', async () => {
+    const exam = await fixture<Exam>(Exam)
+    const res = await request(app).post('/graphql')
+      .send(removeExamMutation({ examId: exam.id.toString() }))
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
+  })
+  test('Bad request (invalid id) (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const res = await request(app).post('/graphql')
+      .send(removeExamMutation({ examId: 'invalid' }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('BadRequestError'))
+  })
+  test('Not found (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const id = await fakeId()
+    const res = await request(app).post('/graphql')
+      .send(removeExamMutation({ examId: id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('NotFoundError'))
+  })
+  test('Forbidden (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const exam = await fixture<Exam>(Exam)
+    const token = (await auth(user)).token
+    const res = await request(app).post('/graphql')
+      .send(removeExamMutation({ examId: exam.id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('ForbiddenError'))
+  })
+  test('Deleted (has ownership) (GraphQL)', async () => {
+    const exam = await fixture<Exam>(Exam)
+    const user = await load<User>(User, exam.creator)
+    const token = (await auth(user)).token
+    const res = await request(app).post('/graphql')
+      .send(removeExamMutation({ examId: exam.id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject({ data: { removeExam: true } })
+    expect(await load<Exam>(Exam, exam.id)).toBeNull()
+  })
+  test('Deleted (has permission) (GraphQL)', async () => {
+    const exam = await fixture<Exam>(Exam)
+    const permissions = [
+      ExamPermission.GET,
+      ExamPermission.DELETE,
+    ]
+    const user = await fixture<User>(User, { permissions })
+    const token = (await auth(user)).token
+    const res = await request(app).post('/graphql')
+      .send(removeExamMutation({ examId: exam.id.toString() }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject({ data: { removeExam: true } })
     expect(await load<Exam>(Exam, exam.id)).toBeNull()
   })
 })
