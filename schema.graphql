@@ -72,12 +72,12 @@ type ExamQuestionSchema {
 type Mutation {
   addCategory(category: CategorySchema!): Category!
   addExam(exam: CreateExamSchema!): Exam!
-  addExamCompletion(examId: ObjectId!): Exam!
+  addExamCompletion(examId: ID!): Exam!
   addExamQuestionAnswer(examId: ObjectId!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): ExamQuestionSchema!
   addQuestion(question: QuestionSchema!): Question!
   authenticate(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
-  removeExam(examId: ObjectId!): Boolean!
+  removeExam(examId: ID!): Boolean!
   removeQuestion(questionId: ID!): Boolean!
   updateCategory(categoryId: ID!, categoryUpdate: CategoryUpdateSchema!): Category!
   updateQuestion(questionId: ID!, questionUpdate: QuestionUpdateSchema!): Question!
@@ -89,7 +89,7 @@ scalar ObjectId
 type Query {
   categories(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10): [Category!]!
   category(categoryId: ID!): Category!
-  exam(examId: ObjectId!): Exam!
+  exam(examId: ID!): Exam!
   examQuestion(examId: ObjectId!, question: Int!): ExamQuestionSchema!
   exams(category: String, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!
   question(questionId: ID!): Question!
