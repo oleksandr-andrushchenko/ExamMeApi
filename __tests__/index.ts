@@ -131,6 +131,11 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
       object.questions = questions
       object.questionNumber = faker.number.int({ min: 0, max: questions.length - 1 })
 
+      if (faker.datatype.boolean()) {
+        object.correctCount = faker.number.int({ min: 0, max: questions.length })
+        object.completed = new Date()
+      }
+
       break
     default:
       throw new Error(`Unknown "${ entity.toString() }" type passed`)
