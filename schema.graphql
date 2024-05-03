@@ -40,23 +40,13 @@ input CredentialsSchema {
 type Exam {
   category: ObjectId!
   completed: Timestamp
-  correctCount: Int!
   created: Timestamp!
-  creator: ObjectId!
-  deleted: Timestamp
   getQuestionsAnsweredCount: Int!
   getQuestionsCount: Int!
   id: ObjectId!
   owner: ObjectId!
   questionNumber: Int!
-  questions: [ExamQuestion!]!
   updated: Timestamp
-}
-
-type ExamQuestion {
-  answer: String
-  choice: Int
-  question: ObjectId!
 }
 
 type ExamQuestionSchema {
@@ -91,7 +81,7 @@ type Query {
   category(categoryId: ID!): Category!
   exam(examId: ID!): Exam!
   examQuestion(examId: ID!, question: Int!): ExamQuestionSchema!
-  exams(category: String, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!
+  exams(category: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!
   question(questionId: ID!): Question!
   questions(category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
 }
