@@ -1,11 +1,10 @@
 import { IsMongoId } from 'class-validator'
-import { ArgsType, Field } from 'type-graphql'
-import { ObjectIdScalar } from '../../scalars/ObjectIdScalar'
+import { ArgsType, Field, ID } from 'type-graphql'
 
 @ArgsType()
 export default class GetExamSchema {
 
   @IsMongoId()
-  @Field(_type => ObjectIdScalar)
+  @Field(_type => ID)
   public readonly examId: string
 }
