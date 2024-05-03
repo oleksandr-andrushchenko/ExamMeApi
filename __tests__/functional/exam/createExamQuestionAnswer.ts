@@ -1,11 +1,14 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import { auth, error, fakeId, fixture, load, server as app } from '../../index'
+import { auth, error, fakeId, fixture, graphqlError, load, server as app } from '../../index'
 import Exam from '../../../src/entities/Exam'
-import Question, { QuestionType } from '../../../src/entities/Question'
+import Question, { QuestionChoice, QuestionType } from '../../../src/entities/Question'
 import User from '../../../src/entities/User'
+// @ts-ignore
+import { addExamQuestionAnswerMutation } from '../../graphql/exam/addExamQuestionAnswerMutation'
+import CreateExamQuestionAnswerSchema from '../../../src/schema/exam/CreateExamQuestionAnswerSchema'
 
-describe('POST /exams/:examId/questions/:question/answer', () => {
+describe('Create exam question answer', () => {
   test('Unauthorized', async () => {
     const exam = await fixture<Exam>(Exam)
     const questionNumber = 0
@@ -88,5 +91,140 @@ describe('POST /exams/:examId/questions/:question/answer', () => {
     expect(res.status).toEqual(201)
     expect(res.body).toHaveProperty('type')
     expect(res.body).toHaveProperty('difficulty')
+  })
+  test('Unauthorized (GraphQL)', async () => {
+    const exam = await fixture<Exam>(Exam)
+    const questionNumber = 0
+    const question = await load<Question>(Question, exam.questions[questionNumber].question)
+    const examQuestionAnswer = {}
+
+    if (question.type === QuestionType.CHOICE) {
+      examQuestionAnswer['choice'] = 0
+    } else if (question.type === QuestionType.TYPE) {
+      examQuestionAnswer['answer'] = 'any'
+    }
+
+    const res = await request(app).post('/graphql')
+      .send(addExamQuestionAnswerMutation({ examId: exam.id.toString(), question: questionNumber, examQuestionAnswer }))
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
+  })
+  test('Not found (exam) (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const id = await fakeId()
+    const questionNumber = 0
+    const res = await request(app).post('/graphql')
+      .send(addExamQuestionAnswerMutation({
+        examId: id.toString(),
+        question: questionNumber,
+        examQuestionAnswer: { choice: 0 },
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('NotFoundError'))
+  })
+  test('Not found (question) (GraphQL)', async () => {
+    const exam = await fixture<Exam>(Exam)
+    const user = await load<User>(User, exam.owner)
+    const token = (await auth(user)).token
+    const questionNumber = 999
+    const res = await request(app).post('/graphql')
+      .send(addExamQuestionAnswerMutation({
+        examId: exam.id.toString(),
+        question: questionNumber,
+        examQuestionAnswer: { choice: 0 },
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('NotFoundError'))
+  })
+  test('Bad request (empty body) (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const exam = await fixture<Exam>(Exam)
+    const examQuestionAnswer = undefined as CreateExamQuestionAnswerSchema
+    const res = await request(app).post('/graphql')
+      .send(addExamQuestionAnswerMutation({
+        examId: exam.id.toString(),
+        question: 0,
+        examQuestionAnswer,
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('BadRequestError'))
+  })
+  test('Forbidden (GraphQL)', async () => {
+    const user = await fixture<User>(User)
+    const token = (await auth(user)).token
+    const exam = await fixture<Exam>(Exam)
+    const question = await load<Question>(Question, exam.questions[0].question)
+    const examQuestionAnswer = {}
+
+    if (question.type === QuestionType.CHOICE) {
+      examQuestionAnswer['choice'] = 0
+    } else if (question.type === QuestionType.TYPE) {
+      examQuestionAnswer['answer'] = 'any'
+    }
+
+    const res = await request(app).post('/graphql')
+      .send(addExamQuestionAnswerMutation({
+        examId: exam.id.toString(),
+        question: 0,
+        examQuestionAnswer,
+      }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(graphqlError('ForbiddenError'))
+  })
+  test('Created (GraphQL)', async () => {
+    const exam = await fixture<Exam>(Exam)
+    const user = await load<User>(User, exam.owner)
+    const token = (await auth(user)).token
+    const question = await load<Question>(Question, exam.questions[0].question)
+    const questionNumber = 0
+    const examQuestionAnswer = {}
+    const expectedAddExamQuestionAnswer = {}
+
+    if (question.type === QuestionType.CHOICE) {
+      examQuestionAnswer['choice'] = 0
+      expectedAddExamQuestionAnswer['choices'] = question.choices.map((choice: QuestionChoice) => choice.title)
+      expectedAddExamQuestionAnswer['choice'] = exam.questions[questionNumber].choice
+    } else if (question.type === QuestionType.TYPE) {
+      examQuestionAnswer['answer'] = 'any'
+      expectedAddExamQuestionAnswer['answer'] = examQuestionAnswer['answer']
+    }
+
+    const res = await request(app).post('/graphql')
+      .send(addExamQuestionAnswerMutation(
+        {
+          examId: exam.id.toString(),
+          question: questionNumber,
+          examQuestionAnswer,
+        },
+        [ 'number', 'question', 'difficulty', 'type', 'choices', 'choice', 'answer' ],
+      ))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject({
+      data: {
+        addExamQuestionAnswer: {
+          ...examQuestionAnswer,
+          ...expectedAddExamQuestionAnswer,
+          ...{
+            number: questionNumber,
+            question: question.title,
+            difficulty: question.difficulty,
+            type: question.type,
+          },
+        },
+      },
+    })
   })
 })
