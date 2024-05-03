@@ -1,12 +1,11 @@
 import { IsMongoId, IsNumber, Min } from 'class-validator'
-import { ArgsType, Field, Int } from 'type-graphql'
-import { ObjectIdScalar } from '../../scalars/ObjectIdScalar'
+import { ArgsType, Field, ID, Int } from 'type-graphql'
 
 @ArgsType()
 export default class GetExamQuestionSchema {
 
   @IsMongoId()
-  @Field(_type => ObjectIdScalar)
+  @Field(_type => ID)
   public readonly examId: string
 
   @Min(0)
