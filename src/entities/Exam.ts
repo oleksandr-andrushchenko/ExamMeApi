@@ -40,7 +40,7 @@ export default class Exam {
 
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
+  @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
   public category: ObjectId
 
@@ -48,7 +48,6 @@ export default class Exam {
   @ValidateNested({ each: true })
   @Type(() => ExamQuestion)
   @Column(() => ExamQuestion)
-  @Field(_type => [ ExamQuestion ])
   public questions: ExamQuestion[]
 
   @Min(0)
@@ -61,12 +60,11 @@ export default class Exam {
   @Min(0)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Column({ default: 0 })
-  @Field(_type => Int)
   public correctCount: number = 0
 
   @IsOptional()
   @IsDate()
-  @Column()
+  @Column({ nullable: true })
   @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
   public completed?: Date
@@ -74,27 +72,25 @@ export default class Exam {
   @Exclude()
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  @Field(_type => ObjectIdScalar)
+  @Transform(({ value }: { value: ObjectId }) => value.toString())
   public creator: ObjectId
 
-  @Exclude()
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
+  @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
   public owner: ObjectId
 
   @IsNumber()
   @Column()
   @CreateDateColumn()
-  @Transform(({ value }: { value: Date }) => value?.getTime())
+  @Transform(({ value }: { value: Date }) => value.getTime())
   @Field(_type => GraphQLTimestamp)
   public created: Date
 
   @IsOptional()
   @IsNumber()
-  @Column()
+  @Column({ nullable: true })
   @UpdateDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
@@ -106,7 +102,6 @@ export default class Exam {
   @Column()
   @DeleteDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  @Field(_type => GraphQLTimestamp, { nullable: true })
   public deleted?: Date
 
   @Expose({ name: 'questionsCount' })
