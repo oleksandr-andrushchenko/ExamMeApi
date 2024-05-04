@@ -131,9 +131,9 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
       object.questions = questions
       object.questionNumber = faker.number.int({ min: 0, max: questions.length - 1 })
 
-      if (faker.datatype.boolean()) {
+      if (options['completed'] ?? faker.datatype.boolean()) {
         object.correctCount = faker.number.int({ min: 0, max: questions.length })
-        object.completed = new Date()
+        object.completed = options['completed'] ?? new Date()
       }
 
       break
