@@ -4,12 +4,14 @@
 # -----------------------------------------------
 
 type Category {
-  id: ID!
+  created: Timestamp!
+  id: ObjectId!
   name: String!
-  owner: ID!
+  owner: ObjectId!
   questionCount: Int!
   rating: Int
   requiredScore: Int
+  updated: Timestamp
   voters: Int
 }
 
@@ -59,17 +61,32 @@ type ExamQuestionSchema {
   type: String
 }
 
+input MeSchema {
+  email: String!
+  name: String
+  password: String!
+}
+
+input MeUpdateSchema {
+  email: String
+  name: String
+  password: String
+}
+
 type Mutation {
   addCategory(category: CategorySchema!): Category!
   addExam(exam: CreateExamSchema!): Exam!
   addExamCompletion(examId: ID!): Exam!
   addExamQuestionAnswer(examId: ID!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): ExamQuestionSchema!
+  addMe(me: MeSchema!): User!
   addQuestion(question: QuestionSchema!): Question!
   authenticate(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
   removeExam(examId: ID!): Boolean!
+  removeMe: Boolean!
   removeQuestion(questionId: ID!): Boolean!
   updateCategory(categoryId: ID!, categoryUpdate: CategoryUpdateSchema!): Category!
+  updateMe(meUpdate: MeUpdateSchema!): User!
   updateQuestion(questionId: ID!, questionUpdate: QuestionUpdateSchema!): Question!
 }
 
@@ -82,19 +99,23 @@ type Query {
   exam(examId: ID!): Exam!
   examQuestion(examId: ID!, question: Int!): ExamQuestionSchema!
   exams(category: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!
+  me: User!
   question(questionId: ID!): Question!
   questions(category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
 }
 
 type Question {
   answers: [QuestionAnswer!]
-  category: ID!
+  category: ObjectId!
   choices: [QuestionChoice!]
+  created: Timestamp!
   difficulty: String!
-  id: ID!
+  id: ObjectId!
+  owner: ObjectId!
   rating: Int
   title: String!
   type: String!
+  updated: Timestamp
   voters: Int
 }
 
@@ -147,4 +168,13 @@ scalar Timestamp
 
 type TokenSchema {
   token: String!
+}
+
+type User {
+  created: Timestamp!
+  email: String!
+  id: ObjectId!
+  name: String
+  permissions: [String!]!
+  updated: Timestamp
 }
