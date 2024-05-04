@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn } from 'typeorm'
+import { Column, Entity, ObjectIdColumn } from 'typeorm'
 import { Exclude, Expose, Transform, Type } from 'class-transformer'
 import { ObjectId } from 'mongodb'
 import { IsDate, IsMongoId, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator'
@@ -82,16 +82,14 @@ export default class Exam {
   public owner: ObjectId
 
   @IsNumber()
-  @Column()
-  @CreateDateColumn()
+  @Column({ update: false })
   @Transform(({ value }: { value: Date }) => value.getTime())
   @Field(_type => GraphQLTimestamp)
   public created: Date
 
   @IsOptional()
   @IsNumber()
-  @Column({ nullable: true })
-  @UpdateDateColumn()
+  @Column({ nullable: true, insert: false })
   @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
   public updated?: Date
@@ -99,8 +97,7 @@ export default class Exam {
   @Exclude()
   @IsOptional()
   @IsNumber()
-  @Column()
-  @DeleteDateColumn()
+  @Column({ nullable: true, insert: false })
   @Transform(({ value }: { value: Date }) => value?.getTime())
   public deleted?: Date
 

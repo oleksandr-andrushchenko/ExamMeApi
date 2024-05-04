@@ -1,17 +1,7 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, UpdateDateColumn } from 'typeorm'
+import { Column, Entity, ObjectIdColumn } from 'typeorm'
 import { Exclude, Transform } from 'class-transformer'
 import { ObjectId } from 'mongodb'
-import {
-  ArrayNotEmpty,
-  ArrayUnique,
-  IsDate,
-  IsEmail,
-  IsEnum,
-  IsMongoId,
-  IsNumber,
-  IsOptional,
-  Length,
-} from 'class-validator'
+import { ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length } from 'class-validator'
 import Permission from '../enums/Permission'
 import { Field, ObjectType } from 'type-graphql'
 import { ObjectIdScalar } from '../scalars/ObjectIdScalar'
@@ -57,16 +47,14 @@ export default class User {
   public creator: ObjectId
 
   @IsNumber()
-  @Column()
-  @CreateDateColumn()
+  @Column({ update: false })
   @Transform(({ value }: { value: Date }) => value.getTime())
   @Field(_type => GraphQLTimestamp)
   public created: Date
 
   @IsOptional()
   @IsNumber()
-  @Column({ nullable: true })
-  @UpdateDateColumn()
+  @Column({ nullable: true, insert: false })
   @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
   public updated?: Date
@@ -74,8 +62,7 @@ export default class User {
   @Exclude()
   @IsOptional()
   @IsNumber()
-  @Column({ nullable: true })
-  @DeleteDateColumn()
+  @Column({ nullable: true, insert: false })
   @Transform(({ value }: { value: Date }) => value?.getTime())
   public deleted?: Date
 }
