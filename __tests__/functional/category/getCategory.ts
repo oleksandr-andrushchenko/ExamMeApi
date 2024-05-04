@@ -22,23 +22,21 @@ describe('Get category', () => {
   })
   test('Found', async () => {
     const category = await fixture<Category>(Category)
-    const id = category.id
-    const res = await request(app).get(`/categories/${ id.toString() }`)
+    const res = await request(app).get(`/categories/${ category.id.toString() }`)
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({
-      id: id.toString(),
+      id: category.id.toString(),
       name: category.name,
+      questionCount: category.questionCount,
       requiredScore: category.requiredScore,
+      voters: category.voters,
+      rating: category.rating,
+      owner: category.owner.toString(),
+      created: category.created.getTime(),
+      updated: category.updated?.getTime(),
     })
-
-    for (const allowed of [ 'created', 'updated' ]) {
-      expect(res.body).toHaveProperty(allowed)
-    }
-
-    for (const forbidden of [ 'creator', 'owner' ]) {
-      expect(res.body).not.toHaveProperty(forbidden)
-    }
+    expect(res.body).not.toHaveProperty([ 'creator', 'deleted' ])
   })
   test('Not found (GraphQL)', async () => {
     const id = await fakeId()
