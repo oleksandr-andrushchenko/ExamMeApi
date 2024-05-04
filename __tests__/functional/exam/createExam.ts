@@ -38,7 +38,7 @@ describe('Create exam', () => {
   test('Conflict (exam taken)', async () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
-    const exam = await fixture<Exam>(Exam, { creator: user.id })
+    const exam = await fixture<Exam>(Exam, { completed: false, creator: user.id })
     const res = await request(app).post('/exams').send({ category: exam.category.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
@@ -87,7 +87,7 @@ describe('Create exam', () => {
   test('Conflict (exam taken) (GraphQL)', async () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
-    const exam = await fixture<Exam>(Exam, { creator: user.id })
+    const exam = await fixture<Exam>(Exam, { completed: false, creator: user.id })
     const res = await request(app).post('/graphql')
       .send(addExamMutation({ exam: { category: exam.category.toString() } }))
       .auth(token, { type: 'bearer' })
