@@ -13,7 +13,9 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator'
-import { Field, ID, Int, ObjectType } from 'type-graphql'
+import { Field, Int, ObjectType } from 'type-graphql'
+import { ObjectIdScalar } from '../scalars/ObjectIdScalar'
+import { GraphQLTimestamp } from 'graphql-scalars'
 
 export enum QuestionType {
   TYPE = 'type',
@@ -75,13 +77,13 @@ export default class Question {
   @IsMongoId()
   @ObjectIdColumn()
   @Transform(({ value }: { value: ObjectId }) => value.toString())
-  @Field(_type => ID)
+  @Field(_type => ObjectIdScalar)
   public readonly id: ObjectId
 
   @IsMongoId()
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  @Field(_type => ID)
+  @Field(_type => ObjectIdScalar)
   public category: ObjectId
 
   @IsEnum(QuestionType)
@@ -133,24 +135,26 @@ export default class Question {
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
   public creator: ObjectId
 
-  @Exclude()
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
+  @Transform(({ value }: { value: ObjectId }) => value.toString())
+  @Field(_type => ObjectIdScalar)
   public owner: ObjectId
 
   @IsNumber()
   @Column()
   @CreateDateColumn()
-  @Transform(({ value }: { value: Date }) => value?.getTime())
+  @Transform(({ value }: { value: Date }) => value.getTime())
+  @Field(_type => GraphQLTimestamp)
   public created: Date
 
   @IsOptional()
   @IsNumber()
-  @Column()
+  @Column({ nullable: true })
   @UpdateDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  public updated: Date
+  @Field(_type => GraphQLTimestamp, { nullable: true })
+  public updated?: Date
 
   @Exclude()
   @IsOptional()
@@ -158,5 +162,5 @@ export default class Question {
   @Column()
   @DeleteDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  public deleted: Date
+  public deleted?: Date
 }

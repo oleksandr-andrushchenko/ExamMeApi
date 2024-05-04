@@ -2,7 +2,9 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, ObjectIdColumn, Upd
 import { Exclude, Transform } from 'class-transformer'
 import { ObjectId } from 'mongodb'
 import { IsMongoId, IsNumber, IsOptional, Length, Max, Min } from 'class-validator'
-import { Field, ID, Int, ObjectType } from 'type-graphql'
+import { Field, Int, ObjectType } from 'type-graphql'
+import { ObjectIdScalar } from '../scalars/ObjectIdScalar'
+import { GraphQLTimestamp } from 'graphql-scalars'
 
 @ObjectType()
 @Entity({ name: 'categories' })
@@ -11,7 +13,7 @@ export default class Category {
   @IsMongoId()
   @ObjectIdColumn()
   @Transform(({ value }: { value: ObjectId }) => value.toString())
-  @Field(_type => ID)
+  @Field(_type => ObjectIdScalar)
   public readonly id: ObjectId
 
   @Length(3, 100)
@@ -50,25 +52,26 @@ export default class Category {
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
   public creator: ObjectId
 
-  @Exclude()
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  @Field(_type => ID)
+  @Transform(({ value }: { value: ObjectId }) => value.toString())
+  @Field(_type => ObjectIdScalar)
   public owner: ObjectId
 
   @IsNumber()
   @Column()
   @CreateDateColumn()
-  @Transform(({ value }: { value: Date }) => value?.getTime())
+  @Transform(({ value }: { value: Date }) => value.getTime())
+  @Field(_type => GraphQLTimestamp)
   public created: Date
 
   @IsOptional()
   @IsNumber()
-  @Column()
+  @Column({ nullable: true })
   @UpdateDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  public updated: Date
+  @Field(_type => GraphQLTimestamp, { nullable: true })
+  public updated?: Date
 
   @Exclude()
   @IsOptional()
@@ -76,5 +79,5 @@ export default class Category {
   @Column()
   @DeleteDateColumn()
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  public deleted: Date
+  public deleted?: Date
 }
