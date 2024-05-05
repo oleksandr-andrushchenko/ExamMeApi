@@ -73,12 +73,17 @@ describe('Query exams', () => {
         questionNumber: ownExams[index].questionNumber,
         owner: ownExams[index].owner.toString(),
         created: ownExams[index].created.getTime(),
-        updated: ownExams[index].updated.getTime(),
       })
 
       if (ownExams[index].completed) {
         expect(resExams[index]).toMatchObject({
           completed: ownExams[index].completed?.getTime() ?? null,
+        })
+      }
+
+      if (ownExams[index].updated) {
+        expect(resExams[index]).toMatchObject({
+          updated: ownExams[index].updated?.getTime() ?? null,
         })
       }
 
@@ -119,12 +124,17 @@ describe('Query exams', () => {
         questionNumber: ownCategoryExams[index].questionNumber,
         owner: ownCategoryExams[index].owner.toString(),
         created: ownCategoryExams[index].created.getTime(),
-        updated: ownCategoryExams[index].updated.getTime(),
       })
 
       if (ownCategoryExams[index].completed) {
         expect(resExams[index]).toMatchObject({
           completed: ownCategoryExams[index].completed?.getTime() ?? null,
+        })
+      }
+
+      if (ownCategoryExams[index].updated) {
+        expect(resExams[index]).toMatchObject({
+          updated: ownCategoryExams[index].updated?.getTime() ?? null,
         })
       }
 
@@ -160,12 +170,17 @@ describe('Query exams', () => {
         questionNumber: exams[index].questionNumber,
         owner: exams[index].owner.toString(),
         created: exams[index].created.getTime(),
-        updated: exams[index].updated.getTime(),
       })
 
       if (exams[index].completed) {
         expect(resExams[index]).toMatchObject({
           completed: exams[index].completed?.getTime() ?? null,
+        })
+      }
+
+      if (exams[index].updated) {
+        expect(resExams[index]).toMatchObject({
+          updated: exams[index].updated?.getTime() ?? null,
         })
       }
 
@@ -205,12 +220,17 @@ describe('Query exams', () => {
         questionNumber: categoryExams[index].questionNumber,
         owner: categoryExams[index].owner.toString(),
         created: categoryExams[index].created.getTime(),
-        updated: categoryExams[index].updated.getTime(),
       })
 
       if (categoryExams[index].completed) {
         expect(resExams[index]).toMatchObject({
           completed: categoryExams[index].completed?.getTime() ?? null,
+        })
+      }
+
+      if (categoryExams[index].updated) {
+        expect(resExams[index]).toMatchObject({
+          updated: categoryExams[index].updated?.getTime() ?? null,
         })
       }
 
@@ -289,7 +309,7 @@ describe('Query exams', () => {
         completed: ownExams[index].completed?.getTime() ?? null,
         owner: ownExams[index].owner.toString(),
         created: ownExams[index].created.getTime(),
-        updated: ownExams[index].updated.getTime(),
+        updated: ownExams[index].updated?.getTime() ?? null,
       })
       expect(resExams[index]).not.toHaveProperty([ 'questions', 'creator', 'deleted' ])
     }
@@ -332,7 +352,7 @@ describe('Query exams', () => {
         completed: ownCategoryExams[index].completed?.getTime() ?? null,
         owner: ownCategoryExams[index].owner.toString(),
         created: ownCategoryExams[index].created.getTime(),
-        updated: ownCategoryExams[index].updated.getTime(),
+        updated: ownCategoryExams[index].updated?.getTime() ?? null,
       })
       expect(resExams[index]).not.toHaveProperty([ 'questions', 'creator', 'deleted' ])
     }
@@ -370,7 +390,7 @@ describe('Query exams', () => {
         completed: exams[index].completed?.getTime() ?? null,
         owner: exams[index].owner.toString(),
         created: exams[index].created.getTime(),
-        updated: exams[index].updated.getTime(),
+        updated: exams[index].updated?.getTime() ?? null,
       })
       expect(resExams[index]).not.toHaveProperty([ 'questions', 'creator', 'deleted' ])
     }
@@ -411,7 +431,7 @@ describe('Query exams', () => {
         completed: categoryExams[index].completed?.getTime() ?? null,
         owner: categoryExams[index].owner.toString(),
         created: categoryExams[index].created.getTime(),
-        updated: categoryExams[index].updated.getTime(),
+        updated: categoryExams[index].updated?.getTime() ?? null,
       })
       expect(resExams[index]).not.toHaveProperty([ 'questions', 'creator', 'deleted' ])
     }

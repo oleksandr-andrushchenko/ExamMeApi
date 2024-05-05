@@ -194,7 +194,7 @@ describe('Create exam question answer', () => {
     if (question.type === QuestionType.CHOICE) {
       examQuestionAnswer['choice'] = 0
       expectedAddExamQuestionAnswer['choices'] = question.choices.map((choice: QuestionChoice) => choice.title)
-      expectedAddExamQuestionAnswer['choice'] = exam.questions[questionNumber].choice
+      expectedAddExamQuestionAnswer['choice'] = examQuestionAnswer['choice']
     } else if (question.type === QuestionType.TYPE) {
       examQuestionAnswer['answer'] = 'any'
       expectedAddExamQuestionAnswer['answer'] = examQuestionAnswer['answer']
@@ -212,18 +212,14 @@ describe('Create exam question answer', () => {
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({
-      data: {
-        addExamQuestionAnswer: {
-          ...examQuestionAnswer,
-          ...expectedAddExamQuestionAnswer,
-          ...{
-            number: questionNumber,
-            question: question.title,
-            difficulty: question.difficulty,
-            type: question.type,
-          },
-        },
+    expect(res.body.data.addExamQuestionAnswer).toMatchObject({
+      ...examQuestionAnswer,
+      ...expectedAddExamQuestionAnswer,
+      ...{
+        number: questionNumber,
+        question: question.title,
+        difficulty: question.difficulty,
+        type: question.type,
       },
     })
   })
