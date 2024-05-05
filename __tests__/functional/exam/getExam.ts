@@ -114,7 +114,17 @@ describe('Get exam', () => {
     const exam = await fixture<Exam>(Exam)
     const user = await fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await auth(user)).token
-    const fields = [ 'id', 'category', 'questionNumber', 'completed', 'owner', 'questionsCount', 'answeredCount', 'created', 'updated' ]
+    const fields = [
+      'id',
+      'category',
+      'questionNumber',
+      'completed',
+      'owner',
+      'questionsCount',
+      'answeredCount',
+      'created',
+      'updated',
+    ]
     const res = await request(app).post('/graphql')
       .send(examQuery({ examId: exam.id.toString() }, fields))
       .auth(token, { type: 'bearer' })

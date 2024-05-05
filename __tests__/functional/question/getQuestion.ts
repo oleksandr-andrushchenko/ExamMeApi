@@ -95,7 +95,7 @@ describe('Get question', () => {
       data: {
         question: {
           id: question.id.toString(),
-          category: category.id.toString(),
+          category: question.category.toString(),
           type: question.type,
           difficulty: question.difficulty,
           title: question.title,

@@ -78,7 +78,6 @@ describe('Get category', () => {
         },
       },
     })
-
     expect(res.body.data.category).not.toHaveProperty([ 'creator', 'deleted' ])
   })
 })

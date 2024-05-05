@@ -45,24 +45,24 @@ describe('Create me', () => {
     expect(res.body).toMatchObject(error('ConflictError'))
   })
   test('Created', async () => {
-    const schema = { name: 'any', email: 'a@a.com' }
-    const res = await request(app).post('/me').send({ ...schema, ...{ password: '123123' } })
+    const me = { name: 'any', email: 'a@a.com' }
+    const now = Date.now()
+    const res = await request(app).post('/me').send({ ...me, ...{ password: '123123' } })
 
     expect(res.status).toEqual(201)
     expect(res.body).toHaveProperty('id')
     const id = new ObjectId(res.body.id)
+    const latestMe = await load<User>(User, id)
+    expect(latestMe).toMatchObject(me)
     expect(res.body).toMatchObject({
       id: id.toString(),
-      name: schema.name,
-      email: schema.email,
+      name: latestMe.name,
+      email: latestMe.email,
       permissions: [ Permission.REGULAR ],
+      created: latestMe.created.getTime(),
     })
-    const user = await load<User>(User, id)
-    expect(user).toMatchObject(schema)
-    expect(res.body).toMatchObject({
-      created: user.created.getTime(),
-    })
-    expect(res.body).not.toHaveProperty([ 'password', 'creator', 'deleted' ])
+    expect(latestMe.created.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body).not.toHaveProperty([ 'password', 'creator', 'updated', 'deleted' ])
   })
   test.each([
     { case: 'empty me', me: {}, times: 2 },
@@ -104,28 +104,28 @@ describe('Create me', () => {
     expect(res.body).toMatchObject(graphqlError('ConflictError'))
   })
   test('Created (GraphQL)', async () => {
-    const schema = { name: 'any', email: 'a@a.com' }
+    const me = { name: 'any', email: 'a@a.com' }
     const fields = [ 'id', 'name', 'email', 'permissions', 'created', 'updated' ]
+    const now = Date.now()
     const res = await request(app).post('/graphql')
-      .send(addMeMutation({ me: { ...schema, ...{ password: '123123' } } }, fields))
+      .send(addMeMutation({ me: { ...me, ...{ password: '123123' } } }, fields))
 
     expect(res.status).toEqual(200)
     expect(res.body).toHaveProperty('data')
     expect(res.body.data).toHaveProperty('addMe')
     expect(res.body.data.addMe).toHaveProperty('id')
     const id = new ObjectId(res.body.data.addMe.id)
+    const latestMe = await load<User>(User, id)
+    expect(latestMe).toMatchObject(me)
     expect(res.body.data.addMe).toMatchObject({
       id: id.toString(),
-      name: schema.name,
-      email: schema.email,
+      name: latestMe.name,
+      email: latestMe.email,
       permissions: [ Permission.REGULAR ],
-    })
-    const user = await load<User>(User, id)
-    expect(user).toMatchObject(schema)
-    expect(res.body.data.addMe).toMatchObject({
-      created: user.created.getTime(),
+      created: latestMe.created.getTime(),
       updated: null,
     })
+    expect(latestMe.created.getTime()).toBeGreaterThanOrEqual(now)
     expect(res.body.data.addMe).not.toHaveProperty([ 'password', 'creator', 'deleted' ])
   })
 })

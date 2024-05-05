@@ -57,14 +57,28 @@ describe('Create category', () => {
   test('Created', async () => {
     const user = await fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await auth(user)).token
-    const schema = { name: 'any', requiredScore: 80 }
-    const res = await request(app).post('/categories').send(schema).auth(token, { type: 'bearer' })
+    const category = { name: 'any', requiredScore: 80 }
+    const now = Date.now()
+    const res = await request(app).post('/categories').send(category).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
+    expect(res.body).toMatchObject(category)
     expect(res.body).toHaveProperty('id')
     const id = new ObjectId(res.body.id)
-    expect(res.body).toMatchObject(schema)
-    expect(await load<Category>(Category, id)).toMatchObject(schema)
+    const latestCategory = await load<Category>(Category, id)
+    expect(latestCategory).toMatchObject(category)
+    expect(res.body).toEqual({
+      id: latestCategory.id.toString(),
+      name: latestCategory.name,
+      owner: latestCategory.owner.toString(),
+      questionCount: latestCategory.questionCount,
+      requiredScore: latestCategory.requiredScore,
+      voters: latestCategory.voters,
+      rating: latestCategory.rating,
+      created: latestCategory.created.getTime(),
+    })
+    expect(latestCategory.created.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body).not.toHaveProperty([ 'creator', 'updated', 'deleted' ])
   })
   test('Unauthorized (GraphQL)', async () => {
     const res = await request(app).post('/graphql').send(addCategoryMutation({ category: { name: 'any' } }))
@@ -122,15 +136,30 @@ describe('Create category', () => {
     const user = await fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await auth(user)).token
     const category = { name: 'any', requiredScore: 80 }
+    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating', 'created', 'updated' ]
+    const now = Date.now()
     const res = await request(app)
       .post('/graphql')
-      .send(addCategoryMutation({ category }, [ 'id', 'name', 'requiredScore' ]))
+      .send(addCategoryMutation({ category }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { addCategory: category } })
     expect(res.body.data.addCategory).toHaveProperty('id')
     const id = new ObjectId(res.body.data.addCategory.id)
-    expect(await load<Category>(Category, id)).toMatchObject(category)
+    const latestCategory = await load<Category>(Category, id)
+    expect(latestCategory).toMatchObject(category)
+    expect(res.body.data.addCategory).toEqual({
+      id: latestCategory.id.toString(),
+      name: latestCategory.name,
+      questionCount: latestCategory.questionCount,
+      requiredScore: latestCategory.requiredScore,
+      voters: latestCategory.voters,
+      rating: latestCategory.rating,
+      created: latestCategory.created.getTime(),
+      updated: null,
+    })
+    expect(latestCategory.created.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body.data.addCategory).not.toHaveProperty([ 'creator', 'deleted' ])
   })
 })
