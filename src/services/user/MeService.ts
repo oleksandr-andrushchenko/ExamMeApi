@@ -36,9 +36,11 @@ export default class MeService {
     user.password = transfer.password
     user.permissions = [ Permission.REGULAR ]
 
-    if (transfer.hasOwnProperty('name')) {
+    if ('name' in transfer) {
       user.name = transfer.name
     }
+
+    user.created = new Date()
 
     await this.entityManager.save<User>(user)
 
@@ -63,9 +65,11 @@ export default class MeService {
     initiator.email = email
     initiator.password = transfer.password
 
-    if (transfer.hasOwnProperty('name')) {
+    if ('name' in transfer) {
       initiator.name = transfer.name
     }
+
+    initiator.updated = new Date()
 
     await this.entityManager.save<User>(initiator)
 
@@ -77,19 +81,21 @@ export default class MeService {
   public async updateMe(transfer: MeUpdateSchema, initiator: User): Promise<User> {
     await this.validator.validate(transfer)
 
-    if (transfer.hasOwnProperty('email')) {
+    if ('email' in transfer) {
       const email = transfer.email
       await this.userService.verifyUserEmailNotExists(email)
       initiator.email = email
     }
 
-    if (transfer.hasOwnProperty('name')) {
+    if ('name' in transfer) {
       initiator.name = transfer.name
     }
 
-    if (transfer.hasOwnProperty('password')) {
+    if ('password' in transfer) {
       initiator.password = transfer.password
     }
+
+    initiator.updated = new Date()
 
     await this.entityManager.save<User>(initiator)
 
@@ -99,7 +105,8 @@ export default class MeService {
   }
 
   public async deleteMe(initiator: User): Promise<User> {
-    // todo: soft delete
+    initiator.deleted = new Date()
+
     await this.entityManager.remove<User>(initiator)
 
     this.eventDispatcher.dispatch('meDeleted', { me: initiator })

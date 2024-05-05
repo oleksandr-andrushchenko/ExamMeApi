@@ -64,6 +64,7 @@ export default class QuestionService {
       question.choices = transfer.choices
     }
 
+    question.created = new Date()
     category.questionCount = category.questionCount + 1
 
     await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
@@ -92,23 +93,23 @@ export default class QuestionService {
 
     const where = {}
 
-    if (query.hasOwnProperty('category')) {
+    if ('category' in query) {
       where['category'] = new ObjectId(query.category)
     }
 
-    if (query.hasOwnProperty('price')) {
+    if ('price' in query) {
       where['price'] = query.price
     }
 
-    if (query.hasOwnProperty('search')) {
+    if ('search' in query) {
       where['title'] = { $regex: query.search, $options: 'i' }
     }
 
-    if (query.hasOwnProperty('difficulty')) {
+    if ('difficulty' in query) {
       where['difficulty'] = query.difficulty
     }
 
-    if (query.hasOwnProperty('type')) {
+    if ('type' in query) {
       where['type'] = query.type
     }
 
@@ -183,6 +184,9 @@ export default class QuestionService {
     } else if (question.type === QuestionType.CHOICE) {
       question.choices = transfer.choices
     }
+
+    question.updated = new Date()
+
     await this.entityManager.save<Question>(question)
 
     this.eventDispatcher.dispatch('questionReplaced', { question })
@@ -204,34 +208,36 @@ export default class QuestionService {
     await this.validator.validate(transfer)
     await this.authService.verifyAuthorization(initiator, QuestionPermission.UPDATE, question)
 
-    if (transfer.hasOwnProperty('category')) {
+    if ('category' in transfer) {
       const category: Category = await this.categoryService.getCategory(transfer.category)
       question.category = category.id
     }
 
-    if (transfer.hasOwnProperty('title')) {
+    if ('title' in transfer) {
       const title = transfer.title
       await this.verifyQuestionTitleNotExists(title)
       question.title = title
     }
 
-    if (transfer.hasOwnProperty('type')) {
+    if ('type' in transfer) {
       question.type = transfer.type
     }
 
-    if (transfer.hasOwnProperty('difficulty')) {
+    if ('difficulty' in transfer) {
       question.difficulty = transfer.difficulty
     }
 
     if (question.type === QuestionType.TYPE) {
-      if (transfer.hasOwnProperty('answers')) {
+      if ('answers' in transfer) {
         question.answers = transfer.answers
       }
     } else if (question.type === QuestionType.CHOICE) {
-      if (transfer.hasOwnProperty('choices')) {
+      if ('choices' in transfer) {
         question.choices = transfer.choices
       }
     }
+
+    question.updated = new Date()
 
     await this.entityManager.save<Question>(question)
 
@@ -252,6 +258,8 @@ export default class QuestionService {
 
     const category: Category = await this.categoryService.getCategory(question.category.toString())
     category.questionCount = category.questionCount - 1
+
+    question.deleted = new Date()
 
     await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
       // todo: soft delete

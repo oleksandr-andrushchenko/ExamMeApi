@@ -48,6 +48,7 @@ export default class CategoryService {
     category.requiredScore = transfer.requiredScore
     category.creator = initiator.id
     category.owner = initiator.id
+    category.created = new Date()
 
     await this.entityManager.save<Category>(category)
 
@@ -93,11 +94,11 @@ export default class CategoryService {
 
     const where = {}
 
-    if (query.hasOwnProperty('price')) {
+    if ('price' in query) {
       where['price'] = query.price
     }
 
-    if (query.hasOwnProperty('search')) {
+    if ('search' in query) {
       where['name'] = { $regex: query.search, $options: 'i' }
     }
 
@@ -118,16 +119,18 @@ export default class CategoryService {
 
     await this.authService.verifyAuthorization(initiator, CategoryPermission.UPDATE, category)
 
-    if (transfer.hasOwnProperty('name')) {
+    if ('name' in transfer) {
       const name = transfer.name
       await this.verifyCategoryNameNotExists(name, category.id)
 
       category.name = name
     }
 
-    if (transfer.hasOwnProperty('requiredScore')) {
+    if ('requiredScore' in transfer) {
       category.requiredScore = transfer.requiredScore
     }
+
+    category.updated = new Date()
 
     await this.entityManager.save<Category>(category)
 
@@ -155,6 +158,7 @@ export default class CategoryService {
 
     category.name = name
     category.requiredScore = transfer.requiredScore
+    category.updated = new Date()
 
     await this.entityManager.save<Category>(category)
 
@@ -173,7 +177,8 @@ export default class CategoryService {
   public async deleteCategory(category: Category, initiator: User): Promise<Category> {
     await this.authService.verifyAuthorization(initiator, CategoryPermission.DELETE, category)
 
-    // todo: soft delete
+    category.deleted = new Date()
+
     await this.entityManager.remove<Category>(category)
 
     this.eventDispatcher.dispatch('categoryDeleted', { category })

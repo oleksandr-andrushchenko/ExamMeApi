@@ -68,6 +68,7 @@ export default class ExamService {
     exam.questions = questions
     exam.creator = initiator.id
     exam.owner = initiator.id
+    exam.created = new Date()
 
     await this.entityManager.save<Exam>(exam)
 
@@ -134,6 +135,8 @@ export default class ExamService {
     }
 
     exam.questionNumber = questionNumber
+    exam.updated = new Date()
+
     await this.entityManager.save<Exam>(exam)
 
     return exam
@@ -175,6 +178,7 @@ export default class ExamService {
 
     // todo: optimize
     exam.questions = questions
+    exam.updated = new Date()
 
     // todo: optimize, run partial array query
     await this.entityManager.save<Exam>(exam)
@@ -207,11 +211,11 @@ export default class ExamService {
       }
     }
 
-    if (query.hasOwnProperty('category')) {
+    if ('category' in query) {
       where['category'] = new ObjectId(query.category)
     }
 
-    if (query.hasOwnProperty('completion')) {
+    if ('completion' in query) {
       where['completed'] = { $exists: query.completion }
     }
 
@@ -278,6 +282,7 @@ export default class ExamService {
 
     exam.correctCount = correctAnswers
     exam.completed = new Date()
+    exam.updated = new Date()
 
     this.eventDispatcher.dispatch('examCompleted', { exam })
 
@@ -293,6 +298,8 @@ export default class ExamService {
    */
   public async deleteExam(exam: Exam, initiator: User): Promise<Exam> {
     await this.authService.verifyAuthorization(initiator, ExamPermission.DELETE, exam)
+
+    exam.deleted = new Date()
 
     await this.entityManager.remove<Exam>(exam)
 
