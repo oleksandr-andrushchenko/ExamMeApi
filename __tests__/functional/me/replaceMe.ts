@@ -3,9 +3,9 @@ import request from 'supertest'
 import { auth, error, fixture, load, server as app } from '../../index'
 import User from '../../../src/entities/User'
 
-describe('PUT /me', () => {
+describe('Replace me', () => {
   test('Unauthorized', async () => {
-    const res = await request(app).put(`/me`).send({ name: 'any' })
+    const res = await request(app).put('/me').send({ name: 'any' })
 
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
@@ -13,7 +13,7 @@ describe('PUT /me', () => {
   test('Bad request (empty body)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const res = await request(app).put(`/me`).auth(token, { type: 'bearer' })
+    const res = await request(app).put('/me').auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -23,7 +23,7 @@ describe('PUT /me', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const schema = { name: 'any', email: user1.email, password: '123123' }
-    const res = await request(app).put(`/me`).send(schema).auth(token, { type: 'bearer' })
+    const res = await request(app).put('/me').send(schema).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(error('ConflictError'))
@@ -32,7 +32,7 @@ describe('PUT /me', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const schema = { name: 'any', email: 'a@a.com' }
-    const res = await request(app).put(`/me`).send({ ...schema, ...{ password: '123123' } }).auth(token, { type: 'bearer' })
+    const res = await request(app).put('/me').send({ ...schema, ...{ password: '123123' } }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')

@@ -7,7 +7,7 @@ import User from '../../../src/entities/User'
 import { authenticateMutation } from '../../graphql/auth/authenticateMutation'
 import { CredentialsSchema } from '../../../src/schema/auth/CredentialsSchema'
 
-describe('POST /auth', () => {
+describe('Create auth', () => {
   test.each([
     { case: 'empty body', body: {} },
     { case: 'no email', body: { password: 'any' } },

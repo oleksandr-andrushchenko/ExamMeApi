@@ -5,7 +5,7 @@ import Category from '../../../src/entities/Category'
 import User from '../../../src/entities/User'
 import CategoryPermission from '../../../src/enums/category/CategoryPermission'
 
-describe('PUT /categories/:categoryId', () => {
+describe('Replace category', () => {
   test('Unauthorized', async () => {
     const category = await fixture<Category>(Category)
     const id = category.id

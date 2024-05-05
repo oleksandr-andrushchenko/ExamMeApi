@@ -7,7 +7,7 @@ import Question, { QuestionDifficulty, QuestionType } from '../../../src/entitie
 import { faker } from '@faker-js/faker'
 import QuestionPermission from '../../../src/enums/question/QuestionPermission'
 
-describe('PUT /questions/:questionId', () => {
+describe('Replace question', () => {
   test('Unauthorized', async () => {
     const question = await fixture<Question>(Question)
     const id = question.id

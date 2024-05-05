@@ -3,9 +3,9 @@ import request from 'supertest'
 import { auth, error, fixture, server as app } from '../../index'
 import User from '../../../src/entities/User'
 
-describe('GET /me', () => {
+describe('Get me', () => {
   test('Unauthorized', async () => {
-    const res = await request(app).get(`/me`)
+    const res = await request(app).get('/me')
 
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
@@ -13,7 +13,7 @@ describe('GET /me', () => {
   test('Found', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
-    const res = await request(app).get(`/me`).auth(token, { type: 'bearer' })
+    const res = await request(app).get('/me').auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ id: user.id.toString(), name: user.name })

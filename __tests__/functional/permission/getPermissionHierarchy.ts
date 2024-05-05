@@ -4,7 +4,7 @@ import { auth, error, fixture, server as app } from '../../index'
 import User from '../../../src/entities/User'
 import config from '../../../src/config'
 
-describe('GET /permissions/hierarchy', () => {
+describe('Get permission hierarchy', () => {
   test('Unauthorized', async () => {
     const res = await request(app).get('/permissions/hierarchy')
 

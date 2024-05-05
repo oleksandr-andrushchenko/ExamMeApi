@@ -4,7 +4,7 @@ import { auth, error, fixture, server as app } from '../../index'
 import User from '../../../src/entities/User'
 import Permission from '../../../src/enums/Permission'
 
-describe('GET /permissions', () => {
+describe('Get permissions', () => {
   test('Unauthorized', async () => {
     const res = await request(app).get('/permissions')
 

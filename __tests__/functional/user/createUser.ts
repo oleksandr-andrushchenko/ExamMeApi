@@ -5,7 +5,7 @@ import User from '../../../src/entities/User'
 import { ObjectId } from 'mongodb'
 import UserPermission from '../../../src/enums/user/UserPermission'
 
-describe('POST /users', () => {
+describe('Create user', () => {
   test('Unauthorized', async () => {
     const res = await request(app).post('/users')
 
