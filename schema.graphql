@@ -80,6 +80,7 @@ type Mutation {
   addExamQuestionAnswer(examId: ID!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): ExamQuestionSchema!
   addMe(me: MeSchema!): User!
   addQuestion(question: QuestionSchema!): Question!
+  addUser(user: UserSchema!): User!
   authenticate(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
   removeExam(examId: ID!): Boolean!
@@ -177,4 +178,11 @@ type User {
   name: String
   permissions: [String!]!
   updated: Timestamp
+}
+
+input UserSchema {
+  email: String!
+  name: String
+  password: String!
+  permissions: [String!]! = ["regular"]
 }
