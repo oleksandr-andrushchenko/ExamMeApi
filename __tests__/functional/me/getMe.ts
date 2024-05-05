@@ -18,7 +18,21 @@ describe('Get me', () => {
     const res = await request(app).get('/me').auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ id: user.id.toString(), name: user.name })
+    expect(res.body).toMatchObject({
+      id: user.id.toString(),
+      name: user.name,
+      email: user.email,
+      permissions: user.permissions,
+      created: user.created.getTime(),
+    })
+
+    if (user.updated) {
+      expect(res.body).toMatchObject({
+        updated: user.updated.getTime(),
+      })
+    }
+
+    expect(res.body).not.toHaveProperty([ 'password', 'creator', 'deleted' ])
   })
   test('Unauthorized (GraphQL)', async () => {
     const res = await request(app).post('/graphql')
@@ -43,7 +57,7 @@ describe('Get me', () => {
           email: user.email,
           permissions: user.permissions,
           created: user.created.getTime(),
-          updated: user.updated?.getTime(),
+          updated: user.updated?.getTime() ?? null,
         },
       },
     })
