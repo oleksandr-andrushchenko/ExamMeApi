@@ -179,7 +179,7 @@ export default class CategoryService {
 
     category.deleted = new Date()
 
-    await this.entityManager.remove<Category>(category)
+    await this.entityManager.save<Category>(category)
 
     this.eventDispatcher.dispatch('categoryDeleted', { category })
 

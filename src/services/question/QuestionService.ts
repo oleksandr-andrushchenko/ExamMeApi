@@ -262,8 +262,7 @@ export default class QuestionService {
     question.deleted = new Date()
 
     await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
-      // todo: soft delete
-      await entityManager.remove<Question>(question)
+      await entityManager.save<Question>(question)
       await entityManager.save<Category>(category)
     })
 

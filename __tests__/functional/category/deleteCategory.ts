@@ -54,11 +54,14 @@ describe('Delete category', () => {
     const category = await fixture<Category>(Category)
     const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).delete(`/categories/${ category.id.toString() }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(204)
     expect(res.body).toEqual({})
-    expect(await load<Category>(Category, category.id)).toBeNull()
+    const latestCategory = await load<Category>(Category, category.id)
+    expect(latestCategory).not.toBeNull()
+    expect(latestCategory.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Deleted (has permission)', async () => {
     const category = await fixture<Category>(Category)
@@ -67,11 +70,14 @@ describe('Delete category', () => {
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).delete(`/categories/${ category.id.toString() }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(204)
     expect(res.body).toEqual({})
-    expect(await load<Category>(Category, category.id)).toBeNull()
+    const latestCategory = await load<Category>(Category, category.id)
+    expect(latestCategory).not.toBeNull()
+    expect(latestCategory.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Unauthorized (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
@@ -128,13 +134,16 @@ describe('Delete category', () => {
     const category = await fixture<Category>(Category)
     const user = await load<User>(User, category.creator)
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).post('/graphql')
       .send(removeCategoryMutation({ categoryId: category.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeCategory: true } })
-    expect(await load<Category>(Category, category.id)).toBeNull()
+    const latestCategory = await load<Category>(Category, category.id)
+    expect(latestCategory).not.toBeNull()
+    expect(latestCategory.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Deleted (has permission) (GraphQL)', async () => {
     const category = await fixture<Category>(Category)
@@ -144,12 +153,15 @@ describe('Delete category', () => {
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).post('/graphql')
       .send(removeCategoryMutation({ categoryId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeCategory: true } })
-    expect(await load<Category>(Category, id)).toBeNull()
+    const latestCategory = await load<Category>(Category, category.id)
+    expect(latestCategory).not.toBeNull()
+    expect(latestCategory.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
 })

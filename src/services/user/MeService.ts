@@ -107,7 +107,7 @@ export default class MeService {
   public async deleteMe(initiator: User): Promise<User> {
     initiator.deleted = new Date()
 
-    await this.entityManager.remove<User>(initiator)
+    await this.entityManager.save<User>(initiator)
 
     this.eventDispatcher.dispatch('meDeleted', { me: initiator })
 

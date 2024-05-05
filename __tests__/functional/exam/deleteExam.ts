@@ -45,11 +45,14 @@ describe('Delete exam', () => {
     const exam = await fixture<Exam>(Exam)
     const user = await load<User>(User, exam.creator)
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).delete(`/exams/${ exam.id.toString() }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(204)
     expect(res.body).toEqual({})
-    expect(await load<Exam>(Exam, exam.id)).toBeNull()
+    const latestExam = await load<Exam>(Exam, exam.id)
+    expect(latestExam).not.toBeNull()
+    expect(latestExam.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Deleted (has permission)', async () => {
     const exam = await fixture<Exam>(Exam)
@@ -59,11 +62,14 @@ describe('Delete exam', () => {
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).delete(`/exams/${ exam.id.toString() }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(204)
     expect(res.body).toEqual({})
-    expect(await load<Exam>(Exam, exam.id)).toBeNull()
+    const latestExam = await load<Exam>(Exam, exam.id)
+    expect(latestExam).not.toBeNull()
+    expect(latestExam.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Unauthorized (GraphQL)', async () => {
     const exam = await fixture<Exam>(Exam)
@@ -109,13 +115,16 @@ describe('Delete exam', () => {
     const exam = await fixture<Exam>(Exam)
     const user = await load<User>(User, exam.creator)
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).post('/graphql')
       .send(removeExamMutation({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeExam: true } })
-    expect(await load<Exam>(Exam, exam.id)).toBeNull()
+    const latestExam = await load<Exam>(Exam, exam.id)
+    expect(latestExam).not.toBeNull()
+    expect(latestExam.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Deleted (has permission) (GraphQL)', async () => {
     const exam = await fixture<Exam>(Exam)
@@ -125,12 +134,15 @@ describe('Delete exam', () => {
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).post('/graphql')
       .send(removeExamMutation({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeExam: true } })
-    expect(await load<Exam>(Exam, exam.id)).toBeNull()
+    const latestExam = await load<Exam>(Exam, exam.id)
+    expect(latestExam).not.toBeNull()
+    expect(latestExam.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
 })

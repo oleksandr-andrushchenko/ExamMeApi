@@ -72,7 +72,7 @@ describe('Update me', () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
     const meUpdate = { name: 'any' }
-    const now = new Date().getTime()
+    const now = Date.now()
     const res = await request(app).post('/graphql')
       .send(updateMeMutation({ meUpdate }, [ 'id', 'name', 'email', 'permissions', 'created', 'updated' ]))
       .auth(token, { type: 'bearer' })

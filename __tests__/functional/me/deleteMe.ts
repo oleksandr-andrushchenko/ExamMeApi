@@ -15,11 +15,14 @@ describe('Delete me', () => {
   test('Deleted', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).delete('/me').auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(204)
     expect(res.body).toEqual({})
-    expect(await load<User>(User, user.id)).toBeNull()
+    const latestUser = await load<User>(User, user.id)
+    expect(latestUser).not.toBeNull()
+    expect(latestUser.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Unauthorized (GraphQL)', async () => {
     const res = await request(app).post('/graphql')
@@ -31,12 +34,15 @@ describe('Delete me', () => {
   test('Deleted (GraphQL)', async () => {
     const user = await fixture<User>(User)
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).post('/graphql')
       .send(removeMeMutation())
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeMe: true } })
-    expect(await load<User>(User, user.id)).toBeNull()
+    const latestUser = await load<User>(User, user.id)
+    expect(latestUser).not.toBeNull()
+    expect(latestUser.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
 })

@@ -301,7 +301,7 @@ export default class ExamService {
 
     exam.deleted = new Date()
 
-    await this.entityManager.remove<Exam>(exam)
+    await this.entityManager.save<Exam>(exam)
 
     this.eventDispatcher.dispatch('examDeleted', { exam })
 

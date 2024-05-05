@@ -6,7 +6,6 @@ import User from '../../../src/entities/User'
 import QuestionPermission from '../../../src/enums/question/QuestionPermission'
 // @ts-ignore
 import { removeQuestionMutation } from '../../graphql/question/removeQuestionMutation'
-import Category from '../../../src/entities/Category'
 
 describe('Delete question', () => {
   test('Unauthorized', async () => {
@@ -55,11 +54,14 @@ describe('Delete question', () => {
     const question = await fixture<Question>(Question)
     const user = await load<User>(User, question.creator)
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).delete(`/questions/${ question.id.toString() }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(204)
     expect(res.body).toEqual({})
-    expect(await load<Question>(Question, question.id)).toBeNull()
+    const latestQuestion = await load<Question>(Question, question.id)
+    expect(latestQuestion).not.toBeNull()
+    expect(latestQuestion.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Deleted (has permission)', async () => {
     const question = await fixture<Question>(Question)
@@ -68,11 +70,14 @@ describe('Delete question', () => {
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).delete(`/questions/${ question.id.toString() }`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(204)
     expect(res.body).toEqual({})
-    expect(await load<Question>(Question, question.id)).toBeNull()
+    const latestQuestion = await load<Question>(Question, question.id)
+    expect(latestQuestion).not.toBeNull()
+    expect(latestQuestion.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Unauthorized (GraphQL)', async () => {
     const question = await fixture<Question>(Question)
@@ -129,13 +134,16 @@ describe('Delete question', () => {
     const question = await fixture<Question>(Question)
     const user = await load<User>(User, question.creator)
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).post('/graphql')
       .send(removeQuestionMutation({ questionId: question.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeQuestion: true } })
-    expect(await load<Category>(Question, question.id)).toBeNull()
+    const latestQuestion = await load<Question>(Question, question.id)
+    expect(latestQuestion).not.toBeNull()
+    expect(latestQuestion.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Deleted (has permission) (GraphQL)', async () => {
     const question = await fixture<Question>(Question)
@@ -144,12 +152,15 @@ describe('Delete question', () => {
     ]
     const user = await fixture<User>(User, { permissions })
     const token = (await auth(user)).token
+    const now = Date.now()
     const res = await request(app).post('/graphql')
       .send(removeQuestionMutation({ questionId: question.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeQuestion: true } })
-    expect(await load<Category>(Question, question.id)).toBeNull()
+    const latestQuestion = await load<Question>(Question, question.id)
+    expect(latestQuestion).not.toBeNull()
+    expect(latestQuestion.deleted.getTime()).toBeGreaterThanOrEqual(now)
   })
 })
