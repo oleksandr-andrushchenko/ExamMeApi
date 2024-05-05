@@ -42,7 +42,9 @@ export class MeResolver {
   @Mutation(_returns => Boolean)
   public async removeMe(
     @Ctx('user') user: User,
-  ): Promise<void> {
+  ): Promise<boolean> {
     await this.meService.deleteMe(user)
+
+    return true
   }
 }
