@@ -32,7 +32,8 @@ describe('Create exam question answer', () => {
     const token = (await auth(user)).token
     const id = await fakeId()
     const questionNumber = 0
-    const res = await request(app).post(`/exams/${ id.toString() }/questions/${ questionNumber }/answer`).send({ choice: 0 }).auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/exams/${ id.toString() }/questions/${ questionNumber }/answer`)
+      .send({ choice: 0 }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
@@ -42,7 +43,8 @@ describe('Create exam question answer', () => {
     const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const questionNumber = 999
-    const res = await request(app).post(`/exams/${ exam.id.toString() }/questions/${ questionNumber }/answer`).send({ choice: 0 }).auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/exams/${ exam.id.toString() }/questions/${ questionNumber }/answer`)
+      .send({ choice: 0 }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(404)
     expect(res.body).toMatchObject(error('NotFoundError'))
@@ -69,7 +71,8 @@ describe('Create exam question answer', () => {
       body['answer'] = 'any'
     }
 
-    const res = await request(app).post(`/exams/${ exam.id.toString() }/questions/0/answer`).send(body).auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/exams/${ exam.id.toString() }/questions/0/answer`)
+      .send(body).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(error('ForbiddenError'))
@@ -79,19 +82,33 @@ describe('Create exam question answer', () => {
     const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const question = await load<Question>(Question, exam.questions[0].question)
-    const body = {}
+    const questionNumber = 0
+    const examQuestionAnswer = {}
+    const expectedAddExamQuestionAnswer = {}
 
     if (question.type === QuestionType.CHOICE) {
-      body['choice'] = 0
+      examQuestionAnswer['choice'] = 0
+      expectedAddExamQuestionAnswer['choices'] = question.choices.map((choice: QuestionChoice) => choice.title)
+      expectedAddExamQuestionAnswer['choice'] = examQuestionAnswer['choice']
     } else if (question.type === QuestionType.TYPE) {
-      body['answer'] = 'any'
+      examQuestionAnswer['answer'] = 'any'
+      expectedAddExamQuestionAnswer['answer'] = examQuestionAnswer['answer']
     }
 
-    const res = await request(app).post(`/exams/${ exam.id.toString() }/questions/0/answer`).send(body).auth(token, { type: 'bearer' })
+    const res = await request(app).post(`/exams/${ exam.id.toString() }/questions/0/answer`)
+      .send(examQuestionAnswer).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
-    expect(res.body).toHaveProperty('type')
-    expect(res.body).toHaveProperty('difficulty')
+    expect(res.body).toMatchObject({
+      ...examQuestionAnswer,
+      ...expectedAddExamQuestionAnswer,
+      ...{
+        number: questionNumber,
+        question: question.title,
+        difficulty: question.difficulty,
+        type: question.type,
+      },
+    })
   })
   test('Unauthorized (GraphQL)', async () => {
     const exam = await fixture<Exam>(Exam)

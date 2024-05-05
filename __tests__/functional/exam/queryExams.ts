@@ -102,7 +102,8 @@ describe('Query exams', () => {
       fixture<Exam>(Exam, { ...examOwnOptions, ...examCategoryOptions }),
     ])).sort((a: Exam, b: Exam) => a.id.toString().localeCompare(b.id.toString()))
 
-    const res = await request(app).get('/exams').query({ category: category.id.toString() }).auth(token, { type: 'bearer' })
+    const res = await request(app).get('/exams').query({ category: category.id.toString() })
+      .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toHaveProperty('data')
@@ -198,7 +199,8 @@ describe('Query exams', () => {
       fixture<Exam>(Exam, { ...examOwnOptions, ...examCategoryOptions }),
     ])).sort((a: Exam, b: Exam) => a.id.toString().localeCompare(b.id.toString()))
 
-    const res = await request(app).get('/exams').query({ category: category.id.toString() }).auth(token, { type: 'bearer' })
+    const res = await request(app).get('/exams').query({ category: category.id.toString() })
+      .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toHaveProperty('data')

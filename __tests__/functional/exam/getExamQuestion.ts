@@ -31,7 +31,8 @@ describe('Get exam question', () => {
     const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
-    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
+    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/${ questionNumber }`)
+      .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -68,16 +69,18 @@ describe('Get exam question', () => {
     const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const questionNumber = exam.getQuestionsCount() - 1
-    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
+    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/${ questionNumber }`)
+      .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     const examQuestion = exam.questions[questionNumber]
     const question = await load<Question>(Question, examQuestion.question)
 
     expect(res.body).toMatchObject({
+      number: questionNumber,
       question: question.title,
-      type: question.type,
       difficulty: question.difficulty,
+      type: question.type,
     })
 
     if (question.type === QuestionType.CHOICE) {
@@ -98,16 +101,19 @@ describe('Get exam question', () => {
     const exam = await fixture<Exam>(Exam)
     const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
-    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/0`).auth(token, { type: 'bearer' })
+    const questionNumber = 0
+    const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/${ questionNumber }`)
+      .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     const examQuestion = exam.questions[0]
     const question = await load<Question>(Question, examQuestion.question)
 
     expect(res.body).toMatchObject({
+      number: questionNumber,
       question: question.title,
-      type: question.type,
       difficulty: question.difficulty,
+      type: question.type,
     })
 
     if (question.type === QuestionType.CHOICE) {
@@ -197,7 +203,7 @@ describe('Get exam question', () => {
     const res = await request(app).post('/graphql')
       .send(examQuestionQuery(
         { examId: exam.id.toString(), question: questionNumber },
-        [ 'difficulty', 'question', 'difficulty', 'type', 'choices', 'choice', 'answer' ],
+        [ 'number', 'question', 'difficulty', 'type', 'choices', 'choice', 'answer' ],
       ))
       .auth(token, { type: 'bearer' })
 
@@ -208,9 +214,10 @@ describe('Get exam question', () => {
     expect(res.body).toMatchObject({
       data: {
         examQuestion: {
+          number: questionNumber,
           question: question.title,
-          type: question.type,
           difficulty: question.difficulty,
+          type: question.type,
         },
       },
     })
@@ -237,7 +244,7 @@ describe('Get exam question', () => {
     const res = await request(app).post('/graphql')
       .send(examQuestionQuery(
         { examId: exam.id.toString(), question: questionNumber },
-        [ 'difficulty', 'question', 'difficulty', 'type', 'choices', 'choice', 'answer' ],
+        [ 'number', 'question', 'difficulty', 'type', 'choices', 'choice', 'answer' ],
       ))
       .auth(token, { type: 'bearer' })
 
@@ -248,9 +255,10 @@ describe('Get exam question', () => {
     expect(res.body).toMatchObject({
       data: {
         examQuestion: {
+          number: questionNumber,
           question: question.title,
-          type: question.type,
           difficulty: question.difficulty,
+          type: question.type,
         },
       },
     })
