@@ -141,6 +141,16 @@ export const fixture = async <Entity>(entity: any, options: object = {}): Promis
       throw new Error(`Unknown "${ entity.toString() }" type passed`)
   }
 
+  object.created = faker.date.anytime()
+
+  if (faker.datatype.boolean()) {
+    object.updated = faker.date.anytime()
+  }
+
+  if (options['deleted'] ?? false) {
+    object.deleted = faker.date.anytime()
+  }
+
   await Container.get<ConnectionManager>(ConnectionManager).get('default').manager.save(object)
 
   return object
