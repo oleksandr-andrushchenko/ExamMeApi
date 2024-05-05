@@ -3,7 +3,7 @@ import AuthService from './AuthService'
 import { Action } from 'routing-controllers'
 import User from '../../entities/User'
 import UserService from '../user/UserService'
-import { AuthChecker } from 'type-graphql'
+import { AuthChecker, AuthenticationError, AuthorizationError } from 'type-graphql'
 import Context from '../../context/Context'
 import { Request } from 'express'
 
@@ -53,20 +53,16 @@ export class AuthCheckerService {
   public getTypeGraphqlAuthChecker(): AuthChecker<Context> {
     return async ({ context: { user } }, permissions): Promise<boolean> => {
       if (!user) {
-        return false
-      }
-
-      if (permissions.length === 0) {
-        return true
+        throw new AuthenticationError()
       }
 
       for (const permission of permissions) {
-        if (await this.authService.verifyAuthorization(user, permission)) {
-          return true
+        if (!await this.authService.verifyAuthorization(user, permission)) {
+          throw new AuthorizationError()
         }
       }
 
-      return false
+      return true
     }
   }
 }
