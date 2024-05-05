@@ -9,7 +9,7 @@ import CreateExamQuestionAnswerSchema from '../schema/exam/CreateExamQuestionAns
 import GetExamQuestionSchema from '../schema/exam/GetExamQuestionSchema'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
 import ExamQuerySchema from '../schema/exam/ExamQuerySchema'
-import { Arg, Args, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
+import { Arg, Args, Authorized, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from 'type-graphql'
 
 @Service()
 @Resolver(Exam)
@@ -106,5 +106,15 @@ export class ExamResolver {
     await this.examService.deleteExam(exam, user)
 
     return true
+  }
+
+  @FieldResolver()
+  public questionsCount(@Root() exam: Exam): number {
+    return exam.getQuestionsCount()
+  }
+
+  @FieldResolver()
+  public answeredCount(@Root() exam: Exam): number {
+    return exam.getQuestionsAnsweredCount()
   }
 }
