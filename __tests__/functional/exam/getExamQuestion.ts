@@ -17,7 +17,7 @@ describe('Get exam question', () => {
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
   test('Bad request (invalid exam id)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
     const res = await request(app).get('/exams/invalid/questions/0').auth(token, { type: 'bearer' })
 
@@ -28,7 +28,7 @@ describe('Get exam question', () => {
     { case: 'invalid question number type', questionNumber: 'any' },
     { case: 'negative question number', questionNumber: -1 },
   ])('Bad request ($case)', async ({ questionNumber }) => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
     const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/${ questionNumber }`).auth(token, { type: 'bearer' })
@@ -37,7 +37,7 @@ describe('Get exam question', () => {
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
   test('Not found (exam)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
     const id = await fakeId()
     const res = await request(app).get(`/exams/${ id.toString() }/questions/0`).auth(token, { type: 'bearer' })
@@ -47,7 +47,7 @@ describe('Get exam question', () => {
   })
   test('Not found (question number)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const user = await load<User>(User, exam.creator)
+    const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/999`).auth(token, { type: 'bearer' })
 
@@ -96,11 +96,7 @@ describe('Get exam question', () => {
   })
   test('Found (permission)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const permissions = [
-      ExamPermission.GET,
-      ExamPermission.GET_QUESTION,
-    ]
-    const user = await fixture<User>(User, { permissions })
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
     const res = await request(app).get(`/exams/${ exam.id.toString() }/questions/0`).auth(token, { type: 'bearer' })
 
@@ -137,7 +133,7 @@ describe('Get exam question', () => {
     expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid exam id) (GraphQL)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
     const res = await request(app).post('/graphql')
       .send(examQuestionQuery({ examId: 'invalid', question: 0 }))
@@ -150,7 +146,7 @@ describe('Get exam question', () => {
     { case: 'invalid question number type', question: 'any' },
     { case: 'negative question number', question: -1 },
   ])('Bad request ($case) (GraphQL)', async ({ question }) => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
     const res = await request(app).post('/graphql')
@@ -161,7 +157,7 @@ describe('Get exam question', () => {
     expect(res.body).toMatchObject(graphqlError('BadRequestError'))
   })
   test('Not found (exam) (GraphQL)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
     const id = await fakeId()
     const res = await request(app).post('/graphql')
@@ -173,7 +169,7 @@ describe('Get exam question', () => {
   })
   test('Not found (question number) (GraphQL)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const user = await load<User>(User, exam.creator)
+    const user = await load<User>(User, exam.owner)
     const token = (await auth(user)).token
     const res = await request(app).post('/graphql')
       .send(examQuestionQuery({ examId: exam.id.toString(), question: 999 }))
@@ -235,11 +231,7 @@ describe('Get exam question', () => {
   })
   test('Found (permission) (GraphQL)', async () => {
     const exam = await fixture<Exam>(Exam)
-    const permissions = [
-      ExamPermission.GET,
-      ExamPermission.GET_QUESTION,
-    ]
-    const user = await fixture<User>(User, { permissions })
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await auth(user)).token
     const questionNumber = 0
     const res = await request(app).post('/graphql')

@@ -20,7 +20,7 @@ describe('Create question', () => {
   })
   test('Bad request (category not found)', async () => {
     const categoryId = await fakeId()
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await auth(user)).token
     const res = await request(app).post(`/questions`).send({
       title: 'any',
@@ -64,7 +64,7 @@ describe('Create question', () => {
   ])('Bad request ($case)', async ({ body }) => {
     const category = await fixture<Category>(Category)
     const categoryId = category.id
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await auth(user)).token
     const res = await request(app).post(`/questions`).send({ ...body, ...{ category: categoryId } }).auth(token, { type: 'bearer' })
 
@@ -163,7 +163,7 @@ describe('Create question', () => {
   })
   test('Bad request (category not found) (GraphQL)', async () => {
     const categoryId = await fakeId()
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await auth(user)).token
     const question = {
       category: categoryId.toString(),
@@ -216,7 +216,7 @@ describe('Create question', () => {
     },
   ])('Bad request ($case) (GraphQL)', async ({ body, times }) => {
     const category = await fixture<Category>(Category)
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await auth(user)).token
     const question = { ...body, ...{ category: category.id.toString() } } as QuestionSchema
     const res = await request(app).post('/graphql').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })

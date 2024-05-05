@@ -16,7 +16,7 @@ describe('Delete question', () => {
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
   test('Bad request (invalid id)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
     const token = (await auth(user)).token
     const res = await request(app).delete('/questions/invalid').auth(token, { type: 'bearer' })
 
@@ -24,7 +24,7 @@ describe('Delete question', () => {
     expect(res.body).toMatchObject(error('BadRequestError'))
   })
   test('Not found', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
     const token = (await auth(user)).token
     const id = await fakeId()
     const res = await request(app).delete(`/questions/${ id.toString() }`).auth(token, { type: 'bearer' })
@@ -65,10 +65,7 @@ describe('Delete question', () => {
   })
   test('Deleted (has permission)', async () => {
     const question = await fixture<Question>(Question)
-    const permissions = [
-      QuestionPermission.DELETE,
-    ]
-    const user = await fixture<User>(User, { permissions })
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
     const token = (await auth(user)).token
     const now = Date.now()
     const res = await request(app).delete(`/questions/${ question.id.toString() }`).auth(token, { type: 'bearer' })
@@ -88,7 +85,7 @@ describe('Delete question', () => {
     expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid id) (GraphQL)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
     const token = (await auth(user)).token
     const res = await request(app).post('/graphql')
       .send(removeQuestionMutation({ questionId: 'invalid' }))
@@ -98,7 +95,7 @@ describe('Delete question', () => {
     expect(res.body).toMatchObject(graphqlError('BadRequestError'))
   })
   test('Not found (GraphQL)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
     const token = (await auth(user)).token
     const id = await fakeId()
     const res = await request(app).post('/graphql')
@@ -147,10 +144,7 @@ describe('Delete question', () => {
   })
   test('Deleted (has permission) (GraphQL)', async () => {
     const question = await fixture<Question>(Question)
-    const permissions = [
-      QuestionPermission.DELETE,
-    ]
-    const user = await fixture<User>(User, { permissions })
+    const user = await fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
     const token = (await auth(user)).token
     const now = Date.now()
     const res = await request(app).post('/graphql')

@@ -30,7 +30,7 @@ describe('Create category', () => {
     { case: 'required score is negative', body: { name: 'Any category', requiredScore: -1 } },
     { case: 'required score is greater then 100', body: { name: 'Any category', requiredScore: 101 } },
   ])('Bad request ($case)', async ({ body }) => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await auth(user)).token
     const res = await request(app).post('/categories').send(body).auth(token, { type: 'bearer' })
 
@@ -85,7 +85,7 @@ describe('Create category', () => {
     { case: 'required score is negative', category: { name: 'Any category', requiredScore: -1 } },
     { case: 'required score is greater then 100', category: { name: 'Any category', requiredScore: 101 } },
   ])('Bad request ($case) (GraphQL)', async ({ category }) => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await auth(user)).token
     const res = await request(app)
       .post('/graphql')

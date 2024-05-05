@@ -7,6 +7,7 @@ import User from '../../../src/entities/User'
 // @ts-ignore
 import { addExamQuestionAnswerMutation } from '../../graphql/exam/addExamQuestionAnswerMutation'
 import CreateExamQuestionAnswerSchema from '../../../src/schema/exam/CreateExamQuestionAnswerSchema'
+import ExamPermission from '../../../src/enums/exam/ExamPermission'
 
 describe('Create exam question answer', () => {
   test('Unauthorized', async () => {
@@ -27,7 +28,7 @@ describe('Create exam question answer', () => {
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
   test('Not found (exam)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_QUESTION_ANSWER ] })
     const token = (await auth(user)).token
     const id = await fakeId()
     const questionNumber = 0
@@ -47,7 +48,7 @@ describe('Create exam question answer', () => {
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
   test('Bad request (empty body)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_QUESTION_ANSWER ] })
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
     const res = await request(app).post(`/exams/${ exam.id.toString() }/questions/0/answer`).auth(token, { type: 'bearer' })
@@ -111,7 +112,7 @@ describe('Create exam question answer', () => {
     expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
   })
   test('Not found (exam) (GraphQL)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_QUESTION_ANSWER ] })
     const token = (await auth(user)).token
     const id = await fakeId()
     const questionNumber = 0
@@ -143,7 +144,7 @@ describe('Create exam question answer', () => {
     expect(res.body).toMatchObject(graphqlError('NotFoundError'))
   })
   test('Bad request (empty body) (GraphQL)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_QUESTION_ANSWER ] })
     const token = (await auth(user)).token
     const exam = await fixture<Exam>(Exam)
     const examQuestionAnswer = undefined as CreateExamQuestionAnswerSchema

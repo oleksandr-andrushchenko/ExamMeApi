@@ -57,7 +57,6 @@ describe('Query exams', () => {
     const res = await request(app).get('/exams').auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-
     expect(res.body).toHaveProperty('data')
 
     const ownExams = exams.filter(exam => exam.owner.toString() === owner.toString())
@@ -83,7 +82,7 @@ describe('Query exams', () => {
 
       if (ownExams[index].updated) {
         expect(resExams[index]).toMatchObject({
-          updated: ownExams[index].updated?.getTime() ?? null,
+          updated: ownExams[index].updated.getTime(),
         })
       }
 
@@ -106,7 +105,6 @@ describe('Query exams', () => {
     const res = await request(app).get('/exams').query({ category: category.id.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-
     expect(res.body).toHaveProperty('data')
 
     const ownCategoryExams = exams
@@ -134,7 +132,7 @@ describe('Query exams', () => {
 
       if (ownCategoryExams[index].updated) {
         expect(resExams[index]).toMatchObject({
-          updated: ownCategoryExams[index].updated?.getTime() ?? null,
+          updated: ownCategoryExams[index].updated.getTime(),
         })
       }
 
@@ -180,7 +178,7 @@ describe('Query exams', () => {
 
       if (exams[index].updated) {
         expect(resExams[index]).toMatchObject({
-          updated: exams[index].updated?.getTime() ?? null,
+          updated: exams[index].updated.getTime(),
         })
       }
 
@@ -203,7 +201,6 @@ describe('Query exams', () => {
     const res = await request(app).get('/exams').query({ category: category.id.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-
     expect(res.body).toHaveProperty('data')
 
     const categoryExams = exams
@@ -230,7 +227,7 @@ describe('Query exams', () => {
 
       if (categoryExams[index].updated) {
         expect(resExams[index]).toMatchObject({
-          updated: categoryExams[index].updated?.getTime() ?? null,
+          updated: categoryExams[index].updated.getTime(),
         })
       }
 

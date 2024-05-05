@@ -19,7 +19,7 @@ describe('Create exam', () => {
     expect(res.body).toMatchObject(error('AuthorizationRequiredError'))
   })
   test('Bad request (empty body)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
     const res = await request(app).post('/exams').auth(token, { type: 'bearer' })
 
@@ -64,7 +64,7 @@ describe('Create exam', () => {
     expect(res.body).toMatchObject(graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (empty body) (GraphQL)', async () => {
-    const user = await fixture<User>(User)
+    const user = await fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await auth(user)).token
     const res = await request(app).post('/graphql')
       .send(addExamMutation({ exam: {} as CreateExamSchema }))
