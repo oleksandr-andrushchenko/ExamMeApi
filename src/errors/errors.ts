@@ -16,6 +16,7 @@ export const errors = {
   },
   ForbiddenError: {
     types: [
+      'UNAUTHORIZED',
       'UserWrongCredentialsError',
       'AuthorizationFailedError',
     ],
