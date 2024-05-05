@@ -40,14 +40,14 @@ input CredentialsSchema {
 }
 
 type Exam {
+  answeredCount: Int!
   category: ObjectId!
   completed: Timestamp
   created: Timestamp!
-  getQuestionsAnsweredCount: Int!
-  getQuestionsCount: Int!
   id: ObjectId!
   owner: ObjectId!
   questionNumber: Int!
+  questionsCount: Int!
   updated: Timestamp
 }
 
