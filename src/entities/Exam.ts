@@ -101,14 +101,18 @@ export default class Exam {
   @Transform(({ value }: { value: Date }) => value?.getTime())
   public deleted?: Date
 
-  @Expose({ name: 'questionsCount' })
   @Field(_type => Int)
+  public questionsCount: number
+
+  @Expose({ name: 'questionsCount' })
   public getQuestionsCount(): number {
     return this.questions?.length || 0
   }
 
-  @Expose({ name: 'answeredCount' })
   @Field(_type => Int)
+  public answeredCount: number
+
+  @Expose({ name: 'answeredCount' })
   public getQuestionsAnsweredCount(): number {
     return (this?.questions || [])
       .filter((question: ExamQuestion): boolean => typeof question.choice === 'number' || typeof question.answer === 'string')
