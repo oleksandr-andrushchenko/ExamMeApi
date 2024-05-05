@@ -3,6 +3,7 @@ import { AuthResolver } from './AuthResolver'
 import { QuestionResolver } from './QuestionResolver'
 import { ExamResolver } from './ExamResolver'
 import { MeResolver } from './MeResolver'
+import { UserResolver } from './UserResolver'
 
 export const resolvers = [
   AuthResolver,
@@ -10,4 +11,5 @@ export const resolvers = [
   QuestionResolver,
   ExamResolver,
   MeResolver,
+  UserResolver,
 ]
