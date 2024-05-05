@@ -15,8 +15,7 @@ describe('Get question', () => {
     expect(res.body).toMatchObject(error('NotFoundError'))
   })
   test('Bad request (invalid id)', async () => {
-    const id = 'invalid'
-    const res = await request(app).get(`/questions/${ id.toString() }`)
+    const res = await request(app).get('/questions/invalid')
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(error('BadRequestError'))
@@ -24,16 +23,26 @@ describe('Get question', () => {
   test('Found', async () => {
     const category = await fixture<Category>(Category)
     const question = await fixture<Question>(Question, { category: category.id })
-    const questionId = question.id
-    const res = await request(app).get(`/questions/${ questionId.toString() }`)
+    const res = await request(app).get(`/questions/${ question.id.toString() }`)
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({
-      id: questionId.toString(),
+      id: question.id.toString(),
+      category: category.id.toString(),
       type: question.type,
       difficulty: question.difficulty,
       title: question.title,
+      voters: question.voters,
+      rating: question.rating,
+      owner: question.owner,
+      created: question.created.getTime(),
     })
+
+    if (question.updated) {
+      expect(res.body).toMatchObject({
+        updated: question.updated.getTime(),
+      })
+    }
 
     if (question.type === QuestionType.TYPE) {
       expect(res.body).toHaveProperty('answers')
@@ -46,6 +55,8 @@ describe('Get question', () => {
         expect(res.body.choices[index]).toMatchObject(Object.assign({}, choice) as Record<string, any>)
       })
     }
+
+    expect(res.body).not.toHaveProperty([ 'creator', 'deleted' ])
   })
   test('Not found (question) (GraphQL)', async () => {
     const questionId = await fakeId()
@@ -65,12 +76,17 @@ describe('Get question', () => {
     const question = await fixture<Question>(Question, { category: category.id })
     const fields = [
       'id',
-      'title',
       'category',
       'type',
       'difficulty',
-      'answers {variants correct explanation}',
+      'title',
       'choices {title correct explanation}',
+      'answers {variants correct explanation}',
+      'voters',
+      'rating',
+      'owner',
+      'created',
+      'updated',
     ]
     const res = await request(app).post('/graphql').send(questionQuery({ questionId: question.id.toString() }, fields))
 
@@ -83,6 +99,11 @@ describe('Get question', () => {
           type: question.type,
           difficulty: question.difficulty,
           title: question.title,
+          voters: question.voters,
+          rating: question.rating,
+          owner: question.owner,
+          created: question.created.getTime(),
+          updated: question.updated?.getTime() ?? null,
         },
       },
     })
@@ -98,5 +119,7 @@ describe('Get question', () => {
         expect(res.body.data.question.choices[index]).toMatchObject(Object.assign({}, choice) as Record<string, any>)
       })
     }
+
+    expect(res.body.data.question).not.toHaveProperty([ 'creator', 'deleted' ])
   })
 })
