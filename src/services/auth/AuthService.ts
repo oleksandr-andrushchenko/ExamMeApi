@@ -7,6 +7,7 @@ import TokenSchema from '../../schema/auth/TokenSchema'
 import AuthorizationFailedError from '../../errors/auth/AuthorizationFailedError'
 import Permission from '../../enums/Permission'
 import { ObjectId } from 'mongodb'
+import PermissionHierarchySchema from '../../schema/auth/PermissionHierarchySchema'
 
 @Service()
 export default class AuthService {
@@ -14,7 +15,7 @@ export default class AuthService {
   public constructor(
     @Inject() private readonly tokenService: TokenService,
     @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
-    @Inject('authPermissions') private readonly permissions: { [permission: string]: Permission[] },
+    @Inject('authPermissions') private readonly permissions: PermissionHierarchySchema,
     private readonly tokenExpiresIn: number = 60 * 60 * 24 * 7,
   ) {
   }
@@ -86,5 +87,13 @@ export default class AuthService {
     }
 
     return payload.userId
+  }
+
+  public queryPermissions(): Permission[] {
+    return Object.values(Permission)
+  }
+
+  public getPermissionHierarchy(): PermissionHierarchySchema {
+    return this.permissions
   }
 }
