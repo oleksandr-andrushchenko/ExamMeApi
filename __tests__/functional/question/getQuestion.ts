@@ -34,7 +34,7 @@ describe('Get question', () => {
       title: question.title,
       voters: question.voters,
       rating: question.rating,
-      owner: question.owner,
+      owner: question.owner.toString(),
       created: question.created.getTime(),
     })
 
@@ -101,7 +101,7 @@ describe('Get question', () => {
           title: question.title,
           voters: question.voters,
           rating: question.rating,
-          owner: question.owner,
+          owner: question.owner.toString(),
           created: question.created.getTime(),
           updated: question.updated?.getTime() ?? null,
         },
