@@ -102,7 +102,9 @@ export default class Exam {
   public deleted?: Date
 
   @Field(_type => Int)
-  public questionsCount: number
+  public questionsCount(): number {
+    return this.getQuestionsCount()
+  }
 
   @Expose({ name: 'questionsCount' })
   public getQuestionsCount(): number {
@@ -110,7 +112,9 @@ export default class Exam {
   }
 
   @Field(_type => Int)
-  public answeredCount: number
+  public answeredCount(): number {
+    return this.getQuestionsAnsweredCount()
+  }
 
   @Expose({ name: 'answeredCount' })
   public getQuestionsAnsweredCount(): number {
