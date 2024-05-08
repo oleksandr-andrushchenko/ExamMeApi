@@ -29,7 +29,7 @@
    },
    "scripts": {
       "dev": "nodemon",
-      "test:functional": "DOTENV_CONFIG_PATH=.env.test jest --runInBand --testPathPattern=__tests__/functional",
+      "test:functional": "DOTENV_CONFIG_PATH=.env.test jest --runInBand --testPathPattern=__tests__/functional/cases",
       "build": "tsc",
       "start": "npm run build && node ./dist/index.js"
    },

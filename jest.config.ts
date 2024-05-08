@@ -3,7 +3,7 @@
  * https://jestjs.io/docs/configuration
  */
 
-import type { Config } from 'jest';
+import type { Config } from 'jest'
 
 const config: Config = {
   preset: 'ts-jest',
@@ -13,15 +13,13 @@ const config: Config = {
   coverageProvider: 'v8',
   moduleFileExtensions: [ 'js', 'jsx', 'ts', 'tsx', 'json', 'node' ],
   testMatch: [
-    '**/__tests__/**/*.ts',
-    '!**/__tests__/**/index.ts',
+    '<rootDir>/__tests__/functional/cases/**/*.ts',
   ],
   transform: {
     '^.+\\.(ts|tsx)$': 'ts-jest',
   },
-  setupFiles: [
-    'dotenv/config',
-  ],
-};
+  globalSetup: '<rootDir>/__tests__/functional/globalSetup.ts',
+  globalTeardown: '<rootDir>/__tests__/functional/globalTeardown.ts',
+}
 
-export default config;
+export default config
