@@ -18,8 +18,11 @@ import { Application } from 'express'
 export default class TestFramework {
 
   public readonly app: Application
+
   public readonly container: ContainerInstance
+
   public readonly serverUp: (listen?: boolean) => Promise<void>
+
   public readonly serverDown: (callback?: () => {}) => Promise<void>
 
   public constructor() {
