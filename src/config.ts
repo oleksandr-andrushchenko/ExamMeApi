@@ -4,6 +4,8 @@ import path from 'path'
 import pkg from '../package.json'
 import Permission from './enums/Permission'
 
+// dotenv.config()
+
 const schema: Joi.ObjectSchema = Joi.object()
   .keys({
     NODE_ENV: Joi.string().required().valid('development', 'test').example('development').description('Node env'),

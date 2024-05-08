@@ -2,7 +2,7 @@ import { Request, Response } from 'express'
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-controllers'
 import { Inject, Service } from 'typedi'
 import LoggerInterface from '../services/logger/LoggerInterface'
-import { errors } from '../errors/errors'
+import { errors } from '../errors'
 
 @Service()
 @Middleware({ type: 'after' })

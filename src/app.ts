@@ -7,7 +7,7 @@ import {
   useContainer as routingControllerUseContainer,
   useExpressServer,
 } from 'routing-controllers'
-import express, { Application } from 'express'
+import express from 'express'
 import LoggerInterface from './services/logger/LoggerInterface'
 import JwtTokenStrategyFactory from './services/token/strategy/JwtTokenStrategyFactory'
 import TokenStrategyInterface from './services/token/strategy/TokenStrategyInterface'
@@ -27,195 +27,189 @@ import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { expressMiddleware } from '@apollo/server/express4'
 import { buildSchema } from 'type-graphql'
-import { resolvers } from './resolvers/resolvers'
-import { scalars } from './scalars/scalars'
-import { errors } from './errors/errors'
+import { resolvers } from './resolvers'
+import { controllers } from './controllers'
+import { middlewares } from './middlewares'
+import { scalars } from './scalars'
+import { errors } from './errors'
+import { subscribers } from './subscribers'
 import Context from './context/Context'
+import { entities } from './entities'
 import { AuthCheckerService } from './services/auth/AuthCheckerService'
 import { GraphQLError } from 'graphql/error'
 import type { GraphQLFormattedError } from 'graphql/index'
+// import * as dotenv from 'dotenv'
 
-type Api = {
-  app: Application,
-  up: (listen?: boolean) => Promise<void>,
-  down: (callback?: () => {}) => Promise<void>,
+// dotenv.config()
+typeormUseContainer(Container)
+
+Container.set('env', config.env)
+Container.set('loggerFormat', config.logger.format)
+Container.set('loggerLevel', config.logger.level)
+Container.set('authPermissions', config.auth.permissions)
+Container.set('validatorOptions', config.validator)
+
+const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLogger>(WinstonLogger) : new NullLogger()
+Container.set('logger', logger)
+
+Container.set('validator', Container.get<ClassValidatorValidator>(ClassValidatorValidator))
+
+const projectDir = config.projectDir
+const mongoLogging = config.db.type === 'mongodb' && config.db.logging
+
+const connectionManager = new ConnectionManager()
+Container.set(ConnectionManager, connectionManager)
+// console.log('app-container', Container)
+
+const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt)
+Container.set('tokenStrategy', tokenStrategy)
+
+const dataSourceOptions: MongoConnectionOptions = {
+  type: config.db.type,
+  url: config.db.url,
+  synchronize: config.db.synchronize,
+  logging: config.db.logging,
+  entities,
+  subscribers,
+  monitorCommands: mongoLogging,
 }
+// console.log('index')
+const db = connectionManager.create(dataSourceOptions)
 
-export default (): { api: () => Api } => {
-  typeormUseContainer(Container)
+export const app = express()
+const server = createServer(app)
 
-  Container.set('env', config.env)
-  Container.set('loggerFormat', config.logger.format)
-  Container.set('loggerLevel', config.logger.level)
-  Container.set('authPermissions', config.auth.permissions)
-  Container.set('validatorOptions', config.validator)
+export const serverUp = async (listen?: boolean): Promise<void> => {
+  // console.log('server up')
+  routingControllerUseContainer(Container)
 
-  const logger: LoggerInterface = config.logger.enabled ? Container.get<WinstonLogger>(WinstonLogger) : new NullLogger()
-  Container.set('logger', logger)
+  const authChecker = Container.get<AuthCheckerService>(AuthCheckerService)
 
-  Container.set('validator', Container.get<ClassValidatorValidator>(ClassValidatorValidator))
-
-  const projectDir = config.projectDir
-  const mongoLogging = config.db.type === 'mongodb' && config.db.logging
-
-  const connectionManager = new ConnectionManager()
-  Container.set(ConnectionManager, connectionManager)
-
-  const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt)
-  Container.set('tokenStrategy', tokenStrategy)
-
-  const dataSourceOptions: MongoConnectionOptions = {
-    type: config.db.type,
-    url: config.db.url,
-    synchronize: config.db.synchronize,
-    logging: config.db.logging,
-    entities: [ `${ projectDir }/src/entities/*.ts` ],
-    subscribers: [ `${ projectDir }/src/subscribers/*.ts` ],
-    migrations: [ `${ projectDir }/src/migrations/*.ts` ],
-    monitorCommands: mongoLogging,
+  const routingControllersOptions: RoutingControllersOptions = {
+    authorizationChecker: authChecker.getRoutingControllersAuthorizationChecker(),
+    currentUserChecker: authChecker.getRoutingControllersCurrentUserChecker(),
+    controllers,
+    middlewares,
+    cors: config.app.cors,
+    validation: config.app.validator,
+    classTransformer: true,
+    defaultErrorHandler: false,
   }
 
-  const db = connectionManager.create(dataSourceOptions)
+  useExpressServer(app, routingControllersOptions)
 
-  const api = (): Api => {
-    const app = express()
-    const server = createServer(app)
+  await db.initialize()
 
-    const up = async (listen?: boolean): Promise<void> => {
-      routingControllerUseContainer(Container)
+  if (mongoLogging) {
+    const conn = (db.driver as MongoDriver).queryRunner.databaseConnection
+    conn.on('commandStarted', (event) => logger.debug('commandStarted', event))
+    conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event))
+    conn.on('commandFailed', (event) => logger.error('commandFailed', event))
+  }
 
-      const authChecker = Container.get<AuthCheckerService>(AuthCheckerService)
-
-      const routingControllersOptions: RoutingControllersOptions = {
-        authorizationChecker: authChecker.getRoutingControllersAuthorizationChecker(),
-        currentUserChecker: authChecker.getRoutingControllersCurrentUserChecker(),
-        controllers: [ `${ projectDir }/src/controllers/*.ts` ],
-        middlewares: [ `${ projectDir }/src/middlewares/*.ts` ],
-        cors: config.app.cors,
-        validation: config.app.validator,
-        classTransformer: true,
-        defaultErrorHandler: false,
-      }
-
-      useExpressServer(app, routingControllersOptions)
-
-      await db.initialize()
-
-      if (mongoLogging) {
-        const conn = (db.driver as MongoDriver).queryRunner.databaseConnection
-        conn.on('commandStarted', (event) => logger.debug('commandStarted', event))
-        conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event))
-        conn.on('commandFailed', (event) => logger.error('commandFailed', event))
-      }
-
-      if (config.swagger.enabled) {
-        const { defaultMetadataStorage } = require('class-transformer/cjs/storage')
-        const spec = routingControllersToSpec(getMetadataArgsStorage(), routingControllersOptions, {
-          components: {
-            // @ts-expect-error non-documented property
-            schemas: validationMetadatasToSchemas({
-              classTransformerMetadataStorage: defaultMetadataStorage as MetadataStorage,
-              refPointerPrefix: '#/components/schemas/',
-            }),
-            securitySchemes: {
-              // todo: move this part to authService
-              bearerAuth: {
-                type: 'http',
-                scheme: 'bearer',
-                bearerFormat: 'JWT',
-              },
-            },
+  if (config.swagger.enabled) {
+    const { defaultMetadataStorage } = require('class-transformer/cjs/storage')
+    const spec = routingControllersToSpec(getMetadataArgsStorage(), routingControllersOptions, {
+      components: {
+        // @ts-expect-error non-documented property
+        schemas: validationMetadatasToSchemas({
+          classTransformerMetadataStorage: defaultMetadataStorage as MetadataStorage,
+          refPointerPrefix: '#/components/schemas/',
+        }),
+        securitySchemes: {
+          // todo: move this part to authService
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
           },
-          info: {
-            description: config.app.description,
-            title: config.app.name,
-            version: config.app.version,
-          },
-        })
-        app.use(
-          config.swagger.route,
-          basicAuth({
-            users: { [config.swagger.username]: config.swagger.password },
-            challenge: true,
-          }),
-          swaggerUiExpress.serve,
-          swaggerUiExpress.setup(spec),
-        )
-      }
+        },
+      },
+      info: {
+        description: config.app.description,
+        title: config.app.name,
+        version: config.app.version,
+      },
+    })
+    app.use(
+      config.swagger.route,
+      basicAuth({
+        users: { [config.swagger.username]: config.swagger.password },
+        challenge: true,
+      }),
+      swaggerUiExpress.serve,
+      swaggerUiExpress.setup(spec),
+    )
+  }
 
-      if (config.graphql.enabled) {
-        const schema = await buildSchema({
-          // @ts-ignore
-          resolvers,
-          scalarsMap: scalars,
-          container: Container,
-          authChecker: authChecker.getTypeGraphqlAuthChecker(),
-          emitSchemaFile: `${ projectDir }/schema.graphql`,
-        })
-        const apolloServer = new ApolloServer<Context>({
-          schema,
-          plugins: [ ApolloServerPluginDrainHttpServer({ httpServer: server }) ],
-          formatError: (formattedError: GraphQLFormattedError, error: GraphQLError) => {
-            for (const name in errors) {
-              for (const key of [ error.originalError.constructor.name, formattedError.extensions.code as string ]) {
-                if (key && errors[name].types.includes(key)) {
-                  return { ...formattedError, extensions: { name, code: errors[name].code } }
-                }
-              }
+  if (config.graphql.enabled) {
+    const schema = await buildSchema({
+      // @ts-ignore
+      resolvers,
+      scalarsMap: scalars,
+      container: Container,
+      authChecker: authChecker.getTypeGraphqlAuthChecker(),
+      emitSchemaFile: `${ projectDir }/schema.graphql`,
+    })
+    const apolloServer = new ApolloServer<Context>({
+      schema,
+      plugins: [ ApolloServerPluginDrainHttpServer({ httpServer: server }) ],
+      formatError: (formattedError: GraphQLFormattedError, error: GraphQLError) => {
+        for (const name in errors) {
+          for (const key of [ error.originalError.constructor.name, formattedError.extensions.code as string ]) {
+            if (key && errors[name].types.includes(key)) {
+              return { ...formattedError, extensions: { name, code: errors[name].code } }
             }
-
-            return formattedError
-          },
-        })
-
-        await apolloServer.start()
-
-        app.use(
-          config.graphql.route,
-          express.json(),
-          expressMiddleware(apolloServer, {
-            context: async ({ req }) => {
-              return {
-                user: await authChecker.getApolloContextUser(req),
-              }
-            },
-          }),
-        )
-      }
-
-      if (listen) {
-        const port = config.app.port
-        server.listen({ port }, () => logger.info(`Server is running on port ${ port }`))
-
-        const failureHandler = (error: string) => {
-          logger.error(error)
-          down(() => process.exit(1))
+          }
         }
 
-        process.on('uncaughtException', failureHandler)
-        process.on('unhandledRejection', failureHandler)
+        return formattedError
+      },
+    })
 
-        const successHandler = () => {
-          logger.info('SIGTERM received')
-          down(() => process.exit(0))
-        }
+    await apolloServer.start()
 
-        process.on('SIGTERM', successHandler)
-      }
-    }
-
-    const down = async (callback?: () => {}): Promise<void> => {
-      server.close(() => {
-        logger.info('Server closed')
-        db.destroy().then(() => {
-          logger.info('Database connection closed')
-          callback && callback()
-        })
-      })
-    }
-
-    return { app, up, down }
+    app.use(
+      config.graphql.route,
+      express.json(),
+      expressMiddleware(apolloServer, {
+        context: async ({ req }) => {
+          return {
+            user: await authChecker.getApolloContextUser(req),
+          }
+        },
+      }),
+    )
   }
 
-  return { api }
+  if (listen) {
+    const port = config.app.port
+    server.listen({ port }, () => logger.info(`Server is running on port ${ port }`))
+
+    const failureHandler = (error: string) => {
+      logger.error(error)
+      serverDown(() => process.exit(1))
+    }
+
+    process.on('uncaughtException', failureHandler)
+    process.on('unhandledRejection', failureHandler)
+
+    const successHandler = () => {
+      logger.info('SIGTERM received')
+      serverDown(() => process.exit(0))
+    }
+
+    process.on('SIGTERM', successHandler)
+  }
+}
+export const serverDown = async (callback?: () => {}): Promise<void> => {
+  // console.log('server down')
+
+  server.close(() => {
+    logger.info('Server closed')
+    db.destroy().then(() => {
+      logger.info('Database connection closed')
+      callback && callback()
+    })
+  })
 }
