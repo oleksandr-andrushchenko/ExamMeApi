@@ -78,7 +78,7 @@ const db = connectionManager.create(dataSourceOptions)
 export const app = express()
 const server = createServer(app)
 
-export const serverUp = async (listen?: boolean): Promise<void> => {
+export const appUp = async (listen?: boolean): Promise<void> => {
   routingControllerUseContainer(Container)
 
   const authChecker = Container.get<AuthCheckerService>(AuthCheckerService)
@@ -186,7 +186,7 @@ export const serverUp = async (listen?: boolean): Promise<void> => {
 
     const failureHandler = (error: string) => {
       logger.error(error)
-      serverDown(() => process.exit(1))
+      appDown(() => process.exit(1))
     }
 
     process.on('uncaughtException', failureHandler)
@@ -194,13 +194,13 @@ export const serverUp = async (listen?: boolean): Promise<void> => {
 
     const successHandler = () => {
       logger.info('SIGTERM received')
-      serverDown(() => process.exit(0))
+      appDown(() => process.exit(0))
     }
 
     process.on('SIGTERM', successHandler)
   }
 }
-export const serverDown = async (callback?: () => {}): Promise<void> => {
+export const appDown = async (callback?: () => {}): Promise<void> => {
   server.close(() => {
     logger.info('Server closed')
     db.destroy().then(() => {

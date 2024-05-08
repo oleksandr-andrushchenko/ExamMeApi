@@ -1,3 +1,3 @@
-import { serverUp } from './app'
+import { appUp } from './app'
 
-serverUp(true).catch(error => console.log(error))
+appUp(true).catch(error => console.log(error))

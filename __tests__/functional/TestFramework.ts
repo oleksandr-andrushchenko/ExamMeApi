@@ -21,16 +21,16 @@ export default class TestFramework {
 
   public readonly container: ContainerInstance
 
-  public readonly serverUp: (listen?: boolean) => Promise<void>
+  public readonly appUp: (listen?: boolean) => Promise<void>
 
-  public readonly serverDown: (callback?: () => {}) => Promise<void>
+  public readonly appDown: (callback?: () => {}) => Promise<void>
 
   public constructor() {
-    const { app, serverUp, serverDown } = require('../../src/app')
+    const { app, appUp, appDown } = require('../../src/app')
     this.app = app
     this.container = Container as unknown as ContainerInstance
-    this.serverUp = serverUp
-    this.serverDown = serverDown
+    this.appUp = appUp
+    this.appDown = appDown
   }
 
   public async clear(_entity: any | any[] = [ User, Category, Question, Exam ]) {
