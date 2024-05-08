@@ -23,7 +23,6 @@ export default class TestFramework {
   public readonly serverDown: (callback?: () => {}) => Promise<void>
 
   public constructor() {
-    // console.log('TestFramework')
     const { app, serverUp, serverDown } = require('../../src/app')
     this.app = app
     this.container = Container as unknown as ContainerInstance
@@ -32,8 +31,6 @@ export default class TestFramework {
   }
 
   public async clear(_entity: any | any[] = [ User, Category, Question, Exam ]) {
-    // console.log('clear')
-
     _entity = Array.isArray(_entity) ? _entity : [ _entity ]
 
     for (const entity of _entity) {

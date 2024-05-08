@@ -59,7 +59,6 @@ const mongoLogging = config.db.type === 'mongodb' && config.db.logging
 
 const connectionManager = new ConnectionManager()
 Container.set(ConnectionManager, connectionManager)
-// console.log('app-container', Container)
 
 const tokenStrategy: TokenStrategyInterface = Container.get<JwtTokenStrategyFactory>(JwtTokenStrategyFactory).create(config.jwt)
 Container.set('tokenStrategy', tokenStrategy)
@@ -73,14 +72,13 @@ const dataSourceOptions: MongoConnectionOptions = {
   subscribers,
   monitorCommands: mongoLogging,
 }
-// console.log('index')
+
 const db = connectionManager.create(dataSourceOptions)
 
 export const app = express()
 const server = createServer(app)
 
 export const serverUp = async (listen?: boolean): Promise<void> => {
-  // console.log('server up')
   routingControllerUseContainer(Container)
 
   const authChecker = Container.get<AuthCheckerService>(AuthCheckerService)
@@ -203,8 +201,6 @@ export const serverUp = async (listen?: boolean): Promise<void> => {
   }
 }
 export const serverDown = async (callback?: () => {}): Promise<void> => {
-  // console.log('server down')
-
   server.close(() => {
     logger.info('Server closed')
     db.destroy().then(() => {
