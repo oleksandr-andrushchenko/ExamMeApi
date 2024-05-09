@@ -81,7 +81,7 @@ type Mutation {
   addMe(me: MeSchema!): User!
   addQuestion(question: QuestionSchema!): Question!
   addUser(user: UserSchema!): User!
-  authenticate(credentials: CredentialsSchema!): TokenSchema!
+  createAuth(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
   removeExam(examId: ID!): Boolean!
   removeMe: Boolean!
