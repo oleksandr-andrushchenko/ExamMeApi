@@ -74,6 +74,7 @@ input MeUpdateSchema {
 }
 
 type Mutation {
+  addAuth(credentials: CredentialsSchema!): TokenSchema!
   addCategory(category: CategorySchema!): Category!
   addExam(exam: CreateExamSchema!): Exam!
   addExamCompletion(examId: ID!): Exam!
@@ -81,7 +82,6 @@ type Mutation {
   addMe(me: MeSchema!): User!
   addQuestion(question: QuestionSchema!): Question!
   addUser(user: UserSchema!): User!
-  createAuth(credentials: CredentialsSchema!): TokenSchema!
   removeCategory(categoryId: ID!): Boolean!
   removeExam(examId: ID!): Boolean!
   removeMe: Boolean!

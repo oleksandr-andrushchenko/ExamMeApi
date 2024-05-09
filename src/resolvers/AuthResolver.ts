@@ -16,7 +16,7 @@ export class AuthResolver {
   }
 
   @Mutation(_returns => TokenSchema)
-  public async createAuth(
+  public async addAuth(
     @Arg('credentials') credentials: CredentialsSchema,
   ): Promise<TokenSchema> {
     const user = await this.userService.getUserByCredentials(credentials)
