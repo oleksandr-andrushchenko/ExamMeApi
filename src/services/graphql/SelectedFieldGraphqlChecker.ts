@@ -55,26 +55,6 @@ export default class SelectedFieldGraphqlChecker {
     }
   }
 
-  private _checkSelectedField(info: GraphQLResolveInfo, path: string): boolean {
-    return this.checkSelections(info.operation.selectionSet.selections, path.split('.'))
-  }
-
-  private checkSelections(selections: ReadonlyArray<SelectionNode>, path: string[]): boolean {
-    let peace = path.shift()
-
-    for (const selection of selections) {
-      if (selection['name']['value'] === peace) {
-        if (path.length > 0) {
-          return this.checkSelections(selection['selectionSet']['selections'], path)
-        }
-
-        return true
-      }
-    }
-
-    return false
-  }
-
   private isSubArray(array: any[], needle: any[]): boolean {
     const n = array.length
     const m = needle.length
