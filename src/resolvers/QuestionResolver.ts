@@ -8,6 +8,7 @@ import GetQuestionSchema from '../schema/question/GetQuestionSchema'
 import QuestionQuerySchema from '../schema/question/QuestionQuerySchema'
 import QuestionSchema from '../schema/question/QuestionSchema'
 import QuestionUpdateSchema from '../schema/question/QuestionUpdateSchema'
+import PaginatedQuestions from '../schema/question/PaginatedQuestions'
 
 @Service()
 @Resolver(Question)
@@ -33,6 +34,13 @@ export class QuestionResolver {
     @Args() questionQuery: QuestionQuerySchema,
   ): Promise<Question[]> {
     return await this.questionService.queryQuestions(questionQuery) as Question[]
+  }
+
+  @Query(_returns => PaginatedQuestions)
+  public async paginatedQuestions(
+    @Args() questionQuery: QuestionQuerySchema,
+  ): Promise<PaginatedQuestions> {
+    return await this.questionService.queryQuestions(questionQuery, true) as PaginatedQuestions
   }
 
   @Authorized()
