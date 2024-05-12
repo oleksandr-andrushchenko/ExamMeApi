@@ -10,6 +10,7 @@ import GetExamQuestionSchema from '../schema/exam/GetExamQuestionSchema'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
 import ExamQuerySchema from '../schema/exam/ExamQuerySchema'
 import { Arg, Args, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
+import PaginatedExams from '../schema/exam/PaginatedExams'
 
 @Service()
 @Resolver(Exam)
@@ -37,6 +38,14 @@ export class ExamResolver {
     @Ctx('user') user: User,
   ): Promise<Exam[]> {
     return await this.examService.queryExams(examQuery, user) as Exam[]
+  }
+
+  @Query(_returns => PaginatedExams)
+  public async paginatedExams(
+    @Args() examQuery: ExamQuerySchema,
+    @Ctx('user') user: User,
+  ): Promise<PaginatedExams> {
+    return await this.examService.queryExams(examQuery, user, true) as PaginatedExams
   }
 
   @Authorized()
