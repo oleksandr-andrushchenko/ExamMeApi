@@ -24,7 +24,7 @@ describe('Delete me', () => {
     expect(res.body).toEqual({})
     const latestUser = await framework.load<User>(User, user.id)
     expect(latestUser).not.toBeNull()
-    expect(latestUser.deleted.getTime()).toBeGreaterThanOrEqual(now)
+    expect(latestUser.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Unauthorized (GraphQL)', async () => {
     const res = await request(framework.app).post('/graphql')
@@ -45,6 +45,6 @@ describe('Delete me', () => {
     expect(res.body).toMatchObject({ data: { removeMe: true } })
     const latestUser = await framework.load<User>(User, user.id)
     expect(latestUser).not.toBeNull()
-    expect(latestUser.deleted.getTime()).toBeGreaterThanOrEqual(now)
+    expect(latestUser.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
   })
 })

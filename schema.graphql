@@ -4,14 +4,14 @@
 # -----------------------------------------------
 
 type Category {
-  created: Timestamp!
+  createdAt: Timestamp!
   id: ObjectId!
   name: String!
-  owner: ObjectId!
+  ownerId: ObjectId!
   questionCount: Int!
   rating: Int
   requiredScore: Int
-  updated: Timestamp
+  updatedAt: Timestamp
   voters: Int
 }
 
@@ -31,7 +31,7 @@ input CreateExamQuestionAnswerSchema {
 }
 
 input CreateExamSchema {
-  category: ID!
+  categoryId: ID!
 }
 
 input CredentialsSchema {
@@ -41,14 +41,14 @@ input CredentialsSchema {
 
 type Exam {
   answeredCount: Int!
-  category: ObjectId!
-  completed: Timestamp
-  created: Timestamp!
+  categoryId: ObjectId!
+  completedAt: Timestamp
+  createdAt: Timestamp!
   id: ObjectId!
-  owner: ObjectId!
+  ownerId: ObjectId!
   questionNumber: Int!
   questionsCount: Int!
-  updated: Timestamp
+  updatedAt: Timestamp
 }
 
 type ExamQuestionSchema {
@@ -94,6 +94,31 @@ type Mutation {
 """Mongo object id scalar type"""
 scalar ObjectId
 
+type PaginatedCategories {
+  data: [Category!]!
+  meta: PaginatedMetaSchema!
+}
+
+type PaginatedExams {
+  data: [Exam!]!
+  meta: PaginatedMetaSchema!
+}
+
+type PaginatedMetaSchema {
+  cursor: String!
+  nextCursor: String
+  nextUrl: String
+  order: String!
+  prevCursor: String
+  prevUrl: String
+  size: Int!
+}
+
+type PaginatedQuestions {
+  data: [Question!]!
+  meta: PaginatedMetaSchema!
+}
+
 type PermissionHierarchySchema {
   regular: [String!]
   root: [String!]
@@ -109,25 +134,28 @@ type Query {
   category(categoryId: ID!): Category!
   exam(examId: ID!): Exam!
   examQuestion(examId: ID!, question: Int!): ExamQuestionSchema!
-  exams(category: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!
+  exams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!
   me: User!
+  paginatedCategories(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10): PaginatedCategories!
+  paginatedExams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): PaginatedExams!
+  paginatedQuestions(categoryId: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): PaginatedQuestions!
   permission: PermissionSchema!
   question(questionId: ID!): Question!
-  questions(category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
+  questions(categoryId: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
 }
 
 type Question {
   answers: [QuestionAnswer!]
-  category: ObjectId!
+  categoryId: ObjectId!
   choices: [QuestionChoice!]
-  created: Timestamp!
+  createdAt: Timestamp!
   difficulty: String!
   id: ObjectId!
-  owner: ObjectId!
+  ownerId: ObjectId!
   rating: Int
   title: String!
   type: String!
-  updated: Timestamp
+  updatedAt: Timestamp
   voters: Int
 }
 
@@ -157,7 +185,7 @@ input QuestionChoiceSchema {
 
 input QuestionSchema {
   answers: [QuestionAnswerSchema!]
-  category: ID!
+  categoryId: ID!
   choices: [QuestionChoiceSchema!]
   difficulty: String!
   title: String!
@@ -166,7 +194,7 @@ input QuestionSchema {
 
 input QuestionUpdateSchema {
   answers: [QuestionAnswerSchema!]
-  category: ID
+  categoryId: ID
   choices: [QuestionChoiceSchema!]
   difficulty: String
   title: String
@@ -183,12 +211,12 @@ type TokenSchema {
 }
 
 type User {
-  created: Timestamp!
+  createdAt: Timestamp!
   email: String!
   id: ObjectId!
   name: String
   permissions: [String!]!
-  updated: Timestamp
+  updatedAt: Timestamp
 }
 
 input UserSchema {

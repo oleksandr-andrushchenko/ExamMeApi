@@ -24,25 +24,25 @@ describe('Get question', () => {
   })
   test('Found', async () => {
     const category = await framework.fixture<Category>(Category)
-    const question = await framework.fixture<Question>(Question, { category: category.id })
+    const question = await framework.fixture<Question>(Question, { categoryId: category.id })
     const res = await request(framework.app).get(`/questions/${ question.id.toString() }`)
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({
       id: question.id.toString(),
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       type: question.type,
       difficulty: question.difficulty,
       title: question.title,
       voters: question.voters,
       rating: question.rating,
-      owner: question.owner.toString(),
-      created: question.created.getTime(),
+      ownerId: question.ownerId.toString(),
+      createdAt: question.createdAt.getTime(),
     })
 
-    if (question.updated) {
+    if (question.updatedAt) {
       expect(res.body).toMatchObject({
-        updated: question.updated.getTime(),
+        updatedAt: question.updatedAt.getTime(),
       })
     }
 
@@ -58,7 +58,7 @@ describe('Get question', () => {
       })
     }
 
-    expect(res.body).not.toHaveProperty([ 'creator', 'deleted' ])
+    expect(res.body).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
   test('Not found (question) (GraphQL)', async () => {
     const questionId = await framework.fakeId()
@@ -75,10 +75,10 @@ describe('Get question', () => {
   })
   test('Found (GraphQL)', async () => {
     const category = await framework.fixture<Category>(Category)
-    const question = await framework.fixture<Question>(Question, { category: category.id })
+    const question = await framework.fixture<Question>(Question, { categoryId: category.id })
     const fields = [
       'id',
-      'category',
+      'categoryId',
       'type',
       'difficulty',
       'title',
@@ -86,9 +86,9 @@ describe('Get question', () => {
       'answers {variants correct explanation}',
       'voters',
       'rating',
-      'owner',
-      'created',
-      'updated',
+      'ownerId',
+      'createdAt',
+      'updatedAt',
     ]
     const res = await request(framework.app).post('/graphql').send(questionQuery({ questionId: question.id.toString() }, fields))
 
@@ -97,15 +97,15 @@ describe('Get question', () => {
       data: {
         question: {
           id: question.id.toString(),
-          category: question.category.toString(),
+          categoryId: question.categoryId.toString(),
           type: question.type,
           difficulty: question.difficulty,
           title: question.title,
           voters: question.voters,
           rating: question.rating,
-          owner: question.owner.toString(),
-          created: question.created.getTime(),
-          updated: question.updated?.getTime() ?? null,
+          ownerId: question.ownerId.toString(),
+          createdAt: question.createdAt.getTime(),
+          updatedAt: question.updatedAt?.getTime() ?? null,
         },
       },
     })
@@ -122,6 +122,6 @@ describe('Get question', () => {
       })
     }
 
-    expect(res.body.data.question).not.toHaveProperty([ 'creator', 'deleted' ])
+    expect(res.body.data.question).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
 })

@@ -45,15 +45,15 @@ describe('Create exam completion', () => {
   })
   test('Created (has ownership)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post(`/exams/${ exam.id.toString() }/completion`).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(201)
     expect(res.body).toMatchObject({ id: exam.id.toString() })
-    expect(res.body).toHaveProperty('completed')
-    expect(res.body.completed).toBeGreaterThan(0)
-    expect((await framework.load<Exam>(Exam, exam.id)).completed.getTime()).toEqual(res.body.completed)
+    expect(res.body).toHaveProperty('completedAt')
+    expect(res.body.completedAt).toBeGreaterThan(0)
+    expect((await framework.load<Exam>(Exam, exam.id)).completedAt.getTime()).toEqual(res.body.completedAt)
   })
   test('Created (has permission)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
@@ -63,9 +63,9 @@ describe('Create exam completion', () => {
 
     expect(res.status).toEqual(201)
     expect(res.body).toMatchObject({ id: exam.id.toString() })
-    expect(res.body).toHaveProperty('completed')
-    expect(res.body.completed).toBeGreaterThan(0)
-    expect((await framework.load<Exam>(Exam, exam.id)).completed.getTime()).toEqual(res.body.completed)
+    expect(res.body).toHaveProperty('completedAt')
+    expect(res.body.completedAt).toBeGreaterThan(0)
+    expect((await framework.load<Exam>(Exam, exam.id)).completedAt.getTime()).toEqual(res.body.completedAt)
   })
   test('Unauthorized (GraphQL)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
@@ -109,28 +109,28 @@ describe('Create exam completion', () => {
   })
   test('Created (has ownership) (GraphQL)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/graphql')
-      .send(addExamCompletionMutation({ examId: exam.id.toString() }, [ 'id', 'completed' ]))
+      .send(addExamCompletionMutation({ examId: exam.id.toString() }, [ 'id', 'completedAt' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { addExamCompletion: { id: exam.id.toString() } } })
-    expect(res.body.data.addExamCompletion.completed).toBeGreaterThan(0)
-    expect((await framework.load<Exam>(Exam, exam.id)).completed.getTime()).toEqual(res.body.data.addExamCompletion.completed)
+    expect(res.body.data.addExamCompletion.completedAt).toBeGreaterThan(0)
+    expect((await framework.load<Exam>(Exam, exam.id)).completedAt.getTime()).toEqual(res.body.data.addExamCompletion.completedAt)
   })
   test('Created (has permission) (GraphQL)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_COMPLETION ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/graphql')
-      .send(addExamCompletionMutation({ examId: exam.id.toString() }, [ 'id', 'completed' ]))
+      .send(addExamCompletionMutation({ examId: exam.id.toString() }, [ 'id', 'completedAt' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { addExamCompletion: { id: exam.id.toString() } } })
-    expect(res.body.data.addExamCompletion.completed).toBeGreaterThan(0)
-    expect((await framework.load<Exam>(Exam, exam.id)).completed.getTime()).toEqual(res.body.data.addExamCompletion.completed)
+    expect(res.body.data.addExamCompletion.completedAt).toBeGreaterThan(0)
+    expect((await framework.load<Exam>(Exam, exam.id)).completedAt.getTime()).toEqual(res.body.data.addExamCompletion.completedAt)
   })
 })

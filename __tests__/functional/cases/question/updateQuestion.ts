@@ -59,7 +59,7 @@ describe('Update question', () => {
   })
   test('Forbidden (no ownership)', async () => {
     const user = await framework.fixture<User>(User)
-    const question = await framework.fixture<Question>(Question, { owner: await framework.fixture<User>(User) })
+    const question = await framework.fixture<Question>(Question)
     const token = (await framework.auth(user)).token
     const schema = { title: faker.lorem.sentences(3) }
     const res = await request(framework.app).patch(`/questions/${ question.id.toString() }`)
@@ -71,7 +71,7 @@ describe('Update question', () => {
   test('Conflict', async () => {
     const question1 = await framework.fixture<Question>(Question)
     const question = await framework.fixture<Question>(Question, { permissions: [ QuestionPermission.UPDATE ] })
-    const user = await framework.load<User>(User, question.creator)
+    const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).patch(`/questions/${ question.id.toString() }`)
       .send({ title: question1.title }).auth(token, { type: 'bearer' })
@@ -82,7 +82,7 @@ describe('Update question', () => {
   test('Updated (has ownership)', async () => {
     await framework.clear(Question)
     const question = await framework.fixture<Question>(Question)
-    const user = await framework.load<User>(User, question.creator)
+    const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const schema = { title: faker.lorem.sentences(3) }
     const res = await request(framework.app).patch(`/questions/${ question.id.toString() }`)
@@ -164,7 +164,7 @@ describe('Update question', () => {
   })
   test('Forbidden (no ownership) (GraphQL)', async () => {
     const user = await framework.fixture<User>(User)
-    const question = await framework.fixture<Question>(Question, { owner: await framework.fixture<User>(User) })
+    const question = await framework.fixture<Question>(Question)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/graphql')
       .send(updateQuestionMutation({
@@ -179,7 +179,7 @@ describe('Update question', () => {
   test('Conflict (GraphQL)', async () => {
     const question1 = await framework.fixture<Question>(Question)
     const question = await framework.fixture<Question>(Question, { permissions: [ QuestionPermission.UPDATE ] })
-    const user = await framework.load<User>(User, question.creator)
+    const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/graphql')
       .send(updateQuestionMutation({
@@ -194,7 +194,7 @@ describe('Update question', () => {
   test('Updated (has ownership) (GraphQL)', async () => {
     await framework.clear(Question)
     const question = await framework.fixture<Question>(Question)
-    const user = await framework.load<User>(User, question.creator)
+    const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const questionId = question.id.toString()
     const questionUpdate = { title: faker.lorem.sentences(3) }

@@ -17,7 +17,7 @@ export default class PaginationSchema {
   public readonly nextCursor?: string
 
   @IsOptional()
-  @IsIn([ 'id', 'created', 'updated' ])
+  @IsIn([ 'id', 'createdAt', 'updatedAt' ])
   @Field({ nullable: true })
   public readonly cursor?: string = 'id'
 

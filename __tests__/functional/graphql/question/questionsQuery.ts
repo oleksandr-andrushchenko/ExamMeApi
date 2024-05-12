@@ -3,8 +3,8 @@ import QuestionQuerySchema from '../../../../src/schema/question/QuestionQuerySc
 export const questionsQuery = (variables: QuestionQuerySchema = {}, fields: string[] = [ 'id' ]) => {
   return {
     query: `
-      query Questions($category: ID, $difficulty: String, $type: String, $prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
-        questions(category: $category, difficulty: $difficulty, type: $type, prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
+      query Questions($categoryId: ID, $difficulty: String, $type: String, $prevCursor: String, $cursor: String, $nextCursor: String, $size: Int, $order: String, $price: String, $search: String) {
+        questions(categoryId: $categoryId, difficulty: $difficulty, type: $type, prevCursor: $prevCursor, cursor: $cursor, nextCursor: $nextCursor, size: $size, order: $order, price: $price, search: $search) {
           ${ fields.join('\r') }
         }
       }

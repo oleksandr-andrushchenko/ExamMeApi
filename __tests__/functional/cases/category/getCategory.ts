@@ -33,17 +33,17 @@ describe('Get category', () => {
       requiredScore: category.requiredScore,
       voters: category.voters,
       rating: category.rating,
-      owner: category.owner.toString(),
-      created: category.created.getTime(),
+      ownerId: category.ownerId.toString(),
+      createdAt: category.createdAt.getTime(),
     })
 
-    if (category.updated) {
+    if (category.updatedAt) {
       expect(res.body).toMatchObject({
-        updated: category.updated.getTime(),
+        updatedAt: category.updatedAt.getTime(),
       })
     }
 
-    expect(res.body).not.toHaveProperty([ 'creator', 'deleted' ])
+    expect(res.body).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
   test('Not found (GraphQL)', async () => {
     const id = await framework.fakeId()
@@ -62,7 +62,7 @@ describe('Get category', () => {
   })
   test('Found (GraphQL)', async () => {
     const category = await framework.fixture<Category>(Category)
-    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating', 'created', 'updated' ]
+    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating', 'createdAt', 'updatedAt' ]
     const res = await request(framework.app).post('/graphql').send(categoryQuery({ categoryId: category.id.toString() }, fields))
 
     expect(res.status).toEqual(200)
@@ -75,11 +75,11 @@ describe('Get category', () => {
           requiredScore: category.requiredScore,
           voters: category.voters,
           rating: category.rating,
-          created: category.created.getTime(),
-          updated: category.updated?.getTime() ?? null,
+          createdAt: category.createdAt.getTime(),
+          updatedAt: category.updatedAt?.getTime() ?? null,
         },
       },
     })
-    expect(res.body.data.category).not.toHaveProperty([ 'creator', 'deleted' ])
+    expect(res.body.data.category).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
 })

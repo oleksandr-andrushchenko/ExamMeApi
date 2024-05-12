@@ -94,10 +94,10 @@ describe('Create user', () => {
       name: latestUser.name,
       email: latestUser.email,
       permissions: [ Permission.REGULAR ],
-      created: latestUser.created.getTime(),
+      createdAt: latestUser.createdAt.getTime(),
     })
-    expect(latestUser.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body).not.toHaveProperty([ 'password', 'creator', 'updated', 'deleted' ])
+    expect(latestUser.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body).not.toHaveProperty([ 'password', 'creatorId', 'updatedAt', 'deletedAt' ])
   })
   test('Unauthorized (GraphQL)', async () => {
     const res = await request(framework.app).post('/graphql')
@@ -176,7 +176,7 @@ describe('Create user', () => {
     const user = await framework.fixture<User>(User, { permissions: [ UserPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const userCreate = { name: 'any', email: 'a@a.com' }
-    const fields = [ 'id', 'name', 'email', 'permissions', 'created', 'updated' ]
+    const fields = [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]
     const now = Date.now()
     const res = await request(framework.app).post('/graphql')
       .send(addUserMutation({ user: { ...userCreate, ...{ password: '123123' } } }, fields))
@@ -194,10 +194,10 @@ describe('Create user', () => {
       name: latestUser.name,
       email: latestUser.email,
       permissions: [ Permission.REGULAR ],
-      created: latestUser.created.getTime(),
-      updated: null,
+      createdAt: latestUser.createdAt.getTime(),
+      updatedAt: null,
     })
-    expect(latestUser.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.addUser).not.toHaveProperty([ 'password', 'creator', 'deleted' ])
+    expect(latestUser.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body.data.addUser).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
   })
 })

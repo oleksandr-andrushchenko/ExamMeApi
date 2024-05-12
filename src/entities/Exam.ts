@@ -13,7 +13,7 @@ export class ExamQuestion {
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
-  public question: ObjectId
+  public questionId: ObjectId
 
   @IsOptional()
   @IsNumber()
@@ -42,7 +42,7 @@ export default class Exam {
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
-  public category: ObjectId
+  public categoryId: ObjectId
 
   @Exclude()
   @ValidateNested({ each: true })
@@ -67,39 +67,39 @@ export default class Exam {
   @Column({ nullable: true })
   @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
-  public completed?: Date
+  public completedAt?: Date
 
   @Exclude()
   @IsMongoId()
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value.toString())
-  public creator: ObjectId
+  public creatorId: ObjectId
 
   @IsMongoId()
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
-  public owner: ObjectId
+  public ownerId: ObjectId
 
   @IsNumber()
   @Column({ update: false })
   @Transform(({ value }: { value: Date }) => value.getTime())
   @Field(_type => GraphQLTimestamp)
-  public created: Date
+  public createdAt: Date
 
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
   @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
-  public updated?: Date
+  public updatedAt?: Date
 
   @Exclude()
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  public deleted?: Date
+  public deletedAt?: Date
 
   @Field(_type => Int)
   public questionsCount(): number {

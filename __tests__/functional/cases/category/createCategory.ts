@@ -73,15 +73,15 @@ describe('Create category', () => {
     expect(res.body).toEqual({
       id: latestCategory.id.toString(),
       name: latestCategory.name,
-      owner: latestCategory.owner.toString(),
+      ownerId: latestCategory.ownerId.toString(),
       questionCount: latestCategory.questionCount,
       requiredScore: latestCategory.requiredScore,
       voters: latestCategory.voters,
       rating: latestCategory.rating,
-      created: latestCategory.created.getTime(),
+      createdAt: latestCategory.createdAt.getTime(),
     })
-    expect(latestCategory.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body).not.toHaveProperty([ 'creator', 'updated', 'deleted' ])
+    expect(latestCategory.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body).not.toHaveProperty([ 'creatorId', 'updatedAt', 'deletedAt' ])
   })
   test('Unauthorized (GraphQL)', async () => {
     const res = await request(framework.app).post('/graphql').send(addCategoryMutation({ category: { name: 'any' } }))
@@ -141,7 +141,7 @@ describe('Create category', () => {
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const category = { name: 'any', requiredScore: 80 }
-    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating', 'created', 'updated' ]
+    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating', 'createdAt', 'updatedAt' ]
     const now = Date.now()
     const res = await request(framework.app)
       .post('/graphql')
@@ -161,10 +161,10 @@ describe('Create category', () => {
       requiredScore: latestCategory.requiredScore,
       voters: latestCategory.voters,
       rating: latestCategory.rating,
-      created: latestCategory.created.getTime(),
-      updated: null,
+      createdAt: latestCategory.createdAt.getTime(),
+      updatedAt: null,
     })
-    expect(latestCategory.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.addCategory).not.toHaveProperty([ 'creator', 'deleted' ])
+    expect(latestCategory.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body.data.addCategory).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
 })

@@ -40,7 +40,7 @@ export default class MeService {
       user.name = transfer.name
     }
 
-    user.created = new Date()
+    user.createdAt = new Date()
 
     await this.entityManager.save<User>(user)
 
@@ -69,7 +69,7 @@ export default class MeService {
       initiator.name = transfer.name
     }
 
-    initiator.updated = new Date()
+    initiator.updatedAt = new Date()
 
     await this.entityManager.save<User>(initiator)
 
@@ -95,7 +95,7 @@ export default class MeService {
       initiator.password = transfer.password
     }
 
-    initiator.updated = new Date()
+    initiator.updatedAt = new Date()
 
     await this.entityManager.save<User>(initiator)
 
@@ -105,7 +105,7 @@ export default class MeService {
   }
 
   public async deleteMe(initiator: User): Promise<User> {
-    initiator.deleted = new Date()
+    initiator.deletedAt = new Date()
 
     await this.entityManager.save<User>(initiator)
 

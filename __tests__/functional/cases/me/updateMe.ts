@@ -76,7 +76,7 @@ describe('Update me', () => {
     const meUpdate = { name: 'any' }
     const now = Date.now()
     const res = await request(framework.app).post('/graphql')
-      .send(updateMeMutation({ meUpdate }, [ 'id', 'name', 'email', 'permissions', 'created', 'updated' ]))
+      .send(updateMeMutation({ meUpdate }, [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -88,14 +88,14 @@ describe('Update me', () => {
             name: user.name,
             email: user.email,
             permissions: user.permissions,
-            created: user.created.getTime(),
+            createdAt: user.createdAt.getTime(),
           },
           ...meUpdate,
         },
       },
     })
-    expect(res.body.data.updateMe).toHaveProperty([ 'updated' ])
-    expect(res.body.data.updateMe.updated).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.updateMe).not.toHaveProperty([ 'password', 'creator', 'deleted' ])
+    expect(res.body.data.updateMe).toHaveProperty([ 'updatedAt' ])
+    expect(res.body.data.updateMe.updatedAt).toBeGreaterThanOrEqual(now)
+    expect(res.body.data.updateMe).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
   })
 })

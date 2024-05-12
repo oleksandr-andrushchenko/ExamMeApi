@@ -84,7 +84,7 @@ export default class Question {
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
   @Field(_type => ObjectIdScalar)
-  public category: ObjectId
+  public categoryId: ObjectId
 
   @IsEnum(QuestionType)
   @Column({ type: 'enum', enum: QuestionType })
@@ -133,31 +133,31 @@ export default class Question {
   @IsMongoId()
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value?.toString())
-  public creator: ObjectId
+  public creatorId: ObjectId
 
   @IsMongoId()
   @Column()
   @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
-  public owner: ObjectId
+  public ownerId: ObjectId
 
   @IsNumber()
   @Column({ update: false })
   @Transform(({ value }: { value: Date }) => value.getTime())
   @Field(_type => GraphQLTimestamp)
-  public created: Date
+  public createdAt: Date
 
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
   @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
-  public updated?: Date
+  public updatedAt?: Date
 
   @Exclude()
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
   @Transform(({ value }: { value: Date }) => value?.getTime())
-  public deleted?: Date
+  public deletedAt?: Date
 }

@@ -62,10 +62,10 @@ describe('Create me', () => {
       name: latestMe.name,
       email: latestMe.email,
       permissions: [ Permission.REGULAR ],
-      created: latestMe.created.getTime(),
+      createdAt: latestMe.createdAt.getTime(),
     })
-    expect(latestMe.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body).not.toHaveProperty([ 'password', 'creator', 'updated', 'deleted' ])
+    expect(latestMe.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body).not.toHaveProperty([ 'password', 'creatorId', 'updatedAt', 'deletedAt' ])
   })
   test.each([
     { case: 'empty me', me: {}, times: 2 },
@@ -109,7 +109,7 @@ describe('Create me', () => {
   test('Created (GraphQL)', async () => {
     await framework.clear(User)
     const me = { name: 'any', email: 'a@a.com' }
-    const fields = [ 'id', 'name', 'email', 'permissions', 'created', 'updated' ]
+    const fields = [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]
     const now = Date.now()
     const res = await request(framework.app).post('/graphql')
       .send(addMeMutation({ me: { ...me, ...{ password: '123123' } } }, fields))
@@ -126,10 +126,10 @@ describe('Create me', () => {
       name: latestMe.name,
       email: latestMe.email,
       permissions: [ Permission.REGULAR ],
-      created: latestMe.created.getTime(),
-      updated: null,
+      createdAt: latestMe.createdAt.getTime(),
+      updatedAt: null,
     })
-    expect(latestMe.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.addMe).not.toHaveProperty([ 'password', 'creator', 'deleted' ])
+    expect(latestMe.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body.data.addMe).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
   })
 })

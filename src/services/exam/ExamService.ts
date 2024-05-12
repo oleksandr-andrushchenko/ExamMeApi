@@ -6,7 +6,6 @@ import User from '../../entities/User'
 import AuthService from '../auth/AuthService'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import CategoryService from '../category/CategoryService'
-import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
 import Cursor from '../../models/Cursor'
 import ExamRepository from '../../repositories/ExamRepository'
 import CreateExamSchema from '../../schema/exam/CreateExamSchema'
@@ -23,6 +22,7 @@ import ExamQuerySchema from '../../schema/exam/ExamQuerySchema'
 import ExamQuestionNumberNotFoundError from '../../errors/exam/ExamQuestionNumberNotFoundError'
 import ExamPermission from '../../enums/exam/ExamPermission'
 import QuestionNotFoundError from '../../errors/question/QuestionNotFoundError'
+import PaginatedExams from '../../schema/exam/PaginatedExams'
 
 @Service()
 export default class ExamService {
@@ -51,24 +51,24 @@ export default class ExamService {
     await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE)
 
     await this.validator.validate(transfer)
-    const category = await this.categoryService.getCategory(transfer.category)
+    const category = await this.categoryService.getCategory(transfer.categoryId)
 
     await this.verifyExamNotTaken(category, initiator)
 
     const questions = (await this.questionService.queryCategoryQuestions(category) as Question[])
       .map((question: Question): ExamQuestion => {
         const examQuestion = new ExamQuestion()
-        examQuestion.question = question.id
+        examQuestion.questionId = question.id
 
         return examQuestion
       })
 
     const exam = new Exam()
-    exam.category = category.id
+    exam.categoryId = category.id
     exam.questions = questions
-    exam.creator = initiator.id
-    exam.owner = initiator.id
-    exam.created = new Date()
+    exam.creatorId = initiator.id
+    exam.ownerId = initiator.id
+    exam.createdAt = new Date()
 
     await this.entityManager.save<Exam>(exam)
 
@@ -96,7 +96,7 @@ export default class ExamService {
     }
 
     const examQuestion = new ExamQuestionSchema()
-    const question = await this.questionService.getQuestion(questions[questionNumber].question)
+    const question = await this.questionService.getQuestion(questions[questionNumber].questionId)
 
     examQuestion.number = questionNumber
     examQuestion.question = question.title
@@ -130,12 +130,12 @@ export default class ExamService {
       throw new ExamQuestionNumberNotFoundError(questionNumber)
     }
 
-    if (exam.owner.toString() !== initiator.id.toString()) {
+    if (exam.ownerId.toString() !== initiator.id.toString()) {
       return exam
     }
 
     exam.questionNumber = questionNumber
-    exam.updated = new Date()
+    exam.updatedAt = new Date()
 
     await this.entityManager.save<Exam>(exam)
 
@@ -168,7 +168,7 @@ export default class ExamService {
       throw new QuestionNotFoundError('undefined' as any)
     }
 
-    const question = await this.questionService.getQuestion(questions[questionNumber].question)
+    const question = await this.questionService.getQuestion(questions[questionNumber].questionId)
 
     if (question.type === QuestionType.CHOICE) {
       questions[questionNumber].choice = examQuestionAnswer.choice
@@ -178,7 +178,7 @@ export default class ExamService {
 
     // todo: optimize
     exam.questions = questions
-    exam.updated = new Date()
+    exam.updatedAt = new Date()
 
     // todo: optimize, run partial array query
     await this.entityManager.save<Exam>(exam)
@@ -188,14 +188,14 @@ export default class ExamService {
    * @param {ExamQuerySchema} query
    * @param {User} initiator
    * @param {boolean} meta
-   * @returns {Promise<Exam[] | PaginatedSchema<Exam>>}
+   * @returns {Promise<Exam[] | PaginatedExams>}
    * @throws {ValidatorError}
    */
   public async queryExams(
     query: ExamQuerySchema,
     initiator: User,
     meta: boolean = false,
-  ): Promise<Exam[] | PaginatedSchema<Exam>> {
+  ): Promise<Exam[] | PaginatedExams> {
     await this.validator.validate(query)
 
     const cursor = new Cursor<Exam>(query, this.examRepository)
@@ -205,18 +205,18 @@ export default class ExamService {
       await this.authService.verifyAuthorization(initiator, ExamPermission.GET)
     } catch (error) {
       if (error instanceof AuthorizationFailedError) {
-        where['owner'] = initiator.id
+        where['ownerId'] = initiator.id
       } else {
         throw error
       }
     }
 
-    if ('category' in query) {
-      where['category'] = new ObjectId(query.category)
+    if ('categoryId' in query) {
+      where['categoryId'] = new ObjectId(query.categoryId)
     }
 
     if ('completion' in query) {
-      where['completed'] = { $exists: query.completion }
+      where['completedAt'] = { $exists: query.completion }
     }
 
     return await cursor.getPaginated(where, meta)
@@ -255,7 +255,7 @@ export default class ExamService {
   public async createExamCompletion(exam: Exam, initiator: User): Promise<void> {
     await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_COMPLETION, exam)
 
-    const category = await this.categoryService.getCategory(exam.category)
+    const category = await this.categoryService.getCategory(exam.categoryId)
     const questions = await this.questionService.queryCategoryQuestions(category) as Question[]
 
     const questionsHashedById = []
@@ -267,7 +267,7 @@ export default class ExamService {
     let correctAnswers = 0
 
     for (const examQuestion of exam.questions) {
-      const question = questionsHashedById[examQuestion.question.toString()]
+      const question = questionsHashedById[examQuestion.questionId.toString()]
 
       if (typeof examQuestion.choice !== 'undefined') {
         if (this.questionService.checkChoice(examQuestion.choice, question)) {
@@ -281,8 +281,8 @@ export default class ExamService {
     }
 
     exam.correctCount = correctAnswers
-    exam.completed = new Date()
-    exam.updated = new Date()
+    exam.completedAt = new Date()
+    exam.updatedAt = new Date()
 
     this.eventDispatcher.dispatch('examCompleted', { exam })
 
@@ -299,7 +299,7 @@ export default class ExamService {
   public async deleteExam(exam: Exam, initiator: User): Promise<Exam> {
     await this.authService.verifyAuthorization(initiator, ExamPermission.DELETE, exam)
 
-    exam.deleted = new Date()
+    exam.deletedAt = new Date()
 
     await this.entityManager.save<Exam>(exam)
 

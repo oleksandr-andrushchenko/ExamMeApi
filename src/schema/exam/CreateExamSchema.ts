@@ -6,5 +6,5 @@ export default class CreateExamSchema {
 
   @IsMongoId()
   @Field(_type => ID)
-  public readonly category: string
+  public readonly categoryId: string
 }

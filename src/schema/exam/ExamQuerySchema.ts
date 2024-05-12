@@ -8,7 +8,7 @@ export default class ExamQuerySchema extends PaginationSchema {
   @IsOptional()
   @IsMongoId()
   @Field(_type => ID, { nullable: true })
-  public readonly category?: string
+  public readonly categoryId?: string
 
   @IsOptional()
   @IsBoolean()

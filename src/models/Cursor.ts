@@ -60,7 +60,7 @@ export default class Cursor<Entity> {
       const cursorId = new ObjectId(id)
 
       if (param) {
-        if ([ 'created', 'updated' ].includes(param)) {
+        if ([ 'createdAt', 'updatedAt' ].includes(param)) {
           cursorParam = new Date(param)
         }
 
@@ -98,7 +98,7 @@ export default class Cursor<Entity> {
       if (this.pagination.cursor === 'id') {
         where['_id'] = { [order.key]: new ObjectId(cursorParam as string) }
       } else {
-        if ([ 'created', 'updated' ].includes(this.pagination.cursor)) {
+        if ([ 'createdAt', 'updatedAt' ].includes(this.pagination.cursor)) {
           cursorParam = new Date(cursorParam)
         }
 
@@ -119,7 +119,7 @@ export default class Cursor<Entity> {
       if (this.pagination.cursor === 'id') {
         where['_id'] = { [order.key]: new ObjectId(cursorParam as string) }
       } else {
-        if ([ 'created', 'updated' ].includes(this.pagination.cursor)) {
+        if ([ 'createdAt', 'updatedAt' ].includes(this.pagination.cursor)) {
           cursorParam = new Date(cursorParam)
         }
 

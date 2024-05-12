@@ -75,18 +75,18 @@ export default class TestFramework {
       case this.compare(entity, Category):
         object = new Category()
         object.name = faker.lorem.word()
-        object.creator = options['creator'] ?? (await this.fixture(User, options) as User).id
-        object.owner = options['owner'] ?? object.creator
+        object.creatorId = options['creatorId'] ?? (await this.fixture(User, options) as User).id
+        object.ownerId = options['ownerId'] ?? object.creatorId
 
         break
       case this.compare(entity, Question):
         object = new Question()
-        object.category = options['category'] ?? (await this.fixture(Category, options) as Category).id
+        object.categoryId = options['categoryId'] ?? (await this.fixture(Category, options) as Category).id
         object.type = faker.helpers.enumValue(QuestionType)
         object.difficulty = faker.helpers.enumValue(QuestionDifficulty)
         object.title = faker.lorem.sentences(3)
-        object.creator = options['creator'] ?? (await this.fixture(User, options) as User).id
-        object.owner = options['owner'] ?? object.creator
+        object.creatorId = options['creatorId'] ?? (await this.fixture(User, options) as User).id
+        object.ownerId = options['ownerId'] ?? object.creatorId
 
         if (object.type === QuestionType.TYPE) {
           const answers = []
@@ -131,16 +131,16 @@ export default class TestFramework {
         break
       case this.compare(entity, Exam):
         object = new Exam()
-        object.category = options['category'] ?? (await this.fixture(Category, options) as Category).id
-        object.creator = options['creator'] ?? (await this.fixture(User, options) as User).id
-        object.owner = options['owner'] ?? object.creator
+        object.categoryId = options['categoryId'] ?? (await this.fixture(Category, options) as Category).id
+        object.creatorId = options['creatorId'] ?? (await this.fixture(User, options) as User).id
+        object.ownerId = options['ownerId'] ?? object.creatorId
 
         const questions = []
 
         for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
-          const question = await this.fixture(Question, { ...options, ...{ category: object.category } }) as Question
+          const question = await this.fixture(Question, { ...options, ...{ categoryId: object.categoryId } }) as Question
           const examQuestion = new ExamQuestion()
-          examQuestion.question = question.id
+          examQuestion.questionId = question.id
 
           if (faker.datatype.boolean()) {
             if (question.type === QuestionType.CHOICE) {
@@ -160,9 +160,9 @@ export default class TestFramework {
         object.questions = questions
         object.questionNumber = faker.number.int({ min: 0, max: questions.length - 1 })
 
-        if (options['completed'] ?? faker.datatype.boolean()) {
+        if (options['completedAt'] ?? faker.datatype.boolean()) {
           object.correctCount = faker.number.int({ min: 0, max: questions.length })
-          object.completed = options['completed'] ?? new Date()
+          object.completedAt = options['completedAt'] ?? new Date()
         }
 
         break
@@ -170,14 +170,14 @@ export default class TestFramework {
         throw new Error(`Fixture: Unknown "${ entity.toString() }" type passed`)
     }
 
-    object.created = faker.date.anytime()
+    object.createdAt = faker.date.anytime()
 
     if (faker.datatype.boolean()) {
-      object.updated = faker.date.anytime()
+      object.updatedAt = faker.date.anytime()
     }
 
     if (options['deleted'] ?? false) {
-      object.deleted = faker.date.anytime()
+      object.deletedAt = faker.date.anytime()
     }
 
     await this.container.get<ConnectionManager>(ConnectionManager).get('default').manager.save(object)

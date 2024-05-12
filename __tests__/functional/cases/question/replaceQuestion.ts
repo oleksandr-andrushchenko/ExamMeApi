@@ -50,7 +50,7 @@ describe('Replace question', () => {
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
     const schema = {
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -70,11 +70,11 @@ describe('Replace question', () => {
   })
   test('Forbidden (no ownership)', async () => {
     const user = await framework.fixture<User>(User)
-    const question = await framework.fixture<Question>(Question, { owner: await framework.fixture<User>(User) })
+    const question = await framework.fixture<Question>(Question)
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
     const schema = {
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -95,10 +95,10 @@ describe('Replace question', () => {
   test('Conflict', async () => {
     const question1 = await framework.fixture<Question>(Question)
     const question = await framework.fixture<Question>(Question, { permissions: [ QuestionPermission.REPLACE ] })
-    const user = await framework.load<User>(User, question.creator)
+    const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const schema = {
-      category: question.category,
+      categoryId: question.categoryId,
       title: question1.title,
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -119,11 +119,11 @@ describe('Replace question', () => {
   test('Replaced (has ownership)', async () => {
     await framework.clear(Question)
     const question = await framework.fixture<Question>(Question)
-    const user = await framework.load<User>(User, question.creator)
+    const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
     const schema = {
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -140,7 +140,7 @@ describe('Replace question', () => {
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')
-    expect(await framework.load<Question>(Question, question.id)).toMatchObject({ ...schema, ...{ category: category.id } })
+    expect(await framework.load<Question>(Question, question.id)).toMatchObject({ ...schema, ...{ categoryId: category.id } })
   })
   test('Replaced (has permission)', async () => {
     await framework.clear(Question)
@@ -149,7 +149,7 @@ describe('Replace question', () => {
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
     const schema = {
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -166,6 +166,6 @@ describe('Replace question', () => {
 
     expect(res.status).toEqual(205)
     expect(res.body).toEqual('')
-    expect(await framework.load<Question>(Question, question.id)).toMatchObject({ ...schema, ...{ category: category.id } })
+    expect(await framework.load<Question>(Question, question.id)).toMatchObject({ ...schema, ...{ categoryId: category.id } })
   })
 })

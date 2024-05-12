@@ -45,7 +45,7 @@ describe('Get exam', () => {
   })
   test('Found (ownership)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).get(`/exams/${ exam.id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -103,7 +103,7 @@ describe('Get exam', () => {
   })
   test('Found (ownership) (GraphQL)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/graphql')
       .send(examQuery({ examId: exam.id.toString() }))
@@ -118,14 +118,14 @@ describe('Get exam', () => {
     const token = (await framework.auth(user)).token
     const fields = [
       'id',
-      'category',
+      'categoryId',
       'questionNumber',
-      'completed',
-      'owner',
+      'completedAt',
+      'ownerId',
       'questionsCount',
       'answeredCount',
-      'created',
-      'updated',
+      'createdAt',
+      'updatedAt',
     ]
     const res = await request(framework.app).post('/graphql')
       .send(examQuery({ examId: exam.id.toString() }, fields))
@@ -136,17 +136,17 @@ describe('Get exam', () => {
       data: {
         exam: {
           id: exam.id.toString(),
-          category: exam.category.toString(),
+          categoryId: exam.categoryId.toString(),
           questionNumber: exam.questionNumber,
-          completed: exam.completed?.getTime() ?? null,
-          owner: exam.owner.toString(),
+          completedAt: exam.completedAt?.getTime() ?? null,
+          ownerId: exam.ownerId.toString(),
           questionsCount: exam.getQuestionsCount(),
           answeredCount: exam.getQuestionsAnsweredCount(),
-          created: exam.created.getTime(),
-          updated: exam.updated?.getTime() ?? null,
+          createdAt: exam.createdAt.getTime(),
+          updatedAt: exam.updatedAt?.getTime() ?? null,
         },
       },
     })
-    expect(res.body.data.exam).not.toHaveProperty([ 'questions', 'correctCount', 'creator', 'deleted' ])
+    expect(res.body.data.exam).not.toHaveProperty([ 'questions', 'correctCount', 'creatorId', 'deletedAt' ])
   })
 })

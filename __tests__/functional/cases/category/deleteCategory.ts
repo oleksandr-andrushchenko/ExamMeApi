@@ -45,7 +45,7 @@ describe('Delete category', () => {
   })
   test('Forbidden (no ownership)', async () => {
     const user = await framework.fixture<User>(User)
-    const category = await framework.fixture<Category>(Category, { owner: await framework.fixture<User>(User) })
+    const category = await framework.fixture<Category>(Category)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).delete(`/categories/${ category.id.toString() }`).auth(token, { type: 'bearer' })
 
@@ -54,7 +54,7 @@ describe('Delete category', () => {
   })
   test('Deleted (has ownership)', async () => {
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.load<User>(User, category.creator)
+    const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
     const now = Date.now()
     const res = await request(framework.app).delete(`/categories/${ category.id.toString() }`).auth(token, { type: 'bearer' })
@@ -63,7 +63,7 @@ describe('Delete category', () => {
     expect(res.body).toEqual({})
     const latestCategory = await framework.load<Category>(Category, category.id)
     expect(latestCategory).not.toBeNull()
-    expect(latestCategory.deleted.getTime()).toBeGreaterThanOrEqual(now)
+    expect(latestCategory.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Deleted (has permission)', async () => {
     const category = await framework.fixture<Category>(Category)
@@ -76,7 +76,7 @@ describe('Delete category', () => {
     expect(res.body).toEqual({})
     const latestCategory = await framework.load<Category>(Category, category.id)
     expect(latestCategory).not.toBeNull()
-    expect(latestCategory.deleted.getTime()).toBeGreaterThanOrEqual(now)
+    expect(latestCategory.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Unauthorized (GraphQL)', async () => {
     const category = await framework.fixture<Category>(Category)
@@ -120,7 +120,7 @@ describe('Delete category', () => {
   })
   test('Forbidden (no ownership) (GraphQL)', async () => {
     const user = await framework.fixture<User>(User)
-    const category = await framework.fixture<Category>(Category, { owner: await framework.fixture<User>(User) })
+    const category = await framework.fixture<Category>(Category)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/graphql')
       .send(removeCategoryMutation({ categoryId: category.id.toString() }))
@@ -131,7 +131,7 @@ describe('Delete category', () => {
   })
   test('Deleted (has ownership) (GraphQL)', async () => {
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.load<User>(User, category.creator)
+    const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
     const now = Date.now()
     const res = await request(framework.app).post('/graphql')
@@ -142,7 +142,7 @@ describe('Delete category', () => {
     expect(res.body).toMatchObject({ data: { removeCategory: true } })
     const latestCategory = await framework.load<Category>(Category, category.id)
     expect(latestCategory).not.toBeNull()
-    expect(latestCategory.deleted.getTime()).toBeGreaterThanOrEqual(now)
+    expect(latestCategory.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
   })
   test('Deleted (has permission) (GraphQL)', async () => {
     const category = await framework.fixture<Category>(Category)
@@ -157,6 +157,6 @@ describe('Delete category', () => {
     expect(res.body).toMatchObject({ data: { removeCategory: true } })
     const latestCategory = await framework.load<Category>(Category, category.id)
     expect(latestCategory).not.toBeNull()
-    expect(latestCategory.deleted.getTime()).toBeGreaterThanOrEqual(now)
+    expect(latestCategory.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
   })
 })

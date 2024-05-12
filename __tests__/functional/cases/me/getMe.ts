@@ -25,16 +25,16 @@ describe('Get me', () => {
       name: user.name,
       email: user.email,
       permissions: user.permissions,
-      created: user.created.getTime(),
+      createdAt: user.createdAt.getTime(),
     })
 
-    if (user.updated) {
+    if (user.updatedAt) {
       expect(res.body).toMatchObject({
-        updated: user.updated.getTime(),
+        updatedAt: user.updatedAt.getTime(),
       })
     }
 
-    expect(res.body).not.toHaveProperty([ 'password', 'creator', 'deleted' ])
+    expect(res.body).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
   })
   test('Unauthorized (GraphQL)', async () => {
     const res = await request(framework.app).post('/graphql')
@@ -47,7 +47,7 @@ describe('Get me', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/graphql')
-      .send(meQuery([ 'id', 'name', 'email', 'permissions', 'created', 'updated' ]))
+      .send(meQuery([ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -58,11 +58,11 @@ describe('Get me', () => {
           name: user.name,
           email: user.email,
           permissions: user.permissions,
-          created: user.created.getTime(),
-          updated: user.updated?.getTime() ?? null,
+          createdAt: user.createdAt.getTime(),
+          updatedAt: user.updatedAt?.getTime() ?? null,
         },
       },
     })
-    expect(res.body.data.me).not.toHaveProperty([ 'password', 'creator', 'deleted' ])
+    expect(res.body.data.me).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
   })
 })

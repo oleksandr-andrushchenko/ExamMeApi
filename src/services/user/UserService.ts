@@ -47,13 +47,13 @@ export default class UserService {
     user.email = email
     user.password = transfer.password
     user.permissions = transfer.permissions ?? [ Permission.REGULAR ]
-    user.creator = initiator.id
+    user.creatorId = initiator.id
 
     if ('name' in transfer) {
       user.name = transfer.name
     }
 
-    user.created = new Date()
+    user.createdAt = new Date()
 
     await this.entityManager.save<User>(user)
 

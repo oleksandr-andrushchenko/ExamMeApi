@@ -50,7 +50,7 @@ describe('Get exam question', () => {
   })
   test('Not found (question number)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).get(`/exams/${ exam.id.toString() }/questions/999`).auth(token, { type: 'bearer' })
 
@@ -68,7 +68,7 @@ describe('Get exam question', () => {
   })
   test('Found (ownership)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const questionNumber = exam.getQuestionsCount() - 1
     const res = await request(framework.app).get(`/exams/${ exam.id.toString() }/questions/${ questionNumber }`)
@@ -76,7 +76,7 @@ describe('Get exam question', () => {
 
     expect(res.status).toEqual(200)
     const examQuestion = exam.questions[questionNumber]
-    const question = await framework.load<Question>(Question, examQuestion.question)
+    const question = await framework.load<Question>(Question, examQuestion.questionId)
 
     expect(res.body).toMatchObject({
       number: questionNumber,
@@ -109,7 +109,7 @@ describe('Get exam question', () => {
 
     expect(res.status).toEqual(200)
     const examQuestion = exam.questions[0]
-    const question = await framework.load<Question>(Question, examQuestion.question)
+    const question = await framework.load<Question>(Question, examQuestion.questionId)
 
     expect(res.body).toMatchObject({
       number: questionNumber,
@@ -177,7 +177,7 @@ describe('Get exam question', () => {
   })
   test('Not found (question number) (GraphQL)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/graphql')
       .send(examQuestionQuery({ examId: exam.id.toString(), question: 999 }))
@@ -199,7 +199,7 @@ describe('Get exam question', () => {
   })
   test('Found (ownership) (GraphQL)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const questionNumber = exam.getQuestionsCount() - 1
     const res = await request(framework.app).post('/graphql')
@@ -211,7 +211,7 @@ describe('Get exam question', () => {
 
     expect(res.status).toEqual(200)
     const examQuestion = exam.questions[questionNumber]
-    const question = await framework.load<Question>(Question, examQuestion.question)
+    const question = await framework.load<Question>(Question, examQuestion.questionId)
 
     expect(res.body).toMatchObject({
       data: {
@@ -252,7 +252,7 @@ describe('Get exam question', () => {
 
     expect(res.status).toEqual(200)
     const examQuestion = exam.questions[questionNumber]
-    const question = await framework.load<Question>(Question, examQuestion.question)
+    const question = await framework.load<Question>(Question, examQuestion.questionId)
 
     expect(res.body).toMatchObject({
       data: {

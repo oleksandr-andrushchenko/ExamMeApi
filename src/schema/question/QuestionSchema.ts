@@ -10,7 +10,7 @@ export default class QuestionSchema {
 
   @IsMongoId()
   @Field(_type => ID)
-  public readonly category: string
+  public readonly categoryId: string
 
   @IsEnum(QuestionType)
   @Field()

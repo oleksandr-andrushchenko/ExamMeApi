@@ -67,7 +67,7 @@ describe('Replace category', () => {
   })
   test('Forbidden (no ownership)', async () => {
     const user = await framework.fixture<User>(User)
-    const category = await framework.fixture<Category>(Category, { owner: await framework.fixture<User>(User) })
+    const category = await framework.fixture<Category>(Category)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).put(`/categories/${ category.id.toString() }`)
       .send({ name: 'any' }).auth(token, { type: 'bearer' })
@@ -78,7 +78,7 @@ describe('Replace category', () => {
   test('Conflict', async () => {
     const category1 = await framework.fixture<Category>(Category)
     const category = await framework.fixture<Category>(Category, { permissions: [ CategoryPermission.REPLACE ] })
-    const user = await framework.load<User>(User, category.creator)
+    const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).put(`/categories/${ category.id.toString() }`)
       .send({ name: category1.name })
@@ -90,7 +90,7 @@ describe('Replace category', () => {
   test('Replaced (has ownership)', async () => {
     await framework.clear(Category)
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.load<User>(User, category.creator)
+    const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
     const schema = { name: 'any' }
     const res = await request(framework.app).put(`/categories/${ category.id.toString() }`)

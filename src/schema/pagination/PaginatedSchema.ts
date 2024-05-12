@@ -1,36 +1,46 @@
 import { Type } from 'class-transformer'
 import { IsIn, IsNumber, IsOptional, IsString, IsUrl, Max, Min, ValidateNested } from 'class-validator'
+import { Field, Int, ObjectType } from 'type-graphql'
 
+@ObjectType()
 export class PaginatedMetaSchema {
 
   @IsOptional()
   @IsString()
-  public prevCursor: string
+  @Field({ nullable: true })
+  public prevCursor?: string
 
   @IsOptional()
   @IsUrl()
-  public prevUrl: string
+  @Field({ nullable: true })
+  public prevUrl?: string
 
   @IsOptional()
   @IsString()
-  public nextCursor: string
+  @Field({ nullable: true })
+  public nextCursor?: string
 
   @IsOptional()
   @IsUrl()
-  public nextUrl: string
+  @Field({ nullable: true })
+  public nextUrl?: string
 
-  @IsIn([ 'id', 'created', 'updated' ])
+  @IsIn([ 'id', 'createdAt', 'updatedAt' ])
+  @Field()
   public cursor: string = 'id'
 
   @Min(1)
   @Max(50)
   @IsNumber({ maxDecimalPlaces: 0 })
+  @Field(_type => Int)
   public size: number = 10
 
   @IsIn([ 'asc', 'desc' ])
+  @Field()
   public order: 'asc' | 'desc' = 'desc'
 }
 
+@ObjectType()
 export default class PaginatedSchema<Entity> {
 
   @ValidateNested({ each: true })
@@ -38,5 +48,6 @@ export default class PaginatedSchema<Entity> {
 
   @ValidateNested()
   @Type(() => PaginatedMetaSchema)
+  @Field(_type => PaginatedMetaSchema)
   public meta: PaginatedMetaSchema
 }

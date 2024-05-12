@@ -12,9 +12,9 @@ import { ObjectId } from 'mongodb'
 import CategoryUpdateSchema from '../../schema/category/CategoryUpdateSchema'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import Cursor from '../../models/Cursor'
-import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
 import CategoryQuerySchema from '../../schema/category/CategoryQuerySchema'
 import CategoryPermission from '../../enums/category/CategoryPermission'
+import PaginatedCategories from '../../schema/category/PaginatedCategories'
 
 @Service()
 export default class CategoryService {
@@ -46,9 +46,9 @@ export default class CategoryService {
     const category: Category = new Category()
     category.name = name
     category.requiredScore = transfer.requiredScore
-    category.creator = initiator.id
-    category.owner = initiator.id
-    category.created = new Date()
+    category.creatorId = initiator.id
+    category.ownerId = initiator.id
+    category.createdAt = new Date()
 
     await this.entityManager.save<Category>(category)
 
@@ -68,7 +68,7 @@ export default class CategoryService {
       id = new ObjectId(id)
     }
 
-    const category: Category = await this.categoryRepository.findOneById(id)
+    const category = await this.categoryRepository.findOneById(id)
 
     if (!category) {
       throw new CategoryNotFoundError(id)
@@ -81,13 +81,13 @@ export default class CategoryService {
    *
    * @param {CategoryQuerySchema} query
    * @param {boolean} meta
-   * @returns {Promise<Category[] | PaginatedSchema<Category>>}
+   * @returns {Promise<Category[] | PaginatedCategories>}
    * @throws {ValidatorError}
    */
   public async queryCategories(
     query: CategoryQuerySchema,
     meta: boolean = false,
-  ): Promise<Category[] | PaginatedSchema<Category>> {
+  ): Promise<Category[] | PaginatedCategories> {
     await this.validator.validate(query)
 
     const cursor = new Cursor<Category>(query, this.categoryRepository)
@@ -130,7 +130,7 @@ export default class CategoryService {
       category.requiredScore = transfer.requiredScore
     }
 
-    category.updated = new Date()
+    category.updatedAt = new Date()
 
     await this.entityManager.save<Category>(category)
 
@@ -158,7 +158,7 @@ export default class CategoryService {
 
     category.name = name
     category.requiredScore = transfer.requiredScore
-    category.updated = new Date()
+    category.updatedAt = new Date()
 
     await this.entityManager.save<Category>(category)
 
@@ -177,7 +177,7 @@ export default class CategoryService {
   public async deleteCategory(category: Category, initiator: User): Promise<Category> {
     await this.authService.verifyAuthorization(initiator, CategoryPermission.DELETE, category)
 
-    category.deleted = new Date()
+    category.deletedAt = new Date()
 
     await this.entityManager.save<Category>(category)
 

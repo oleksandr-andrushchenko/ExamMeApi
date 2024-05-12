@@ -11,7 +11,7 @@ export default class QuestionUpdateSchema {
   @IsOptional()
   @IsMongoId()
   @Field(_type => ID, { nullable: true })
-  public readonly category?: string
+  public readonly categoryId?: string
 
   @IsOptional()
   @IsEnum(QuestionType)

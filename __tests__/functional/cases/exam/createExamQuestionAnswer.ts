@@ -15,7 +15,7 @@ describe('Create exam question answer', () => {
   test('Unauthorized', async () => {
     const exam = await framework.fixture<Exam>(Exam)
     const questionNumber = 0
-    const question = await framework.load<Question>(Question, exam.questions[questionNumber].question)
+    const question = await framework.load<Question>(Question, exam.questions[questionNumber].questionId)
     const body = {}
 
     if (question.type === QuestionType.CHOICE) {
@@ -42,7 +42,7 @@ describe('Create exam question answer', () => {
   })
   test('Not found (question)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const questionNumber = 999
     const res = await request(framework.app).post(`/exams/${ exam.id.toString() }/questions/${ questionNumber }/answer`)
@@ -64,7 +64,7 @@ describe('Create exam question answer', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const exam = await framework.fixture<Exam>(Exam)
-    const question = await framework.load<Question>(Question, exam.questions[0].question)
+    const question = await framework.load<Question>(Question, exam.questions[0].questionId)
     const body = {}
 
     if (question.type === QuestionType.CHOICE) {
@@ -81,9 +81,9 @@ describe('Create exam question answer', () => {
   })
   test('Created', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
-    const question = await framework.load<Question>(Question, exam.questions[0].question)
+    const question = await framework.load<Question>(Question, exam.questions[0].questionId)
     const questionNumber = 0
     const examQuestionAnswer = {}
     const expectedAddExamQuestionAnswer = {}
@@ -115,7 +115,7 @@ describe('Create exam question answer', () => {
   test('Unauthorized (GraphQL)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
     const questionNumber = 0
-    const question = await framework.load<Question>(Question, exam.questions[questionNumber].question)
+    const question = await framework.load<Question>(Question, exam.questions[questionNumber].questionId)
     const examQuestionAnswer = {}
 
     if (question.type === QuestionType.CHOICE) {
@@ -148,7 +148,7 @@ describe('Create exam question answer', () => {
   })
   test('Not found (question) (GraphQL)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const questionNumber = 999
     const res = await request(framework.app).post('/graphql')
@@ -182,7 +182,7 @@ describe('Create exam question answer', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const exam = await framework.fixture<Exam>(Exam)
-    const question = await framework.load<Question>(Question, exam.questions[0].question)
+    const question = await framework.load<Question>(Question, exam.questions[0].questionId)
     const examQuestionAnswer = {}
 
     if (question.type === QuestionType.CHOICE) {
@@ -204,9 +204,9 @@ describe('Create exam question answer', () => {
   })
   test('Created (GraphQL)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.owner)
+    const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
-    const question = await framework.load<Question>(Question, exam.questions[0].question)
+    const question = await framework.load<Question>(Question, exam.questions[0].questionId)
     const questionNumber = 0
     const examQuestionAnswer = {}
     const expectedAddExamQuestionAnswer = {}

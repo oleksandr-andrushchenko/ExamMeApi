@@ -23,7 +23,7 @@ export default class AuthService {
   /**
    * @param {User} user
    * @param {string} permission
-   * @param {{getOwner: () => ObjectId}} resource
+   * @param {{ownerId => ObjectId}} resource
    * @param {string[]} permissions
    * @returns {Promise<boolean>}
    * @throws {AuthorizationFailedError}
@@ -31,10 +31,10 @@ export default class AuthService {
   public async verifyAuthorization(
     user: User,
     permission: string,
-    resource: { owner: ObjectId } = undefined,
+    resource: { ownerId: ObjectId } = undefined,
     permissions: string[] = undefined,
   ): Promise<boolean> {
-    if (resource && resource.owner.toString() === user.id.toString()) {
+    if (resource && resource.ownerId.toString() === user.id.toString()) {
       return true
     }
 

@@ -15,7 +15,7 @@ const framework: TestFramework = globalThis.framework
 describe('Create exam', () => {
   test('Unauthorized', async () => {
     const category = await framework.fixture<Category>(Category)
-    const res = await request(framework.app).post('/exams').send({ category: category.id.toString() })
+    const res = await request(framework.app).post('/exams').send({ categoryId: category.id.toString() })
 
     expect(res.status).toEqual(401)
     expect(res.body).toMatchObject(framework.error('AuthorizationRequiredError'))
@@ -32,7 +32,7 @@ describe('Create exam', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
-    const res = await request(framework.app).post('/exams').send({ category: category.id.toString() }).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/exams').send({ categoryId: category.id.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(403)
     expect(res.body).toMatchObject(framework.error('ForbiddenError'))
@@ -40,8 +40,8 @@ describe('Create exam', () => {
   test('Conflict (exam taken)', async () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await framework.auth(user)).token
-    const exam = await framework.fixture<Exam>(Exam, { completed: false, creator: user.id })
-    const res = await request(framework.app).post('/exams').send({ category: exam.category.toString() }).auth(token, { type: 'bearer' })
+    const exam = await framework.fixture<Exam>(Exam, { completedAt: false, creatorId: user.id })
+    const res = await request(framework.app).post('/exams').send({ categoryId: exam.categoryId.toString() }).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(409)
     expect(res.body).toMatchObject(framework.error('ConflictError'))
@@ -51,7 +51,7 @@ describe('Create exam', () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
-    const exam = { category: category.id.toString() }
+    const exam = { categoryId: category.id.toString() }
     const now = Date.now()
     const res = await request(framework.app).post('/exams').send(exam).auth(token, { type: 'bearer' })
 
@@ -60,23 +60,23 @@ describe('Create exam', () => {
     expect(res.body).toHaveProperty('id')
     const id = new ObjectId(res.body.id)
     const latestExam = await framework.load<Exam>(Exam, id)
-    expect({ ...latestExam, ...{ category: latestExam.category.toString() } }).toMatchObject(exam)
+    expect({ ...latestExam, ...{ categoryId: latestExam.categoryId.toString() } }).toMatchObject(exam)
     expect(res.body).toEqual({
       id: latestExam.id.toString(),
-      category: latestExam.category.toString(),
+      categoryId: latestExam.categoryId.toString(),
       questionNumber: latestExam.questionNumber,
-      owner: latestExam.owner.toString(),
+      ownerId: latestExam.ownerId.toString(),
       questionsCount: latestExam.getQuestionsCount(),
       answeredCount: latestExam.getQuestionsAnsweredCount(),
-      created: latestExam.created.getTime(),
+      createdAt: latestExam.createdAt.getTime(),
     })
-    expect(latestExam.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body).not.toHaveProperty([ 'completed', 'creator', 'updated', 'deleted' ])
+    expect(latestExam.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body).not.toHaveProperty([ 'completedAt', 'creatorId', 'updatedAt', 'deletedAt' ])
   })
   test('Unauthorized (GraphQL)', async () => {
     const category = await framework.fixture<Category>(Category)
     const res = await request(framework.app).post('/graphql')
-      .send(addExamMutation({ exam: { category: category.id.toString() } }))
+      .send(addExamMutation({ exam: { categoryId: category.id.toString() } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -96,7 +96,7 @@ describe('Create exam', () => {
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
     const res = await request(framework.app).post('/graphql')
-      .send(addExamMutation({ exam: { category: category.id.toString() } }))
+      .send(addExamMutation({ exam: { categoryId: category.id.toString() } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -105,9 +105,9 @@ describe('Create exam', () => {
   test('Conflict (exam taken) (GraphQL)', async () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await framework.auth(user)).token
-    const exam = await framework.fixture<Exam>(Exam, { completed: false, creator: user.id })
+    const exam = await framework.fixture<Exam>(Exam, { completedAt: false, creatorId: user.id })
     const res = await request(framework.app).post('/graphql')
-      .send(addExamMutation({ exam: { category: exam.category.toString() } }))
+      .send(addExamMutation({ exam: { categoryId: exam.categoryId.toString() } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -118,17 +118,17 @@ describe('Create exam', () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
-    const exam = { category: category.id.toString() }
+    const exam = { categoryId: category.id.toString() }
     const fields = [
       'id',
-      'category',
+      'categoryId',
       'questionNumber',
-      'completed',
-      'owner',
+      'completedAt',
+      'ownerId',
       'questionsCount',
       'answeredCount',
-      'created',
-      'updated',
+      'createdAt',
+      'updatedAt',
     ]
     const now = Date.now()
     const res = await request(framework.app).post('/graphql')
@@ -140,19 +140,19 @@ describe('Create exam', () => {
     expect(res.body.data.addExam).toHaveProperty('id')
     const id = new ObjectId(res.body.data.addExam.id)
     const latestExam = await framework.load<Exam>(Exam, id)
-    expect({ ...latestExam, ...{ category: latestExam.category.toString() } }).toMatchObject(exam)
+    expect({ ...latestExam, ...{ categoryId: latestExam.categoryId.toString() } }).toMatchObject(exam)
     expect(res.body.data.addExam).toEqual({
       id: latestExam.id.toString(),
-      category: latestExam.category.toString(),
+      categoryId: latestExam.categoryId.toString(),
       questionNumber: latestExam.questionNumber,
-      completed: null,
-      owner: latestExam.owner.toString(),
+      completedAt: null,
+      ownerId: latestExam.ownerId.toString(),
       questionsCount: latestExam.getQuestionsCount(),
       answeredCount: latestExam.getQuestionsAnsweredCount(),
-      created: latestExam.created.getTime(),
-      updated: null,
+      createdAt: latestExam.createdAt.getTime(),
+      updatedAt: null,
     })
-    expect(latestExam.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.addExam).not.toHaveProperty([ 'creator', 'deleted' ])
+    expect(latestExam.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body.data.addExam).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
 })

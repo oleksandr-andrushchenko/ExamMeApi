@@ -24,10 +24,9 @@ describe('Create question', () => {
     const categoryId = await framework.fakeId()
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/questions').send({
-      title: 'any',
-      category: categoryId,
-    }).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/questions')
+      .send({ title: 'any', categoryId: categoryId })
+      .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
     expect(res.body).toMatchObject(framework.error('BadRequestError'))
@@ -68,7 +67,7 @@ describe('Create question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/questions')
-      .send({ ...body, ...{ category: category.id } })
+      .send({ ...body, ...{ categoryId: category.id } })
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(400)
@@ -81,7 +80,7 @@ describe('Create question', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const question = {
-      category: categoryId.toString(),
+      categoryId: categoryId.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -106,7 +105,7 @@ describe('Create question', () => {
     const res = await request(framework.app)
       .post('/questions')
       .send({
-        category: category.id,
+        categoryId: category.id,
         title: question.title,
         type: QuestionType.TYPE,
         difficulty: QuestionDifficulty.EASY,
@@ -129,7 +128,7 @@ describe('Create question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const question = {
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -149,10 +148,10 @@ describe('Create question', () => {
     expect(res.body).toHaveProperty('id')
     const id = new ObjectId(res.body.id)
     const latestQuestion = await framework.load<Question>(Question, id)
-    expect(latestQuestion).toMatchObject({ ...question, ...{ category: category.id } })
+    expect(latestQuestion).toMatchObject({ ...question, ...{ categoryId: category.id } })
     expect(res.body).toEqual({
       id: latestQuestion.id.toString(),
-      category: latestQuestion.category.toString(),
+      categoryId: latestQuestion.categoryId.toString(),
       type: latestQuestion.type,
       difficulty: latestQuestion.difficulty,
       title: latestQuestion.title,
@@ -161,16 +160,16 @@ describe('Create question', () => {
       }) ?? null,
       voters: latestQuestion.voters,
       rating: latestQuestion.rating,
-      owner: latestQuestion.owner.toString(),
-      created: latestQuestion.created.getTime(),
+      ownerId: latestQuestion.ownerId.toString(),
+      createdAt: latestQuestion.createdAt.getTime(),
     })
-    expect(latestQuestion.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body).not.toHaveProperty([ 'choices', 'creator', 'updated', 'deleted' ])
+    expect(latestQuestion.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body).not.toHaveProperty([ 'choices', 'creatorId', 'updatedAt', 'deletedAt' ])
   })
   test('Unauthorized (GraphQL)', async () => {
     const category = await framework.fixture<Category>(Category)
     const question = {
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       title: 'any',
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -185,7 +184,7 @@ describe('Create question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const question = {
-      category: categoryId.toString(),
+      categoryId: categoryId.toString(),
       title: 'any',
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -237,7 +236,7 @@ describe('Create question', () => {
     const category = await framework.fixture<Category>(Category)
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
-    const question = { ...body, ...{ category: category.id.toString() } } as QuestionSchema
+    const question = { ...body, ...{ categoryId: category.id.toString() } } as QuestionSchema
     const res = await request(framework.app).post('/graphql').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -249,7 +248,7 @@ describe('Create question', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const question = {
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -272,7 +271,7 @@ describe('Create question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const question = {
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       title: question1.title,
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -295,7 +294,7 @@ describe('Create question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const question = {
-      category: category.id.toString(),
+      categoryId: category.id.toString(),
       title: faker.lorem.sentences(3),
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
@@ -309,7 +308,7 @@ describe('Create question', () => {
     }
     const fields = [
       'id',
-      'category',
+      'categoryId',
       'type',
       'difficulty',
       'title',
@@ -317,9 +316,9 @@ describe('Create question', () => {
       'answers {variants correct explanation}',
       'voters',
       'rating',
-      'owner',
-      'created',
-      'updated',
+      'ownerId',
+      'createdAt',
+      'updatedAt',
     ]
     const now = Date.now()
     const res = await request(framework.app).post('/graphql').send(addQuestionMutation({ question }, fields)).auth(token, { type: 'bearer' })
@@ -329,10 +328,10 @@ describe('Create question', () => {
     expect(res.body.data.addQuestion).toHaveProperty('id')
     const id = new ObjectId(res.body.data.addQuestion.id)
     const latestQuestion = await framework.load<Question>(Question, id)
-    expect(latestQuestion).toMatchObject({ ...question, ...{ category: category.id } })
+    expect(latestQuestion).toMatchObject({ ...question, ...{ categoryId: category.id } })
     expect(res.body.data.addQuestion).toEqual({
       id: latestQuestion.id.toString(),
-      category: latestQuestion.category.toString(),
+      categoryId: latestQuestion.categoryId.toString(),
       type: latestQuestion.type,
       difficulty: latestQuestion.difficulty,
       title: latestQuestion.title,
@@ -342,11 +341,11 @@ describe('Create question', () => {
       }) ?? null,
       voters: latestQuestion.voters,
       rating: latestQuestion.rating,
-      owner: latestQuestion.owner.toString(),
-      created: latestQuestion.created.getTime(),
-      updated: null,
+      ownerId: latestQuestion.ownerId.toString(),
+      createdAt: latestQuestion.createdAt.getTime(),
+      updatedAt: null,
     })
-    expect(latestQuestion.created.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.addQuestion).not.toHaveProperty([ 'creator', 'deleted' ])
+    expect(latestQuestion.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(res.body.data.addQuestion).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
 })

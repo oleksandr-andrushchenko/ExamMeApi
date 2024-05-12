@@ -18,7 +18,7 @@ describe('Query questions', () => {
     expect(res.body).toMatchObject(framework.error('NotFoundError'))
   })
   test.each([
-    { case: 'invalid category', query: { category: 'any' } },
+    { case: 'invalid category', query: { categoryId: 'any' } },
     { case: 'invalid price', query: { price: 'any' } },
     { case: 'invalid difficulty', query: { difficulty: 'any' } },
     { case: 'invalid type', query: { type: 'any' } },
@@ -48,8 +48,8 @@ describe('Query questions', () => {
     await framework.clear(Question)
     const category = await framework.fixture<Category>(Category)
     const questions = await Promise.all([
-      framework.fixture<Question>(Question, { category: category.id }),
-      framework.fixture<Question>(Question, { category: category.id }),
+      framework.fixture<Question>(Question, { categoryId: category.id }),
+      framework.fixture<Question>(Question, { categoryId: category.id }),
     ])
 
     const res = await request(framework.app).get(`/categories/${ category.id.toString() }/questions`)
@@ -63,7 +63,7 @@ describe('Query questions', () => {
       .sort((a: Question, b: Question) => a.title.localeCompare(b.title))
       .forEach((question: Question, index: number) => {
         expect(body[index]).toMatchObject({
-          category: question.category.toString(),
+          categoryId: question.categoryId.toString(),
           type: question.type,
           difficulty: question.difficulty,
           title: question.title,
@@ -83,7 +83,7 @@ describe('Query questions', () => {
       })
   })
   test.each([
-    { case: 'invalid category', query: { category: 'any' } },
+    { case: 'invalid category', query: { categoryId: 'any' } },
     { case: 'invalid price', query: { price: 'any' } },
     { case: 'invalid difficulty', query: { difficulty: 'any' } },
     { case: 'invalid type', query: { type: 'any' } },
@@ -104,7 +104,8 @@ describe('Query questions', () => {
   test('Empty by category (GraphQL)', async () => {
     await framework.clear(Question)
     const category = await framework.fixture<Category>(Category)
-    const res = await request(framework.app).post('/graphql').send(questionsQuery({ category: category.id.toString() }))
+    const res = await request(framework.app).post('/graphql')
+      .send(questionsQuery({ categoryId: category.id.toString() }))
 
     expect(res.status).toEqual(200)
     expect(res.body.data.questions).toEqual([])
@@ -113,19 +114,20 @@ describe('Query questions', () => {
     await framework.clear()
     const category = await framework.fixture<Category>(Category)
     const questions = await Promise.all([
-      framework.fixture<Question>(Question, { category: category.id }),
-      framework.fixture<Question>(Question, { category: category.id }),
+      framework.fixture<Question>(Question, { categoryId: category.id }),
+      framework.fixture<Question>(Question, { categoryId: category.id }),
     ])
     const fields = [
       'id',
       'title',
-      'category',
+      'categoryId',
       'type',
       'difficulty',
       'answers {variants correct explanation}',
       'choices {title correct explanation}',
     ]
-    const res = await request(framework.app).post('/graphql').send(questionsQuery({ category: category.id.toString() }, fields))
+    const res = await request(framework.app).post('/graphql')
+      .send(questionsQuery({ categoryId: category.id.toString() }, fields))
 
     expect(res.status).toEqual(200)
     expect(res.body.data.questions).toHaveLength(questions.length)
@@ -135,7 +137,7 @@ describe('Query questions', () => {
       .sort((a: Question, b: Question) => a.title.localeCompare(b.title))
       .forEach((question: Question, index: number) => {
         expect(body[index]).toMatchObject({
-          category: question.category.toString(),
+          categoryId: question.categoryId.toString(),
           type: question.type,
           difficulty: question.difficulty,
           title: question.title,

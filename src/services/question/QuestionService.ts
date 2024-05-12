@@ -13,11 +13,11 @@ import QuestionTitleTakenError from '../../errors/question/QuestionTitleTakenErr
 import CategoryService from '../category/CategoryService'
 import QuestionNotFoundError from '../../errors/question/QuestionNotFoundError'
 import QuestionUpdateSchema from '../../schema/question/QuestionUpdateSchema'
-import PaginatedSchema from '../../schema/pagination/PaginatedSchema'
 import Cursor from '../../models/Cursor'
 import QuestionQuerySchema from '../../schema/question/QuestionQuerySchema'
 import QuestionPermission from '../../enums/question/QuestionPermission'
 import QuestionTypeError from '../../errors/question/QuestionTypeError'
+import PaginatedQuestions from '../../schema/question/PaginatedQuestions'
 
 @Service()
 export default class QuestionService {
@@ -45,18 +45,18 @@ export default class QuestionService {
     await this.validator.validate(transfer)
     await this.authService.verifyAuthorization(initiator, QuestionPermission.CREATE)
 
-    const category: Category = await this.categoryService.getCategory(transfer.category)
+    const category = await this.categoryService.getCategory(transfer.categoryId)
 
     const title = transfer.title
     await this.verifyQuestionTitleNotExists(title)
 
     const question: Question = new Question()
-    question.category = category.id
+    question.categoryId = category.id
     question.type = transfer.type
     question.difficulty = transfer.difficulty
     question.title = title
-    question.creator = initiator.id
-    question.owner = initiator.id
+    question.creatorId = initiator.id
+    question.ownerId = initiator.id
 
     if (question.type === QuestionType.TYPE) {
       question.answers = transfer.answers
@@ -64,7 +64,7 @@ export default class QuestionService {
       question.choices = transfer.choices
     }
 
-    question.created = new Date()
+    question.createdAt = new Date()
     category.questionCount = category.questionCount + 1
 
     await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
@@ -80,21 +80,21 @@ export default class QuestionService {
   /**
    * @param {QuestionQuerySchema} query
    * @param {boolean} meta
-   * @returns {Promise<Question[] | PaginatedSchema<Question>>}
+   * @returns {Promise<Question[] | PaginatedQuestions>}
    * @throws {ValidatorError}
    */
   public async queryQuestions(
     query: QuestionQuerySchema,
     meta: boolean = false,
-  ): Promise<Question[] | PaginatedSchema<Question>> {
+  ): Promise<Question[] | PaginatedQuestions> {
     await this.validator.validate(query)
 
     const cursor = new Cursor<Question>(query, this.questionRepository)
 
     const where = {}
 
-    if ('category' in query) {
-      where['category'] = new ObjectId(query.category)
+    if ('categoryId' in query) {
+      where['categoryId'] = new ObjectId(query.categoryId)
     }
 
     if ('price' in query) {
@@ -120,16 +120,16 @@ export default class QuestionService {
    * @param {Category} category
    * @param {QuestionQuerySchema} query
    * @param {boolean} meta
-   * @returns {Promise<Question[] | PaginatedSchema<Question>>}
+   * @returns {Promise<Question[] | PaginatedQuestions>}
    * @throws {ValidatorError}
    */
   public async queryCategoryQuestions(
     category: Category,
     query: QuestionQuerySchema = undefined,
     meta: boolean = false,
-  ): Promise<Question[] | PaginatedSchema<Question>> {
+  ): Promise<Question[] | PaginatedQuestions> {
     query = query === undefined ? new QuestionQuerySchema() : query
-    query.category = category.id.toString()
+    query.categoryId = category.id.toString()
 
     return this.queryQuestions(query, meta)
   }
@@ -146,9 +146,9 @@ export default class QuestionService {
       id = new ObjectId(id)
     }
 
-    const question: Question = await this.questionRepository.findOneById(id)
+    const question = await this.questionRepository.findOneById(id)
 
-    if (!question || (categoryId && question.category.toString() !== categoryId.toString())) {
+    if (!question || (categoryId && question.categoryId.toString() !== categoryId.toString())) {
       throw new QuestionNotFoundError(id)
     }
 
@@ -169,12 +169,12 @@ export default class QuestionService {
     await this.validator.validate(transfer)
     await this.authService.verifyAuthorization(initiator, QuestionPermission.REPLACE, question)
 
-    const category: Category = await this.categoryService.getCategory(transfer.category)
+    const category = await this.categoryService.getCategory(transfer.categoryId)
 
     const title = transfer.title
     await this.verifyQuestionTitleNotExists(title)
 
-    question.category = category.id
+    question.categoryId = category.id
     question.type = transfer.type
     question.difficulty = transfer.difficulty
     question.title = title
@@ -185,7 +185,7 @@ export default class QuestionService {
       question.choices = transfer.choices
     }
 
-    question.updated = new Date()
+    question.updatedAt = new Date()
 
     await this.entityManager.save<Question>(question)
 
@@ -208,9 +208,9 @@ export default class QuestionService {
     await this.validator.validate(transfer)
     await this.authService.verifyAuthorization(initiator, QuestionPermission.UPDATE, question)
 
-    if ('category' in transfer) {
-      const category: Category = await this.categoryService.getCategory(transfer.category)
-      question.category = category.id
+    if ('categoryId' in transfer) {
+      const category = await this.categoryService.getCategory(transfer.categoryId)
+      question.categoryId = category.id
     }
 
     if ('title' in transfer) {
@@ -237,7 +237,7 @@ export default class QuestionService {
       }
     }
 
-    question.updated = new Date()
+    question.updatedAt = new Date()
 
     await this.entityManager.save<Question>(question)
 
@@ -256,10 +256,10 @@ export default class QuestionService {
   public async deleteQuestion(question: Question, initiator: User): Promise<Question> {
     await this.authService.verifyAuthorization(initiator, QuestionPermission.DELETE, question)
 
-    const category: Category = await this.categoryService.getCategory(question.category.toString())
+    const category = await this.categoryService.getCategory(question.categoryId.toString())
     category.questionCount = category.questionCount - 1
 
-    question.deleted = new Date()
+    question.deletedAt = new Date()
 
     await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
       await entityManager.save<Question>(question)

@@ -12,9 +12,9 @@ export default class ExamRepository extends MongoRepository<Exam> {
 
   public async findOneNotCompletedByCategoryAndCreator(categoryId: ObjectId, userId: ObjectId): Promise<Exam | null> {
     return await this.findOneBy({
-      category: categoryId,
-      creator: userId,
-      completed: { $exists: false },
+      categoryId: categoryId,
+      creatorId: userId,
+      completedAt: { $exists: false },
     })
   }
 }
