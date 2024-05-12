@@ -8,6 +8,7 @@ import CategorySchema from '../schema/category/CategorySchema'
 import User from '../entities/User'
 import CategoryUpdateSchema from '../schema/category/CategoryUpdateSchema'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
+import PaginatedCategories from '../schema/category/PaginatedCategories'
 
 @Service()
 @Resolver(Category)
@@ -33,6 +34,13 @@ export class CategoryResolver {
     @Args() categoryQuery: CategoryQuerySchema,
   ): Promise<Category[]> {
     return await this.categoryService.queryCategories(categoryQuery) as Category[]
+  }
+
+  @Query(_returns => PaginatedCategories)
+  public async paginatedCategories(
+    @Args() categoryQuery: CategoryQuerySchema,
+  ): Promise<PaginatedCategories> {
+    return await this.categoryService.queryCategories(categoryQuery, true) as PaginatedCategories
   }
 
   @Authorized()
