@@ -79,6 +79,8 @@ export default class Cursor<Entity> {
 
     sort['_id'] = order.direction
 
+    where['deletedAt'] = { $exists: false }
+
     const data = await this.repository.find({ where, take: this.pagination.size, order: sort })
 
     if (this.pagination.prevCursor) {
