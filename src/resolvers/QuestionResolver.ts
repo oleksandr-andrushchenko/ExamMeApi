@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi'
-import { Arg, Args, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
+import { Arg, Args, Authorized, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from 'type-graphql'
 import User from '../entities/User'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
 import Question from '../entities/Question'
@@ -9,6 +9,8 @@ import QuestionQuerySchema from '../schema/question/QuestionQuerySchema'
 import QuestionSchema from '../schema/question/QuestionSchema'
 import QuestionUpdateSchema from '../schema/question/QuestionUpdateSchema'
 import PaginatedQuestions from '../schema/question/PaginatedQuestions'
+import Category from '../entities/Category'
+import CategoryService from '../services/category/CategoryService'
 
 @Service()
 @Resolver(Question)
@@ -16,6 +18,7 @@ export class QuestionResolver {
 
   public constructor(
     @Inject() private readonly questionService: QuestionService,
+    @Inject() private readonly categoryService: CategoryService,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }
@@ -77,5 +80,12 @@ export class QuestionResolver {
     await this.questionService.deleteQuestion(question, user)
 
     return true
+  }
+
+  @FieldResolver(_returns => Category)
+  public async category(
+    @Root() question: Question,
+  ): Promise<Category> {
+    return await this.categoryService.getCategory(question.categoryId)
   }
 }
