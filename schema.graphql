@@ -41,6 +41,7 @@ input CredentialsSchema {
 
 type Exam {
   answeredCount: Int!
+  category: Category!
   categoryId: ObjectId!
   completedAt: Timestamp
   createdAt: Timestamp!
@@ -78,7 +79,7 @@ type Mutation {
   addCategory(category: CategorySchema!): Category!
   addExam(exam: CreateExamSchema!): Exam!
   addExamCompletion(examId: ID!): Exam!
-  addExamQuestionAnswer(examId: ID!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): ExamQuestionSchema!
+  addExamQuestionAnswer(examId: ID!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): Exam!
   addMe(me: MeSchema!): User!
   addQuestion(question: QuestionSchema!): Question!
   addUser(user: UserSchema!): User!
@@ -146,6 +147,7 @@ type Query {
 
 type Question {
   answers: [QuestionAnswer!]
+  category: Category!
   categoryId: ObjectId!
   choices: [QuestionChoice!]
   createdAt: Timestamp!
