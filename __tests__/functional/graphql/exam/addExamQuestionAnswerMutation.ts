@@ -3,7 +3,7 @@ import GetExamQuestionSchema from '../../../../src/schema/exam/GetExamQuestionSc
 
 export const addExamQuestionAnswerMutation = (variables: GetExamQuestionSchema & {
   examQuestionAnswer: CreateExamQuestionAnswerSchema
-}, fields: string[] = [ 'difficulty', 'question', 'difficulty' ]) => {
+}, fields: string[] = [ 'id' ]) => {
   return {
     query: `
       mutation AddExamQuestionAnswer($examId: ID!, $question: Int!, $examQuestionAnswer: CreateExamQuestionAnswerSchema!) {

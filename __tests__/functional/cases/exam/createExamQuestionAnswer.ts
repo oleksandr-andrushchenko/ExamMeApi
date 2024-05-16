@@ -25,9 +25,12 @@ describe('Create exam question answer', () => {
     }
 
     const res = await request(framework.app).post('/')
-      .send(addExamQuestionAnswerMutation({ examId: exam.id.toString(), question: questionNumber, examQuestionAnswer }))
+      .send(addExamQuestionAnswerMutation({
+        examId: exam.id.toString(),
+        question: questionNumber,
+        examQuestionAnswer,
+      }))
 
-    console.log(res.body)
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
@@ -121,27 +124,21 @@ describe('Create exam question answer', () => {
       expectedAddExamQuestionAnswer['answer'] = examQuestionAnswer['answer']
     }
 
+    const answeredCount = exam.answeredCount()
+    const fields = [ 'id', 'questionNumber', 'answeredCount' ]
     const res = await request(framework.app).post('/')
-      .send(addExamQuestionAnswerMutation(
-        {
-          examId: exam.id.toString(),
-          question: questionNumber,
-          examQuestionAnswer,
-        },
-        [ 'number', 'question', 'difficulty', 'type', 'choices', 'choice', 'answer' ],
-      ))
+      .send(addExamQuestionAnswerMutation({
+        examId: exam.id.toString(),
+        question: questionNumber,
+        examQuestionAnswer,
+      }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body.data.addExamQuestionAnswer).toMatchObject({
-      ...examQuestionAnswer,
-      ...expectedAddExamQuestionAnswer,
-      ...{
-        number: questionNumber,
-        question: question.title,
-        difficulty: question.difficulty,
-        type: question.type,
-      },
+      id: exam.id,
+      questionNumber: questionNumber + 1,
+      answeredCount: answeredCount + 1,
     })
   })
 })
