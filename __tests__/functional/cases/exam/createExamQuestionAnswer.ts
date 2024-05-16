@@ -110,8 +110,9 @@ describe('Create exam question answer', () => {
     const exam = await framework.fixture<Exam>(Exam)
     const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
-    const question = await framework.load<Question>(Question, exam.questions[0].questionId)
     const questionNumber = 0
+    const examQuestion = exam.questions[questionNumber]
+    const question = await framework.load<Question>(Question, examQuestion.questionId)
     const examQuestionAnswer = {}
     const expectedAddExamQuestionAnswer = {}
 
@@ -124,7 +125,7 @@ describe('Create exam question answer', () => {
       expectedAddExamQuestionAnswer['answer'] = examQuestionAnswer['answer']
     }
 
-    const answeredQuestionCount = exam.answeredQuestionCount()
+    let answeredQuestionCount = exam.answeredQuestionCount()
     const fields = [ 'id', 'questionNumber', 'answeredQuestionCount' ]
     const res = await request(framework.app).post('/')
       .send(addExamQuestionAnswerMutation({
@@ -134,11 +135,15 @@ describe('Create exam question answer', () => {
       }, fields))
       .auth(token, { type: 'bearer' })
 
+    if (typeof examQuestion.choice !== 'number' && typeof examQuestion.answer !== 'string') {
+      answeredQuestionCount++
+    }
+
     expect(res.status).toEqual(200)
     expect(res.body.data.addExamQuestionAnswer).toMatchObject({
       id: exam.id.toString(),
-      questionNumber: questionNumber + 1,
-      answeredQuestionCount: answeredQuestionCount + 1,
+      questionNumber: exam.questionNumber,
+      answeredQuestionCount,
     })
   })
 })
