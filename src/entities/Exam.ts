@@ -1,5 +1,4 @@
 import { Column, Entity, ObjectIdColumn } from 'typeorm'
-import { Exclude, Expose, Transform, Type } from 'class-transformer'
 import { ObjectId } from 'mongodb'
 import { IsDate, IsMongoId, IsNumber, IsOptional, IsString, Min, ValidateNested } from 'class-validator'
 import { Field, Int, ObjectType } from 'type-graphql'
@@ -11,7 +10,6 @@ export class ExamQuestion {
 
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
   public questionId: ObjectId
 
@@ -34,19 +32,15 @@ export default class Exam {
 
   @IsMongoId()
   @ObjectIdColumn()
-  @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
   public readonly id: ObjectId
 
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
   public categoryId: ObjectId
 
-  @Exclude()
   @ValidateNested({ each: true })
-  @Type(() => ExamQuestion)
   @Column(() => ExamQuestion)
   public questions: ExamQuestion[]
 
@@ -56,7 +50,6 @@ export default class Exam {
   @Field(_type => Int)
   public questionNumber: number = 0
 
-  @Exclude()
   @Min(0)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Column({ default: 0 })
@@ -65,40 +58,32 @@ export default class Exam {
   @IsOptional()
   @IsDate()
   @Column({ nullable: true })
-  @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
   public completedAt?: Date
 
-  @Exclude()
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value.toString())
   public creatorId: ObjectId
 
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
   public ownerId: ObjectId
 
   @IsNumber()
   @Column({ update: false })
-  @Transform(({ value }: { value: Date }) => value.getTime())
   @Field(_type => GraphQLTimestamp)
   public createdAt: Date
 
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
-  @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
   public updatedAt?: Date
 
-  @Exclude()
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
-  @Transform(({ value }: { value: Date }) => value?.getTime())
   public deletedAt?: Date
 
   @Field(_type => Int)
@@ -106,7 +91,6 @@ export default class Exam {
     return this.getQuestionsCount()
   }
 
-  @Expose({ name: 'questionsCount' })
   public getQuestionsCount(): number {
     return this.questions?.length || 0
   }
@@ -116,7 +100,6 @@ export default class Exam {
     return this.getQuestionsAnsweredCount()
   }
 
-  @Expose({ name: 'answeredCount' })
   public getQuestionsAnsweredCount(): number {
     return (this?.questions || [])
       .filter((question: ExamQuestion): boolean => typeof question.choice === 'number' || typeof question.answer === 'string')

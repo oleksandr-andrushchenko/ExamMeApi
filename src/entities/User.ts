@@ -1,5 +1,4 @@
 import { Column, Entity, ObjectIdColumn } from 'typeorm'
-import { Exclude, Transform } from 'class-transformer'
 import { ObjectId } from 'mongodb'
 import { ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length } from 'class-validator'
 import Permission from '../enums/Permission'
@@ -13,7 +12,6 @@ export default class User {
 
   @IsMongoId()
   @ObjectIdColumn()
-  @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
   public readonly id: ObjectId
 
@@ -28,7 +26,6 @@ export default class User {
   @Field()
   public email: string
 
-  @Exclude()
   @Length(5, 15)
   @Column()
   public password: string
@@ -40,29 +37,23 @@ export default class User {
   @Field(_type => [ String! ], { defaultValue: [ Permission.REGULAR ] })
   public permissions: Permission[] = [ Permission.REGULAR ]
 
-  @Exclude()
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
   public creatorId: ObjectId
 
   @IsNumber()
   @Column({ update: false })
-  @Transform(({ value }: { value: Date }) => value.getTime())
   @Field(_type => GraphQLTimestamp)
   public createdAt: Date
 
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
-  @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
   public updatedAt?: Date
 
-  @Exclude()
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
-  @Transform(({ value }: { value: Date }) => value?.getTime())
   public deletedAt?: Date
 }

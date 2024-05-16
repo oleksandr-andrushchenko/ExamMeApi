@@ -15,181 +15,29 @@ const framework: TestFramework = globalThis.framework
 
 describe('Create question', () => {
   test('Unauthorized', async () => {
-    const res = await request(framework.app).post('/questions')
+    const category = await framework.fixture<Category>(Category)
+    const question = {
+      categoryId: category.id.toString(),
+      title: 'any',
+      type: QuestionType.TYPE,
+      difficulty: QuestionDifficulty.EASY,
+    }
+    const res = await request(framework.app).post('/').send(addQuestionMutation({ question }))
 
-    expect(res.status).toEqual(401)
-    expect(res.body).toMatchObject(framework.error('AuthorizationRequiredError'))
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (category not found)', async () => {
     const categoryId = await framework.fakeId()
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/questions')
-      .send({ title: 'any', categoryId: categoryId })
-      .auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(400)
-    expect(res.body).toMatchObject(framework.error('BadRequestError'))
-  })
-  // todo: add cases
-  test.each([
-    { case: 'empty body', body: {} },
-    { case: 'no title', body: { type: QuestionType.TYPE, difficulty: QuestionDifficulty.EASY } },
-    { case: 'no type', body: { title: 'any', difficulty: QuestionDifficulty.EASY } },
-    { case: 'bad type', body: { title: 'any', type: 'any', difficulty: QuestionDifficulty.EASY } },
-    { case: 'no difficulty', body: { title: 'any', type: QuestionType.TYPE } },
-    { case: 'bad difficulty', body: { title: 'any', type: QuestionType.TYPE, difficulty: 'any' } },
-    { case: 'no choices', body: { title: 'any', type: QuestionType.CHOICE, difficulty: QuestionDifficulty.EASY } },
-    {
-      case: 'non-array choices',
-      body: { title: 'any', type: QuestionType.CHOICE, difficulty: QuestionDifficulty.EASY, choices: 'any' },
-    },
-    {
-      case: 'no choice title',
-      body: {
-        title: 'any',
-        type: QuestionType.CHOICE,
-        difficulty: QuestionDifficulty.EASY,
-        choices: [ { correct: false } ],
-      },
-    },
-    {
-      case: 'no choice correct',
-      body: {
-        title: 'any',
-        type: QuestionType.CHOICE,
-        difficulty: QuestionDifficulty.EASY,
-        choices: [ { title: 'any' } ],
-      },
-    },
-  ])('Bad request ($case)', async ({ body }) => {
-    const category = await framework.fixture<Category>(Category)
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
-    const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/questions')
-      .send({ ...body, ...{ categoryId: category.id } })
-      .auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(400)
-    expect(res.body).toMatchObject(framework.error('BadRequestError'))
-  })
-  // todo: add cases
-  test('Forbidden', async () => {
-    const category = await framework.fixture<Category>(Category)
-    const categoryId = category.id
-    const user = await framework.fixture<User>(User)
-    const token = (await framework.auth(user)).token
-    const question = {
-      categoryId: categoryId.toString(),
-      title: faker.lorem.sentences(3),
-      type: QuestionType.TYPE,
-      difficulty: QuestionDifficulty.EASY,
-      answers: [
-        {
-          variants: [ faker.lorem.word() ],
-          correct: true,
-          explanation: faker.lorem.sentence(),
-        },
-      ],
-    }
-    const res = await request(framework.app).post('/questions').send(question).auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(403)
-    expect(res.body).toMatchObject(framework.error('ForbiddenError'))
-  })
-  test('Conflict', async () => {
-    const category = await framework.fixture<Category>(Category)
-    const question = await framework.fixture<Question>(Question)
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
-    const token = (await framework.auth(user)).token
-    const res = await request(framework.app)
-      .post('/questions')
-      .send({
-        categoryId: category.id,
-        title: question.title,
-        type: QuestionType.TYPE,
-        difficulty: QuestionDifficulty.EASY,
-        answers: [
-          {
-            variants: [ faker.lorem.word() ],
-            correct: true,
-            explanation: faker.lorem.sentence(),
-          },
-        ],
-      })
-      .auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(409)
-    expect(res.body).toMatchObject(framework.error('ConflictError'))
-  })
-  // todo: add cases
-  test('Created', async () => {
-    const category = await framework.fixture<Category>(Category)
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
-    const token = (await framework.auth(user)).token
-    const question = {
-      categoryId: category.id.toString(),
-      title: faker.lorem.sentences(3),
-      type: QuestionType.TYPE,
-      difficulty: QuestionDifficulty.EASY,
-      answers: [
-        {
-          variants: [ faker.lorem.word() ],
-          correct: true,
-          explanation: faker.lorem.sentence(),
-        },
-      ],
-    }
-    const now = Date.now()
-    const res = await request(framework.app).post('/questions').send(question).auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(201)
-    expect(res.body).toMatchObject(question)
-    expect(res.body).toHaveProperty('id')
-    const id = new ObjectId(res.body.id)
-    const latestQuestion = await framework.load<Question>(Question, id)
-    expect(latestQuestion).toMatchObject({ ...question, ...{ categoryId: category.id } })
-    expect(res.body).toEqual({
-      id: latestQuestion.id.toString(),
-      categoryId: latestQuestion.categoryId.toString(),
-      type: latestQuestion.type,
-      difficulty: latestQuestion.difficulty,
-      title: latestQuestion.title,
-      answers: latestQuestion.answers?.map(answer => {
-        return { ...answer }
-      }) ?? null,
-      voters: latestQuestion.voters,
-      rating: latestQuestion.rating,
-      ownerId: latestQuestion.ownerId.toString(),
-      createdAt: latestQuestion.createdAt.getTime(),
-    })
-    expect(latestQuestion.createdAt.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body).not.toHaveProperty([ 'choices', 'creatorId', 'updatedAt', 'deletedAt' ])
-  })
-  test('Unauthorized (GraphQL)', async () => {
-    const category = await framework.fixture<Category>(Category)
-    const question = {
-      categoryId: category.id.toString(),
-      title: 'any',
-      type: QuestionType.TYPE,
-      difficulty: QuestionDifficulty.EASY,
-    }
-    const res = await request(framework.app).post('/graphql').send(addQuestionMutation({ question }))
-
-    expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
-  })
-  test('Bad request (category not found) (GraphQL)', async () => {
-    const categoryId = await framework.fakeId()
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
-    const token = (await framework.auth(user)).token
     const question = {
       categoryId: categoryId.toString(),
       title: 'any',
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
     }
-    const res = await request(framework.app).post('/graphql').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
@@ -232,18 +80,18 @@ describe('Create question', () => {
       },
       times: 1,
     },
-  ])('Bad request ($case) (GraphQL)', async ({ body, times }) => {
+  ])('Bad request ($case)', async ({ body, times }) => {
     const category = await framework.fixture<Category>(Category)
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const question = { ...body, ...{ categoryId: category.id.toString() } } as QuestionSchema
-    const res = await request(framework.app).post('/graphql').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError(...Array(times).fill('BadRequestError')))
   })
   // todo: add cases
-  test('Forbidden (GraphQL)', async () => {
+  test('Forbidden', async () => {
     const category = await framework.fixture<Category>(Category)
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
@@ -260,12 +108,12 @@ describe('Create question', () => {
         },
       ],
     }
-    const res = await request(framework.app).post('/graphql').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
-  test('Conflict (GraphQL)', async () => {
+  test('Conflict', async () => {
     const category = await framework.fixture<Category>(Category)
     const question1 = await framework.fixture<Question>(Question)
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
@@ -283,13 +131,13 @@ describe('Create question', () => {
         },
       ],
     }
-    const res = await request(framework.app).post('/graphql').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ConflictError'))
   })
   // todo: add cases
-  test('Created (GraphQL)', async () => {
+  test('Created', async () => {
     const category = await framework.fixture<Category>(Category)
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
@@ -321,7 +169,7 @@ describe('Create question', () => {
       'updatedAt',
     ]
     const now = Date.now()
-    const res = await request(framework.app).post('/graphql').send(addQuestionMutation({ question }, fields)).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(addQuestionMutation({ question }, fields)).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { addQuestion: question } })

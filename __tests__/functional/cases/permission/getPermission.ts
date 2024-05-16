@@ -10,17 +10,17 @@ import TestFramework from '../../TestFramework'
 const framework: TestFramework = globalThis.framework
 
 describe('Get permission', () => {
-  test('Unauthorized (GraphQL)', async () => {
-    const res = await request(framework.app).post('/graphql')
+  test('Unauthorized', async () => {
+    const res = await request(framework.app).post('/')
       .send(permissionQuery([ 'items', 'hierarchy {regular root}' ]))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
-  test('OK (GraphQL)', async () => {
+  test('OK', async () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(permissionQuery([ 'items', 'hierarchy {regular root}' ]))
       .auth(token, { type: 'bearer' })
 

@@ -1,5 +1,4 @@
 import { Column, Entity, ObjectIdColumn } from 'typeorm'
-import { Exclude, Transform, Type } from 'class-transformer'
 import { ObjectId } from 'mongodb'
 import {
   ArrayNotEmpty,
@@ -76,13 +75,11 @@ export default class Question {
 
   @IsMongoId()
   @ObjectIdColumn()
-  @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
   public readonly id: ObjectId
 
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
   @Field(_type => ObjectIdScalar)
   public categoryId: ObjectId
 
@@ -104,7 +101,6 @@ export default class Question {
   @ValidateIf(question => question.type === QuestionType.CHOICE)
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => QuestionChoice)
   @Column(() => QuestionChoice)
   @Field(_type => [ QuestionChoice ], { nullable: true })
   public choices?: QuestionChoice[]
@@ -112,7 +108,6 @@ export default class Question {
   @ValidateIf(question => question.type === QuestionType.TYPE)
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => QuestionAnswer)
   @Column(() => QuestionAnswer)
   @Field(_type => [ QuestionAnswer ], { nullable: true })
   public answers?: QuestionAnswer[]
@@ -129,35 +124,28 @@ export default class Question {
   @Field(_type => Int, { nullable: true })
   public rating?: number = 0
 
-  @Exclude()
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value?.toString())
   public creatorId: ObjectId
 
   @IsMongoId()
   @Column()
-  @Transform(({ value }: { value: ObjectId }) => value.toString())
   @Field(_type => ObjectIdScalar)
   public ownerId: ObjectId
 
   @IsNumber()
   @Column({ update: false })
-  @Transform(({ value }: { value: Date }) => value.getTime())
   @Field(_type => GraphQLTimestamp)
   public createdAt: Date
 
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
-  @Transform(({ value }: { value: Date }) => value?.getTime())
   @Field(_type => GraphQLTimestamp, { nullable: true })
   public updatedAt?: Date
 
-  @Exclude()
   @IsOptional()
   @IsNumber()
   @Column({ nullable: true, insert: false })
-  @Transform(({ value }: { value: Date }) => value?.getTime())
   public deletedAt?: Date
 }

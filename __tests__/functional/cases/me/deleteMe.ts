@@ -9,35 +9,17 @@ const framework: TestFramework = globalThis.framework
 
 describe('Delete me', () => {
   test('Unauthorized', async () => {
-    const res = await request(framework.app).delete('/me')
-
-    expect(res.status).toEqual(401)
-    expect(res.body).toMatchObject(framework.error('AuthorizationRequiredError'))
-  })
-  test('Deleted', async () => {
-    const user = await framework.fixture<User>(User)
-    const token = (await framework.auth(user)).token
-    const now = Date.now()
-    const res = await request(framework.app).delete('/me').auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(204)
-    expect(res.body).toEqual({})
-    const latestUser = await framework.load<User>(User, user.id)
-    expect(latestUser).not.toBeNull()
-    expect(latestUser.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
-  })
-  test('Unauthorized (GraphQL)', async () => {
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(removeMeMutation())
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
-  test('Deleted (GraphQL)', async () => {
+  test('Deleted', async () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const now = Date.now()
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(removeMeMutation())
       .auth(token, { type: 'bearer' })
 

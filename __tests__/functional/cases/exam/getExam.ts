@@ -12,107 +12,56 @@ const framework: TestFramework = globalThis.framework
 describe('Get exam', () => {
   test('Unauthorized', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const res = await request(framework.app).get(`/exams/${ exam.id.toString() }`)
-
-    expect(res.status).toEqual(401)
-    expect(res.body).toMatchObject(framework.error('AuthorizationRequiredError'))
-  })
-  test('Bad request (invalid id)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
-    const token = (await framework.auth(user)).token
-    const res = await request(framework.app).get('/exams/invalid').auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(400)
-    expect(res.body).toMatchObject(framework.error('BadRequestError'))
-  })
-  test('Not found', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
-    const token = (await framework.auth(user)).token
-    const id = await framework.fakeId()
-    const res = await request(framework.app).get(`/exams/${ id.toString() }`).auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(404)
-    expect(res.body).toMatchObject(framework.error('NotFoundError'))
-  })
-  test('Forbidden', async () => {
-    const user = await framework.fixture<User>(User)
-    const exam = await framework.fixture<Exam>(Exam)
-    const token = (await framework.auth(user)).token
-    const res = await request(framework.app).get(`/exams/${ exam.id.toString() }`).auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(403)
-    expect(res.body).toMatchObject(framework.error('ForbiddenError'))
-  })
-  test('Found (ownership)', async () => {
-    const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.load<User>(User, exam.ownerId)
-    const token = (await framework.auth(user)).token
-    const res = await request(framework.app).get(`/exams/${ exam.id.toString() }`).auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ id: exam.id.toString() })
-  })
-  test('Found (permission)', async () => {
-    const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
-    const token = (await framework.auth(user)).token
-    const res = await request(framework.app).get(`/exams/${ exam.id.toString() }`).auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ id: exam.id.toString() })
-  })
-  test('Unauthorized (GraphQL)', async () => {
-    const exam = await framework.fixture<Exam>(Exam)
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(examQuery({ examId: exam.id.toString() }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
-  test('Bad request (invalid id) (GraphQL)', async () => {
+  test('Bad request (invalid id)', async () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(examQuery({ examId: 'invalid' }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
-  test('Not found (GraphQL)', async () => {
+  test('Not found', async () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(examQuery({ examId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('NotFoundError'))
   })
-  test('Forbidden (GraphQL)', async () => {
+  test('Forbidden', async () => {
     const user = await framework.fixture<User>(User)
     const exam = await framework.fixture<Exam>(Exam)
     const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(examQuery({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
-  test('Found (ownership) (GraphQL)', async () => {
+  test('Found (ownership)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
     const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(examQuery({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { exam: { id: exam.id.toString() } } })
   })
-  test('Found (permission) (GraphQL)', async () => {
+  test('Found (permission)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await framework.auth(user)).token
@@ -127,7 +76,7 @@ describe('Get exam', () => {
       'createdAt',
       'updatedAt',
     ]
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(examQuery({ examId: exam.id.toString() }, fields))
       .auth(token, { type: 'bearer' })
 

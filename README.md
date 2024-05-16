@@ -8,7 +8,3 @@
 
 * https://github.com/oleksandr-andrushchenko/ExamMeLocal
 * If you like it - give me a star, thank you
-
-# Preview
-
-![Swagger](docs/swagger.gif)

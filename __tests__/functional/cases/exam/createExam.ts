@@ -15,105 +15,45 @@ const framework: TestFramework = globalThis.framework
 describe('Create exam', () => {
   test('Unauthorized', async () => {
     const category = await framework.fixture<Category>(Category)
-    const res = await request(framework.app).post('/exams').send({ categoryId: category.id.toString() })
-
-    expect(res.status).toEqual(401)
-    expect(res.body).toMatchObject(framework.error('AuthorizationRequiredError'))
-  })
-  test('Bad request (empty body)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
-    const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/exams').auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(400)
-    expect(res.body).toMatchObject(framework.error('BadRequestError'))
-  })
-  test('Forbidden', async () => {
-    const user = await framework.fixture<User>(User)
-    const token = (await framework.auth(user)).token
-    const category = await framework.fixture<Category>(Category)
-    const res = await request(framework.app).post('/exams').send({ categoryId: category.id.toString() }).auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(403)
-    expect(res.body).toMatchObject(framework.error('ForbiddenError'))
-  })
-  test('Conflict (exam taken)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
-    const token = (await framework.auth(user)).token
-    const exam = await framework.fixture<Exam>(Exam, { completedAt: false, creatorId: user.id })
-    const res = await request(framework.app).post('/exams').send({ categoryId: exam.categoryId.toString() }).auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(409)
-    expect(res.body).toMatchObject(framework.error('ConflictError'))
-  })
-  test('Created', async () => {
-    await framework.clear(Exam)
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
-    const token = (await framework.auth(user)).token
-    const category = await framework.fixture<Category>(Category)
-    const exam = { categoryId: category.id.toString() }
-    const now = Date.now()
-    const res = await request(framework.app).post('/exams').send(exam).auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(201)
-    expect(res.body).toMatchObject(exam)
-    expect(res.body).toHaveProperty('id')
-    const id = new ObjectId(res.body.id)
-    const latestExam = await framework.load<Exam>(Exam, id)
-    expect({ ...latestExam, ...{ categoryId: latestExam.categoryId.toString() } }).toMatchObject(exam)
-    expect(res.body).toEqual({
-      id: latestExam.id.toString(),
-      categoryId: latestExam.categoryId.toString(),
-      questionNumber: latestExam.questionNumber,
-      ownerId: latestExam.ownerId.toString(),
-      questionsCount: latestExam.getQuestionsCount(),
-      answeredCount: latestExam.getQuestionsAnsweredCount(),
-      createdAt: latestExam.createdAt.getTime(),
-    })
-    expect(latestExam.createdAt.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body).not.toHaveProperty([ 'completedAt', 'creatorId', 'updatedAt', 'deletedAt' ])
-  })
-  test('Unauthorized (GraphQL)', async () => {
-    const category = await framework.fixture<Category>(Category)
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(addExamMutation({ exam: { categoryId: category.id.toString() } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
-  test('Bad request (empty body) (GraphQL)', async () => {
+  test('Bad request (empty body)', async () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(addExamMutation({ exam: {} as CreateExamSchema }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
-  test('Forbidden (GraphQL)', async () => {
+  test('Forbidden', async () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(addExamMutation({ exam: { categoryId: category.id.toString() } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
-  test('Conflict (exam taken) (GraphQL)', async () => {
+  test('Conflict (exam taken)', async () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const exam = await framework.fixture<Exam>(Exam, { completedAt: false, creatorId: user.id })
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(addExamMutation({ exam: { categoryId: exam.categoryId.toString() } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ConflictError'))
   })
-  test('Created (GraphQL)', async () => {
+  test('Created', async () => {
     await framework.clear(Exam)
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await framework.auth(user)).token
@@ -131,7 +71,7 @@ describe('Create exam', () => {
       'updatedAt',
     ]
     const now = Date.now()
-    const res = await request(framework.app).post('/graphql')
+    const res = await request(framework.app).post('/')
       .send(addExamMutation({ exam }, fields))
       .auth(token, { type: 'bearer' })
 

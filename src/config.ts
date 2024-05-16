@@ -29,8 +29,6 @@ export default {
     version: pkg.version,
     description: pkg.description,
     port: env.PORT,
-    cors: true,
-    validator: false,
   },
   auth: {
     permissions: {
@@ -59,15 +57,5 @@ export default {
   },
   jwt: {
     secret: 'any',
-  },
-  swagger: {
-    enabled: environment === 'development',
-    route: '/docs',
-    username: 'any',
-    password: 'any',
-  },
-  graphql: {
-    enabled: true,
-    route: '/graphql',
   },
 }
