@@ -128,7 +128,7 @@ describe('Create exam question answer', () => {
     const fields = [ 'id', 'questionNumber', 'answeredQuestionCount' ]
     const res = await request(framework.app).post('/')
       .send(addExamQuestionAnswerMutation({
-        examId: exam.id,
+        examId: exam.id.toString(),
         question: questionNumber,
         examQuestionAnswer,
       }, fields))
