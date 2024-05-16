@@ -80,7 +80,7 @@ describe('Get exam question', () => {
     const exam = await framework.fixture<Exam>(Exam)
     const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
-    const questionNumber = exam.getQuestionsCount() - 1
+    const questionNumber = exam.questionCount() - 1
     const res = await request(framework.app).post('/')
       .send(examQuestionQuery(
         { examId: exam.id.toString(), question: questionNumber },

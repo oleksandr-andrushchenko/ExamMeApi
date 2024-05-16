@@ -65,8 +65,8 @@ describe('Create exam', () => {
       'questionNumber',
       'completedAt',
       'ownerId',
-      'questionsCount',
-      'answeredCount',
+      'questionCount',
+      'answeredQuestionCount',
       'createdAt',
       'updatedAt',
     ]
@@ -87,8 +87,8 @@ describe('Create exam', () => {
       questionNumber: latestExam.questionNumber,
       completedAt: null,
       ownerId: latestExam.ownerId.toString(),
-      questionsCount: latestExam.getQuestionsCount(),
-      answeredCount: latestExam.getQuestionsAnsweredCount(),
+      questionCount: latestExam.questionCount(),
+      answeredQuestionCount: latestExam.answeredQuestionCount(),
       createdAt: latestExam.createdAt.getTime(),
       updatedAt: null,
     })

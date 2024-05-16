@@ -87,20 +87,12 @@ export default class Exam {
   public deletedAt?: Date
 
   @Field(_type => Int)
-  public questionsCount(): number {
-    return this.getQuestionsCount()
-  }
-
-  public getQuestionsCount(): number {
+  public questionCount(): number {
     return this.questions?.length || 0
   }
 
   @Field(_type => Int)
-  public answeredCount(): number {
-    return this.getQuestionsAnsweredCount()
-  }
-
-  public getQuestionsAnsweredCount(): number {
+  public answeredQuestionCount(): number {
     return (this?.questions || [])
       .filter((question: ExamQuestion): boolean => typeof question.choice === 'number' || typeof question.answer === 'string')
       .length

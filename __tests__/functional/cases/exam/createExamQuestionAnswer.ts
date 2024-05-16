@@ -124,11 +124,11 @@ describe('Create exam question answer', () => {
       expectedAddExamQuestionAnswer['answer'] = examQuestionAnswer['answer']
     }
 
-    const answeredCount = exam.answeredCount()
-    const fields = [ 'id', 'questionNumber', 'answeredCount' ]
+    const answeredQuestionCount = exam.answeredQuestionCount()
+    const fields = [ 'id', 'questionNumber', 'answeredQuestionCount' ]
     const res = await request(framework.app).post('/')
       .send(addExamQuestionAnswerMutation({
-        examId: exam.id.toString(),
+        examId: exam.id,
         question: questionNumber,
         examQuestionAnswer,
       }, fields))
@@ -136,9 +136,9 @@ describe('Create exam question answer', () => {
 
     expect(res.status).toEqual(200)
     expect(res.body.data.addExamQuestionAnswer).toMatchObject({
-      id: exam.id,
+      id: exam.id.toString(),
       questionNumber: questionNumber + 1,
-      answeredCount: answeredCount + 1,
+      answeredQuestionCount: answeredQuestionCount + 1,
     })
   })
 })
