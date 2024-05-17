@@ -25,6 +25,7 @@ import { entities } from './entities'
 import { AuthCheckerService } from './services/auth/AuthCheckerService'
 import { GraphQLError } from 'graphql/error'
 import type { GraphQLFormattedError } from 'graphql/index'
+import cors from 'cors'
 
 typeormUseContainer(Container)
 
@@ -103,6 +104,7 @@ export const appUp = async (listen?: boolean): Promise<void> => {
 
   app.use(
     '/',
+    cors(),
     express.json(),
     expressMiddleware(apolloServer, {
       context: async ({ req }) => {
