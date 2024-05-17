@@ -141,34 +141,6 @@ export default class CategoryService {
 
   /**
    * @param {Category} category
-   * @param {CategorySchema} transfer
-   * @param {User} initiator
-   * @returns {Promise<Category>}
-   * @throws {CategoryNotFoundError}
-   * @throws {AuthorizationFailedError}
-   * @throws {CategoryNameTakenError}
-   */
-  public async replaceCategory(category: Category, transfer: CategorySchema, initiator: User): Promise<Category> {
-    await this.validator.validate(transfer)
-
-    await this.authService.verifyAuthorization(initiator, CategoryPermission.REPLACE, category)
-
-    const name = transfer.name
-    await this.verifyCategoryNameNotExists(name, category.id)
-
-    category.name = name
-    category.requiredScore = transfer.requiredScore
-    category.updatedAt = new Date()
-
-    await this.entityManager.save<Category>(category)
-
-    this.eventDispatcher.dispatch('categoryReplaced', { category })
-
-    return category
-  }
-
-  /**
-   * @param {Category} category
    * @param {User} initiator
    * @returns {Promise<Category>}
    * @throws {CategoryNotFoundError}

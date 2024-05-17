@@ -49,35 +49,6 @@ export default class MeService {
     return user
   }
 
-  /**
-   * @param {MeSchema} transfer
-   * @param {User} initiator
-   * @returns {Promise<User>}
-   * @throws {UserEmailTakenError}
-   */
-  public async replaceMe(transfer: MeSchema, initiator: User): Promise<User> {
-    await this.validator.validate(transfer)
-
-    const email = transfer.email
-    await this.userService.verifyUserEmailNotExists(email)
-
-    initiator.name = transfer.name
-    initiator.email = email
-    initiator.password = transfer.password
-
-    if ('name' in transfer) {
-      initiator.name = transfer.name
-    }
-
-    initiator.updatedAt = new Date()
-
-    await this.entityManager.save<User>(initiator)
-
-    this.eventDispatcher.dispatch('meReplaced', { me: initiator })
-
-    return initiator
-  }
-
   public async updateMe(transfer: MeUpdateSchema, initiator: User): Promise<User> {
     await this.validator.validate(transfer)
 
