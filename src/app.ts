@@ -27,11 +27,13 @@ import { GraphQLError } from 'graphql/error'
 import type { GraphQLFormattedError } from 'graphql/index'
 import cors from 'cors'
 import compression from 'compression'
+import morgan from 'morgan'
 
 typeormUseContainer(Container)
 
 Container.set('env', config.env)
-Container.set('loggerFormat', config.logger.format)
+const loggerFormat = config.logger.format
+Container.set('loggerFormat', loggerFormat)
 Container.set('loggerLevel', config.logger.level)
 Container.set('authPermissions', config.auth.permissions)
 Container.set('validatorOptions', config.validator)
@@ -103,6 +105,7 @@ export const appUp = async (listen?: boolean): Promise<void> => {
 
   await apolloServer.start()
 
+  app.use(morgan(loggerFormat, { stream: { write: logger.info.bind(logger) } }))
   app.use(cors())
   app.use(express.json())
   app.use(compression())
