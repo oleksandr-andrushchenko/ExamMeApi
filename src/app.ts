@@ -26,6 +26,7 @@ import { AuthCheckerService } from './services/auth/AuthCheckerService'
 import { GraphQLError } from 'graphql/error'
 import type { GraphQLFormattedError } from 'graphql/index'
 import cors from 'cors'
+import compression from 'compression'
 
 typeormUseContainer(Container)
 
@@ -106,6 +107,7 @@ export const appUp = async (listen?: boolean): Promise<void> => {
     '/',
     cors(),
     express.json(),
+    compression(),
     expressMiddleware(apolloServer, {
       context: async ({ req }) => {
         return {
