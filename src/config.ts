@@ -9,7 +9,7 @@ const env = new Env(process.env)
 EnvValidator.validateEnv(env)
 
 const environment: string = env.NODE_ENV
-console.log('config')
+
 export default {
   env: environment,
   projectDir: path.resolve(__dirname, '..'),
