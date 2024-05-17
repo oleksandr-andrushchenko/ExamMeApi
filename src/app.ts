@@ -103,19 +103,16 @@ export const appUp = async (listen?: boolean): Promise<void> => {
 
   await apolloServer.start()
 
-  app.use(
-    '/',
-    cors(),
-    express.json(),
-    compression(),
-    expressMiddleware(apolloServer, {
-      context: async ({ req }) => {
-        return {
-          user: await authChecker.getApolloContextUser(req),
-        }
-      },
-    }),
-  )
+  app.use(cors())
+  app.use(express.json())
+  app.use(compression())
+  app.use(expressMiddleware(apolloServer, {
+    context: async ({ req }) => {
+      return {
+        user: await authChecker.getApolloContextUser(req),
+      }
+    },
+  }))
 
   if (listen) {
     const port = config.app.port
