@@ -106,7 +106,7 @@ export const appUp = async (listen?: boolean): Promise<void> => {
   await apolloServer.start()
 
   app.use(morgan(loggerFormat, { stream: { write: logger.info.bind(logger) } }))
-  app.use(cors())
+  app.use(cors({ origin: config.client_url }))
   app.use(express.json())
   app.use(compression())
   app.use(expressMiddleware(apolloServer, {
