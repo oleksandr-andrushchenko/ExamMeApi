@@ -26,13 +26,14 @@ export class AuthCheckerService {
   }
 
   public getTypeGraphqlAuthChecker(): AuthChecker<Context> {
-    return async ({ context: { user } }, permissions): Promise<boolean> => {
+    return async ({ root, context: { user } }, permissions): Promise<boolean> => {
+      // https://typegraphql.com/docs/authorization.html
       if (!user) {
         throw new AuthenticationError()
       }
 
       for (const permission of permissions) {
-        if (!await this.authService.verifyAuthorization(user, permission)) {
+        if (!await this.authService.verifyAuthorization(user, permission, root)) {
           throw new AuthorizationError()
         }
       }
