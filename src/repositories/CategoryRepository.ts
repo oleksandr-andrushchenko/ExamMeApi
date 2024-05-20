@@ -1,14 +1,10 @@
-import { MongoRepository } from 'typeorm'
 import Category from '../entities/Category'
 import Repository from '../decorators/Repository'
 import { ObjectId } from 'mongodb'
+import EntityRepository from './EntityRepository'
 
 @Repository(Category)
-export default class CategoryRepository extends MongoRepository<Category> {
-
-  public async findOneById(id: ObjectId): Promise<Category | null> {
-    return await this.findOneBy({ _id: id })
-  }
+export default class CategoryRepository extends EntityRepository<Category> {
 
   public async findOneByName(name: string, ignoreId: ObjectId = undefined): Promise<Category | null> {
     const where = { name }
