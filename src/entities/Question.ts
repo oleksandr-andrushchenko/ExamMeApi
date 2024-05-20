@@ -12,9 +12,10 @@ import {
   ValidateIf,
   ValidateNested,
 } from 'class-validator'
-import { Field, Int, ObjectType } from 'type-graphql'
+import { Authorized, Field, Int, ObjectType } from 'type-graphql'
 import { ObjectIdScalar } from '../scalars/ObjectIdScalar'
 import { GraphQLTimestamp } from 'graphql-scalars'
+import QuestionPermission from '../enums/question/QuestionPermission'
 
 export enum QuestionType {
   TYPE = 'type',
@@ -98,6 +99,7 @@ export default class Question {
   @Field()
   public title: string
 
+  @Authorized(QuestionPermission.READ_CHOICES)
   @ValidateIf(question => question.type === QuestionType.CHOICE)
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
@@ -105,6 +107,7 @@ export default class Question {
   @Field(_type => [ QuestionChoice ], { nullable: true })
   public choices?: QuestionChoice[]
 
+  @Authorized(QuestionPermission.READ_ANSWERS)
   @ValidateIf(question => question.type === QuestionType.TYPE)
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
