@@ -251,11 +251,11 @@ export default class QuestionService {
    * @throws {QuestionTypeError}
    */
   public checkChoice(choice: number, question: Question): boolean {
-    if (question.type !== QuestionType.CHOICE) {
-      throw new QuestionTypeError(question.type)
-    }
+    // if (question.type !== QuestionType.CHOICE) {
+    //   throw new QuestionTypeError(question.type)
+    // }
 
-    return question.choices[choice]?.correct
+    return (question.choices || [])[choice]?.correct
   }
 
   /**
@@ -265,12 +265,12 @@ export default class QuestionService {
    * @throws {QuestionTypeError}
    */
   public checkAnswer(answer: string, question: Question): boolean {
-    if (question.type !== QuestionType.TYPE) {
-      throw new QuestionTypeError(question.type)
-    }
+    // if (question.type !== QuestionType.TYPE) {
+    //   throw new QuestionTypeError(question.type)
+    // }
 
-    for (const questionAnswer of question.answers) {
-      if (questionAnswer.correct) {
+    for (const questionAnswer of (question.answers || [])) {
+      if (questionAnswer?.correct) {
         return questionAnswer.variants.indexOf(answer) !== -1
       }
     }
