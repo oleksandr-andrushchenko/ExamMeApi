@@ -6,6 +6,7 @@ import Question, { QuestionAnswer, QuestionChoice, QuestionType } from '../../..
 import { questionsQuery } from '../../graphql/question/questionsQuery'
 import QuestionQuerySchema from '../../../../src/schema/question/QuestionQuerySchema'
 import TestFramework from '../../TestFramework'
+import User from '../../../../src/entities/User'
 
 const framework: TestFramework = globalThis.framework
 
@@ -38,12 +39,14 @@ describe('Query questions', () => {
     expect(res.status).toEqual(200)
     expect(res.body.data.questions).toEqual([])
   })
-  test('Not empty by category', async () => {
+  test('Not empty by category (ownership)', async () => {
     await framework.clear()
-    const category = await framework.fixture<Category>(Category)
+    const user = await framework.fixture<User>(User)
+    const token = (await framework.auth(user)).token
+    const category = await framework.fixture<Category>(Category, { creatorId: user.id })
     const questions = await Promise.all([
-      framework.fixture<Question>(Question, { categoryId: category.id }),
-      framework.fixture<Question>(Question, { categoryId: category.id }),
+      framework.fixture<Question>(Question, { categoryId: category.id, creatorId: user.id }),
+      framework.fixture<Question>(Question, { categoryId: category.id, creatorId: user.id }),
     ])
     const fields = [
       'id',
@@ -56,6 +59,7 @@ describe('Query questions', () => {
     ]
     const res = await request(framework.app).post('/')
       .send(questionsQuery({ categoryId: category.id.toString() }, fields))
+      .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body.data.questions).toHaveLength(questions.length)

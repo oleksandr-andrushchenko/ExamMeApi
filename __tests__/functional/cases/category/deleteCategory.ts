@@ -65,30 +65,24 @@ describe('Delete category', () => {
     const category = await framework.fixture<Category>(Category)
     const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
-    const now = Date.now()
     const res = await request(framework.app).post('/')
       .send(removeCategoryMutation({ categoryId: category.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeCategory: true } })
-    const latestCategory = await framework.load<Category>(Category, category.id)
-    expect(latestCategory).not.toBeNull()
-    expect(latestCategory.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(await framework.load<Category>(Category, category.id)).toBeNull()
   })
   test('Deleted (has permission)', async () => {
     const category = await framework.fixture<Category>(Category)
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.DELETE ] })
     const token = (await framework.auth(user)).token
-    const now = Date.now()
     const res = await request(framework.app).post('/')
       .send(removeCategoryMutation({ categoryId: category.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeCategory: true } })
-    const latestCategory = await framework.load<Category>(Category, category.id)
-    expect(latestCategory).not.toBeNull()
-    expect(latestCategory.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(await framework.load<Category>(Category, category.id)).toBeNull()
   })
 })

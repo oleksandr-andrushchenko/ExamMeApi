@@ -65,30 +65,24 @@ describe('Delete question', () => {
     const question = await framework.fixture<Question>(Question)
     const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
-    const now = Date.now()
     const res = await request(framework.app).post('/')
       .send(removeQuestionMutation({ questionId: question.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeQuestion: true } })
-    const latestQuestion = await framework.load<Question>(Question, question.id)
-    expect(latestQuestion).not.toBeNull()
-    expect(latestQuestion.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(await framework.load<Question>(Question, question.id)).toBeNull()
   })
   test('Deleted (has permission)', async () => {
     const question = await framework.fixture<Question>(Question)
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
     const token = (await framework.auth(user)).token
-    const now = Date.now()
     const res = await request(framework.app).post('/')
       .send(removeQuestionMutation({ questionId: question.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeQuestion: true } })
-    const latestQuestion = await framework.load<Question>(Question, question.id)
-    expect(latestQuestion).not.toBeNull()
-    expect(latestQuestion.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(await framework.load<Question>(Question, question.id)).toBeNull()
   })
 })

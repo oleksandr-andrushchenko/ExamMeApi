@@ -18,15 +18,12 @@ describe('Delete me', () => {
   test('Deleted', async () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
-    const now = Date.now()
     const res = await request(framework.app).post('/')
       .send(removeMeMutation())
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeMe: true } })
-    const latestUser = await framework.load<User>(User, user.id)
-    expect(latestUser).not.toBeNull()
-    expect(latestUser.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(await framework.load<User>(User, user.id)).toBeNull()
   })
 })

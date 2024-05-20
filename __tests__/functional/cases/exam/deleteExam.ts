@@ -54,30 +54,24 @@ describe('Delete exam', () => {
     const exam = await framework.fixture<Exam>(Exam)
     const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
-    const now = Date.now()
     const res = await request(framework.app).post('/')
       .send(removeExamMutation({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeExam: true } })
-    const latestExam = await framework.load<Exam>(Exam, exam.id)
-    expect(latestExam).not.toBeNull()
-    expect(latestExam.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(await framework.load<Exam>(Exam, exam.id)).toBeNull()
   })
   test('Deleted (has permission)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.DELETE ] })
     const token = (await framework.auth(user)).token
-    const now = Date.now()
     const res = await request(framework.app).post('/')
       .send(removeExamMutation({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { removeExam: true } })
-    const latestExam = await framework.load<Exam>(Exam, exam.id)
-    expect(latestExam).not.toBeNull()
-    expect(latestExam.deletedAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(await framework.load<Exam>(Exam, exam.id)).toBeNull()
   })
 })

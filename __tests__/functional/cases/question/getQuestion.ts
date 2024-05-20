@@ -5,6 +5,7 @@ import Question, { QuestionAnswer, QuestionChoice, QuestionType } from '../../..
 // @ts-ignore
 import { questionQuery } from '../../graphql/question/questionQuery'
 import TestFramework from '../../TestFramework'
+import User from '../../../../src/entities/User'
 
 const framework: TestFramework = globalThis.framework
 
@@ -22,9 +23,10 @@ describe('Get question', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
-  test('Found', async () => {
-    const category = await framework.fixture<Category>(Category)
-    const question = await framework.fixture<Question>(Question, { categoryId: category.id })
+  test('Found (ownership)', async () => {
+    const question = await framework.fixture<Question>(Question)
+    const user = await framework.load<User>(User, question.creatorId)
+    const token = (await framework.auth(user)).token
     const fields = [
       'id',
       'categoryId',
@@ -39,7 +41,9 @@ describe('Get question', () => {
       'createdAt',
       'updatedAt',
     ]
-    const res = await request(framework.app).post('/').send(questionQuery({ questionId: question.id.toString() }, fields))
+    const res = await request(framework.app).post('/')
+      .send(questionQuery({ questionId: question.id.toString() }, fields))
+      .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({
