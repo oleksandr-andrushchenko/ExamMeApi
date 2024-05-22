@@ -106,6 +106,20 @@ export class ExamResolver {
   }
 
   @Authorized()
+  @Mutation(_returns => ExamQuestionSchema)
+  public async clearExamQuestionAnswer(
+    @Args() getExamQuestion: GetExamQuestionSchema,
+    @Ctx('user') user: User,
+  ): Promise<ExamQuestionSchema> {
+    await this.validator.validate(getExamQuestion)
+    const exam = await this.examService.getExam(getExamQuestion.examId, user)
+
+    await this.examService.deleteExamQuestionAnswer(exam, getExamQuestion.question, user)
+
+    return this.examService.getExamQuestion(exam, getExamQuestion.question, user)
+  }
+
+  @Authorized()
   @Mutation(_returns => Exam)
   public async addExamCompletion(
     @Args() getExam: GetExamSchema,

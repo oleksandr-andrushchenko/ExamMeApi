@@ -81,6 +81,7 @@ type Mutation {
   addMe(me: MeSchema!): User!
   addQuestion(question: QuestionSchema!): Question!
   addUser(user: UserSchema!): User!
+  clearExamQuestionAnswer(examId: ID!, question: Int!): ExamQuestionSchema!
   removeCategory(categoryId: ID!): Boolean!
   removeExam(examId: ID!): Boolean!
   removeMe: Boolean!

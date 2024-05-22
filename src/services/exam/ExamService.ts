@@ -185,6 +185,45 @@ export default class ExamService {
   }
 
   /**
+   * @param {Exam} exam
+   * @param {number} questionNumber
+   * @param {User} initiator
+   * @returns {Promise<void>}
+   * @throws {AuthorizationFailedError}
+   * @throws {QuestionNotFoundError}
+   * @throws {ValidatorError}
+   */
+  public async deleteExamQuestionAnswer(
+    exam: Exam,
+    questionNumber: number,
+    initiator: User,
+  ): Promise<void> {
+    await this.authService.verifyAuthorization(initiator, ExamPermission.DELETE_QUESTION_ANSWER, exam)
+
+    const questions = exam.questions
+    const questionId = questions[questionNumber]
+
+    if (questionId === undefined) {
+      throw new QuestionNotFoundError('undefined' as any)
+    }
+
+    const question = await this.questionService.getQuestion(questions[questionNumber].questionId)
+
+    if (question.type === QuestionType.CHOICE) {
+      delete questions[questionNumber].choice
+    } else if (question.type === QuestionType.TYPE) {
+      delete questions[questionNumber].answer
+    }
+
+    // todo: optimize
+    exam.questions = questions
+    exam.updatedAt = new Date()
+
+    // todo: optimize, run partial array query
+    await this.entityManager.save<Exam>(exam)
+  }
+
+  /**
    * @param {ExamQuerySchema} query
    * @param {User} initiator
    * @param {boolean} meta
