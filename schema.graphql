@@ -55,11 +55,9 @@ type Exam {
 type ExamQuestionSchema {
   answer: String
   choice: Int
-  choices: [String!]
-  difficulty: String
-  number: Int!
-  question: String!
-  type: String
+  exam: Exam
+  number: Int
+  question: Question
 }
 
 input MeSchema {
@@ -79,7 +77,7 @@ type Mutation {
   addCategory(category: CategorySchema!): Category!
   addExam(exam: CreateExamSchema!): Exam!
   addExamCompletion(examId: ID!): Exam!
-  addExamQuestionAnswer(examId: ID!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): Exam!
+  addExamQuestionAnswer(examId: ID!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): ExamQuestionSchema!
   addMe(me: MeSchema!): User!
   addQuestion(question: QuestionSchema!): Question!
   addUser(user: UserSchema!): User!

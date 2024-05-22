@@ -15,7 +15,7 @@ import ExamNotFoundError from '../../errors/exam/ExamNotFoundError'
 import ExamQuestionSchema from '../../schema/exam/ExamQuestionSchema'
 import CreateExamQuestionAnswerSchema from '../../schema/exam/CreateExamQuestionAnswerSchema'
 import QuestionService from '../question/QuestionService'
-import Question, { QuestionChoice, QuestionType } from '../../entities/Question'
+import Question, { QuestionType } from '../../entities/Question'
 import { ObjectId } from 'mongodb'
 import AuthorizationFailedError from '../../errors/auth/AuthorizationFailedError'
 import ExamQuerySchema from '../../schema/exam/ExamQuerySchema'
@@ -95,18 +95,16 @@ export default class ExamService {
       throw new ExamQuestionNumberNotFoundError(questionNumber)
     }
 
-    const examQuestion = new ExamQuestionSchema()
     const question = await this.questionService.getQuestion(questions[questionNumber].questionId)
 
+    const examQuestion = new ExamQuestionSchema()
+    examQuestion.exam = exam
+    examQuestion.question = question
     examQuestion.number = questionNumber
-    examQuestion.question = question.title
-    examQuestion.difficulty = question.difficulty
-    examQuestion.type = question.type
 
-    if (examQuestion.type === QuestionType.CHOICE) {
-      examQuestion.choices = question.choices.map((choice: QuestionChoice) => choice.title)
+    if (question.type === QuestionType.CHOICE) {
       examQuestion.choice = questions[questionNumber].choice
-    } else if (examQuestion.type === QuestionType.TYPE) {
+    } else if (question.type === QuestionType.TYPE) {
       examQuestion.answer = questions[questionNumber].answer
     }
 
@@ -147,7 +145,7 @@ export default class ExamService {
    * @param {number} questionNumber
    * @param {CreateExamQuestionAnswerSchema} examQuestionAnswer
    * @param {User} initiator
-   * @returns {Promise<void>}
+   * @returns {Promise<ExamQuestion>}
    * @throws {AuthorizationFailedError}
    * @throws {QuestionNotFoundError}
    * @throws {ValidatorError}
@@ -157,7 +155,7 @@ export default class ExamService {
     questionNumber: number,
     examQuestionAnswer: CreateExamQuestionAnswerSchema,
     initiator: User,
-  ): Promise<void> {
+  ): Promise<ExamQuestion> {
     await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_QUESTION_ANSWER, exam)
     await this.validator.validate(examQuestionAnswer)
 
@@ -182,6 +180,8 @@ export default class ExamService {
 
     // todo: optimize, run partial array query
     await this.entityManager.save<Exam>(exam)
+
+    return questions[questionNumber]
   }
 
   /**

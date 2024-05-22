@@ -4,7 +4,7 @@ import User from '../entities/User'
 import CreateExamSchema from '../schema/exam/CreateExamSchema'
 import ExamService from '../services/exam/ExamService'
 import GetExamSchema from '../schema/exam/GetExamSchema'
-import ExamQuestion from '../schema/exam/ExamQuestionSchema'
+import ExamQuestionSchema from '../schema/exam/ExamQuestionSchema'
 import CreateExamQuestionAnswerSchema from '../schema/exam/CreateExamQuestionAnswerSchema'
 import GetExamQuestionSchema from '../schema/exam/GetExamQuestionSchema'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
@@ -64,11 +64,11 @@ export class ExamResolver {
   }
 
   @Authorized()
-  @Query(_returns => ExamQuestion)
+  @Query(_returns => ExamQuestionSchema)
   public async examQuestion(
     @Args() getExamQuestion: GetExamQuestionSchema,
     @Ctx('user') user: User,
-  ): Promise<ExamQuestion> {
+  ): Promise<ExamQuestionSchema> {
     await this.validator.validate(getExamQuestion)
     const exam = await this.examService.getExam(getExamQuestion.examId, user)
 
@@ -79,18 +79,18 @@ export class ExamResolver {
   }
 
   @Authorized()
-  @Mutation(_returns => Exam)
+  @Mutation(_returns => ExamQuestionSchema)
   public async addExamQuestionAnswer(
     @Args() getExamQuestion: GetExamQuestionSchema,
     @Arg('examQuestionAnswer') examQuestionAnswer: CreateExamQuestionAnswerSchema,
     @Ctx('user') user: User,
-  ): Promise<Exam> {
+  ): Promise<ExamQuestionSchema> {
     await this.validator.validate(getExamQuestion)
     const exam = await this.examService.getExam(getExamQuestion.examId, user)
 
     await this.examService.createExamQuestionAnswer(exam, getExamQuestion.question, examQuestionAnswer, user)
 
-    return exam
+    return this.examService.getExamQuestion(exam, getExamQuestion.question, user)
   }
 
   @Authorized()

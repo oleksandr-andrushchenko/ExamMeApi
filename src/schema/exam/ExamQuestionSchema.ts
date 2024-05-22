@@ -1,23 +1,18 @@
-import { QuestionDifficulty, QuestionType } from '../../entities/Question'
+import Question from '../../entities/Question'
 import { Field, Int, ObjectType } from 'type-graphql'
+import Exam from '../../entities/Exam'
 
 @ObjectType()
 export default class ExamQuestionSchema {
 
-  @Field(_type => Int)
-  public number: number
+  @Field(_type => Exam, { nullable: true })
+  public exam?: Exam
 
-  @Field()
-  public question: string
+  @Field(_type => Question, { nullable: true })
+  public question?: Question
 
-  @Field({ nullable: true })
-  public difficulty: QuestionDifficulty
-
-  @Field({ nullable: true })
-  public type: QuestionType
-
-  @Field(_type => [ String ], { nullable: true })
-  public choices?: string[]
+  @Field(_type => Int, { nullable: true })
+  public number?: number
 
   @Field(_type => Int, { nullable: true })
   public choice?: number
