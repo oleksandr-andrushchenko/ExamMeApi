@@ -16,7 +16,6 @@ import QuestionUpdateSchema from '../../schema/question/QuestionUpdateSchema'
 import Cursor from '../../models/Cursor'
 import QuestionQuerySchema from '../../schema/question/QuestionQuerySchema'
 import QuestionPermission from '../../enums/question/QuestionPermission'
-import QuestionTypeError from '../../errors/question/QuestionTypeError'
 import PaginatedQuestions from '../../schema/question/PaginatedQuestions'
 
 @Service()
@@ -176,7 +175,7 @@ export default class QuestionService {
 
     if ('title' in transfer) {
       const title = transfer.title
-      await this.verifyQuestionTitleNotExists(title)
+      await this.verifyQuestionTitleNotExists(title, question.id)
       question.title = title
     }
 
