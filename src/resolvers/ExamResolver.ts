@@ -79,6 +79,18 @@ export class ExamResolver {
   }
 
   @Authorized()
+  @Query(_returns => ExamQuestionSchema)
+  public async currentExamQuestion(
+    @Args() getExam: GetExamSchema,
+    @Ctx('user') user: User,
+  ): Promise<ExamQuestionSchema> {
+    await this.validator.validate(getExam)
+    const exam = await this.examService.getExam(getExam.examId, user)
+
+    return await this.examService.getExamQuestion(exam, exam.questionNumber, user)
+  }
+
+  @Authorized()
   @Mutation(_returns => ExamQuestionSchema)
   public async addExamQuestionAnswer(
     @Args() getExamQuestion: GetExamQuestionSchema,
