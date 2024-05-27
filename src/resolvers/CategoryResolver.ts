@@ -20,8 +20,8 @@ export class CategoryResolver {
   ) {
   }
 
-  @Query(_returns => Category)
-  public async category(
+  @Query(_returns => Category, { name: 'category' })
+  public async getCategory(
     @Args() getCategory: GetCategorySchema,
   ): Promise<Category> {
     await this.validator.validate(getCategory)
@@ -29,15 +29,15 @@ export class CategoryResolver {
     return await this.categoryService.getCategory(getCategory.categoryId)
   }
 
-  @Query(_returns => [ Category ])
-  public async categories(
+  @Query(_returns => [ Category ], { name: 'categories' })
+  public async getCategories(
     @Args() categoryQuery: CategoryQuerySchema,
   ): Promise<Category[]> {
     return await this.categoryService.queryCategories(categoryQuery) as Category[]
   }
 
-  @Query(_returns => PaginatedCategories)
-  public async paginatedCategories(
+  @Query(_returns => PaginatedCategories, { name: 'paginatedCategories' })
+  public async getPaginatedCategories(
     @Args() categoryQuery: CategoryQuerySchema,
   ): Promise<PaginatedCategories> {
     return await this.categoryService.queryCategories(categoryQuery, true) as PaginatedCategories
@@ -45,7 +45,7 @@ export class CategoryResolver {
 
   @Authorized()
   @Mutation(_returns => Category)
-  public async addCategory(
+  public async createCategory(
     @Arg('category') category: CategorySchema,
     @Ctx('user') user: User,
   ): Promise<Category> {

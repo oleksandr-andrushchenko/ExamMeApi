@@ -2,7 +2,7 @@ import GetExamQuestionSchema from '../../../../src/schema/exam/GetExamQuestionSc
 
 export const examQuestionQuery = (
   variables: GetExamQuestionSchema,
-  fields: string[] = [ 'difficulty', 'question', 'difficulty' ],
+  fields: string[] = [ 'number' ],
 ) => {
   return {
     query: `

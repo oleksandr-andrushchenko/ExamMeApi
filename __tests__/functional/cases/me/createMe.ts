@@ -3,7 +3,7 @@ import request from 'supertest'
 import User from '../../../../src/entities/User'
 import { ObjectId } from 'mongodb'
 // @ts-ignore
-import { addMeMutation } from '../../graphql/me/addMeMutation'
+import { createMeMutation } from '../../graphql/me/createMeMutation'
 import MeSchema from '../../../../src/schema/user/MeSchema'
 import Permission from '../../../../src/enums/Permission'
 import TestFramework from '../../TestFramework'
@@ -31,7 +31,7 @@ describe('Create me', () => {
     { case: 'password is too long', me: { email: 'a@a.com', password: 'abc'.repeat(99) } },
   ])('Bad request ($case)', async ({ me, times = 1 }) => {
     const res = await request(framework.app).post('/')
-      .send(addMeMutation({ me: me as MeSchema }))
+      .send(createMeMutation({ me: me as MeSchema }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError(...Array(times).fill('BadRequestError')))
@@ -39,7 +39,7 @@ describe('Create me', () => {
   test('Conflict', async () => {
     const user = await framework.fixture<User>(User)
     const res = await request(framework.app).post('/')
-      .send(addMeMutation({
+      .send(createMeMutation({
         me: {
           name: 'any',
           email: user.email,
@@ -56,16 +56,16 @@ describe('Create me', () => {
     const fields = [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]
     const now = Date.now()
     const res = await request(framework.app).post('/')
-      .send(addMeMutation({ me: { ...me, ...{ password: '123123' } } }, fields))
+      .send(createMeMutation({ me: { ...me, ...{ password: '123123' } } }, fields))
 
     expect(res.status).toEqual(200)
     expect(res.body).toHaveProperty('data')
-    expect(res.body.data).toHaveProperty('addMe')
-    expect(res.body.data.addMe).toHaveProperty('id')
-    const id = new ObjectId(res.body.data.addMe.id)
+    expect(res.body.data).toHaveProperty('createMe')
+    expect(res.body.data.createMe).toHaveProperty('id')
+    const id = new ObjectId(res.body.data.createMe.id)
     const latestMe = await framework.load<User>(User, id)
     expect(latestMe).toMatchObject(me)
-    expect(res.body.data.addMe).toMatchObject({
+    expect(res.body.data.createMe).toMatchObject({
       id: id.toString(),
       name: latestMe.name,
       email: latestMe.email,
@@ -74,6 +74,6 @@ describe('Create me', () => {
       updatedAt: null,
     })
     expect(latestMe.createdAt.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.addMe).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
+    expect(res.body.data.createMe).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
   })
 })

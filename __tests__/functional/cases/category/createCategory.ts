@@ -5,7 +5,7 @@ import User from '../../../../src/entities/User'
 import { ObjectId } from 'mongodb'
 import CategoryPermission from '../../../../src/enums/category/CategoryPermission'
 // @ts-ignore
-import { addCategoryMutation } from '../../graphql/category/addCategoryMutation'
+import { createCategoryMutation } from '../../graphql/category/createCategoryMutation'
 import CategorySchema from '../../../../src/schema/category/CategorySchema'
 import TestFramework from '../../TestFramework'
 
@@ -13,7 +13,7 @@ const framework: TestFramework = globalThis.framework
 
 describe('Create category', () => {
   test('Unauthorized', async () => {
-    const res = await request(framework.app).post('/').send(addCategoryMutation({ category: { name: 'any' } }))
+    const res = await request(framework.app).post('/').send(createCategoryMutation({ category: { name: 'any' } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -35,7 +35,7 @@ describe('Create category', () => {
     const token = (await framework.auth(user)).token
     const res = await request(framework.app)
       .post('/')
-      .send(addCategoryMutation({ category: category as CategorySchema }))
+      .send(createCategoryMutation({ category: category as CategorySchema }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -46,7 +46,7 @@ describe('Create category', () => {
     const token = (await framework.auth(user)).token
     const res = await request(framework.app)
       .post('/')
-      .send(addCategoryMutation({ category: { name: 'any' } }))
+      .send(createCategoryMutation({ category: { name: 'any' } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -59,7 +59,7 @@ describe('Create category', () => {
     const token = (await framework.auth(user)).token
     const res = await request(framework.app)
       .post('/')
-      .send(addCategoryMutation({ category: { name: category.name } }))
+      .send(createCategoryMutation({ category: { name: category.name } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -74,16 +74,16 @@ describe('Create category', () => {
     const now = Date.now()
     const res = await request(framework.app)
       .post('/')
-      .send(addCategoryMutation({ category }, fields))
+      .send(createCategoryMutation({ category }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ data: { addCategory: category } })
-    expect(res.body.data.addCategory).toHaveProperty('id')
-    const id = new ObjectId(res.body.data.addCategory.id)
+    expect(res.body).toMatchObject({ data: { createCategory: category } })
+    expect(res.body.data.createCategory).toHaveProperty('id')
+    const id = new ObjectId(res.body.data.createCategory.id)
     const latestCategory = await framework.load<Category>(Category, id)
     expect(latestCategory).toMatchObject(category)
-    expect(res.body.data.addCategory).toEqual({
+    expect(res.body.data.createCategory).toEqual({
       id: latestCategory.id.toString(),
       name: latestCategory.name,
       questionCount: latestCategory.questionCount,
@@ -94,6 +94,6 @@ describe('Create category', () => {
       updatedAt: null,
     })
     expect(latestCategory.createdAt.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.addCategory).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
+    expect(res.body.data.createCategory).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
 })

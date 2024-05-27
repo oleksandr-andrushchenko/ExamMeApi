@@ -23,8 +23,8 @@ export class QuestionResolver {
   ) {
   }
 
-  @Query(_returns => Question)
-  public async question(
+  @Query(_returns => Question, { name: 'question' })
+  public async getQuestion(
     @Args() getQuestion: GetQuestionSchema,
   ): Promise<Question> {
     await this.validator.validate(getQuestion)
@@ -32,15 +32,15 @@ export class QuestionResolver {
     return await this.questionService.getQuestion(getQuestion.questionId)
   }
 
-  @Query(_returns => [ Question ])
-  public async questions(
+  @Query(_returns => [ Question ], { name: 'questions' })
+  public async getQuestions(
     @Args() questionQuery: QuestionQuerySchema,
   ): Promise<Question[]> {
     return await this.questionService.queryQuestions(questionQuery) as Question[]
   }
 
-  @Query(_returns => PaginatedQuestions)
-  public async paginatedQuestions(
+  @Query(_returns => PaginatedQuestions, { name: 'paginatedQuestions' })
+  public async getPaginatedQuestions(
     @Args() questionQuery: QuestionQuerySchema,
   ): Promise<PaginatedQuestions> {
     return await this.questionService.queryQuestions(questionQuery, true) as PaginatedQuestions
@@ -48,7 +48,7 @@ export class QuestionResolver {
 
   @Authorized()
   @Mutation(_returns => Question)
-  public async addQuestion(
+  public async createQuestion(
     @Arg('question') question: QuestionSchema,
     @Ctx('user') user: User,
   ): Promise<Question> {
@@ -82,8 +82,8 @@ export class QuestionResolver {
     return true
   }
 
-  @FieldResolver(_returns => Category)
-  public async category(
+  @FieldResolver(_returns => Category, { name: 'question' })
+  public async getQuestionCategory(
     @Root() question: Question,
   ): Promise<Category> {
     return await this.categoryService.getCategory(question.categoryId)

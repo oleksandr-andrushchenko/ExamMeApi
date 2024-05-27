@@ -13,8 +13,8 @@ export class PermissionResolver {
   }
 
   @Authorized()
-  @Query(_returns => PermissionSchema)
-  public async permission(): Promise<PermissionSchema> {
+  @Query(_returns => PermissionSchema, { name: 'permission' })
+  public async getPermission(): Promise<PermissionSchema> {
     const permission = new PermissionSchema()
     permission.items = this.authService.queryPermissions()
     permission.hierarchy = this.authService.getPermissionHierarchy()

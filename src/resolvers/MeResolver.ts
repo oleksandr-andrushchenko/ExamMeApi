@@ -15,15 +15,15 @@ export class MeResolver {
   }
 
   @Mutation(_returns => User)
-  public async addMe(
+  public async createMe(
     @Arg('me') me: MeSchema,
   ): Promise<User> {
     return await this.meService.createMe(me)
   }
 
   @Authorized()
-  @Query(_returns => User)
-  public async me(
+  @Query(_returns => User, { name: 'me' })
+  public async getMe(
     @Ctx('user') user: User,
   ): Promise<User> {
     return user

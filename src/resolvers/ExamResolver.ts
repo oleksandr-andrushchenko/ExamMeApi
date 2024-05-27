@@ -12,7 +12,6 @@ import ExamQuerySchema from '../schema/exam/ExamQuerySchema'
 import { Arg, Args, Authorized, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from 'type-graphql'
 import PaginatedExams from '../schema/exam/PaginatedExams'
 import Category from '../entities/Category'
-import Question from '../entities/Question'
 import CategoryService from '../services/category/CategoryService'
 
 @Service()
@@ -28,7 +27,7 @@ export class ExamResolver {
 
   @Authorized()
   @Mutation(_returns => Exam)
-  public async addExam(
+  public async createExam(
     @Arg('exam') exam: CreateExamSchema,
     @Ctx('user') user: User,
   ): Promise<Exam> {
@@ -36,16 +35,16 @@ export class ExamResolver {
   }
 
   @Authorized()
-  @Query(_returns => [ Exam ])
-  public async exams(
+  @Query(_returns => [ Exam ], { name: 'exams' })
+  public async getExams(
     @Args() examQuery: ExamQuerySchema,
     @Ctx('user') user: User,
   ): Promise<Exam[]> {
     return await this.examService.queryExams(examQuery, user) as Exam[]
   }
 
-  @Query(_returns => PaginatedExams)
-  public async paginatedExams(
+  @Query(_returns => PaginatedExams, { name: 'paginatedExams' })
+  public async getPaginatedExams(
     @Args() examQuery: ExamQuerySchema,
     @Ctx('user') user: User,
   ): Promise<PaginatedExams> {
@@ -53,8 +52,8 @@ export class ExamResolver {
   }
 
   @Authorized()
-  @Query(_returns => Exam)
-  public async exam(
+  @Query(_returns => Exam, { name: 'exam' })
+  public async getExam(
     @Args() getExam: GetExamSchema,
     @Ctx('user') user: User,
   ): Promise<Exam> {
@@ -64,8 +63,8 @@ export class ExamResolver {
   }
 
   @Authorized()
-  @Query(_returns => ExamQuestionSchema)
-  public async examQuestion(
+  @Query(_returns => ExamQuestionSchema, { name: 'examQuestion' })
+  public async getExamQuestion(
     @Args() getExamQuestion: GetExamQuestionSchema,
     @Ctx('user') user: User,
   ): Promise<ExamQuestionSchema> {
@@ -79,8 +78,8 @@ export class ExamResolver {
   }
 
   @Authorized()
-  @Query(_returns => ExamQuestionSchema)
-  public async currentExamQuestion(
+  @Query(_returns => ExamQuestionSchema, { name: 'currentExamQuestion' })
+  public async getCurrentExamQuestion(
     @Args() getExam: GetExamSchema,
     @Ctx('user') user: User,
   ): Promise<ExamQuestionSchema> {
@@ -92,7 +91,7 @@ export class ExamResolver {
 
   @Authorized()
   @Mutation(_returns => ExamQuestionSchema)
-  public async addExamQuestionAnswer(
+  public async answerExamQuestion(
     @Args() getExamQuestion: GetExamQuestionSchema,
     @Arg('examQuestionAnswer') examQuestionAnswer: CreateExamQuestionAnswerSchema,
     @Ctx('user') user: User,
@@ -121,7 +120,7 @@ export class ExamResolver {
 
   @Authorized()
   @Mutation(_returns => Exam)
-  public async addExamCompletion(
+  public async completeExam(
     @Args() getExam: GetExamSchema,
     @Ctx('user') user: User,
   ): Promise<Exam> {
@@ -147,10 +146,10 @@ export class ExamResolver {
     return true
   }
 
-  @FieldResolver(_returns => Category)
-  public async category(
-    @Root() question: Question,
+  @FieldResolver(_returns => Category, { name: 'category' })
+  public async getExamCategory(
+    @Root() exam: Exam,
   ): Promise<Category> {
-    return await this.categoryService.getCategory(question.categoryId)
+    return await this.categoryService.getCategory(exam.categoryId)
   }
 }

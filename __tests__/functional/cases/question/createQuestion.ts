@@ -7,7 +7,7 @@ import Question, { QuestionDifficulty, QuestionType } from '../../../../src/enti
 import { faker } from '@faker-js/faker'
 import QuestionPermission from '../../../../src/enums/question/QuestionPermission'
 // @ts-ignore
-import { addQuestionMutation } from '../../graphql/question/addQuestionMutation'
+import { createQuestionMutation } from '../../graphql/question/createQuestionMutation'
 import QuestionSchema from '../../../../src/schema/question/QuestionSchema'
 import TestFramework from '../../TestFramework'
 
@@ -22,7 +22,7 @@ describe('Create question', () => {
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
     }
-    const res = await request(framework.app).post('/').send(addQuestionMutation({ question }))
+    const res = await request(framework.app).post('/').send(createQuestionMutation({ question }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -37,7 +37,7 @@ describe('Create question', () => {
       type: QuestionType.TYPE,
       difficulty: QuestionDifficulty.EASY,
     }
-    const res = await request(framework.app).post('/').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(createQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
@@ -85,7 +85,7 @@ describe('Create question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const question = { ...body, ...{ categoryId: category.id.toString() } } as QuestionSchema
-    const res = await request(framework.app).post('/').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(createQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError(...Array(times).fill('BadRequestError')))
@@ -108,7 +108,7 @@ describe('Create question', () => {
         },
       ],
     }
-    const res = await request(framework.app).post('/').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(createQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
@@ -131,7 +131,7 @@ describe('Create question', () => {
         },
       ],
     }
-    const res = await request(framework.app).post('/').send(addQuestionMutation({ question })).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(createQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ConflictError'))
@@ -169,15 +169,15 @@ describe('Create question', () => {
       'updatedAt',
     ]
     const now = Date.now()
-    const res = await request(framework.app).post('/').send(addQuestionMutation({ question }, fields)).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(createQuestionMutation({ question }, fields)).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ data: { addQuestion: question } })
-    expect(res.body.data.addQuestion).toHaveProperty('id')
-    const id = new ObjectId(res.body.data.addQuestion.id)
+    expect(res.body).toMatchObject({ data: { createQuestion: question } })
+    expect(res.body.data.createQuestion).toHaveProperty('id')
+    const id = new ObjectId(res.body.data.createQuestion.id)
     const latestQuestion = await framework.load<Question>(Question, id)
     expect(latestQuestion).toMatchObject({ ...question, ...{ categoryId: category.id } })
-    expect(res.body.data.addQuestion).toEqual({
+    expect(res.body.data.createQuestion).toEqual({
       id: latestQuestion.id.toString(),
       categoryId: latestQuestion.categoryId.toString(),
       type: latestQuestion.type,
@@ -194,6 +194,6 @@ describe('Create question', () => {
       updatedAt: null,
     })
     expect(latestQuestion.createdAt.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.addQuestion).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
+    expect(res.body.data.createQuestion).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
 })

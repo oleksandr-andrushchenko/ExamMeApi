@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import Exam from '../../../../src/entities/Exam'
 import User from '../../../../src/entities/User'
-import Question, { QuestionChoice, QuestionType } from '../../../../src/entities/Question'
+import Question, { QuestionType } from '../../../../src/entities/Question'
 import ExamPermission from '../../../../src/enums/exam/ExamPermission'
 // @ts-ignore
 import { examQuestionQuery } from '../../graphql/exam/examQuestionQuery'
@@ -84,33 +84,35 @@ describe('Get exam question', () => {
     const res = await request(framework.app).post('/')
       .send(examQuestionQuery(
         { examId: exam.id.toString(), question: questionNumber },
-        [ 'number', 'question', 'difficulty', 'type', 'choices', 'choice', 'answer' ],
+        [ 'exam {id}', 'question {id title type difficulty}', 'number', 'choice', 'answer' ],
       ))
       .auth(token, { type: 'bearer' })
 
-    expect(res.status).toEqual(200)
     const examQuestion = exam.questions[questionNumber]
     const question = await framework.load<Question>(Question, examQuestion.questionId)
 
     expect(res.body).toMatchObject({
       data: {
         examQuestion: {
+          exam: {
+            id: exam.id.toString(),
+          },
+          question: {
+            title: question.title,
+            type: question.type,
+            difficulty: question.difficulty,
+          },
           number: questionNumber,
-          question: question.title,
-          difficulty: question.difficulty,
-          type: question.type,
         },
       },
     })
 
     if (question.type === QuestionType.CHOICE) {
-      expect(res.body.data.examQuestion.choices).toEqual(question.choices.map((choice: QuestionChoice) => choice.title))
-
-      if (examQuestion.choice) {
+      if ('choice' in examQuestion) {
         expect(res.body.data.examQuestion).toHaveProperty('choice')
       }
     } else if (question.type === QuestionType.TYPE) {
-      if (examQuestion.answer) {
+      if ('answer' in examQuestion) {
         expect(res.body.data.examQuestion).toHaveProperty('answer')
       }
     }
@@ -125,7 +127,7 @@ describe('Get exam question', () => {
     const res = await request(framework.app).post('/')
       .send(examQuestionQuery(
         { examId: exam.id.toString(), question: questionNumber },
-        [ 'number', 'question', 'difficulty', 'type', 'choices', 'choice', 'answer' ],
+        [ 'exam {id}', 'question {id title type difficulty}', 'number', 'choice', 'answer' ],
       ))
       .auth(token, { type: 'bearer' })
 
@@ -136,22 +138,25 @@ describe('Get exam question', () => {
     expect(res.body).toMatchObject({
       data: {
         examQuestion: {
+          exam: {
+            id: exam.id.toString(),
+          },
+          question: {
+            title: question.title,
+            type: question.type,
+            difficulty: question.difficulty,
+          },
           number: questionNumber,
-          question: question.title,
-          difficulty: question.difficulty,
-          type: question.type,
         },
       },
     })
 
     if (question.type === QuestionType.CHOICE) {
-      expect(res.body.data.examQuestion.choices).toEqual(question.choices.map((choice: QuestionChoice) => choice.title))
-
-      if (examQuestion.choice) {
+      if ('choice' in examQuestion) {
         expect(res.body.data.examQuestion).toHaveProperty('choice')
       }
     } else if (question.type === QuestionType.TYPE) {
-      if (examQuestion.answer) {
+      if ('answer' in examQuestion) {
         expect(res.body.data.examQuestion).toHaveProperty('answer')
       }
     }

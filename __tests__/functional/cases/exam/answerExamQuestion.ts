@@ -1,10 +1,10 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import Exam from '../../../../src/entities/Exam'
-import Question, { QuestionChoice, QuestionType } from '../../../../src/entities/Question'
+import Question, { QuestionType } from '../../../../src/entities/Question'
 import User from '../../../../src/entities/User'
 // @ts-ignore
-import { addExamQuestionAnswerMutation } from '../../graphql/exam/addExamQuestionAnswerMutation'
+import { answerExamQuestionMutation } from '../../graphql/exam/answerExamQuestionMutation'
 import CreateExamQuestionAnswerSchema from '../../../../src/schema/exam/CreateExamQuestionAnswerSchema'
 import ExamPermission from '../../../../src/enums/exam/ExamPermission'
 import TestFramework from '../../TestFramework'
@@ -25,7 +25,7 @@ describe('Create exam question answer', () => {
     }
 
     const res = await request(framework.app).post('/')
-      .send(addExamQuestionAnswerMutation({
+      .send(answerExamQuestionMutation({
         examId: exam.id.toString(),
         question: questionNumber,
         examQuestionAnswer,
@@ -40,7 +40,7 @@ describe('Create exam question answer', () => {
     const id = await framework.fakeId()
     const questionNumber = 0
     const res = await request(framework.app).post('/')
-      .send(addExamQuestionAnswerMutation({
+      .send(answerExamQuestionMutation({
         examId: id.toString(),
         question: questionNumber,
         examQuestionAnswer: { choice: 0 },
@@ -56,7 +56,7 @@ describe('Create exam question answer', () => {
     const token = (await framework.auth(user)).token
     const questionNumber = 999
     const res = await request(framework.app).post('/')
-      .send(addExamQuestionAnswerMutation({
+      .send(answerExamQuestionMutation({
         examId: exam.id.toString(),
         question: questionNumber,
         examQuestionAnswer: { choice: 0 },
@@ -72,7 +72,7 @@ describe('Create exam question answer', () => {
     const exam = await framework.fixture<Exam>(Exam)
     const examQuestionAnswer = undefined as CreateExamQuestionAnswerSchema
     const res = await request(framework.app).post('/')
-      .send(addExamQuestionAnswerMutation({
+      .send(answerExamQuestionMutation({
         examId: exam.id.toString(),
         question: 0,
         examQuestionAnswer,
@@ -96,7 +96,7 @@ describe('Create exam question answer', () => {
     }
 
     const res = await request(framework.app).post('/')
-      .send(addExamQuestionAnswerMutation({
+      .send(answerExamQuestionMutation({
         examId: exam.id.toString(),
         question: 0,
         examQuestionAnswer,
@@ -114,25 +114,20 @@ describe('Create exam question answer', () => {
     const examQuestion = exam.questions[questionNumber]
     const question = await framework.load<Question>(Question, examQuestion.questionId)
     const examQuestionAnswer = {}
-    const expectedAddExamQuestionAnswer = {}
 
     if (question.type === QuestionType.CHOICE) {
       examQuestionAnswer['choice'] = 0
-      expectedAddExamQuestionAnswer['choices'] = question.choices.map((choice: QuestionChoice) => choice.title)
-      expectedAddExamQuestionAnswer['choice'] = examQuestionAnswer['choice']
     } else if (question.type === QuestionType.TYPE) {
       examQuestionAnswer['answer'] = 'any'
-      expectedAddExamQuestionAnswer['answer'] = examQuestionAnswer['answer']
     }
 
     let answeredQuestionCount = exam.answeredQuestionCount()
-    const fields = [ 'id', 'questionNumber', 'answeredQuestionCount' ]
     const res = await request(framework.app).post('/')
-      .send(addExamQuestionAnswerMutation({
+      .send(answerExamQuestionMutation({
         examId: exam.id.toString(),
         question: questionNumber,
         examQuestionAnswer,
-      }, fields))
+      }, [ 'exam {id questionNumber answeredQuestionCount}' ]))
       .auth(token, { type: 'bearer' })
 
     if (typeof examQuestion.choice !== 'number' && typeof examQuestion.answer !== 'string') {
@@ -140,10 +135,12 @@ describe('Create exam question answer', () => {
     }
 
     expect(res.status).toEqual(200)
-    expect(res.body.data.addExamQuestionAnswer).toMatchObject({
-      id: exam.id.toString(),
-      questionNumber: exam.questionNumber,
-      answeredQuestionCount,
+    expect(res.body.data.answerExamQuestion).toMatchObject({
+      exam: {
+        id: exam.id.toString(),
+        questionNumber: exam.questionNumber,
+        answeredQuestionCount,
+      },
     })
   })
 })

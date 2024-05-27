@@ -4,7 +4,7 @@ import User from '../../../../src/entities/User'
 import { ObjectId } from 'mongodb'
 import UserPermission from '../../../../src/enums/user/UserPermission'
 // @ts-ignore
-import { addUserMutation } from '../../graphql/user/addUserMutation'
+import { createUserMutation } from '../../graphql/user/createUserMutation'
 import UserSchema from '../../../../src/schema/user/UserSchema'
 import Permission from '../../../../src/enums/Permission'
 import TestFramework from '../../TestFramework'
@@ -14,7 +14,7 @@ const framework: TestFramework = globalThis.framework
 describe('Create user', () => {
   test('Unauthorized', async () => {
     const res = await request(framework.app).post('/')
-      .send(addUserMutation({ user: { email: 'a@a.com', password: 'password' } }))
+      .send(createUserMutation({ user: { email: 'a@a.com', password: 'password' } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -45,7 +45,7 @@ describe('Create user', () => {
     const user = await framework.fixture<User>(User, { permissions: [ UserPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(addUserMutation({ user: userCreate as UserSchema }))
+      .send(createUserMutation({ user: userCreate as UserSchema }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -55,7 +55,7 @@ describe('Create user', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(addUserMutation({
+      .send(createUserMutation({
         user: {
           name: 'any',
           email: 'a@a.com',
@@ -72,7 +72,7 @@ describe('Create user', () => {
     const user = await framework.fixture<User>(User, { permissions: [ UserPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(addUserMutation({
+      .send(createUserMutation({
         user: {
           name: 'any',
           email: user1.email,
@@ -92,17 +92,17 @@ describe('Create user', () => {
     const fields = [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]
     const now = Date.now()
     const res = await request(framework.app).post('/')
-      .send(addUserMutation({ user: { ...userCreate, ...{ password: '123123' } } }, fields))
+      .send(createUserMutation({ user: { ...userCreate, ...{ password: '123123' } } }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toHaveProperty('data')
-    expect(res.body.data).toHaveProperty('addUser')
-    expect(res.body.data.addUser).toHaveProperty('id')
-    const id = new ObjectId(res.body.data.addUser.id)
+    expect(res.body.data).toHaveProperty('createUser')
+    expect(res.body.data.createUser).toHaveProperty('id')
+    const id = new ObjectId(res.body.data.createUser.id)
     const latestUser = await framework.load<User>(User, id)
     expect(latestUser).toMatchObject(userCreate)
-    expect(res.body.data.addUser).toMatchObject({
+    expect(res.body.data.createUser).toMatchObject({
       id: id.toString(),
       name: latestUser.name,
       email: latestUser.email,
@@ -111,6 +111,6 @@ describe('Create user', () => {
       updatedAt: null,
     })
     expect(latestUser.createdAt.getTime()).toBeGreaterThanOrEqual(now)
-    expect(res.body.data.addUser).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
+    expect(res.body.data.createUser).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
   })
 })

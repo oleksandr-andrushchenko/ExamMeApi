@@ -15,7 +15,7 @@ export class UserResolver {
 
   @Authorized()
   @Mutation(_returns => User)
-  public async addUser(
+  public async createUser(
     @Arg('user') user: UserSchema,
     @Ctx('user') currentUser: User,
   ): Promise<User> {
