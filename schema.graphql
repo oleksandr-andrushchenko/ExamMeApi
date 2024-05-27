@@ -147,13 +147,13 @@ type Query {
 
 type Question {
   answers: [QuestionAnswer!]
+  category: Category!
   categoryId: ObjectId!
   choices: [QuestionChoice!]
   createdAt: Timestamp!
   difficulty: String!
   id: ObjectId!
   ownerId: ObjectId!
-  question: Category!
   rating: Int
   title: String!
   type: String!

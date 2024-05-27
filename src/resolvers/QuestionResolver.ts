@@ -82,7 +82,7 @@ export class QuestionResolver {
     return true
   }
 
-  @FieldResolver(_returns => Category, { name: 'question' })
+  @FieldResolver(_returns => Category, { name: 'category' })
   public async getQuestionCategory(
     @Root() question: Question,
   ): Promise<Category> {
