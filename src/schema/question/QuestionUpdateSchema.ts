@@ -1,9 +1,10 @@
 import { ArrayNotEmpty, IsEnum, IsMongoId, IsOptional, Length, ValidateIf, ValidateNested } from 'class-validator'
-import { QuestionDifficulty, QuestionType } from '../../entities/Question'
 import { Type } from 'class-transformer'
 import { Field, ID, InputType } from 'type-graphql'
 import { QuestionChoiceSchema } from './QuestionChoiceSchema'
 import { QuestionAnswerSchema } from './QuestionAnswerSchema'
+import QuestionType from '../../entities/question/QuestionType'
+import QuestionDifficulty from '../../entities/question/QuestionDifficulty'
 
 @InputType()
 export default class QuestionUpdateSchema {

@@ -9,13 +9,13 @@ import CategoryService from '../category/CategoryService'
 import Cursor from '../../models/Cursor'
 import ExamRepository from '../../repositories/ExamRepository'
 import CreateExamSchema from '../../schema/exam/CreateExamSchema'
-import Exam, { ExamQuestion } from '../../entities/Exam'
+import Exam from '../../entities/Exam'
 import ExamTakenError from '../../errors/exam/ExamTakenError'
 import ExamNotFoundError from '../../errors/exam/ExamNotFoundError'
 import ExamQuestionSchema from '../../schema/exam/ExamQuestionSchema'
 import CreateExamQuestionAnswerSchema from '../../schema/exam/CreateExamQuestionAnswerSchema'
 import QuestionService from '../question/QuestionService'
-import Question, { QuestionType } from '../../entities/Question'
+import Question from '../../entities/Question'
 import { ObjectId } from 'mongodb'
 import AuthorizationFailedError from '../../errors/auth/AuthorizationFailedError'
 import ExamQuerySchema from '../../schema/exam/ExamQuerySchema'
@@ -23,6 +23,8 @@ import ExamQuestionNumberNotFoundError from '../../errors/exam/ExamQuestionNumbe
 import ExamPermission from '../../enums/exam/ExamPermission'
 import QuestionNotFoundError from '../../errors/question/QuestionNotFoundError'
 import PaginatedExams from '../../schema/exam/PaginatedExams'
+import QuestionType from '../../entities/question/QuestionType'
+import ExamQuestion from '../../entities/exam/ExamQuestion'
 
 @Service()
 export default class ExamService {
@@ -282,6 +284,10 @@ export default class ExamService {
 
     await this.authService.verifyAuthorization(initiator, ExamPermission.GET, exam)
 
+    if ('correctAnswerCount' in exam && !exam.completedAt) {
+      delete exam.correctAnswerCount
+    }
+
     return exam
   }
 
@@ -303,23 +309,23 @@ export default class ExamService {
       questionsHashedById[question.id.toString()] = question
     }
 
-    let correctAnswers = 0
+    let correctAnswerCount = 0
 
     for (const examQuestion of exam.questions) {
       const question = questionsHashedById[examQuestion.questionId.toString()]
 
       if (typeof examQuestion.choice !== 'undefined') {
         if (this.questionService.checkChoice(examQuestion.choice, question)) {
-          correctAnswers++
+          correctAnswerCount++
         }
       } else if (typeof examQuestion.answer !== 'undefined') {
         if (this.questionService.checkAnswer(examQuestion.answer, question)) {
-          correctAnswers++
+          correctAnswerCount++
         }
       }
     }
 
-    exam.correctCount = correctAnswers
+    exam.correctAnswerCount = correctAnswerCount
     exam.completedAt = new Date()
     exam.updatedAt = new Date()
 

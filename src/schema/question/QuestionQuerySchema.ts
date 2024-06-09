@@ -1,7 +1,8 @@
 import PaginationSchema from '../pagination/PaginationSchema'
 import { IsEnum, IsIn, IsMongoId, IsOptional, IsString } from 'class-validator'
-import { QuestionDifficulty, QuestionType } from '../../entities/Question'
 import { ArgsType, Field, ID } from 'type-graphql'
+import QuestionDifficulty from '../../entities/question/QuestionDifficulty'
+import QuestionType from '../../entities/question/QuestionType'
 
 @ArgsType()
 export default class QuestionQuerySchema extends PaginationSchema {

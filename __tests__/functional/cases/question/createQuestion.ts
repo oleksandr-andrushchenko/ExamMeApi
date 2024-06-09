@@ -3,13 +3,15 @@ import request from 'supertest'
 import Category from '../../../../src/entities/Category'
 import User from '../../../../src/entities/User'
 import { ObjectId } from 'mongodb'
-import Question, { QuestionDifficulty, QuestionType } from '../../../../src/entities/Question'
+import Question from '../../../../src/entities/Question'
 import { faker } from '@faker-js/faker'
 import QuestionPermission from '../../../../src/enums/question/QuestionPermission'
 // @ts-ignore
 import { createQuestionMutation } from '../../graphql/question/createQuestionMutation'
 import QuestionSchema from '../../../../src/schema/question/QuestionSchema'
 import TestFramework from '../../TestFramework'
+import QuestionType from '../../../../src/entities/question/QuestionType'
+import QuestionDifficulty from '../../../../src/entities/question/QuestionDifficulty'
 
 const framework: TestFramework = globalThis.framework
 
@@ -162,8 +164,7 @@ describe('Create question', () => {
       'title',
       'choices {title correct explanation}',
       'answers {variants correct explanation}',
-      'voters',
-      'rating',
+      'rating {value voterCount}',
       'ownerId',
       'createdAt',
       'updatedAt',
@@ -187,8 +188,7 @@ describe('Create question', () => {
       answers: latestQuestion.answers?.map(answer => {
         return { ...answer }
       }) ?? null,
-      voters: latestQuestion.voters,
-      rating: latestQuestion.rating,
+      rating: null,
       ownerId: latestQuestion.ownerId.toString(),
       createdAt: latestQuestion.createdAt.getTime(),
       updatedAt: null,

@@ -6,7 +6,7 @@ import User from '../../entities/User'
 import AuthService from '../auth/AuthService'
 import { ObjectId } from 'mongodb'
 import ValidatorInterface from '../validator/ValidatorInterface'
-import Question, { QuestionType } from '../../entities/Question'
+import Question from '../../entities/Question'
 import QuestionSchema from '../../schema/question/QuestionSchema'
 import QuestionRepository from '../../repositories/QuestionRepository'
 import QuestionTitleTakenError from '../../errors/question/QuestionTitleTakenError'
@@ -17,6 +17,7 @@ import Cursor from '../../models/Cursor'
 import QuestionQuerySchema from '../../schema/question/QuestionQuerySchema'
 import QuestionPermission from '../../enums/question/QuestionPermission'
 import PaginatedQuestions from '../../schema/question/PaginatedQuestions'
+import QuestionType from '../../entities/question/QuestionType'
 
 @Service()
 export default class QuestionService {
@@ -64,12 +65,9 @@ export default class QuestionService {
     }
 
     question.createdAt = new Date()
-    category.questionCount = category.questionCount + 1
+    category.questionCount = (category.questionCount ?? 0) + 1
 
-    await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
-      await entityManager.save<Question>(question)
-      await entityManager.save<Category>(category)
-    })
+    await this.entityManager.save([ question, category ])
 
     this.eventDispatcher.dispatch('questionCreated', { question })
 
@@ -217,14 +215,11 @@ export default class QuestionService {
     await this.authService.verifyAuthorization(initiator, QuestionPermission.DELETE, question)
 
     const category = await this.categoryService.getCategory(question.categoryId.toString())
-    category.questionCount = category.questionCount - 1
+    category.questionCount = Math.max(0, (category.questionCount ?? 0) - 1)
 
     question.deletedAt = new Date()
 
-    await this.entityManager.transaction(async (entityManager: EntityManagerInterface) => {
-      await entityManager.save<Question>(question)
-      await entityManager.save<Category>(category)
-    })
+    await this.entityManager.save([ question, category ])
 
     this.eventDispatcher.dispatch('questionDeleted', { question })
 

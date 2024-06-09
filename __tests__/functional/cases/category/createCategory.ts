@@ -70,7 +70,7 @@ describe('Create category', () => {
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const category = { name: 'any', requiredScore: 80 }
-    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'voters', 'rating', 'createdAt', 'updatedAt' ]
+    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'rating {value voterCount}', 'createdAt', 'updatedAt' ]
     const now = Date.now()
     const res = await request(framework.app)
       .post('/')
@@ -88,8 +88,7 @@ describe('Create category', () => {
       name: latestCategory.name,
       questionCount: latestCategory.questionCount,
       requiredScore: latestCategory.requiredScore,
-      voters: latestCategory.voters,
-      rating: latestCategory.rating,
+      rating: null,
       createdAt: latestCategory.createdAt.getTime(),
       updatedAt: null,
     })

@@ -1,11 +1,13 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import Category from '../../../../src/entities/Category'
-import Question, { QuestionAnswer, QuestionChoice, QuestionType } from '../../../../src/entities/Question'
+import Question from '../../../../src/entities/Question'
 // @ts-ignore
 import { questionQuery } from '../../graphql/question/questionQuery'
 import TestFramework from '../../TestFramework'
 import User from '../../../../src/entities/User'
+import QuestionType from '../../../../src/entities/question/QuestionType'
+import QuestionChoice from '../../../../src/entities/question/QuestionChoice'
+import QuestionAnswer from '../../../../src/entities/question/QuestionAnswer'
 
 const framework: TestFramework = globalThis.framework
 
@@ -35,8 +37,7 @@ describe('Get question', () => {
       'title',
       'choices {title correct explanation}',
       'answers {variants correct explanation}',
-      'voters',
-      'rating',
+      'rating {value voterCount}',
       'ownerId',
       'createdAt',
       'updatedAt',
@@ -54,8 +55,7 @@ describe('Get question', () => {
           type: question.type,
           difficulty: question.difficulty,
           title: question.title,
-          voters: question.voters,
-          rating: question.rating,
+          rating: question.rating ?? null,
           ownerId: question.ownerId.toString(),
           createdAt: question.createdAt.getTime(),
           updatedAt: question.updatedAt?.getTime() ?? null,

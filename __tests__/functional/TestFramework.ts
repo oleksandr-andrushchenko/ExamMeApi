@@ -7,13 +7,19 @@ import User from '../../src/entities/User'
 import { faker } from '@faker-js/faker'
 import Permission from '../../src/enums/Permission'
 import Category from '../../src/entities/Category'
-import Question, { QuestionAnswer, QuestionChoice, QuestionDifficulty, QuestionType } from '../../src/entities/Question'
-import Exam, { ExamQuestion } from '../../src/entities/Exam'
+import Question from '../../src/entities/Question'
+import Exam from '../../src/entities/Exam'
 import { ConnectionManager } from 'typeorm'
 import { ObjectId } from 'mongodb'
 import TokenSchema from '../../src/schema/auth/TokenSchema'
 import AuthService from '../../src/services/auth/AuthService'
 import { Application } from 'express'
+import QuestionType from '../../src/entities/question/QuestionType'
+import QuestionAnswer from '../../src/entities/question/QuestionAnswer'
+import QuestionDifficulty from '../../src/entities/question/QuestionDifficulty'
+import QuestionChoice from '../../src/entities/question/QuestionChoice'
+import ExamQuestion from '../../src/entities/exam/ExamQuestion'
+import Rating from '../../src/entities/Rating'
 
 export default class TestFramework {
 
@@ -78,6 +84,13 @@ export default class TestFramework {
         object.creatorId = options['creatorId'] ?? (await this.fixture(User, options) as User).id
         object.ownerId = options['ownerId'] ?? object.creatorId
 
+        if (faker.datatype.boolean()) {
+          const rating = new Rating()
+          rating.value = faker.number.float({ min: 0.1, max: 5 })
+          rating.voterCount = faker.number.int({ min: 1, max: 10 })
+          object.rating = rating
+        }
+
         break
       case this.compare(entity, Question):
         object = new Question()
@@ -128,6 +141,13 @@ export default class TestFramework {
           object.choices = choices
         }
 
+        if (faker.datatype.boolean()) {
+          const rating = new Rating()
+          rating.value = faker.number.float({ min: 0.1, max: 5 })
+          rating.voterCount = faker.number.int({ min: 1, max: 10 })
+          object.rating = rating
+        }
+
         break
       case this.compare(entity, Exam):
         object = new Exam()
@@ -161,7 +181,7 @@ export default class TestFramework {
         object.questionNumber = faker.number.int({ min: 0, max: questions.length - 1 })
 
         if (options['completedAt'] ?? faker.datatype.boolean()) {
-          object.correctCount = faker.number.int({ min: 0, max: questions.length })
+          object.correctAnswerCount = faker.number.int({ min: 0, max: questions.length })
           object.completedAt = options['completedAt'] ?? new Date()
         }
 

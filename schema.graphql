@@ -8,11 +8,10 @@ type Category {
   id: ObjectId!
   name: String!
   ownerId: ObjectId!
-  questionCount: Int!
-  rating: Int
+  questionCount: Int
+  rating: Rating
   requiredScore: Int
   updatedAt: Timestamp
-  voters: Int
 }
 
 input CategorySchema {
@@ -44,11 +43,12 @@ type Exam {
   category: Category!
   categoryId: ObjectId!
   completedAt: Timestamp
+  correctAnswerCount: Int
   createdAt: Timestamp!
   id: ObjectId!
   ownerId: ObjectId!
   questionCount: Int!
-  questionNumber: Int!
+  questionNumber: Int
   updatedAt: Timestamp
 }
 
@@ -154,11 +154,10 @@ type Question {
   difficulty: String!
   id: ObjectId!
   ownerId: ObjectId!
-  rating: Int
+  rating: Rating
   title: String!
   type: String!
   updatedAt: Timestamp
-  voters: Int
 }
 
 type QuestionAnswer {
@@ -203,6 +202,11 @@ input QuestionUpdateSchema {
   type: String
 }
 
+type Rating {
+  value: Float
+  voterCount: Int
+}
+
 """
 The javascript `Date` as integer. Type represents date and time as number of milliseconds from start of UNIX epoch.
 """
@@ -217,6 +221,7 @@ type User {
   email: String!
   id: ObjectId!
   name: String
+  ownerId: ObjectId!
   permissions: [String!]!
   updatedAt: Timestamp
 }

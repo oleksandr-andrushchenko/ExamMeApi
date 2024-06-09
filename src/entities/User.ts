@@ -1,23 +1,16 @@
-import { Column, Entity, ObjectIdColumn } from 'typeorm'
-import { ObjectId } from 'mongodb'
-import { ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsMongoId, IsNumber, IsOptional, Length } from 'class-validator'
+import { Column, Entity } from 'typeorm'
+import { ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsOptional, Length } from 'class-validator'
 import Permission from '../enums/Permission'
 import { Field, ObjectType } from 'type-graphql'
-import { ObjectIdScalar } from '../scalars/ObjectIdScalar'
-import { GraphQLTimestamp } from 'graphql-scalars'
+import Base from './Base'
 
 @ObjectType()
 @Entity({ name: 'users' })
-export default class User {
-
-  @IsMongoId()
-  @ObjectIdColumn()
-  @Field(_type => ObjectIdScalar)
-  public readonly id: ObjectId
+export default class User extends Base {
 
   @IsOptional()
   @Length(2, 30)
-  @Column({ nullable: true })
+  @Column()
   @Field({ nullable: true })
   public name?: string
 
@@ -36,24 +29,4 @@ export default class User {
   @Column({ type: 'set', enum: Permission, default: [ Permission.REGULAR ] })
   @Field(_type => [ String! ], { defaultValue: [ Permission.REGULAR ] })
   public permissions: Permission[] = [ Permission.REGULAR ]
-
-  @IsMongoId()
-  @Column()
-  public creatorId: ObjectId
-
-  @IsNumber()
-  @Column({ update: false })
-  @Field(_type => GraphQLTimestamp)
-  public createdAt: Date
-
-  @IsOptional()
-  @IsNumber()
-  @Column({ nullable: true, insert: false })
-  @Field(_type => GraphQLTimestamp, { nullable: true })
-  public updatedAt?: Date
-
-  @IsOptional()
-  @IsNumber()
-  @Column({ nullable: true, insert: false })
-  public deletedAt?: Date
 }

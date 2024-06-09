@@ -96,6 +96,6 @@ describe('Get exam', () => {
         },
       },
     })
-    expect(res.body.data.exam).not.toHaveProperty([ 'questions', 'correctCount', 'creatorId', 'deletedAt' ])
+    expect(res.body.data.exam).not.toHaveProperty([ 'questions', 'correctAnswerCount', 'creatorId', 'deletedAt' ])
   })
 })
