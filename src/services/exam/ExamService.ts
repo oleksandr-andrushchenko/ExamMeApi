@@ -106,8 +106,6 @@ export default class ExamService {
 
     if (question.type === QuestionType.CHOICE) {
       examQuestion.choice = questions[questionNumber].choice
-    } else if (question.type === QuestionType.TYPE) {
-      examQuestion.answer = questions[questionNumber].answer
     }
 
     return examQuestion
@@ -172,8 +170,6 @@ export default class ExamService {
 
     if (question.type === QuestionType.CHOICE) {
       questions[questionNumber].choice = examQuestionAnswer.choice
-    } else if (question.type === QuestionType.TYPE) {
-      questions[questionNumber].answer = examQuestionAnswer.answer
     }
 
     // todo: optimize
@@ -213,8 +209,6 @@ export default class ExamService {
 
     if (question.type === QuestionType.CHOICE) {
       delete questions[questionNumber].choice
-    } else if (question.type === QuestionType.TYPE) {
-      delete questions[questionNumber].answer
     }
 
     // todo: optimize
@@ -316,10 +310,6 @@ export default class ExamService {
 
       if (typeof examQuestion.choice !== 'undefined') {
         if (this.questionService.checkChoice(examQuestion.choice, question)) {
-          correctAnswerCount++
-        }
-      } else if (typeof examQuestion.answer !== 'undefined') {
-        if (this.questionService.checkAnswer(examQuestion.answer, question)) {
           correctAnswerCount++
         }
       }

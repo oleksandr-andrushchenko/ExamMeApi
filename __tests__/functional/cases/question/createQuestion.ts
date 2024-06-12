@@ -21,7 +21,8 @@ describe('Create question', () => {
     const question = {
       categoryId: category.id.toString(),
       title: 'any',
-      type: QuestionType.TYPE,
+      type: QuestionType.CHOICE,
+      choices: [ { title: faker.lorem.sentences(3) }, { title: faker.lorem.sentences(3), correct: true } ],
       difficulty: QuestionDifficulty.EASY,
     }
     const res = await request(framework.app).post('/').send(createQuestionMutation({ question }))
@@ -36,7 +37,8 @@ describe('Create question', () => {
     const question = {
       categoryId: categoryId.toString(),
       title: 'any',
-      type: QuestionType.TYPE,
+      type: QuestionType.CHOICE,
+      choices: [ { title: faker.lorem.sentences(3) }, { title: faker.lorem.sentences(3), correct: true } ],
       difficulty: QuestionDifficulty.EASY,
     }
     const res = await request(framework.app).post('/').send(createQuestionMutation({ question })).auth(token, { type: 'bearer' })
@@ -47,11 +49,36 @@ describe('Create question', () => {
   // todo: add cases
   test.each([
     { case: 'empty body', body: {}, times: 3 },
-    { case: 'no title', body: { type: QuestionType.TYPE, difficulty: QuestionDifficulty.EASY }, times: 1 },
+    {
+      case: 'no title',
+      body: {
+        type: QuestionType.CHOICE,
+        choices: [ { title: faker.lorem.sentences(3) }, { title: faker.lorem.sentences(3), correct: true } ],
+        difficulty: QuestionDifficulty.EASY,
+      },
+      times: 1,
+    },
     { case: 'no type', body: { title: 'any', difficulty: QuestionDifficulty.EASY }, times: 1 },
     { case: 'bad type', body: { title: 'any', type: 'any', difficulty: QuestionDifficulty.EASY }, times: 1 },
-    { case: 'no difficulty', body: { title: 'any', type: QuestionType.TYPE }, times: 1 },
-    { case: 'bad difficulty', body: { title: 'any', type: QuestionType.TYPE, difficulty: 'any' }, times: 1 },
+    {
+      case: 'no difficulty',
+      body: {
+        title: 'any',
+        type: QuestionType.CHOICE,
+        choices: [ { title: faker.lorem.sentences(3) }, { title: faker.lorem.sentences(3), correct: true } ],
+      },
+      times: 1,
+    },
+    {
+      case: 'bad difficulty',
+      body: {
+        title: 'any',
+        type: QuestionType.CHOICE,
+        choices: [ { title: faker.lorem.sentences(3) }, { title: faker.lorem.sentences(3), correct: true } ],
+        difficulty: 'any',
+      },
+      times: 1,
+    },
     {
       case: 'no choices',
       body: { title: 'any', type: QuestionType.CHOICE, difficulty: QuestionDifficulty.EASY },
@@ -100,15 +127,9 @@ describe('Create question', () => {
     const question = {
       categoryId: category.id.toString(),
       title: faker.lorem.sentences(3),
-      type: QuestionType.TYPE,
+      type: QuestionType.CHOICE,
+      choices: [ { title: faker.lorem.sentences(3) }, { title: faker.lorem.sentences(3), correct: true } ],
       difficulty: QuestionDifficulty.EASY,
-      answers: [
-        {
-          variants: [ faker.lorem.word() ],
-          correct: true,
-          explanation: faker.lorem.sentence(),
-        },
-      ],
     }
     const res = await request(framework.app).post('/').send(createQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
@@ -123,15 +144,9 @@ describe('Create question', () => {
     const question = {
       categoryId: category.id.toString(),
       title: question1.title,
-      type: QuestionType.TYPE,
+      type: QuestionType.CHOICE,
+      choices: [ { title: faker.lorem.sentences(3) }, { title: faker.lorem.sentences(3), correct: true } ],
       difficulty: QuestionDifficulty.EASY,
-      answers: [
-        {
-          variants: [ faker.lorem.word() ],
-          correct: true,
-          explanation: faker.lorem.sentence(),
-        },
-      ],
     }
     const res = await request(framework.app).post('/').send(createQuestionMutation({ question })).auth(token, { type: 'bearer' })
 
@@ -146,15 +161,22 @@ describe('Create question', () => {
     const question = {
       categoryId: category.id.toString(),
       title: faker.lorem.sentences(3),
-      type: QuestionType.TYPE,
-      difficulty: QuestionDifficulty.EASY,
-      answers: [
+      type: QuestionType.CHOICE,
+      choices: [
         {
-          variants: [ faker.lorem.word() ],
-          correct: true,
+          title: faker.lorem.sentence(),
+        },
+        {
+          title: faker.lorem.sentences(3),
+          correct: faker.datatype.boolean(),
+        },
+        {
+          title: 'Any title 3',
           explanation: faker.lorem.sentence(),
+          correct: faker.datatype.boolean(),
         },
       ],
+      difficulty: QuestionDifficulty.EASY,
     }
     const fields = [
       'id',
@@ -163,7 +185,6 @@ describe('Create question', () => {
       'difficulty',
       'title',
       'choices {title correct explanation}',
-      'answers {variants correct explanation}',
       'rating {value voterCount}',
       'ownerId',
       'createdAt',
@@ -184,10 +205,11 @@ describe('Create question', () => {
       type: latestQuestion.type,
       difficulty: latestQuestion.difficulty,
       title: latestQuestion.title,
-      choices: latestQuestion.choices ?? null,
-      answers: latestQuestion.answers?.map(answer => {
-        return { ...answer }
-      }) ?? null,
+      choices: latestQuestion.choices?.map(choice => ({
+        title: choice.title,
+        correct: choice.correct === undefined ? null : choice.correct,
+        explanation: choice.explanation === undefined ? null : choice.explanation,
+      })) ?? null,
       rating: null,
       ownerId: latestQuestion.ownerId.toString(),
       createdAt: latestQuestion.createdAt.getTime(),

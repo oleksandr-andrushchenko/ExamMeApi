@@ -15,7 +15,6 @@ import TokenSchema from '../../src/schema/auth/TokenSchema'
 import AuthService from '../../src/services/auth/AuthService'
 import { Application } from 'express'
 import QuestionType from '../../src/entities/question/QuestionType'
-import QuestionAnswer from '../../src/entities/question/QuestionAnswer'
 import QuestionDifficulty from '../../src/entities/question/QuestionDifficulty'
 import QuestionChoice from '../../src/entities/question/QuestionChoice'
 import ExamQuestion from '../../src/entities/exam/ExamQuestion'
@@ -101,26 +100,7 @@ export default class TestFramework {
         object.creatorId = options['creatorId'] ?? (await this.fixture(User, options) as User).id
         object.ownerId = options['ownerId'] ?? object.creatorId
 
-        if (object.type === QuestionType.TYPE) {
-          const answers = []
-
-          for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
-            const answer = new QuestionAnswer()
-            answer.variants = [ faker.lorem.word() ]
-
-            if (faker.datatype.boolean()) {
-              answer.correct = true
-            }
-
-            if (faker.datatype.boolean()) {
-              answer.explanation = faker.lorem.sentence()
-            }
-
-            answers.push(answer)
-          }
-
-          object.answers = answers
-        } else if (object.type === QuestionType.CHOICE) {
+        if (object.type === QuestionType.CHOICE) {
           const choices = []
 
           for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
@@ -165,12 +145,6 @@ export default class TestFramework {
           if (faker.datatype.boolean()) {
             if (question.type === QuestionType.CHOICE) {
               examQuestion.choice = faker.number.int({ min: 0, max: question.choices.length - 1 })
-            } else if (question.type === QuestionType.TYPE) {
-              const variants = question.answers[faker.number.int({
-                min: 0,
-                max: question.answers.length - 1,
-              })].variants
-              examQuestion.answer = variants[faker.number.int({ min: 0, max: variants.length - 1 })]
             }
           }
 

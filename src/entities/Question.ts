@@ -9,7 +9,6 @@ import Rating from './Rating'
 import QuestionType from './question/QuestionType'
 import QuestionDifficulty from './question/QuestionDifficulty'
 import QuestionChoice from './question/QuestionChoice'
-import QuestionAnswer from './question/QuestionAnswer'
 
 @ObjectType()
 @Entity({ name: 'questions' })
@@ -42,14 +41,6 @@ export default class Question extends Base {
   @Column(() => QuestionChoice)
   @Field(_type => [ QuestionChoice ], { nullable: true })
   public choices?: QuestionChoice[]
-
-  @Authorized(QuestionPermission.READ_ANSWERS)
-  @ValidateIf(question => question.type === QuestionType.TYPE)
-  @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  @Column(() => QuestionAnswer)
-  @Field(_type => [ QuestionAnswer ], { nullable: true })
-  public answers?: QuestionAnswer[]
 
   @Column(() => Rating)
   @Field(_type => Rating, { nullable: true })

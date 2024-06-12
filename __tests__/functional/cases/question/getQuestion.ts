@@ -7,7 +7,6 @@ import TestFramework from '../../TestFramework'
 import User from '../../../../src/entities/User'
 import QuestionType from '../../../../src/entities/question/QuestionType'
 import QuestionChoice from '../../../../src/entities/question/QuestionChoice'
-import QuestionAnswer from '../../../../src/entities/question/QuestionAnswer'
 
 const framework: TestFramework = globalThis.framework
 
@@ -36,7 +35,6 @@ describe('Get question', () => {
       'difficulty',
       'title',
       'choices {title correct explanation}',
-      'answers {variants correct explanation}',
       'rating {value voterCount}',
       'ownerId',
       'createdAt',
@@ -63,12 +61,7 @@ describe('Get question', () => {
       },
     })
 
-    if (question.type === QuestionType.TYPE) {
-      expect(res.body.data.question).toHaveProperty('answers')
-      question.answers.forEach((answer: QuestionAnswer, index: number) => {
-        expect(res.body.data.question.answers[index]).toMatchObject(Object.assign({}, answer) as Record<string, any>)
-      })
-    } else if (question.type === QuestionType.CHOICE) {
+    if (question.type === QuestionType.CHOICE) {
       expect(res.body.data.question).toHaveProperty('choices')
       question.choices.forEach((choice: QuestionChoice, index: number) => {
         expect(res.body.data.question.choices[index]).toMatchObject(Object.assign({}, choice) as Record<string, any>)

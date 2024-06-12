@@ -2,7 +2,6 @@ import { ArrayNotEmpty, IsEnum, IsMongoId, Length, ValidateIf, ValidateNested } 
 import { Type } from 'class-transformer'
 import { Field, ID, InputType } from 'type-graphql'
 import { QuestionChoiceSchema } from './QuestionChoiceSchema'
-import { QuestionAnswerSchema } from './QuestionAnswerSchema'
 import QuestionType from '../../entities/question/QuestionType'
 import QuestionDifficulty from '../../entities/question/QuestionDifficulty'
 
@@ -31,11 +30,4 @@ export default class QuestionSchema {
   @Type(() => QuestionChoiceSchema)
   @Field(_type => [ QuestionChoiceSchema! ], { nullable: true })
   public readonly choices?: QuestionChoiceSchema[]
-
-  @ValidateIf(question => question.type === QuestionType.TYPE)
-  @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => QuestionAnswerSchema)
-  @Field(_type => [ QuestionAnswerSchema! ], { nullable: true })
-  public readonly answers?: QuestionAnswerSchema[]
 }

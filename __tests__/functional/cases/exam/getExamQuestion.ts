@@ -112,10 +112,6 @@ describe('Get exam question', () => {
       if ('choice' in examQuestion) {
         expect(res.body.data.examQuestion).toHaveProperty('choice')
       }
-    } else if (question.type === QuestionType.TYPE) {
-      if ('answer' in examQuestion) {
-        expect(res.body.data.examQuestion).toHaveProperty('answer')
-      }
     }
 
     expect((await framework.load<Exam>(Exam, exam.id)).questionNumber).toEqual(questionNumber)
@@ -155,10 +151,6 @@ describe('Get exam question', () => {
     if (question.type === QuestionType.CHOICE) {
       if ('choice' in examQuestion) {
         expect(res.body.data.examQuestion).toHaveProperty('choice')
-      }
-    } else if (question.type === QuestionType.TYPE) {
-      if ('answer' in examQuestion) {
-        expect(res.body.data.examQuestion).toHaveProperty('answer')
       }
     }
 

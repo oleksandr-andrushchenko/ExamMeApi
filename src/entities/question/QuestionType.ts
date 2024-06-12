@@ -1,5 +1,4 @@
 enum QuestionType {
-  TYPE = 'type',
   CHOICE = 'choice',
 }
 

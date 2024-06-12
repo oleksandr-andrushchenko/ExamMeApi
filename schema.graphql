@@ -146,7 +146,6 @@ type Query {
 }
 
 type Question {
-  answers: [QuestionAnswer!]
   category: Category!
   categoryId: ObjectId!
   choices: [QuestionChoice!]
@@ -158,18 +157,6 @@ type Question {
   title: String!
   type: String!
   updatedAt: Timestamp
-}
-
-type QuestionAnswer {
-  correct: Boolean
-  explanation: String
-  variants: [String!]!
-}
-
-input QuestionAnswerSchema {
-  correct: Boolean
-  explanation: String
-  variants: [String!]!
 }
 
 type QuestionChoice {
@@ -185,7 +172,6 @@ input QuestionChoiceSchema {
 }
 
 input QuestionSchema {
-  answers: [QuestionAnswerSchema!]
   categoryId: ID!
   choices: [QuestionChoiceSchema!]
   difficulty: String!
@@ -194,7 +180,6 @@ input QuestionSchema {
 }
 
 input QuestionUpdateSchema {
-  answers: [QuestionAnswerSchema!]
   categoryId: ID
   choices: [QuestionChoiceSchema!]
   difficulty: String

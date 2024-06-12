@@ -58,9 +58,7 @@ export default class QuestionService {
     question.creatorId = initiator.id
     question.ownerId = initiator.id
 
-    if (question.type === QuestionType.TYPE) {
-      question.answers = transfer.answers
-    } else if (question.type === QuestionType.CHOICE) {
+    if (question.type === QuestionType.CHOICE) {
       question.choices = transfer.choices
     }
 
@@ -185,11 +183,7 @@ export default class QuestionService {
       question.difficulty = transfer.difficulty
     }
 
-    if (question.type === QuestionType.TYPE) {
-      if ('answers' in transfer) {
-        question.answers = transfer.answers
-      }
-    } else if (question.type === QuestionType.CHOICE) {
+    if (question.type === QuestionType.CHOICE) {
       if ('choices' in transfer) {
         question.choices = transfer.choices
       }
@@ -250,25 +244,5 @@ export default class QuestionService {
     // }
 
     return (question.choices || [])[choice]?.correct
-  }
-
-  /**
-   * @param {string} answer
-   * @param {Question} question
-   * @returns {boolean}
-   * @throws {QuestionTypeError}
-   */
-  public checkAnswer(answer: string, question: Question): boolean {
-    // if (question.type !== QuestionType.TYPE) {
-    //   throw new QuestionTypeError(question.type)
-    // }
-
-    for (const questionAnswer of (question.answers || [])) {
-      if (questionAnswer?.correct) {
-        return questionAnswer.variants.indexOf(answer) !== -1
-      }
-    }
-
-    return false
   }
 }

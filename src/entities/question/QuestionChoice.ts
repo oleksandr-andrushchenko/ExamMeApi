@@ -10,6 +10,7 @@ export default class QuestionChoice {
   @Field()
   public title: string
 
+  @IsOptional()
   @IsBoolean()
   @Column()
   @Field({ nullable: true })

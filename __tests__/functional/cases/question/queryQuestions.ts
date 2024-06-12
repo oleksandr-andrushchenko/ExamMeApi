@@ -8,7 +8,6 @@ import QuestionQuerySchema from '../../../../src/schema/question/QuestionQuerySc
 import TestFramework from '../../TestFramework'
 import User from '../../../../src/entities/User'
 import QuestionType from '../../../../src/entities/question/QuestionType'
-import QuestionAnswer from '../../../../src/entities/question/QuestionAnswer'
 import QuestionChoice from '../../../../src/entities/question/QuestionChoice'
 
 const framework: TestFramework = globalThis.framework
@@ -57,7 +56,6 @@ describe('Query questions', () => {
       'categoryId',
       'type',
       'difficulty',
-      'answers {variants correct explanation}',
       'choices {title correct explanation}',
     ]
     const res = await request(framework.app).post('/')
@@ -78,12 +76,7 @@ describe('Query questions', () => {
           title: question.title,
         })
 
-        if (question.type === QuestionType.TYPE) {
-          expect(body[index]).toHaveProperty('answers')
-          question.answers.forEach((answer: QuestionAnswer, index2: number) => {
-            expect(body[index].answers[index2]).toMatchObject(Object.assign({}, answer) as Record<string, any>)
-          })
-        } else if (question.type === QuestionType.CHOICE) {
+        if (question.type === QuestionType.CHOICE) {
           expect(body[index]).toHaveProperty('choices')
           question.choices.forEach((choice: QuestionChoice, index2: number) => {
             expect(body[index].choices[index2]).toMatchObject(Object.assign({}, choice) as Record<string, any>)

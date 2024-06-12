@@ -10,6 +10,7 @@ export class QuestionChoiceSchema {
   @Field()
   public readonly title: string
 
+  @IsOptional()
   @IsBoolean()
   @Column()
   @Field({ nullable: true })

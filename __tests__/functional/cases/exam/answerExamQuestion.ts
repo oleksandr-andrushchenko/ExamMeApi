@@ -21,8 +21,6 @@ describe('Create exam question answer', () => {
 
     if (question.type === QuestionType.CHOICE) {
       examQuestionAnswer['choice'] = 0
-    } else if (question.type === QuestionType.TYPE) {
-      examQuestionAnswer['answer'] = 'any'
     }
 
     const res = await request(framework.app).post('/')
@@ -92,8 +90,6 @@ describe('Create exam question answer', () => {
 
     if (question.type === QuestionType.CHOICE) {
       examQuestionAnswer['choice'] = 0
-    } else if (question.type === QuestionType.TYPE) {
-      examQuestionAnswer['answer'] = 'any'
     }
 
     const res = await request(framework.app).post('/')
@@ -118,8 +114,6 @@ describe('Create exam question answer', () => {
 
     if (question.type === QuestionType.CHOICE) {
       examQuestionAnswer['choice'] = 0
-    } else if (question.type === QuestionType.TYPE) {
-      examQuestionAnswer['answer'] = 'any'
     }
 
     let answeredQuestionCount = exam.answeredQuestionCount()
