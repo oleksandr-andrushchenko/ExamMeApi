@@ -15,6 +15,9 @@ import ValidatorInterface from '../validator/ValidatorInterface'
 import UserPermission from '../../enums/user/UserPermission'
 import { ObjectId } from 'mongodb'
 import UserEmailNotFoundError from '../../errors/user/UserEmailNotFoundError'
+import Cursor from '../../models/Cursor'
+import UserQuerySchema from '../../schema/user/UserQuerySchema'
+import PaginatedUsers from '../../schema/user/PaginatedUsers'
 
 @Service()
 export default class UserService {
@@ -145,5 +148,33 @@ export default class UserService {
     }
 
     return user
+  }
+
+
+  /**
+   * @param {UserQuerySchema} query
+   * @param {boolean} meta
+   * @param {User} initiator
+   * @returns {Promise<User[] | PaginatedUsers>}
+   * @throws {ValidatorError}
+   * @throws {AuthorizationFailedError}
+   */
+  public async getUsers(
+    query: UserQuerySchema,
+    meta: boolean,
+    initiator: User,
+  ): Promise<User[] | PaginatedUsers> {
+    await this.authService.verifyAuthorization(initiator, UserPermission.Get)
+    await this.validator.validate(query)
+
+    const cursor = new Cursor<User>(query, this.userRepository)
+
+    const where = {}
+
+    if ('search' in query) {
+      where['name'] = { $regex: query.search, $options: 'i' }
+    }
+
+    return await cursor.getPaginated(where, meta)
   }
 }

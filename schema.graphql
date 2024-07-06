@@ -143,6 +143,7 @@ type Query {
   permission: PermissionSchema!
   question(questionId: ID!): Question!
   questions(categoryId: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
+  users(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10): [User!]!
 }
 
 type Question {
