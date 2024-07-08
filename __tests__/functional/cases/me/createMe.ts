@@ -3,8 +3,8 @@ import request from 'supertest'
 import User from '../../../../src/entities/User'
 import { ObjectId } from 'mongodb'
 // @ts-ignore
-import { createMeMutation } from '../../graphql/me/createMeMutation'
-import MeSchema from '../../../../src/schema/user/MeSchema'
+import { createMe } from '../../graphql/me/createMe'
+import CreateMe from '../../../../src/schema/user/CreateMe'
 import Permission from '../../../../src/enums/Permission'
 import TestFramework from '../../TestFramework'
 
@@ -31,7 +31,7 @@ describe('Create me', () => {
     { case: 'password is too long', me: { email: 'a@a.com', password: 'abc'.repeat(99) } },
   ])('Bad request ($case)', async ({ me, times = 1 }) => {
     const res = await request(framework.app).post('/')
-      .send(createMeMutation({ me: me as MeSchema }))
+      .send(createMe({ createMe: me as CreateMe }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError(...Array(times).fill('BadRequestError')))
@@ -39,8 +39,8 @@ describe('Create me', () => {
   test('Conflict', async () => {
     const user = await framework.fixture<User>(User)
     const res = await request(framework.app).post('/')
-      .send(createMeMutation({
-        me: {
+      .send(createMe({
+        createMe: {
           name: 'any',
           email: user.email,
           password: '123123',
@@ -56,7 +56,7 @@ describe('Create me', () => {
     const fields = [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]
     const now = Date.now()
     const res = await request(framework.app).post('/')
-      .send(createMeMutation({ me: { ...me, ...{ password: '123123' } } }, fields))
+      .send(createMe({ createMe: { ...me, ...{ password: '123123' } } }, fields))
 
     expect(res.status).toEqual(200)
     expect(res.body).toHaveProperty('data')

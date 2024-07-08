@@ -6,8 +6,8 @@ import Category from '../../../../src/entities/Category'
 import { ObjectId } from 'mongodb'
 import ExamPermission from '../../../../src/enums/exam/ExamPermission'
 // @ts-ignore
-import { createExamMutation } from '../../graphql/exam/createExamMutation'
-import CreateExamSchema from '../../../../src/schema/exam/CreateExamSchema'
+import { createExam } from '../../graphql/exam/createExam'
+import CreateExam from '../../../../src/schema/exam/CreateExam'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -16,7 +16,7 @@ describe('Create exam', () => {
   test('Unauthorized', async () => {
     const category = await framework.fixture<Category>(Category)
     const res = await request(framework.app).post('/')
-      .send(createExamMutation({ exam: { categoryId: category.id.toString() } }))
+      .send(createExam({ createExam: { categoryId: category.id.toString() } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -25,7 +25,7 @@ describe('Create exam', () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(createExamMutation({ exam: {} as CreateExamSchema }))
+      .send(createExam({ createExam: {} as CreateExam }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -36,7 +36,7 @@ describe('Create exam', () => {
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
     const res = await request(framework.app).post('/')
-      .send(createExamMutation({ exam: { categoryId: category.id.toString() } }))
+      .send(createExam({ createExam: { categoryId: category.id.toString() } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -47,7 +47,7 @@ describe('Create exam', () => {
     const token = (await framework.auth(user)).token
     const exam = await framework.fixture<Exam>(Exam, { completedAt: false, creatorId: user.id })
     const res = await request(framework.app).post('/')
-      .send(createExamMutation({ exam: { categoryId: exam.categoryId.toString() } }))
+      .send(createExam({ createExam: { categoryId: exam.categoryId.toString() } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -58,7 +58,7 @@ describe('Create exam', () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
-    const exam = { categoryId: category.id.toString() }
+    const create = { categoryId: category.id.toString() }
     const fields = [
       'id',
       'categoryId',
@@ -72,15 +72,15 @@ describe('Create exam', () => {
     ]
     const now = Date.now()
     const res = await request(framework.app).post('/')
-      .send(createExamMutation({ exam }, fields))
+      .send(createExam({ createExam: create }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ data: { createExam: exam } })
+    expect(res.body).toMatchObject({ data: { createExam: create } })
     expect(res.body.data.createExam).toHaveProperty('id')
     const id = new ObjectId(res.body.data.createExam.id)
     const latestExam = await framework.load<Exam>(Exam, id)
-    expect({ ...latestExam, ...{ categoryId: latestExam.categoryId.toString() } }).toMatchObject(exam)
+    expect({ ...latestExam, ...{ categoryId: latestExam.categoryId.toString() } }).toMatchObject(create)
     expect(res.body.data.createExam).toEqual({
       id: latestExam.id.toString(),
       categoryId: latestExam.categoryId.toString(),

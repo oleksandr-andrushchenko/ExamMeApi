@@ -5,7 +5,7 @@ import User from '../../../../src/entities/User'
 import Question from '../../../../src/entities/Question'
 import ExamPermission from '../../../../src/enums/exam/ExamPermission'
 // @ts-ignore
-import { examQuestionQuery } from '../../graphql/exam/examQuestionQuery'
+import { getExamQuestion } from '../../graphql/exam/getExamQuestion'
 import TestFramework from '../../TestFramework'
 import QuestionType from '../../../../src/entities/question/QuestionType'
 
@@ -15,7 +15,7 @@ describe('Get exam question', () => {
   test('Unauthorized', async () => {
     const exam = await framework.fixture<Exam>(Exam)
     const res = await request(framework.app).post('/')
-      .send(examQuestionQuery({ examId: exam.id.toString(), question: 0 }))
+      .send(getExamQuestion({ examId: exam.id.toString(), question: 0 }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -24,7 +24,7 @@ describe('Get exam question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(examQuestionQuery({ examId: 'invalid', question: 0 }))
+      .send(getExamQuestion({ examId: 'invalid', question: 0 }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -38,7 +38,7 @@ describe('Get exam question', () => {
     const token = (await framework.auth(user)).token
     const exam = await framework.fixture<Exam>(Exam)
     const res = await request(framework.app).post('/')
-      .send(examQuestionQuery({ examId: exam.id.toString(), question: question as number }))
+      .send(getExamQuestion({ examId: exam.id.toString(), question: question as number }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -49,7 +49,7 @@ describe('Get exam question', () => {
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
-      .send(examQuestionQuery({ examId: id.toString(), question: 0 }))
+      .send(getExamQuestion({ examId: id.toString(), question: 0 }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -60,7 +60,7 @@ describe('Get exam question', () => {
     const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(examQuestionQuery({ examId: exam.id.toString(), question: 999 }))
+      .send(getExamQuestion({ examId: exam.id.toString(), question: 999 }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -71,7 +71,7 @@ describe('Get exam question', () => {
     const exam = await framework.fixture<Exam>(Exam)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(examQuestionQuery({ examId: exam.id.toString(), question: 0 }))
+      .send(getExamQuestion({ examId: exam.id.toString(), question: 0 }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -83,7 +83,7 @@ describe('Get exam question', () => {
     const token = (await framework.auth(user)).token
     const questionNumber = exam.questionCount() - 1
     const res = await request(framework.app).post('/')
-      .send(examQuestionQuery(
+      .send(getExamQuestion(
         { examId: exam.id.toString(), question: questionNumber },
         [ 'exam {id}', 'question {id title type difficulty}', 'number', 'choice', 'answer' ],
       ))
@@ -122,7 +122,7 @@ describe('Get exam question', () => {
     const token = (await framework.auth(user)).token
     const questionNumber = 0
     const res = await request(framework.app).post('/')
-      .send(examQuestionQuery(
+      .send(getExamQuestion(
         { examId: exam.id.toString(), question: questionNumber },
         [ 'exam {id}', 'question {id title type difficulty}', 'number', 'choice', 'answer' ],
       ))

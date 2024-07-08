@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import Question from '../../../../src/entities/Question'
 // @ts-ignore
-import { questionQuery } from '../../graphql/question/questionQuery'
+import { getQuestion } from '../../graphql/question/getQuestion'
 import TestFramework from '../../TestFramework'
 import User from '../../../../src/entities/User'
 import QuestionType from '../../../../src/entities/question/QuestionType'
@@ -13,13 +13,13 @@ const framework: TestFramework = globalThis.framework
 describe('Get question', () => {
   test('Not found (question)', async () => {
     const questionId = await framework.fakeId()
-    const res = await request(framework.app).post('/').send(questionQuery({ questionId: questionId.toString() }))
+    const res = await request(framework.app).post('/').send(getQuestion({ questionId: questionId.toString() }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('NotFoundError'))
   })
   test('Bad request (invalid id)', async () => {
-    const res = await request(framework.app).post('/').send(questionQuery({ questionId: 'invalid' }))
+    const res = await request(framework.app).post('/').send(getQuestion({ questionId: 'invalid' }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
@@ -41,7 +41,7 @@ describe('Get question', () => {
       'updatedAt',
     ]
     const res = await request(framework.app).post('/')
-      .send(questionQuery({ questionId: question.id.toString() }, fields))
+      .send(getQuestion({ questionId: question.id.toString() }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)

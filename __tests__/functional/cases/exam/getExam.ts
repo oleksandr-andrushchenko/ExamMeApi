@@ -4,7 +4,7 @@ import Exam from '../../../../src/entities/Exam'
 import User from '../../../../src/entities/User'
 import ExamPermission from '../../../../src/enums/exam/ExamPermission'
 // @ts-ignore
-import { examQuery } from '../../graphql/exam/examQuery'
+import { getExam } from '../../graphql/exam/getExam'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -13,7 +13,7 @@ describe('Get exam', () => {
   test('Unauthorized', async () => {
     const exam = await framework.fixture<Exam>(Exam)
     const res = await request(framework.app).post('/')
-      .send(examQuery({ examId: exam.id.toString() }))
+      .send(getExam({ examId: exam.id.toString() }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -22,7 +22,7 @@ describe('Get exam', () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(examQuery({ examId: 'invalid' }))
+      .send(getExam({ examId: 'invalid' }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -33,7 +33,7 @@ describe('Get exam', () => {
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
-      .send(examQuery({ examId: id.toString() }))
+      .send(getExam({ examId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -44,7 +44,7 @@ describe('Get exam', () => {
     const exam = await framework.fixture<Exam>(Exam)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(examQuery({ examId: exam.id.toString() }))
+      .send(getExam({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -55,7 +55,7 @@ describe('Get exam', () => {
     const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(examQuery({ examId: exam.id.toString() }))
+      .send(getExam({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -77,7 +77,7 @@ describe('Get exam', () => {
       'updatedAt',
     ]
     const res = await request(framework.app).post('/')
-      .send(examQuery({ examId: exam.id.toString() }, fields))
+      .send(getExam({ examId: exam.id.toString() }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)

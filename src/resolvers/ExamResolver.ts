@@ -1,14 +1,14 @@
 import { Inject, Service } from 'typedi'
 import Exam from '../entities/Exam'
 import User from '../entities/User'
-import CreateExamSchema from '../schema/exam/CreateExamSchema'
+import CreateExam from '../schema/exam/CreateExam'
 import ExamService from '../services/exam/ExamService'
-import GetExamSchema from '../schema/exam/GetExamSchema'
+import GetExam from '../schema/exam/GetExam'
 import ExamQuestionSchema from '../schema/exam/ExamQuestionSchema'
-import CreateExamQuestionAnswerSchema from '../schema/exam/CreateExamQuestionAnswerSchema'
-import GetExamQuestionSchema from '../schema/exam/GetExamQuestionSchema'
+import CreateExamQuestionAnswer from '../schema/exam/CreateExamQuestionAnswer'
+import GetExamQuestion from '../schema/exam/GetExamQuestion'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
-import ExamQuerySchema from '../schema/exam/ExamQuerySchema'
+import GetExams from '../schema/exam/GetExams'
 import { Arg, Args, Authorized, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from 'type-graphql'
 import PaginatedExams from '../schema/exam/PaginatedExams'
 import Category from '../entities/Category'
@@ -28,7 +28,7 @@ export class ExamResolver {
   @Authorized()
   @Mutation(_returns => Exam)
   public async createExam(
-    @Arg('exam') exam: CreateExamSchema,
+    @Arg('createExam') exam: CreateExam,
     @Ctx('user') user: User,
   ): Promise<Exam> {
     return await this.examService.createExam(exam, user)
@@ -37,24 +37,24 @@ export class ExamResolver {
   @Authorized()
   @Query(_returns => [ Exam ], { name: 'exams' })
   public async getExams(
-    @Args() examQuery: ExamQuerySchema,
+    @Args() getExams: GetExams,
     @Ctx('user') user: User,
   ): Promise<Exam[]> {
-    return await this.examService.queryExams(examQuery, user) as Exam[]
+    return await this.examService.getExams(getExams, user) as Exam[]
   }
 
   @Query(_returns => PaginatedExams, { name: 'paginatedExams' })
   public async getPaginatedExams(
-    @Args() examQuery: ExamQuerySchema,
+    @Args() getExams: GetExams,
     @Ctx('user') user: User,
   ): Promise<PaginatedExams> {
-    return await this.examService.queryExams(examQuery, user, true) as PaginatedExams
+    return await this.examService.getExams(getExams, user, true) as PaginatedExams
   }
 
   @Authorized()
   @Query(_returns => Exam, { name: 'exam' })
   public async getExam(
-    @Args() getExam: GetExamSchema,
+    @Args() getExam: GetExam,
     @Ctx('user') user: User,
   ): Promise<Exam> {
     await this.validator.validate(getExam)
@@ -65,7 +65,7 @@ export class ExamResolver {
   @Authorized()
   @Query(_returns => ExamQuestionSchema, { name: 'examQuestion' })
   public async getExamQuestion(
-    @Args() getExamQuestion: GetExamQuestionSchema,
+    @Args() getExamQuestion: GetExamQuestion,
     @Ctx('user') user: User,
   ): Promise<ExamQuestionSchema> {
     await this.validator.validate(getExamQuestion)
@@ -80,7 +80,7 @@ export class ExamResolver {
   @Authorized()
   @Query(_returns => ExamQuestionSchema, { name: 'currentExamQuestion' })
   public async getCurrentExamQuestion(
-    @Args() getExam: GetExamSchema,
+    @Args() getExam: GetExam,
     @Ctx('user') user: User,
   ): Promise<ExamQuestionSchema> {
     await this.validator.validate(getExam)
@@ -91,23 +91,23 @@ export class ExamResolver {
 
   @Authorized()
   @Mutation(_returns => ExamQuestionSchema)
-  public async answerExamQuestion(
-    @Args() getExamQuestion: GetExamQuestionSchema,
-    @Arg('examQuestionAnswer') examQuestionAnswer: CreateExamQuestionAnswerSchema,
+  public async createExamQuestionAnswer(
+    @Args() getExamQuestion: GetExamQuestion,
+    @Arg('createExamQuestionAnswer') createExamQuestionAnswer: CreateExamQuestionAnswer,
     @Ctx('user') user: User,
   ): Promise<ExamQuestionSchema> {
     await this.validator.validate(getExamQuestion)
     const exam = await this.examService.getExam(getExamQuestion.examId, user)
 
-    await this.examService.createExamQuestionAnswer(exam, getExamQuestion.question, examQuestionAnswer, user)
+    await this.examService.createExamQuestionAnswer(exam, getExamQuestion.question, createExamQuestionAnswer, user)
 
     return this.examService.getExamQuestion(exam, getExamQuestion.question, user)
   }
 
   @Authorized()
   @Mutation(_returns => ExamQuestionSchema)
-  public async clearExamQuestionAnswer(
-    @Args() getExamQuestion: GetExamQuestionSchema,
+  public async deleteExamQuestionAnswer(
+    @Args() getExamQuestion: GetExamQuestion,
     @Ctx('user') user: User,
   ): Promise<ExamQuestionSchema> {
     await this.validator.validate(getExamQuestion)
@@ -120,8 +120,8 @@ export class ExamResolver {
 
   @Authorized()
   @Mutation(_returns => Exam)
-  public async completeExam(
-    @Args() getExam: GetExamSchema,
+  public async createExamCompletion(
+    @Args() getExam: GetExam,
     @Ctx('user') user: User,
   ): Promise<Exam> {
     await this.validator.validate(getExam)
@@ -134,8 +134,8 @@ export class ExamResolver {
 
   @Authorized()
   @Mutation(_returns => Boolean)
-  public async removeExam(
-    @Args() getExam: GetExamSchema,
+  public async deleteExam(
+    @Args() getExam: GetExam,
     @Ctx('user') user: User,
   ): Promise<boolean> {
     await this.validator.validate(getExam)

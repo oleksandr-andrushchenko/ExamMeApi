@@ -4,7 +4,7 @@ import Category from '../../../../src/entities/Category'
 import User from '../../../../src/entities/User'
 import CategoryPermission from '../../../../src/enums/category/CategoryPermission'
 // @ts-ignore
-import { removeCategoryMutation } from '../../graphql/category/removeCategoryMutation'
+import { deleteCategory } from '../../graphql/category/deleteCategory'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -13,7 +13,7 @@ describe('Delete category', () => {
   test('Unauthorized', async () => {
     const category = await framework.fixture<Category>(Category)
     const res = await request(framework.app).post('/')
-      .send(removeCategoryMutation({ categoryId: category.id.toString() }))
+      .send(deleteCategory({ categoryId: category.id.toString() }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -22,7 +22,7 @@ describe('Delete category', () => {
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.DELETE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeCategoryMutation({ categoryId: 'invalid' }))
+      .send(deleteCategory({ categoryId: 'invalid' }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -33,7 +33,7 @@ describe('Delete category', () => {
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
-      .send(removeCategoryMutation({ categoryId: id.toString() }))
+      .send(deleteCategory({ categoryId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -44,7 +44,7 @@ describe('Delete category', () => {
     const category = await framework.fixture<Category>(Category)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeCategoryMutation({ categoryId: category.id.toString() }))
+      .send(deleteCategory({ categoryId: category.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -55,7 +55,7 @@ describe('Delete category', () => {
     const category = await framework.fixture<Category>(Category)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeCategoryMutation({ categoryId: category.id.toString() }))
+      .send(deleteCategory({ categoryId: category.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -66,11 +66,11 @@ describe('Delete category', () => {
     const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeCategoryMutation({ categoryId: category.id.toString() }))
+      .send(deleteCategory({ categoryId: category.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ data: { removeCategory: true } })
+    expect(res.body).toMatchObject({ data: { deleteCategory: true } })
     expect(await framework.load<Category>(Category, category.id)).toBeNull()
   })
   test('Deleted (has permission)', async () => {
@@ -78,11 +78,11 @@ describe('Delete category', () => {
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.DELETE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeCategoryMutation({ categoryId: category.id.toString() }))
+      .send(deleteCategory({ categoryId: category.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ data: { removeCategory: true } })
+    expect(res.body).toMatchObject({ data: { deleteCategory: true } })
     expect(await framework.load<Category>(Category, category.id)).toBeNull()
   })
 })

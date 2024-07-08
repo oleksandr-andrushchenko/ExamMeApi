@@ -8,17 +8,17 @@ import ValidatorInterface from '../validator/ValidatorInterface'
 import CategoryService from '../category/CategoryService'
 import Cursor from '../../models/Cursor'
 import ExamRepository from '../../repositories/ExamRepository'
-import CreateExamSchema from '../../schema/exam/CreateExamSchema'
+import CreateExam from '../../schema/exam/CreateExam'
 import Exam from '../../entities/Exam'
 import ExamTakenError from '../../errors/exam/ExamTakenError'
 import ExamNotFoundError from '../../errors/exam/ExamNotFoundError'
 import ExamQuestionSchema from '../../schema/exam/ExamQuestionSchema'
-import CreateExamQuestionAnswerSchema from '../../schema/exam/CreateExamQuestionAnswerSchema'
+import CreateExamQuestionAnswer from '../../schema/exam/CreateExamQuestionAnswer'
 import QuestionService from '../question/QuestionService'
 import Question from '../../entities/Question'
 import { ObjectId } from 'mongodb'
 import AuthorizationFailedError from '../../errors/auth/AuthorizationFailedError'
-import ExamQuerySchema from '../../schema/exam/ExamQuerySchema'
+import GetExams from '../../schema/exam/GetExams'
 import ExamQuestionNumberNotFoundError from '../../errors/exam/ExamQuestionNumberNotFoundError'
 import ExamPermission from '../../enums/exam/ExamPermission'
 import QuestionNotFoundError from '../../errors/question/QuestionNotFoundError'
@@ -42,22 +42,22 @@ export default class ExamService {
 
 
   /**
-   * @param {CreateExamSchema} transfer
+   * @param {CreateExam} createExam
    * @param {User} initiator
    * @returns {Promise<Exam>}
    * @throws {AuthorizationFailedError}
    * @throws {CategoryNotFoundError}
    * @throws {ExamTakenError}
    */
-  public async createExam(transfer: CreateExamSchema, initiator: User): Promise<Exam> {
+  public async createExam(createExam: CreateExam, initiator: User): Promise<Exam> {
     await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE)
 
-    await this.validator.validate(transfer)
-    const category = await this.categoryService.getCategory(transfer.categoryId)
+    await this.validator.validate(createExam)
+    const category = await this.categoryService.getCategory(createExam.categoryId)
 
     await this.verifyExamNotTaken(category, initiator)
 
-    const questions = (await this.questionService.queryCategoryQuestions(category) as Question[])
+    const questions = (await this.questionService.getCategoryQuestions(category) as Question[])
       .map((question: Question): ExamQuestion => {
         const examQuestion = new ExamQuestion()
         examQuestion.questionId = question.id
@@ -143,7 +143,7 @@ export default class ExamService {
   /**
    * @param {Exam} exam
    * @param {number} questionNumber
-   * @param {CreateExamQuestionAnswerSchema} examQuestionAnswer
+   * @param {CreateExamQuestionAnswer} createExamQuestionAnswer
    * @param {User} initiator
    * @returns {Promise<ExamQuestion>}
    * @throws {AuthorizationFailedError}
@@ -153,11 +153,11 @@ export default class ExamService {
   public async createExamQuestionAnswer(
     exam: Exam,
     questionNumber: number,
-    examQuestionAnswer: CreateExamQuestionAnswerSchema,
+    createExamQuestionAnswer: CreateExamQuestionAnswer,
     initiator: User,
   ): Promise<ExamQuestion> {
     await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_QUESTION_ANSWER, exam)
-    await this.validator.validate(examQuestionAnswer)
+    await this.validator.validate(createExamQuestionAnswer)
 
     const questions = exam.questions
     const questionId = questions[questionNumber]
@@ -169,7 +169,7 @@ export default class ExamService {
     const question = await this.questionService.getQuestion(questions[questionNumber].questionId)
 
     if (question.type === QuestionType.CHOICE) {
-      questions[questionNumber].choice = examQuestionAnswer.choice
+      questions[questionNumber].choice = createExamQuestionAnswer.choice
     }
 
     // todo: optimize
@@ -220,20 +220,20 @@ export default class ExamService {
   }
 
   /**
-   * @param {ExamQuerySchema} query
+   * @param {GetExams} getExams
    * @param {User} initiator
    * @param {boolean} meta
    * @returns {Promise<Exam[] | PaginatedExams>}
    * @throws {ValidatorError}
    */
-  public async queryExams(
-    query: ExamQuerySchema,
+  public async getExams(
+    getExams: GetExams,
     initiator: User,
     meta: boolean = false,
   ): Promise<Exam[] | PaginatedExams> {
-    await this.validator.validate(query)
+    await this.validator.validate(getExams)
 
-    const cursor = new Cursor<Exam>(query, this.examRepository)
+    const cursor = new Cursor<Exam>(getExams, this.examRepository)
     const where = {}
 
     try {
@@ -246,12 +246,12 @@ export default class ExamService {
       }
     }
 
-    if ('categoryId' in query) {
-      where['categoryId'] = new ObjectId(query.categoryId)
+    if ('categoryId' in getExams) {
+      where['categoryId'] = new ObjectId(getExams.categoryId)
     }
 
-    if ('completion' in query) {
-      where['completedAt'] = { $exists: query.completion }
+    if ('completion' in getExams) {
+      where['completedAt'] = { $exists: getExams.completion }
     }
 
     return await cursor.getPaginated(where, meta)
@@ -295,7 +295,7 @@ export default class ExamService {
     await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_COMPLETION, exam)
 
     const category = await this.categoryService.getCategory(exam.categoryId)
-    const questions = await this.questionService.queryCategoryQuestions(category) as Question[]
+    const questions = await this.questionService.getCategoryQuestions(category) as Question[]
 
     const questionsHashedById = []
 

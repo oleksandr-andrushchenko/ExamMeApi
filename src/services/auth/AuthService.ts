@@ -3,7 +3,7 @@ import User from '../../entities/User'
 import TokenService, { TokenPayload } from '../token/TokenService'
 import { Request } from 'express'
 import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
-import TokenSchema from '../../schema/auth/TokenSchema'
+import Token from '../../schema/auth/Token'
 import AuthorizationFailedError from '../../errors/auth/AuthorizationFailedError'
 import Permission from '../../enums/Permission'
 import { ObjectId } from 'mongodb'
@@ -59,7 +59,7 @@ export default class AuthService {
     throw new AuthorizationFailedError(permission)
   }
 
-  public async createAuth(user: User): Promise<TokenSchema> {
+  public async createAuth(user: User): Promise<Token> {
     const access = await this.tokenService.generateAccessToken(user, this.tokenExpiresIn)
 
     this.eventDispatcher.dispatch('authCreated', { user })

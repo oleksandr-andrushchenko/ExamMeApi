@@ -7,14 +7,14 @@ import AuthService from '../auth/AuthService'
 import { ObjectId } from 'mongodb'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import Question from '../../entities/Question'
-import QuestionSchema from '../../schema/question/QuestionSchema'
+import CreateQuestion from '../../schema/question/CreateQuestion'
 import QuestionRepository from '../../repositories/QuestionRepository'
 import QuestionTitleTakenError from '../../errors/question/QuestionTitleTakenError'
 import CategoryService from '../category/CategoryService'
 import QuestionNotFoundError from '../../errors/question/QuestionNotFoundError'
-import QuestionUpdateSchema from '../../schema/question/QuestionUpdateSchema'
+import UpdateQuestion from '../../schema/question/UpdateQuestion'
 import Cursor from '../../models/Cursor'
-import QuestionQuerySchema from '../../schema/question/QuestionQuerySchema'
+import GetQuestions from '../../schema/question/GetQuestions'
 import QuestionPermission from '../../enums/question/QuestionPermission'
 import PaginatedQuestions from '../../schema/question/PaginatedQuestions'
 import QuestionType from '../../entities/question/QuestionType'
@@ -34,32 +34,32 @@ export default class QuestionService {
 
 
   /**
-   * @param {QuestionSchema} transfer
+   * @param {CreateQuestion} createQuestion
    * @param {User} initiator
    * @returns {Promise<Question>}
    * @throws {CategoryNotFoundError}
    * @throws {AuthorizationFailedError}
    * @throws {QuestionTitleTakenError}
    */
-  public async createQuestion(transfer: QuestionSchema, initiator: User): Promise<Question> {
-    await this.validator.validate(transfer)
+  public async createQuestion(createQuestion: CreateQuestion, initiator: User): Promise<Question> {
+    await this.validator.validate(createQuestion)
     await this.authService.verifyAuthorization(initiator, QuestionPermission.CREATE)
 
-    const category = await this.categoryService.getCategory(transfer.categoryId)
+    const category = await this.categoryService.getCategory(createQuestion.categoryId)
 
-    const title = transfer.title
+    const title = createQuestion.title
     await this.verifyQuestionTitleNotExists(title)
 
     const question: Question = new Question()
     question.categoryId = category.id
-    question.type = transfer.type
-    question.difficulty = transfer.difficulty
+    question.type = createQuestion.type
+    question.difficulty = createQuestion.difficulty
     question.title = title
     question.creatorId = initiator.id
     question.ownerId = initiator.id
 
     if (question.type === QuestionType.CHOICE) {
-      question.choices = transfer.choices
+      question.choices = createQuestion.choices
     }
 
     question.createdAt = new Date()
@@ -73,39 +73,39 @@ export default class QuestionService {
   }
 
   /**
-   * @param {QuestionQuerySchema} query
+   * @param {GetQuestions} getQuestions
    * @param {boolean} meta
    * @returns {Promise<Question[] | PaginatedQuestions>}
    * @throws {ValidatorError}
    */
-  public async queryQuestions(
-    query: QuestionQuerySchema,
+  public async getQuestions(
+    getQuestions: GetQuestions,
     meta: boolean = false,
   ): Promise<Question[] | PaginatedQuestions> {
-    await this.validator.validate(query)
+    await this.validator.validate(getQuestions)
 
-    const cursor = new Cursor<Question>(query, this.questionRepository)
+    const cursor = new Cursor<Question>(getQuestions, this.questionRepository)
 
     const where = {}
 
-    if ('categoryId' in query) {
-      where['categoryId'] = new ObjectId(query.categoryId)
+    if ('categoryId' in getQuestions) {
+      where['categoryId'] = new ObjectId(getQuestions.categoryId)
     }
 
-    if ('price' in query) {
-      where['price'] = query.price
+    if ('price' in getQuestions) {
+      where['price'] = getQuestions.price
     }
 
-    if ('search' in query) {
-      where['title'] = { $regex: query.search, $options: 'i' }
+    if ('search' in getQuestions) {
+      where['title'] = { $regex: getQuestions.search, $options: 'i' }
     }
 
-    if ('difficulty' in query) {
-      where['difficulty'] = query.difficulty
+    if ('difficulty' in getQuestions) {
+      where['difficulty'] = getQuestions.difficulty
     }
 
-    if ('type' in query) {
-      where['type'] = query.type
+    if ('type' in getQuestions) {
+      where['type'] = getQuestions.type
     }
 
     return await cursor.getPaginated(where, meta)
@@ -113,20 +113,20 @@ export default class QuestionService {
 
   /**
    * @param {Category} category
-   * @param {QuestionQuerySchema} query
+   * @param {GetQuestions} getQuestions
    * @param {boolean} meta
    * @returns {Promise<Question[] | PaginatedQuestions>}
    * @throws {ValidatorError}
    */
-  public async queryCategoryQuestions(
+  public async getCategoryQuestions(
     category: Category,
-    query: QuestionQuerySchema = undefined,
+    getQuestions: GetQuestions = undefined,
     meta: boolean = false,
   ): Promise<Question[] | PaginatedQuestions> {
-    query = query === undefined ? new QuestionQuerySchema() : query
-    query.categoryId = category.id.toString()
+    getQuestions = getQuestions === undefined ? new GetQuestions() : getQuestions
+    getQuestions.categoryId = category.id.toString()
 
-    return this.queryQuestions(query, meta)
+    return this.getQuestions(getQuestions, meta)
   }
 
   /**
@@ -152,7 +152,7 @@ export default class QuestionService {
 
   /**
    * @param {Question} question
-   * @param {QuestionUpdateSchema} transfer
+   * @param {UpdateQuestion} updateQuestion
    * @param {User} initiator
    * @returns {Promise<Question>}
    * @throws {QuestionNotFoundError}
@@ -160,32 +160,32 @@ export default class QuestionService {
    * @throws {AuthorizationFailedError}
    * @throws {QuestionTitleTakenError}
    */
-  public async updateQuestion(question: Question, transfer: QuestionUpdateSchema, initiator: User): Promise<Question> {
-    await this.validator.validate(transfer)
+  public async updateQuestion(question: Question, updateQuestion: UpdateQuestion, initiator: User): Promise<Question> {
+    await this.validator.validate(updateQuestion)
     await this.authService.verifyAuthorization(initiator, QuestionPermission.UPDATE, question)
 
-    if ('categoryId' in transfer) {
-      const category = await this.categoryService.getCategory(transfer.categoryId)
+    if ('categoryId' in updateQuestion) {
+      const category = await this.categoryService.getCategory(updateQuestion.categoryId)
       question.categoryId = category.id
     }
 
-    if ('title' in transfer) {
-      const title = transfer.title
+    if ('title' in updateQuestion) {
+      const title = updateQuestion.title
       await this.verifyQuestionTitleNotExists(title, question.id)
       question.title = title
     }
 
-    if ('type' in transfer) {
-      question.type = transfer.type
+    if ('type' in updateQuestion) {
+      question.type = updateQuestion.type
     }
 
-    if ('difficulty' in transfer) {
-      question.difficulty = transfer.difficulty
+    if ('difficulty' in updateQuestion) {
+      question.difficulty = updateQuestion.difficulty
     }
 
     if (question.type === QuestionType.CHOICE) {
-      if ('choices' in transfer) {
-        question.choices = transfer.choices
+      if ('choices' in updateQuestion) {
+        question.choices = updateQuestion.choices
       }
     }
 

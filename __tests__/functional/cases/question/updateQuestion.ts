@@ -5,8 +5,8 @@ import User from '../../../../src/entities/User'
 import { faker } from '@faker-js/faker'
 import QuestionPermission from '../../../../src/enums/question/QuestionPermission'
 // @ts-ignore
-import { updateQuestionMutation } from '../../graphql/question/updateQuestionMutation'
-import QuestionUpdateSchema from '../../../../src/schema/question/QuestionUpdateSchema'
+import { updateQuestion } from '../../graphql/question/updateQuestion'
+import UpdateQuestion from '../../../../src/schema/question/UpdateQuestion'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -15,7 +15,7 @@ describe('Update question', () => {
   test('Unauthorized', async () => {
     const question = await framework.fixture<Question>(Question)
     const res = await request(framework.app).post('/')
-      .send(updateQuestionMutation({ questionId: question.id.toString(), questionUpdate: { title: 'any' } }))
+      .send(updateQuestion({ questionId: question.id.toString(), updateQuestion: { title: 'any' } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -24,7 +24,7 @@ describe('Update question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.UPDATE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateQuestionMutation({ questionId: 'invalid', questionUpdate: { title: 'any' } }))
+      .send(updateQuestion({ questionId: 'invalid', updateQuestion: { title: 'any' } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -35,7 +35,7 @@ describe('Update question', () => {
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
-      .send(updateQuestionMutation({ questionId: id.toString(), questionUpdate: { title: 'any' } }))
+      .send(updateQuestion({ questionId: id.toString(), updateQuestion: { title: 'any' } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -46,9 +46,9 @@ describe('Update question', () => {
     const token = (await framework.auth(user)).token
     const question = await framework.fixture<Question>(Question)
     const res = await request(framework.app).post('/')
-      .send(updateQuestionMutation({
+      .send(updateQuestion({
         questionId: question.id.toString(),
-        questionUpdate: undefined as QuestionUpdateSchema,
+        updateQuestion: undefined as UpdateQuestion,
       }))
       .auth(token, { type: 'bearer' })
 
@@ -60,9 +60,9 @@ describe('Update question', () => {
     const question = await framework.fixture<Question>(Question)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateQuestionMutation({
+      .send(updateQuestion({
         questionId: question.id.toString(),
-        questionUpdate: { title: faker.lorem.sentences(3) },
+        updateQuestion: { title: faker.lorem.sentences(3) },
       }))
       .auth(token, { type: 'bearer' })
 
@@ -74,9 +74,9 @@ describe('Update question', () => {
     const question = await framework.fixture<Question>(Question)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateQuestionMutation({
+      .send(updateQuestion({
         questionId: question.id.toString(),
-        questionUpdate: { title: faker.lorem.sentences(3) },
+        updateQuestion: { title: faker.lorem.sentences(3) },
       }))
       .auth(token, { type: 'bearer' })
 
@@ -89,9 +89,9 @@ describe('Update question', () => {
     const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateQuestionMutation({
+      .send(updateQuestion({
         questionId: question.id.toString(),
-        questionUpdate: { title: question1.title },
+        updateQuestion: { title: question1.title },
       }))
       .auth(token, { type: 'bearer' })
 
@@ -104,14 +104,14 @@ describe('Update question', () => {
     const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const questionId = question.id.toString()
-    const questionUpdate = { title: faker.lorem.sentences(3) }
+    const update = { title: faker.lorem.sentences(3) }
     const res = await request(framework.app).post('/')
-      .send(updateQuestionMutation({ questionId, questionUpdate }))
+      .send(updateQuestion({ questionId, updateQuestion: update }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { updateQuestion: { id: questionId } } })
-    expect(await framework.load<Question>(Question, question.id)).toMatchObject(questionUpdate)
+    expect(await framework.load<Question>(Question, question.id)).toMatchObject(update)
   })
   test('Updated (has permission)', async () => {
     await framework.clear(Question)
@@ -119,13 +119,13 @@ describe('Update question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.UPDATE ] })
     const token = (await framework.auth(user)).token
     const questionId = question.id.toString()
-    const questionUpdate = { title: faker.lorem.sentences(3) }
+    const update = { title: faker.lorem.sentences(3) }
     const res = await request(framework.app).post('/')
-      .send(updateQuestionMutation({ questionId, questionUpdate }))
+      .send(updateQuestion({ questionId, updateQuestion: update }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { updateQuestion: { id: questionId } } })
-    expect(await framework.load<Question>(Question, question.id)).toMatchObject(questionUpdate)
+    expect(await framework.load<Question>(Question, question.id)).toMatchObject(update)
   })
 })

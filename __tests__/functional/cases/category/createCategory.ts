@@ -5,15 +5,15 @@ import User from '../../../../src/entities/User'
 import { ObjectId } from 'mongodb'
 import CategoryPermission from '../../../../src/enums/category/CategoryPermission'
 // @ts-ignore
-import { createCategoryMutation } from '../../graphql/category/createCategoryMutation'
-import CategorySchema from '../../../../src/schema/category/CategorySchema'
+import { createCategory } from '../../graphql/category/createCategory'
+import CreateCategory from '../../../../src/schema/category/CreateCategory'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
 
 describe('Create category', () => {
   test('Unauthorized', async () => {
-    const res = await request(framework.app).post('/').send(createCategoryMutation({ category: { name: 'any' } }))
+    const res = await request(framework.app).post('/').send(createCategory({ createCategory: { name: 'any' } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -35,7 +35,7 @@ describe('Create category', () => {
     const token = (await framework.auth(user)).token
     const res = await request(framework.app)
       .post('/')
-      .send(createCategoryMutation({ category: category as CategorySchema }))
+      .send(createCategory({ createCategory: category as CreateCategory }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -46,7 +46,7 @@ describe('Create category', () => {
     const token = (await framework.auth(user)).token
     const res = await request(framework.app)
       .post('/')
-      .send(createCategoryMutation({ category: { name: 'any' } }))
+      .send(createCategory({ createCategory: { name: 'any' } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -59,7 +59,7 @@ describe('Create category', () => {
     const token = (await framework.auth(user)).token
     const res = await request(framework.app)
       .post('/')
-      .send(createCategoryMutation({ category: { name: category.name } }))
+      .send(createCategory({ createCategory: { name: category.name } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -74,7 +74,7 @@ describe('Create category', () => {
     const now = Date.now()
     const res = await request(framework.app)
       .post('/')
-      .send(createCategoryMutation({ category }, fields))
+      .send(createCategory({ createCategory: category }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)

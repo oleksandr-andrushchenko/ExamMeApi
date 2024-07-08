@@ -6,13 +6,13 @@ import CategoryRepository from '../../repositories/CategoryRepository'
 import CategoryNameTakenError from '../../errors/category/CategoryNameTakenError'
 import User from '../../entities/User'
 import CategoryNotFoundError from '../../errors/category/CategoryNotFoundError'
-import CategorySchema from '../../schema/category/CategorySchema'
+import CreateCategory from '../../schema/category/CreateCategory'
 import AuthService from '../auth/AuthService'
 import { ObjectId } from 'mongodb'
-import CategoryUpdateSchema from '../../schema/category/CategoryUpdateSchema'
+import UpdateCategory from '../../schema/category/UpdateCategory'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import Cursor from '../../models/Cursor'
-import CategoryQuerySchema from '../../schema/category/CategoryQuerySchema'
+import GetCategories from '../../schema/category/GetCategories'
 import CategoryPermission from '../../enums/category/CategoryPermission'
 import PaginatedCategories from '../../schema/category/PaginatedCategories'
 
@@ -29,23 +29,23 @@ export default class CategoryService {
   }
 
   /**
-   * @param {CategorySchema} transfer
+   * @param {CreateCategory} createCategory
    * @param {User} initiator
    * @returns {Promise<Category>}
    * @throws {AuthorizationFailedError}
    * @throws {CategoryNameTakenError}
    */
-  public async createCategory(transfer: CategorySchema, initiator: User): Promise<Category> {
-    await this.validator.validate(transfer)
+  public async createCategory(createCategory: CreateCategory, initiator: User): Promise<Category> {
+    await this.validator.validate(createCategory)
 
     await this.authService.verifyAuthorization(initiator, CategoryPermission.CREATE)
 
-    const name = transfer.name
+    const name = createCategory.name
     await this.verifyCategoryNameNotExists(name)
 
     const category: Category = new Category()
     category.name = name
-    category.requiredScore = transfer.requiredScore
+    category.requiredScore = createCategory.requiredScore
     category.creatorId = initiator.id
     category.ownerId = initiator.id
     category.createdAt = new Date()
@@ -79,27 +79,27 @@ export default class CategoryService {
 
   /**
    *
-   * @param {CategoryQuerySchema} query
+   * @param {GetCategories} getCategories
    * @param {boolean} meta
    * @returns {Promise<Category[] | PaginatedCategories>}
    * @throws {ValidatorError}
    */
-  public async queryCategories(
-    query: CategoryQuerySchema,
+  public async getCategories(
+    getCategories: GetCategories,
     meta: boolean = false,
   ): Promise<Category[] | PaginatedCategories> {
-    await this.validator.validate(query)
+    await this.validator.validate(getCategories)
 
-    const cursor = new Cursor<Category>(query, this.categoryRepository)
+    const cursor = new Cursor<Category>(getCategories, this.categoryRepository)
 
     const where = {}
 
-    if ('price' in query) {
-      where['price'] = query.price
+    if ('price' in getCategories) {
+      where['price'] = getCategories.price
     }
 
-    if ('search' in query) {
-      where['name'] = { $regex: query.search, $options: 'i' }
+    if ('search' in getCategories) {
+      where['name'] = { $regex: getCategories.search, $options: 'i' }
     }
 
     return await cursor.getPaginated(where, meta)
@@ -107,27 +107,27 @@ export default class CategoryService {
 
   /**
    * @param {Category} category
-   * @param {CategoryUpdateSchema} transfer
+   * @param {UpdateCategory} updateCategory
    * @param {User} initiator
    * @returns {Promise<Category>}
    * @throws {CategoryNotFoundError}
    * @throws {AuthorizationFailedError}
    * @throws {CategoryNameTakenError}
    */
-  public async updateCategory(category: Category, transfer: CategoryUpdateSchema, initiator: User): Promise<Category> {
-    await this.validator.validate(transfer)
+  public async updateCategory(category: Category, updateCategory: UpdateCategory, initiator: User): Promise<Category> {
+    await this.validator.validate(updateCategory)
 
     await this.authService.verifyAuthorization(initiator, CategoryPermission.UPDATE, category)
 
-    if ('name' in transfer) {
-      const name = transfer.name
+    if ('name' in updateCategory) {
+      const name = updateCategory.name
       await this.verifyCategoryNameNotExists(name, category.id)
 
       category.name = name
     }
 
-    if ('requiredScore' in transfer) {
-      category.requiredScore = transfer.requiredScore
+    if ('requiredScore' in updateCategory) {
+      category.requiredScore = updateCategory.requiredScore
     }
 
     category.updatedAt = new Date()

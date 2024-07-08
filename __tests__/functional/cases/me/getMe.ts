@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import User from '../../../../src/entities/User'
 // @ts-ignore
-import { meQuery } from '../../graphql/me/meQuery'
+import { getMe } from '../../graphql/me/getMe'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -10,7 +10,7 @@ const framework: TestFramework = globalThis.framework
 describe('Get me', () => {
   test('Unauthorized', async () => {
     const res = await request(framework.app).post('/')
-      .send(meQuery())
+      .send(getMe())
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -19,7 +19,7 @@ describe('Get me', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(meQuery([ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]))
+      .send(getMe([ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)

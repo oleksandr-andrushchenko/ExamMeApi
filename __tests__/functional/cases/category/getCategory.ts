@@ -2,7 +2,7 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import Category from '../../../../src/entities/Category'
 // @ts-ignore
-import { categoryQuery } from '../../graphql/category/categoryQuery'
+import { getCategory } from '../../graphql/category/getCategory'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -11,14 +11,14 @@ describe('Get category', () => {
   test('Not found', async () => {
     const id = await framework.fakeId()
     const variables = { categoryId: id.toString() }
-    const res = await request(framework.app).post('/').send(categoryQuery(variables))
+    const res = await request(framework.app).post('/').send(getCategory(variables))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('NotFoundError'))
   })
   test('Bad request (invalid id)', async () => {
     const variables = { categoryId: 'invalid' }
-    const res = await request(framework.app).post('/').send(categoryQuery(variables))
+    const res = await request(framework.app).post('/').send(getCategory(variables))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
@@ -26,7 +26,7 @@ describe('Get category', () => {
   test('Found', async () => {
     const category = await framework.fixture<Category>(Category)
     const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'rating {value voterCount}', 'createdAt', 'updatedAt' ]
-    const res = await request(framework.app).post('/').send(categoryQuery({ categoryId: category.id.toString() }, fields))
+    const res = await request(framework.app).post('/').send(getCategory({ categoryId: category.id.toString() }, fields))
 
     expect(res.status).toEqual(200)
     expect(res.body).toEqual({

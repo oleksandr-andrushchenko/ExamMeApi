@@ -4,7 +4,7 @@ import Question from '../../../../src/entities/Question'
 import User from '../../../../src/entities/User'
 import QuestionPermission from '../../../../src/enums/question/QuestionPermission'
 // @ts-ignore
-import { removeQuestionMutation } from '../../graphql/question/removeQuestionMutation'
+import { deleteQuestion } from '../../graphql/question/deleteQuestion'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -13,7 +13,7 @@ describe('Delete question', () => {
   test('Unauthorized', async () => {
     const question = await framework.fixture<Question>(Question)
     const res = await request(framework.app).post('/')
-      .send(removeQuestionMutation({ questionId: question.id.toString() }))
+      .send(deleteQuestion({ questionId: question.id.toString() }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -22,7 +22,7 @@ describe('Delete question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeQuestionMutation({ questionId: 'invalid' }))
+      .send(deleteQuestion({ questionId: 'invalid' }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -33,7 +33,7 @@ describe('Delete question', () => {
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
-      .send(removeQuestionMutation({ questionId: id.toString() }))
+      .send(deleteQuestion({ questionId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -44,7 +44,7 @@ describe('Delete question', () => {
     const question = await framework.fixture<Question>(Question)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeQuestionMutation({ questionId: question.id.toString() }))
+      .send(deleteQuestion({ questionId: question.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -55,7 +55,7 @@ describe('Delete question', () => {
     const question = await framework.fixture<Question>(Question)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeQuestionMutation({ questionId: question.id.toString() }))
+      .send(deleteQuestion({ questionId: question.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -66,11 +66,11 @@ describe('Delete question', () => {
     const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeQuestionMutation({ questionId: question.id.toString() }))
+      .send(deleteQuestion({ questionId: question.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ data: { removeQuestion: true } })
+    expect(res.body).toMatchObject({ data: { deleteQuestion: true } })
     expect(await framework.load<Question>(Question, question.id)).toBeNull()
   })
   test('Deleted (has permission)', async () => {
@@ -78,11 +78,11 @@ describe('Delete question', () => {
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeQuestionMutation({ questionId: question.id.toString() }))
+      .send(deleteQuestion({ questionId: question.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ data: { removeQuestion: true } })
+    expect(res.body).toMatchObject({ data: { deleteQuestion: true } })
     expect(await framework.load<Question>(Question, question.id)).toBeNull()
   })
 })

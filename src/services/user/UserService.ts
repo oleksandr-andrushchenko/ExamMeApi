@@ -7,8 +7,8 @@ import UserNotFoundError from '../../errors/user/UserNotFoundError'
 import UserWrongCredentialsError from '../../errors/user/UserWrongCredentialsError'
 import UserEmailTakenError from '../../errors/user/UserEmailTakenError'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
-import UserSchema from '../../schema/user/UserSchema'
-import { CredentialsSchema } from '../../schema/auth/CredentialsSchema'
+import CreateUser from '../../schema/user/CreateUser'
+import { Credentials } from '../../schema/auth/Credentials'
 import Permission from '../../enums/Permission'
 import AuthService from '../auth/AuthService'
 import ValidatorInterface from '../validator/ValidatorInterface'
@@ -16,7 +16,7 @@ import UserPermission from '../../enums/user/UserPermission'
 import { ObjectId } from 'mongodb'
 import UserEmailNotFoundError from '../../errors/user/UserEmailNotFoundError'
 import Cursor from '../../models/Cursor'
-import UserQuerySchema from '../../schema/user/UserQuerySchema'
+import GetUsers from '../../schema/user/GetUsers'
 import PaginatedUsers from '../../schema/user/PaginatedUsers'
 
 @Service()
@@ -32,28 +32,28 @@ export default class UserService {
   }
 
   /**
-   * @param {UserSchema} transfer
+   * @param {CreateUser} createUser
    * @param {User} initiator
    * @returns {Promise<User>}
    * @throws {AuthorizationFailedError}
    * @throws {UserEmailTakenError}
    */
-  public async createUser(transfer: UserSchema, initiator: User): Promise<User> {
+  public async createUser(createUser: CreateUser, initiator: User): Promise<User> {
     await this.authService.verifyAuthorization(initiator, UserPermission.CREATE)
 
-    await this.validator.validate(transfer)
+    await this.validator.validate(createUser)
 
-    const email = transfer.email
+    const email = createUser.email
     await this.verifyUserEmailNotExists(email)
 
     const user = new User()
     user.email = email
-    user.password = transfer.password
-    user.permissions = transfer.permissions ?? [ Permission.REGULAR ]
+    user.password = createUser.password
+    user.permissions = createUser.permissions ?? [ Permission.REGULAR ]
     user.creatorId = initiator.id
 
-    if ('name' in transfer) {
-      user.name = transfer.name
+    if ('name' in createUser) {
+      user.name = createUser.name
     }
 
     user.createdAt = new Date()
@@ -66,18 +66,18 @@ export default class UserService {
   }
 
   /**
-   * @param {CredentialsSchema} transfer
+   * @param {Credentials} credentials
    * @returns {Promise<User | null>}
    * @throws {UserWrongCredentialsError}
    * @throws {UserEmailNotFoundError}
    */
-  public async getUserByCredentials(transfer: CredentialsSchema): Promise<User | null> {
-    await this.validator.validate(transfer)
+  public async getUserByCredentials(credentials: Credentials): Promise<User | null> {
+    await this.validator.validate(credentials)
 
-    const email: string = transfer.email
+    const email: string = credentials.email
     const user: User = await this.getUserByEmail(email)
 
-    if (!await this.compareUserPassword(user, transfer.password)) {
+    if (!await this.compareUserPassword(user, credentials.password)) {
       throw new UserWrongCredentialsError()
     }
 
@@ -150,9 +150,8 @@ export default class UserService {
     return user
   }
 
-
   /**
-   * @param {UserQuerySchema} query
+   * @param {GetUsers} getUsers
    * @param {boolean} meta
    * @param {User} initiator
    * @returns {Promise<User[] | PaginatedUsers>}
@@ -160,19 +159,19 @@ export default class UserService {
    * @throws {AuthorizationFailedError}
    */
   public async getUsers(
-    query: UserQuerySchema,
+    getUsers: GetUsers,
     meta: boolean,
     initiator: User,
   ): Promise<User[] | PaginatedUsers> {
     await this.authService.verifyAuthorization(initiator, UserPermission.Get)
-    await this.validator.validate(query)
+    await this.validator.validate(getUsers)
 
-    const cursor = new Cursor<User>(query, this.userRepository)
+    const cursor = new Cursor<User>(getUsers, this.userRepository)
 
     const where = {}
 
-    if ('search' in query) {
-      where['name'] = { $regex: query.search, $options: 'i' }
+    if ('search' in getUsers) {
+      where['name'] = { $regex: getUsers.search, $options: 'i' }
     }
 
     return await cursor.getPaginated(where, meta)

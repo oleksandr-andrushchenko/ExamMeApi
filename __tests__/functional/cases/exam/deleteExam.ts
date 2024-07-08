@@ -4,7 +4,7 @@ import User from '../../../../src/entities/User'
 import Exam from '../../../../src/entities/Exam'
 import ExamPermission from '../../../../src/enums/exam/ExamPermission'
 // @ts-ignore
-import { removeExamMutation } from '../../graphql/exam/removeExamMutation'
+import { deleteExam } from '../../graphql/exam/deleteExam'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -13,7 +13,7 @@ describe('Delete exam', () => {
   test('Unauthorized', async () => {
     const exam = await framework.fixture<Exam>(Exam)
     const res = await request(framework.app).post('/')
-      .send(removeExamMutation({ examId: exam.id.toString() }))
+      .send(deleteExam({ examId: exam.id.toString() }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -22,7 +22,7 @@ describe('Delete exam', () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.DELETE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeExamMutation({ examId: 'invalid' }))
+      .send(deleteExam({ examId: 'invalid' }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -33,7 +33,7 @@ describe('Delete exam', () => {
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
-      .send(removeExamMutation({ examId: id.toString() }))
+      .send(deleteExam({ examId: id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -44,7 +44,7 @@ describe('Delete exam', () => {
     const exam = await framework.fixture<Exam>(Exam)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeExamMutation({ examId: exam.id.toString() }))
+      .send(deleteExam({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -55,11 +55,11 @@ describe('Delete exam', () => {
     const user = await framework.load<User>(User, exam.ownerId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeExamMutation({ examId: exam.id.toString() }))
+      .send(deleteExam({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ data: { removeExam: true } })
+    expect(res.body).toMatchObject({ data: { deleteExam: true } })
     expect(await framework.load<Exam>(Exam, exam.id)).toBeNull()
   })
   test('Deleted (has permission)', async () => {
@@ -67,11 +67,11 @@ describe('Delete exam', () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.DELETE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(removeExamMutation({ examId: exam.id.toString() }))
+      .send(deleteExam({ examId: exam.id.toString() }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject({ data: { removeExam: true } })
+    expect(res.body).toMatchObject({ data: { deleteExam: true } })
     expect(await framework.load<Exam>(Exam, exam.id)).toBeNull()
   })
 })

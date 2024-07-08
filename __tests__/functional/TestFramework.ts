@@ -11,7 +11,7 @@ import Question from '../../src/entities/Question'
 import Exam from '../../src/entities/Exam'
 import { ConnectionManager } from 'typeorm'
 import { ObjectId } from 'mongodb'
-import TokenSchema from '../../src/schema/auth/TokenSchema'
+import Token from '../../src/schema/auth/Token'
 import AuthService from '../../src/services/auth/AuthService'
 import { Application } from 'express'
 import QuestionType from '../../src/entities/question/QuestionType'
@@ -220,7 +220,7 @@ export default class TestFramework {
     }
   }
 
-  public async auth(user: User): Promise<TokenSchema> {
+  public async auth(user: User): Promise<Token> {
     const authService: AuthService = this.container.get<AuthService>(AuthService)
 
     return await authService.createAuth(user)

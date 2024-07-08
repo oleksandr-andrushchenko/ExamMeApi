@@ -2,8 +2,8 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import User from '../../../../src/entities/User'
 // @ts-ignore
-import { updateMeMutation } from '../../graphql/me/updateMeMutation'
-import MeUpdateSchema from '../../../../src/schema/user/MeUpdateSchema'
+import { updateMe } from '../../graphql/me/updateMe'
+import UpdateMe from '../../../../src/schema/user/UpdateMe'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -11,7 +11,7 @@ const framework: TestFramework = globalThis.framework
 describe('Update me', () => {
   test('Unauthorized', async () => {
     const res = await request(framework.app).post('/')
-      .send(updateMeMutation({ meUpdate: { name: 'any' } }))
+      .send(updateMe({ updateMe: { name: 'any' } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -20,7 +20,7 @@ describe('Update me', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateMeMutation({} as { meUpdate: MeUpdateSchema }))
+      .send(updateMe({} as { updateMe: UpdateMe }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -31,7 +31,7 @@ describe('Update me', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateMeMutation({ meUpdate: { email: user1.email } }))
+      .send(updateMe({ updateMe: { email: user1.email } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -40,10 +40,10 @@ describe('Update me', () => {
   test('Updated', async () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
-    const meUpdate = { name: 'any' }
+    const update = { name: 'any' }
     const now = Date.now()
     const res = await request(framework.app).post('/')
-      .send(updateMeMutation({ meUpdate }, [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]))
+      .send(updateMe({ updateMe: update }, [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -57,7 +57,7 @@ describe('Update me', () => {
             permissions: user.permissions,
             createdAt: user.createdAt.getTime(),
           },
-          ...meUpdate,
+          ...update,
         },
       },
     })

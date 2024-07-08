@@ -4,8 +4,8 @@ import Category from '../../../../src/entities/Category'
 import User from '../../../../src/entities/User'
 import CategoryPermission from '../../../../src/enums/category/CategoryPermission'
 // @ts-ignore
-import { updateCategoryMutation } from '../../graphql/category/updateCategoryMutation'
-import CategoryUpdateSchema from '../../../../src/schema/category/CategoryUpdateSchema'
+import { updateCategory } from '../../graphql/category/updateCategory'
+import UpdateCategory from '../../../../src/schema/category/UpdateCategory'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -15,7 +15,7 @@ describe('Update category', () => {
     const category = await framework.fixture<Category>(Category)
     const categoryId = category.id.toString()
     const res = await request(framework.app).post('/')
-      .send(updateCategoryMutation({ categoryId, categoryUpdate: { name: 'Any' } }))
+      .send(updateCategory({ categoryId, updateCategory: { name: 'Any' } }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -24,7 +24,7 @@ describe('Update category', () => {
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.UPDATE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateCategoryMutation({ categoryId: 'invalid', categoryUpdate: { name: 'Any' } }))
+      .send(updateCategory({ categoryId: 'invalid', updateCategory: { name: 'Any' } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -35,26 +35,26 @@ describe('Update category', () => {
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
-      .send(updateCategoryMutation({ categoryId: id.toString(), categoryUpdate: { name: 'Any' } }))
+      .send(updateCategory({ categoryId: id.toString(), updateCategory: { name: 'Any' } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('NotFoundError'))
   })
   test.each([
-    { case: 'name too short', categoryUpdate: { name: 'a' } },
-    { case: 'name too long', categoryUpdate: { name: 'abc'.repeat(99) } },
-    { case: 'required score is string', categoryUpdate: { requiredScore: 'any' } },
-    { case: 'required score is float', categoryUpdate: { requiredScore: 0.1 } },
-    { case: 'required score is negative', categoryUpdate: { requiredScore: -1 } },
-    { case: 'required score is greater then 100', categoryUpdate: { requiredScore: 101 } },
-  ])('Bad request ($case)', async ({ categoryUpdate }) => {
+    { case: 'name too short', update: { name: 'a' } },
+    { case: 'name too long', update: { name: 'abc'.repeat(99) } },
+    { case: 'required score is string', update: { requiredScore: 'any' } },
+    { case: 'required score is float', update: { requiredScore: 0.1 } },
+    { case: 'required score is negative', update: { requiredScore: -1 } },
+    { case: 'required score is greater then 100', update: { requiredScore: 101 } },
+  ])('Bad request ($case)', async ({ update }) => {
     const category = await framework.fixture<Category>(Category)
     const categoryId = category.id.toString()
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.UPDATE ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateCategoryMutation({ categoryId, categoryUpdate: categoryUpdate as CategoryUpdateSchema }))
+      .send(updateCategory({ categoryId, updateCategory: update as UpdateCategory }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -66,7 +66,7 @@ describe('Update category', () => {
     const categoryId = category.id.toString()
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateCategoryMutation({ categoryId, categoryUpdate: { name: 'Any' } }))
+      .send(updateCategory({ categoryId, updateCategory: { name: 'Any' } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -78,7 +78,7 @@ describe('Update category', () => {
     const categoryId = category.id.toString()
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateCategoryMutation({ categoryId, categoryUpdate: { name: 'Any' } }))
+      .send(updateCategory({ categoryId, updateCategory: { name: 'Any' } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -91,7 +91,7 @@ describe('Update category', () => {
     const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(updateCategoryMutation({ categoryId, categoryUpdate: { name: category1.name } }))
+      .send(updateCategory({ categoryId, updateCategory: { name: category1.name } }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -103,14 +103,14 @@ describe('Update category', () => {
     const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
     const categoryId = category.id.toString()
-    const categoryUpdate = { name: 'any' }
+    const update = { name: 'any' }
     const res = await request(framework.app).post('/')
-      .send(updateCategoryMutation({ categoryId, categoryUpdate }))
+      .send(updateCategory({ categoryId, updateCategory: update }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { updateCategory: { id: categoryId } } })
-    expect(await framework.load<Category>(Category, category.id)).toMatchObject(categoryUpdate)
+    expect(await framework.load<Category>(Category, category.id)).toMatchObject(update)
   })
   test('Updated (has permission)', async () => {
     await framework.clear(Category)
@@ -118,13 +118,13 @@ describe('Update category', () => {
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.UPDATE ] })
     const token = (await framework.auth(user)).token
     const categoryId = category.id.toString()
-    const categoryUpdate = { name: 'any' }
+    const update = { name: 'any' }
     const res = await request(framework.app).post('/')
-      .send(updateCategoryMutation({ categoryId, categoryUpdate }))
+      .send(updateCategory({ categoryId, updateCategory: update }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { updateCategory: { id: categoryId } } })
-    expect(await framework.load<Category>(Category, category.id)).toMatchObject(categoryUpdate)
+    expect(await framework.load<Category>(Category, category.id)).toMatchObject(update)
   })
 })

@@ -2,8 +2,8 @@ import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
 import User from '../../../../src/entities/User'
 // @ts-ignore
-import { authenticateMutation } from '../../graphql/auth/authenticateMutation'
-import { CredentialsSchema } from '../../../../src/schema/auth/CredentialsSchema'
+import { authenticate } from '../../graphql/auth/authenticate'
+import { Credentials } from '../../../../src/schema/auth/Credentials'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -22,14 +22,14 @@ describe('Create auth', () => {
     { case: 'password is too long', credentials: { email: 'any@any.com', password: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' } },
   ])('Bad request ($case)', async ({ credentials, times = 1 }) => {
     const res = await request(framework.app).post('/')
-      .send(authenticateMutation({ credentials: credentials as CredentialsSchema }))
+      .send(authenticate({ credentials: credentials as Credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError(...Array(times).fill('BadRequestError')))
   })
   test('Not Found', async () => {
     const credentials = { email: 'any@any.com', password: 'password' }
-    const res = await request(framework.app).post('/').send(authenticateMutation({ credentials }))
+    const res = await request(framework.app).post('/').send(authenticate({ credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('NotFoundError'))
@@ -37,7 +37,7 @@ describe('Create auth', () => {
   test('Forbidden', async () => {
     const user = await framework.fixture<User>(User)
     const credentials = { email: user.email, password: 'password' }
-    const res = await request(framework.app).post('/').send(authenticateMutation({ credentials }))
+    const res = await request(framework.app).post('/').send(authenticate({ credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
@@ -45,7 +45,7 @@ describe('Create auth', () => {
   test('Created', async () => {
     const user = await framework.fixture<User>(User, { password: 'password' })
     const credentials = { email: user.email, password: 'password' }
-    const res = await request(framework.app).post('/').send(authenticateMutation({ credentials }))
+    const res = await request(framework.app).post('/').send(authenticate({ credentials }))
 
     expect(res.status).toEqual(200)
     expect(res.body.data.authenticate).toHaveProperty('token')

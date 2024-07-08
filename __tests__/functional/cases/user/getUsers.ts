@@ -3,15 +3,15 @@ import request from 'supertest'
 import TestFramework from '../../TestFramework'
 import User from '../../../../src/entities/User'
 // @ts-ignore
-import { usersQuery } from '../../graphql/user/usersQuery'
+import { getUsers } from '../../graphql/user/getUsers'
 import UserPermission from '../../../../src/enums/user/UserPermission'
-import UserQuerySchema from '../../../../src/schema/user/UserQuerySchema'
+import GetUsers from '../../../../src/schema/user/GetUsers'
 
 const framework: TestFramework = globalThis.framework
 
 describe('Get users', () => {
   test('Unauthorized', async () => {
-    const res = await request(framework.app).post('/').send(usersQuery())
+    const res = await request(framework.app).post('/').send(getUsers())
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -19,7 +19,7 @@ describe('Get users', () => {
   test('Forbidden (no permissions)', async () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/').send(usersQuery()).auth(token, { type: 'bearer' })
+    const res = await request(framework.app).post('/').send(getUsers()).auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
@@ -37,7 +37,7 @@ describe('Get users', () => {
     const user = await framework.fixture<User>(User, { permissions: [ UserPermission.Get ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(usersQuery(query as UserQuerySchema))
+      .send(getUsers(query as GetUsers))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -54,7 +54,7 @@ describe('Get users', () => {
     users.unshift(user)
     const fields = [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]
     const res = await request(framework.app).post('/')
-      .send(usersQuery({}, fields))
+      .send(getUsers({}, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -85,11 +85,10 @@ describe('Get users', () => {
     const index = 0
     const search = users[index].name.slice(0, -1)
     const res = await request(framework.app).post('/')
-      .send(usersQuery({ search }, fields))
+      .send(getUsers({ search }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
-    console.log(res.body)
     expect(res.body.data.users).toHaveLength(1)
 
     const resUsers = res.body.data.users.sort((a, b) => a.id.localeCompare(b.id))

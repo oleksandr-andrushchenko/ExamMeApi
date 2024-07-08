@@ -14,26 +14,42 @@ type Category {
   updatedAt: Timestamp
 }
 
-input CategorySchema {
+input CreateCategory {
   name: String!
   requiredScore: Int = 0
 }
 
-input CategoryUpdateSchema {
-  name: String
-  requiredScore: Int = 0
+input CreateExam {
+  categoryId: ID!
 }
 
-input CreateExamQuestionAnswerSchema {
+input CreateExamQuestionAnswer {
   answer: String
   choice: Int
 }
 
-input CreateExamSchema {
-  categoryId: ID!
+input CreateMe {
+  email: String!
+  name: String
+  password: String!
 }
 
-input CredentialsSchema {
+input CreateQuestion {
+  categoryId: ID!
+  choices: [QuestionChoiceSchema!]
+  difficulty: String!
+  title: String!
+  type: String!
+}
+
+input CreateUser {
+  email: String!
+  name: String
+  password: String!
+  permissions: [String!]! = ["regular"]
+}
+
+input Credentials {
   email: String!
   password: String!
 }
@@ -60,35 +76,23 @@ type ExamQuestionSchema {
   question: Question
 }
 
-input MeSchema {
-  email: String!
-  name: String
-  password: String!
-}
-
-input MeUpdateSchema {
-  email: String
-  name: String
-  password: String
-}
-
 type Mutation {
-  answerExamQuestion(examId: ID!, examQuestionAnswer: CreateExamQuestionAnswerSchema!, question: Int!): ExamQuestionSchema!
-  authenticate(credentials: CredentialsSchema!): TokenSchema!
-  clearExamQuestionAnswer(examId: ID!, question: Int!): ExamQuestionSchema!
-  completeExam(examId: ID!): Exam!
-  createCategory(category: CategorySchema!): Category!
-  createExam(exam: CreateExamSchema!): Exam!
-  createMe(me: MeSchema!): User!
-  createQuestion(question: QuestionSchema!): Question!
-  createUser(user: UserSchema!): User!
-  removeCategory(categoryId: ID!): Boolean!
-  removeExam(examId: ID!): Boolean!
-  removeMe: Boolean!
-  removeQuestion(questionId: ID!): Boolean!
-  updateCategory(categoryId: ID!, categoryUpdate: CategoryUpdateSchema!): Category!
-  updateMe(meUpdate: MeUpdateSchema!): User!
-  updateQuestion(questionId: ID!, questionUpdate: QuestionUpdateSchema!): Question!
+  authenticate(credentials: Credentials!): Token!
+  createCategory(createCategory: CreateCategory!): Category!
+  createExam(createExam: CreateExam!): Exam!
+  createExamCompletion(examId: ID!): Exam!
+  createExamQuestionAnswer(createExamQuestionAnswer: CreateExamQuestionAnswer!, examId: ID!, question: Int!): ExamQuestionSchema!
+  createMe(createMe: CreateMe!): User!
+  createQuestion(createQuestion: CreateQuestion!): Question!
+  createUser(createUser: CreateUser!): User!
+  deleteCategory(categoryId: ID!): Boolean!
+  deleteExam(examId: ID!): Boolean!
+  deleteExamQuestionAnswer(examId: ID!, question: Int!): ExamQuestionSchema!
+  deleteMe: Boolean!
+  deleteQuestion(questionId: ID!): Boolean!
+  updateCategory(categoryId: ID!, updateCategory: UpdateCategory!): Category!
+  updateMe(updateMe: UpdateMe!): User!
+  updateQuestion(questionId: ID!, updateQuestion: UpdateQuestion!): Question!
 }
 
 """Mongo object id scalar type"""
@@ -172,22 +176,6 @@ input QuestionChoiceSchema {
   title: String!
 }
 
-input QuestionSchema {
-  categoryId: ID!
-  choices: [QuestionChoiceSchema!]
-  difficulty: String!
-  title: String!
-  type: String!
-}
-
-input QuestionUpdateSchema {
-  categoryId: ID
-  choices: [QuestionChoiceSchema!]
-  difficulty: String
-  title: String
-  type: String
-}
-
 type Rating {
   value: Float
   voterCount: Int
@@ -198,8 +186,27 @@ The javascript `Date` as integer. Type represents date and time as number of mil
 """
 scalar Timestamp
 
-type TokenSchema {
+type Token {
   token: String!
+}
+
+input UpdateCategory {
+  name: String
+  requiredScore: Int = 0
+}
+
+input UpdateMe {
+  email: String
+  name: String
+  password: String
+}
+
+input UpdateQuestion {
+  categoryId: ID
+  choices: [QuestionChoiceSchema!]
+  difficulty: String
+  title: String
+  type: String
 }
 
 type User {
@@ -210,11 +217,4 @@ type User {
   ownerId: ObjectId!
   permissions: [String!]!
   updatedAt: Timestamp
-}
-
-input UserSchema {
-  email: String!
-  name: String
-  password: String!
-  permissions: [String!]! = ["regular"]
 }

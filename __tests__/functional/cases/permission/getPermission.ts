@@ -3,7 +3,7 @@ import request from 'supertest'
 import User from '../../../../src/entities/User'
 import config from '../../../../src/config'
 // @ts-ignore
-import { permissionQuery } from '../../graphql/permission/permissionQuery'
+import { getPermission } from '../../graphql/permission/getPermission'
 import Permission from '../../../../src/enums/Permission'
 import TestFramework from '../../TestFramework'
 
@@ -12,7 +12,7 @@ const framework: TestFramework = globalThis.framework
 describe('Get permission', () => {
   test('Unauthorized', async () => {
     const res = await request(framework.app).post('/')
-      .send(permissionQuery([ 'items', 'hierarchy {regular root}' ]))
+      .send(getPermission([ 'items', 'hierarchy {regular root}' ]))
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
@@ -21,7 +21,7 @@ describe('Get permission', () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(permissionQuery([ 'items', 'hierarchy {regular root}' ]))
+      .send(getPermission([ 'items', 'hierarchy {regular root}' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)

@@ -4,10 +4,10 @@ import User from '../entities/User'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
 import Question from '../entities/Question'
 import QuestionService from '../services/question/QuestionService'
-import GetQuestionSchema from '../schema/question/GetQuestionSchema'
-import QuestionQuerySchema from '../schema/question/QuestionQuerySchema'
-import QuestionSchema from '../schema/question/QuestionSchema'
-import QuestionUpdateSchema from '../schema/question/QuestionUpdateSchema'
+import GetQuestion from '../schema/question/GetQuestion'
+import GetQuestions from '../schema/question/GetQuestions'
+import CreateQuestion from '../schema/question/CreateQuestion'
+import UpdateQuestion from '../schema/question/UpdateQuestion'
 import PaginatedQuestions from '../schema/question/PaginatedQuestions'
 import Category from '../entities/Category'
 import CategoryService from '../services/category/CategoryService'
@@ -25,7 +25,7 @@ export class QuestionResolver {
 
   @Query(_returns => Question, { name: 'question' })
   public async getQuestion(
-    @Args() getQuestion: GetQuestionSchema,
+    @Args() getQuestion: GetQuestion,
   ): Promise<Question> {
     await this.validator.validate(getQuestion)
 
@@ -34,22 +34,22 @@ export class QuestionResolver {
 
   @Query(_returns => [ Question ], { name: 'questions' })
   public async getQuestions(
-    @Args() questionQuery: QuestionQuerySchema,
+    @Args() getQuestions: GetQuestions,
   ): Promise<Question[]> {
-    return await this.questionService.queryQuestions(questionQuery) as Question[]
+    return await this.questionService.getQuestions(getQuestions) as Question[]
   }
 
   @Query(_returns => PaginatedQuestions, { name: 'paginatedQuestions' })
   public async getPaginatedQuestions(
-    @Args() questionQuery: QuestionQuerySchema,
+    @Args() getQuestions: GetQuestions,
   ): Promise<PaginatedQuestions> {
-    return await this.questionService.queryQuestions(questionQuery, true) as PaginatedQuestions
+    return await this.questionService.getQuestions(getQuestions, true) as PaginatedQuestions
   }
 
   @Authorized()
   @Mutation(_returns => Question)
   public async createQuestion(
-    @Arg('question') question: QuestionSchema,
+    @Arg('createQuestion') question: CreateQuestion,
     @Ctx('user') user: User,
   ): Promise<Question> {
     return await this.questionService.createQuestion(question, user)
@@ -58,20 +58,20 @@ export class QuestionResolver {
   @Authorized()
   @Mutation(_returns => Question)
   public async updateQuestion(
-    @Args() getQuestion: GetQuestionSchema,
-    @Arg('questionUpdate') questionUpdate: QuestionUpdateSchema,
+    @Args() getQuestion: GetQuestion,
+    @Arg('updateQuestion') updateQuestion: UpdateQuestion,
     @Ctx('user') user: User,
   ): Promise<Question> {
     await this.validator.validate(getQuestion)
     const question = await this.questionService.getQuestion(getQuestion.questionId)
 
-    return await this.questionService.updateQuestion(question, questionUpdate, user)
+    return await this.questionService.updateQuestion(question, updateQuestion, user)
   }
 
   @Authorized()
   @Mutation(_returns => Boolean)
-  public async removeQuestion(
-    @Args() getQuestion: GetQuestionSchema,
+  public async deleteQuestion(
+    @Args() getQuestion: GetQuestion,
     @Ctx('user') user: User,
   ): Promise<boolean> {
     await this.validator.validate(getQuestion)

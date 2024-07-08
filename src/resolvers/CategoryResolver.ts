@@ -2,11 +2,11 @@ import { Inject, Service } from 'typedi'
 import CategoryService from '../services/category/CategoryService'
 import { Arg, Args, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
 import Category from '../entities/Category'
-import CategoryQuerySchema from '../schema/category/CategoryQuerySchema'
-import GetCategorySchema from '../schema/category/GetCategorySchema'
-import CategorySchema from '../schema/category/CategorySchema'
+import GetCategories from '../schema/category/GetCategories'
+import GetCategory from '../schema/category/GetCategory'
+import CreateCategory from '../schema/category/CreateCategory'
 import User from '../entities/User'
-import CategoryUpdateSchema from '../schema/category/CategoryUpdateSchema'
+import UpdateCategory from '../schema/category/UpdateCategory'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
 import PaginatedCategories from '../schema/category/PaginatedCategories'
 
@@ -22,7 +22,7 @@ export class CategoryResolver {
 
   @Query(_returns => Category, { name: 'category' })
   public async getCategory(
-    @Args() getCategory: GetCategorySchema,
+    @Args() getCategory: GetCategory,
   ): Promise<Category> {
     await this.validator.validate(getCategory)
 
@@ -31,44 +31,44 @@ export class CategoryResolver {
 
   @Query(_returns => [ Category ], { name: 'categories' })
   public async getCategories(
-    @Args() categoryQuery: CategoryQuerySchema,
+    @Args() getCategories: GetCategories,
   ): Promise<Category[]> {
-    return await this.categoryService.queryCategories(categoryQuery) as Category[]
+    return await this.categoryService.getCategories(getCategories) as Category[]
   }
 
   @Query(_returns => PaginatedCategories, { name: 'paginatedCategories' })
   public async getPaginatedCategories(
-    @Args() categoryQuery: CategoryQuerySchema,
+    @Args() getCategories: GetCategories,
   ): Promise<PaginatedCategories> {
-    return await this.categoryService.queryCategories(categoryQuery, true) as PaginatedCategories
+    return await this.categoryService.getCategories(getCategories, true) as PaginatedCategories
   }
 
   @Authorized()
   @Mutation(_returns => Category)
   public async createCategory(
-    @Arg('category') category: CategorySchema,
+    @Arg('createCategory') createCategory: CreateCategory,
     @Ctx('user') user: User,
   ): Promise<Category> {
-    return await this.categoryService.createCategory(category, user)
+    return await this.categoryService.createCategory(createCategory, user)
   }
 
   @Authorized()
   @Mutation(_returns => Category)
   public async updateCategory(
-    @Args() getCategory: GetCategorySchema,
-    @Arg('categoryUpdate') categoryUpdate: CategoryUpdateSchema,
+    @Args() getCategory: GetCategory,
+    @Arg('updateCategory') updateCategory: UpdateCategory,
     @Ctx('user') user: User,
   ): Promise<Category> {
     await this.validator.validate(getCategory)
     const category = await this.categoryService.getCategory(getCategory.categoryId)
 
-    return await this.categoryService.updateCategory(category, categoryUpdate, user)
+    return await this.categoryService.updateCategory(category, updateCategory, user)
   }
 
   @Authorized()
   @Mutation(_returns => Boolean)
-  public async removeCategory(
-    @Args() getCategory: GetCategorySchema,
+  public async deleteCategory(
+    @Args() getCategory: GetCategory,
     @Ctx('user') user: User,
   ): Promise<boolean> {
     await this.validator.validate(getCategory)

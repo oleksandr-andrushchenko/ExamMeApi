@@ -3,10 +3,10 @@ import User from '../../entities/User'
 import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import Permission from '../../enums/Permission'
-import MeSchema from '../../schema/user/MeSchema'
+import CreateMe from '../../schema/user/CreateMe'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import UserService from './UserService'
-import MeUpdateSchema from '../../schema/user/MeUpdateSchema'
+import UpdateMe from '../../schema/user/UpdateMe'
 
 @Service()
 export default class MeService {
@@ -20,24 +20,24 @@ export default class MeService {
   }
 
   /**
-   * @param {MeSchema} transfer
+   * @param {CreateMe} createMe
    * @returns {Promise<User>}
    * @throws {AuthorizationFailedError}
    * @throws {UserEmailTakenError}
    */
-  public async createMe(transfer: MeSchema): Promise<User> {
-    await this.validator.validate(transfer)
+  public async createMe(createMe: CreateMe): Promise<User> {
+    await this.validator.validate(createMe)
 
-    const email = transfer.email
+    const email = createMe.email
     await this.userService.verifyUserEmailNotExists(email)
 
     const user = new User()
     user.email = email
-    user.password = transfer.password
+    user.password = createMe.password
     user.permissions = [ Permission.REGULAR ]
 
-    if ('name' in transfer) {
-      user.name = transfer.name
+    if ('name' in createMe) {
+      user.name = createMe.name
     }
 
     user.createdAt = new Date()
@@ -49,21 +49,21 @@ export default class MeService {
     return user
   }
 
-  public async updateMe(transfer: MeUpdateSchema, initiator: User): Promise<User> {
-    await this.validator.validate(transfer)
+  public async updateMe(updateMe: UpdateMe, initiator: User): Promise<User> {
+    await this.validator.validate(updateMe)
 
-    if ('email' in transfer) {
-      const email = transfer.email
+    if ('email' in updateMe) {
+      const email = updateMe.email
       await this.userService.verifyUserEmailNotExists(email)
       initiator.email = email
     }
 
-    if ('name' in transfer) {
-      initiator.name = transfer.name
+    if ('name' in updateMe) {
+      initiator.name = updateMe.name
     }
 
-    if ('password' in transfer) {
-      initiator.password = transfer.password
+    if ('password' in updateMe) {
+      initiator.password = updateMe.password
     }
 
     initiator.updatedAt = new Date()
