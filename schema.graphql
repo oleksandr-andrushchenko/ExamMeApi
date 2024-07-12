@@ -77,7 +77,7 @@ type ExamQuestionSchema {
 }
 
 type Mutation {
-  authenticate(credentials: Credentials!): Token!
+  createAuthenticationToken(credentials: Credentials!): Token!
   createCategory(createCategory: CreateCategory!): Category!
   createExam(createExam: CreateExam!): Exam!
   createExamCompletion(examId: ID!): Exam!
@@ -123,6 +123,11 @@ type PaginatedQuestions {
   meta: PaginatedMetaSchema!
 }
 
+type PaginatedUsers {
+  data: [User!]!
+  meta: PaginatedMetaSchema!
+}
+
 type PermissionHierarchySchema {
   regular: [String!]
   root: [String!]
@@ -144,6 +149,7 @@ type Query {
   paginatedCategories(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10): PaginatedCategories!
   paginatedExams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): PaginatedExams!
   paginatedQuestions(categoryId: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): PaginatedQuestions!
+  paginatedUsers(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10): PaginatedUsers!
   permission: PermissionSchema!
   question(questionId: ID!): Question!
   questions(categoryId: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!

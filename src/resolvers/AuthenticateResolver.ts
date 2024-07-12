@@ -7,7 +7,7 @@ import Token from '../schema/auth/Token'
 
 @Service()
 @Resolver()
-export class AuthResolver {
+export class AuthenticateResolver {
 
   public constructor(
     @Inject() private readonly userService: UserService,
@@ -16,7 +16,7 @@ export class AuthResolver {
   }
 
   @Mutation(_returns => Token)
-  public async authenticate(
+  public async createAuthenticationToken(
     @Arg('credentials') credentials: Credentials,
   ): Promise<Token> {
     const user = await this.userService.getUserByCredentials(credentials)

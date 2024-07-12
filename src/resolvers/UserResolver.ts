@@ -5,6 +5,7 @@ import UserService from '../services/user/UserService'
 import CreateUser from '../schema/user/CreateUser'
 import GetUsers from '../schema/user/GetUsers'
 import UserPermission from '../enums/user/UserPermission'
+import PaginatedUsers from '../schema/user/PaginatedUsers'
 
 @Service()
 @Resolver(User)
@@ -31,5 +32,14 @@ export class UserResolver {
     @Ctx('user') currentUser: User,
   ): Promise<User[]> {
     return await this.userService.getUsers(getUsers, false, currentUser) as User[]
+  }
+
+  @Authorized(UserPermission.Get)
+  @Query(_returns => PaginatedUsers, { name: 'paginatedUsers' })
+  public async getPaginatedUsers(
+    @Args() getUsers: GetUsers,
+    @Ctx('user') currentUser: User,
+  ): Promise<PaginatedUsers> {
+    return await this.userService.getUsers(getUsers, true, currentUser) as PaginatedUsers
   }
 }
