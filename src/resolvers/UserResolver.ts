@@ -4,7 +4,6 @@ import User from '../entities/User'
 import UserService from '../services/user/UserService'
 import CreateUser from '../schema/user/CreateUser'
 import GetUsers from '../schema/user/GetUsers'
-import UserPermission from '../enums/user/UserPermission'
 import PaginatedUsers from '../schema/user/PaginatedUsers'
 
 @Service()
@@ -25,7 +24,7 @@ export class UserResolver {
     return await this.userService.createUser(createUser, currentUser)
   }
 
-  @Authorized(UserPermission.Get)
+  @Authorized()
   @Query(_returns => [ User ], { name: 'users' })
   public async getUsers(
     @Args() getUsers: GetUsers,
@@ -34,7 +33,7 @@ export class UserResolver {
     return await this.userService.getUsers(getUsers, false, currentUser) as User[]
   }
 
-  @Authorized(UserPermission.Get)
+  @Authorized()
   @Query(_returns => PaginatedUsers, { name: 'paginatedUsers' })
   public async getPaginatedUsers(
     @Args() getUsers: GetUsers,

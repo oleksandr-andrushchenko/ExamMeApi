@@ -61,7 +61,7 @@ describe('Get users', () => {
     expect(res.body.data.users).toHaveLength(users.length)
 
     const resUsers = res.body.data.users.sort((a, b) => a.id.localeCompare(b.id))
-    for (const index in users) {
+    for (const index in users.sort((a, b) => a.id.toString().localeCompare(b.id.toString()))) {
       expect(resUsers[index]).toMatchObject({
         id: users[index].id.toString(),
         name: users[index].name,
@@ -91,7 +91,7 @@ describe('Get users', () => {
     expect(res.status).toEqual(200)
     expect(res.body.data.users).toHaveLength(1)
 
-    const resUsers = res.body.data.users.sort((a, b) => a.id.localeCompare(b.id))
+    const resUsers = res.body.data.users
     expect(resUsers[index]).toMatchObject({
       id: users[index].id.toString(),
       name: users[index].name,
