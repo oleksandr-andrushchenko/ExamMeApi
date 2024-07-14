@@ -34,8 +34,14 @@ export default class AuthService {
     resource: { ownerId: ObjectId } = undefined,
     permissions: string[] = undefined,
   ): Promise<boolean> {
-    if (resource && resource.ownerId.toString() === user.id.toString()) {
-      return true
+    if (resource) {
+      if (resource instanceof User) {
+        resource = { ...resource, ownerId: resource.id }
+      }
+
+      if (resource.ownerId.toString() === user.id.toString()) {
+        return true
+      }
     }
 
     permissions = permissions ?? user.permissions
