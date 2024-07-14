@@ -216,7 +216,10 @@ export default class UserService {
     const where = {}
 
     if ('search' in getUsers) {
-      where['name'] = { $regex: getUsers.search, $options: 'i' }
+      where['$or'] = [
+        { 'name': { $regex: getUsers.search, $options: 'i' } },
+        { 'email': { $regex: getUsers.search, $options: 'i' } },
+      ]
     }
 
     return await cursor.getPaginated({ where, meta })
