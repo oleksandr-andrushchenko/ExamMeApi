@@ -18,6 +18,7 @@ import UserEmailNotFoundError from '../../errors/user/UserEmailNotFoundError'
 import Cursor from '../../models/Cursor'
 import GetUsers from '../../schema/user/GetUsers'
 import PaginatedUsers from '../../schema/user/PaginatedUsers'
+import UpdateUser from '../../schema/user/UpdateUser'
 
 @Service()
 export default class UserService {
@@ -61,6 +62,41 @@ export default class UserService {
     await this.entityManager.save<User>(user)
 
     this.eventDispatcher.dispatch('userCreated', { user })
+
+    return user
+  }
+
+  /**
+   * @param {User} user
+   * @param {UpdateUser} updateUser
+   * @param {User} initiator
+   * @returns {Promise<User>}
+   * @throws {UserNotFoundError}
+   * @throws {AuthorizationFailedError}
+   * @throws {UserEmailTakenError}
+   */
+  public async updateUser(user: User, updateUser: UpdateUser, initiator: User): Promise<User> {
+    await this.validator.validate(updateUser)
+    await this.authService.verifyAuthorization(initiator, UserPermission.Update, { ...user, ownerId: user.id })
+
+    if ('email' in updateUser) {
+      const email = updateUser.email
+      await this.verifyUserEmailNotExists(email, user.id)
+      user.email = email
+    }
+
+    if ('name' in updateUser) {
+      user.name = updateUser.name
+    }
+
+    if ('permissions' in updateUser) {
+      user.permissions = updateUser.permissions
+    }
+
+    user.updatedAt = new Date()
+
+    await this.entityManager.save<User>(user)
+    this.eventDispatcher.dispatch('userUpdated', { user })
 
     return user
   }
@@ -121,13 +157,22 @@ export default class UserService {
 
   /**
    * @param {string} email
+   * @param {ObjectId} ignoreId
    * @returns {Promise<void>}
    * @throws {UserEmailTakenError}
    */
-  public async verifyUserEmailNotExists(email: string): Promise<void> {
-    if (await this.userRepository.findOneByEmail(email)) {
-      throw new UserEmailTakenError(email)
+  public async verifyUserEmailNotExists(email: string, ignoreId: ObjectId = undefined): Promise<void> {
+    const user = await this.userRepository.findOneByEmail(email)
+
+    if (!user) {
+      return
     }
+
+    if (ignoreId && user.id.toString() === ignoreId.toString()) {
+      return
+    }
+
+    throw new UserEmailTakenError(email)
   }
 
   /**

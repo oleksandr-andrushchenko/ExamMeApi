@@ -93,6 +93,7 @@ type Mutation {
   updateCategory(categoryId: ID!, updateCategory: UpdateCategory!): Category!
   updateMe(updateMe: UpdateMe!): User!
   updateQuestion(questionId: ID!, updateQuestion: UpdateQuestion!): Question!
+  updateUser(updateUser: UpdateUser!, userId: ID!): User!
 }
 
 """Mongo object id scalar type"""
@@ -213,6 +214,12 @@ input UpdateQuestion {
   difficulty: String
   title: String
   type: String
+}
+
+input UpdateUser {
+  email: String
+  name: String
+  permissions: [String!] = ["regular"]
 }
 
 type User {

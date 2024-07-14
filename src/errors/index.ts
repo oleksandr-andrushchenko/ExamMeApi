@@ -29,6 +29,7 @@ export const errors = {
       'QuestionNotFoundError',
       'ExamNotFoundError',
       'ExamQuestionNumberNotFoundError',
+      'UserNotFoundError',
     ],
     code: 404,
   },
