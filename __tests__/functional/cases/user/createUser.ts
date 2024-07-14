@@ -42,7 +42,7 @@ describe('Create user', () => {
     { case: 'permissions is an object', user: { email: 'a@a.com', password: 'password', permissions: {} } },
     { case: 'permissions is invalid', user: { email: 'a@a.com', password: 'password', permissions: [ 'any' ] } },
   ])('Bad request ($case)', async ({ user: userCreate, times = 1 }) => {
-    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.Create ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(createUser({ createUser: userCreate as CreateUser }))
@@ -69,7 +69,7 @@ describe('Create user', () => {
   })
   test('Conflict (email)', async () => {
     const user1 = await framework.fixture<User>(User)
-    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.Create ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(createUser({
@@ -86,7 +86,7 @@ describe('Create user', () => {
   })
   test('Created', async () => {
     await framework.clear(User)
-    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.Create, UserPermission.GetEmail, UserPermission.GetPermissions ] })
     const token = (await framework.auth(user)).token
     const userCreate = { name: 'any', email: 'a@a.com' }
     const fields = [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]
@@ -106,7 +106,7 @@ describe('Create user', () => {
       id: id.toString(),
       name: latestUser.name,
       email: latestUser.email,
-      permissions: [ Permission.REGULAR ],
+      permissions: [ Permission.Regular ],
       createdAt: latestUser.createdAt.getTime(),
       updatedAt: null,
     })

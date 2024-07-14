@@ -19,7 +19,7 @@ describe('Delete question', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid id)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Delete ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(deleteQuestion({ questionId: 'invalid' }))
@@ -29,7 +29,7 @@ describe('Delete question', () => {
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
   test('Not found', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Delete ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
@@ -64,7 +64,7 @@ describe('Delete question', () => {
   })
   test('Deleted (has permission)', async () => {
     const question = await framework.fixture<Question>(Question)
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.DELETE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Delete ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(deleteQuestion({ questionId: question.id.toString() }))

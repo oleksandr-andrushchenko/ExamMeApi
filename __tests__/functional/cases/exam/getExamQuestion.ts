@@ -21,7 +21,7 @@ describe('Get exam question', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid exam id)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.GetQuestion ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(getExamQuestion({ examId: 'invalid', question: 0 }))
@@ -34,7 +34,7 @@ describe('Get exam question', () => {
     { case: 'invalid question number type', question: 'any' },
     { case: 'negative question number', question: -1 },
   ])('Bad request ($case)', async ({ question }) => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.GetQuestion ] })
     const token = (await framework.auth(user)).token
     const exam = await framework.fixture<Exam>(Exam)
     const res = await request(framework.app).post('/')
@@ -45,7 +45,7 @@ describe('Get exam question', () => {
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
   test('Not found (exam)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.GetQuestion ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
@@ -118,7 +118,7 @@ describe('Get exam question', () => {
   })
   test('Found (permission)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.GET_QUESTION ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.GetQuestion ] })
     const token = (await framework.auth(user)).token
     const questionNumber = 0
     const res = await request(framework.app).post('/')

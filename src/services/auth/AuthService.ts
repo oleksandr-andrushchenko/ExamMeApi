@@ -46,7 +46,7 @@ export default class AuthService {
 
     permissions = permissions ?? user.permissions
 
-    if (permissions.indexOf(Permission.ALL) !== -1) {
+    if (permissions.indexOf(Permission.All) !== -1) {
       return true
     }
 

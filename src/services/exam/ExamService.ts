@@ -50,7 +50,7 @@ export default class ExamService {
    * @throws {ExamTakenError}
    */
   public async createExam(createExam: CreateExam, initiator: User): Promise<Exam> {
-    await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.Create)
 
     await this.validator.validate(createExam)
     const category = await this.categoryService.getCategory(createExam.categoryId)
@@ -89,7 +89,7 @@ export default class ExamService {
    * @throws {ExamQuestionNumberNotFoundError}
    */
   public async getExamQuestion(exam: Exam, questionNumber: number, initiator: User): Promise<ExamQuestionSchema> {
-    await this.authService.verifyAuthorization(initiator, ExamPermission.GET_QUESTION, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.GetQuestion, exam)
 
     const questions = exam.questions
 
@@ -120,7 +120,7 @@ export default class ExamService {
    * @throws {ExamQuestionNumberNotFoundError}
    */
   public async setExamLastRequestedQuestionNumber(exam: Exam, questionNumber: number, initiator: User): Promise<Exam> {
-    await this.authService.verifyAuthorization(initiator, ExamPermission.GET_QUESTION, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.GetQuestion, exam)
 
     const questions = exam.questions
 
@@ -156,7 +156,7 @@ export default class ExamService {
     createExamQuestionAnswer: CreateExamQuestionAnswer,
     initiator: User,
   ): Promise<ExamQuestion> {
-    await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_QUESTION_ANSWER, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.CreateQuestionAnswer, exam)
     await this.validator.validate(createExamQuestionAnswer)
 
     const questions = exam.questions
@@ -196,7 +196,7 @@ export default class ExamService {
     questionNumber: number,
     initiator: User,
   ): Promise<void> {
-    await this.authService.verifyAuthorization(initiator, ExamPermission.DELETE_QUESTION_ANSWER, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.deleteQuestionAnswer, exam)
 
     const questions = exam.questions
     const questionId = questions[questionNumber]
@@ -237,7 +237,7 @@ export default class ExamService {
     const where = {}
 
     try {
-      await this.authService.verifyAuthorization(initiator, ExamPermission.GET)
+      await this.authService.verifyAuthorization(initiator, ExamPermission.Get)
     } catch (error) {
       if (error instanceof AuthorizationFailedError) {
         where['ownerId'] = initiator.id
@@ -254,7 +254,7 @@ export default class ExamService {
       where['completedAt'] = { $exists: getExams.completion }
     }
 
-    return await cursor.getPaginated(where, meta)
+    return await cursor.getPaginated({ where, meta })
   }
 
   /**
@@ -276,7 +276,7 @@ export default class ExamService {
       throw new ExamNotFoundError(id)
     }
 
-    await this.authService.verifyAuthorization(initiator, ExamPermission.GET, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.Get, exam)
 
     if ('correctAnswerCount' in exam && !exam.completedAt) {
       delete exam.correctAnswerCount
@@ -292,7 +292,7 @@ export default class ExamService {
    * @throws {AuthorizationFailedError}
    */
   public async createExamCompletion(exam: Exam, initiator: User): Promise<void> {
-    await this.authService.verifyAuthorization(initiator, ExamPermission.CREATE_COMPLETION, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.CreateCompletion, exam)
 
     const category = await this.categoryService.getCategory(exam.categoryId)
     const questions = await this.questionService.getCategoryQuestions(category) as Question[]
@@ -332,7 +332,7 @@ export default class ExamService {
    * @throws {AuthorizationFailedError}
    */
   public async deleteExam(exam: Exam, initiator: User): Promise<Exam> {
-    await this.authService.verifyAuthorization(initiator, ExamPermission.DELETE, exam)
+    await this.authService.verifyAuthorization(initiator, ExamPermission.Delete, exam)
 
     exam.deletedAt = new Date()
 

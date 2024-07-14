@@ -19,7 +19,7 @@ describe('Delete category', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid id)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.DELETE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Delete ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(deleteCategory({ categoryId: 'invalid' }))
@@ -29,7 +29,7 @@ describe('Delete category', () => {
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
   test('Not found', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.DELETE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Delete ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
@@ -64,7 +64,7 @@ describe('Delete category', () => {
   })
   test('Deleted (has permission)', async () => {
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.DELETE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Delete ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(deleteCategory({ categoryId: category.id.toString() }))

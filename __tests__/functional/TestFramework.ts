@@ -74,7 +74,7 @@ export default class TestFramework {
         object.name = faker.person.fullName()
         object.email = faker.internet.email()
         object.password = options['password'] ?? faker.internet.password()
-        object.permissions = options['permissions'] ?? [ Permission.REGULAR ]
+        object.permissions = options['permissions'] ?? [ Permission.Regular ]
 
         break
       case this.compare(entity, Category):

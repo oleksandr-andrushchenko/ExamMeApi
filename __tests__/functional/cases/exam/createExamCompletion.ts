@@ -19,7 +19,7 @@ describe('Create exam completion', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid exam id)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_COMPLETION ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.CreateCompletion ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(createExamCompletion({ examId: 'invalid' }))
@@ -29,7 +29,7 @@ describe('Create exam completion', () => {
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
   test('Not found', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_COMPLETION ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.CreateCompletion ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
@@ -66,7 +66,7 @@ describe('Create exam completion', () => {
   })
   test('Created (has permission)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_COMPLETION ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.CreateCompletion ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(createExamCompletion({ examId: exam.id.toString() }, [ 'id', 'completedAt' ]))

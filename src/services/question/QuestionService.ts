@@ -43,7 +43,7 @@ export default class QuestionService {
    */
   public async createQuestion(createQuestion: CreateQuestion, initiator: User): Promise<Question> {
     await this.validator.validate(createQuestion)
-    await this.authService.verifyAuthorization(initiator, QuestionPermission.CREATE)
+    await this.authService.verifyAuthorization(initiator, QuestionPermission.Create)
 
     const category = await this.categoryService.getCategory(createQuestion.categoryId)
 
@@ -108,7 +108,7 @@ export default class QuestionService {
       where['type'] = getQuestions.type
     }
 
-    return await cursor.getPaginated(where, meta)
+    return await cursor.getPaginated({ where, meta })
   }
 
   /**
@@ -162,7 +162,7 @@ export default class QuestionService {
    */
   public async updateQuestion(question: Question, updateQuestion: UpdateQuestion, initiator: User): Promise<Question> {
     await this.validator.validate(updateQuestion)
-    await this.authService.verifyAuthorization(initiator, QuestionPermission.UPDATE, question)
+    await this.authService.verifyAuthorization(initiator, QuestionPermission.Update, question)
 
     if ('categoryId' in updateQuestion) {
       const category = await this.categoryService.getCategory(updateQuestion.categoryId)
@@ -206,7 +206,7 @@ export default class QuestionService {
    * @throws {AuthorizationFailedError}
    */
   public async deleteQuestion(question: Question, initiator: User): Promise<Question> {
-    await this.authService.verifyAuthorization(initiator, QuestionPermission.DELETE, question)
+    await this.authService.verifyAuthorization(initiator, QuestionPermission.Delete, question)
 
     const category = await this.categoryService.getCategory(question.categoryId.toString())
     category.questionCount = Math.max(0, (category.questionCount ?? 0) - 1)

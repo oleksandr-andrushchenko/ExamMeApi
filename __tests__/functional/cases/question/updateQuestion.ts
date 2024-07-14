@@ -21,7 +21,7 @@ describe('Update question', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid id)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.UPDATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Update ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(updateQuestion({ questionId: 'invalid', updateQuestion: { title: 'any' } }))
@@ -31,7 +31,7 @@ describe('Update question', () => {
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
   test('Not found', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.UPDATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Update ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
@@ -42,7 +42,7 @@ describe('Update question', () => {
     expect(res.body).toMatchObject(framework.graphqlError('NotFoundError'))
   })
   test('Bad request (empty body)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.UPDATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Update ] })
     const token = (await framework.auth(user)).token
     const question = await framework.fixture<Question>(Question)
     const res = await request(framework.app).post('/')
@@ -71,7 +71,7 @@ describe('Update question', () => {
   })
   test('Conflict', async () => {
     const question1 = await framework.fixture<Question>(Question)
-    const question = await framework.fixture<Question>(Question, { permissions: [ QuestionPermission.UPDATE ] })
+    const question = await framework.fixture<Question>(Question, { permissions: [ QuestionPermission.Update ] })
     const user = await framework.load<User>(User, question.creatorId)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
@@ -102,7 +102,7 @@ describe('Update question', () => {
   test('Updated (has permission)', async () => {
     await framework.clear(Question)
     const question = await framework.fixture<Question>(Question)
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.UPDATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Update ] })
     const token = (await framework.auth(user)).token
     const questionId = question.id.toString()
     const update = { title: faker.lorem.sentences(3) }

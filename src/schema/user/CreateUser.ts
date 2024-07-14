@@ -10,5 +10,5 @@ export default class CreateUser extends CreateMe {
   @IsEnum(Permission, { each: true })
   @ArrayUnique()
   @Field(_type => [ String ])
-  public readonly permissions?: Permission[] = [ Permission.REGULAR ]
+  public readonly permissions?: Permission[] = [ Permission.Regular ]
 }

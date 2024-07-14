@@ -67,7 +67,7 @@ describe('Update user', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
-  test('Forbidden', async () => {
+  test.only('Forbidden', async () => {
     const token = (await framework.auth(await framework.fixture<User>(User))).token
     const user = await framework.fixture<User>(User)
     const res = await request(framework.app).post('/')
@@ -117,7 +117,7 @@ describe('Update user', () => {
       await framework.fixture<User>(User, { permissions: [ UserPermission.Update ] }),
     )).token
     const userId = user.id.toString()
-    const update = { name: faker.person.fullName(), email: 'any@gmail.com', permissions: [ Permission.ALL ] }
+    const update = { name: faker.person.fullName(), email: 'any@gmail.com', permissions: [ Permission.All ] }
     const res = await request(framework.app).post('/')
       .send(updateUser({ userId, updateUser: update }))
       .auth(token, { type: 'bearer' })

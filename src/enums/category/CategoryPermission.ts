@@ -1,7 +1,7 @@
 enum CategoryPermission {
-  CREATE = 'createCategory',
-  UPDATE = 'updateCategory',
-  DELETE = 'deleteCategory',
+  Create = 'createCategory',
+  Update = 'updateCategory',
+  Delete = 'deleteCategory',
 }
 
 export default CategoryPermission

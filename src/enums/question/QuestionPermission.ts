@@ -1,9 +1,8 @@
 enum QuestionPermission {
-  CREATE = 'createQuestion',
-  READ_CHOICES = 'readQuestionChoices',
-  READ_ANSWERS = 'readQuestionAnswers',
-  UPDATE = 'updateQuestion',
-  DELETE = 'deleteQuestion',
+  Create = 'createQuestion',
+  GetChoices = 'getQuestionChoices',
+  Update = 'updateQuestion',
+  Delete = 'deleteQuestion',
 }
 
 export default QuestionPermission

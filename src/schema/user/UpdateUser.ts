@@ -19,5 +19,5 @@ export default class UpdateUser {
   @IsEnum(Permission, { each: true })
   @ArrayUnique()
   @Field(_type => [ String ], { nullable: true })
-  public readonly permissions?: Permission[] = [ Permission.REGULAR ]
+  public readonly permissions?: Permission[] = [ Permission.Regular ]
 }

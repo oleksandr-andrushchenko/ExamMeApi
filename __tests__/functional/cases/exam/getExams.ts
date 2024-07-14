@@ -137,7 +137,7 @@ describe('Get exams', () => {
   })
   test('No filter (permission)', async () => {
     await framework.clear(Exam)
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get ] })
     const token = (await framework.auth(user)).token
     const ownerId = user.id
     const examOwnOptions = { ownerId }
@@ -177,7 +177,7 @@ describe('Get exams', () => {
   test('Category filter (permission)', async () => {
     await framework.clear(Exam)
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get ] })
     const token = (await framework.auth(user)).token
     const ownerId = user.id
     const examOwnOptions = { ownerId }

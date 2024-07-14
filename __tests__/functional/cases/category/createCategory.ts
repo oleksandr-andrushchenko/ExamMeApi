@@ -31,7 +31,7 @@ describe('Create category', () => {
     { case: 'required score is negative', category: { name: 'Any category', requiredScore: -1 } },
     { case: 'required score is greater then 100', category: { name: 'Any category', requiredScore: 101 } },
   ])('Bad request ($case)', async ({ category }) => {
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Create ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app)
       .post('/')
@@ -55,7 +55,7 @@ describe('Create category', () => {
   test('Conflict', async () => {
     await framework.clear(Category)
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Create ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app)
       .post('/')
@@ -67,7 +67,7 @@ describe('Create category', () => {
   })
   test('Created', async () => {
     await framework.clear(Category)
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Create ] })
     const token = (await framework.auth(user)).token
     const category = { name: 'any', requiredScore: 80 }
     const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'rating {value voterCount}', 'createdAt', 'updatedAt' ]

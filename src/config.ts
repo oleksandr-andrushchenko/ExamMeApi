@@ -22,9 +22,9 @@ export default {
   },
   auth: {
     permissions: {
-      [Permission.REGULAR]: [],
-      [Permission.ROOT]: [
-        Permission.ALL,
+      [Permission.Regular]: [],
+      [Permission.Root]: [
+        Permission.All,
       ],
     },
   },

@@ -19,7 +19,7 @@ describe('Get exam', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid id)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(getExam({ examId: 'invalid' }))
@@ -29,7 +29,7 @@ describe('Get exam', () => {
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
   test('Not found', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
@@ -63,7 +63,7 @@ describe('Get exam', () => {
   })
   test('Found (permission)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get ] })
     const token = (await framework.auth(user)).token
     const fields = [
       'id',

@@ -34,7 +34,7 @@ export default class MeService {
     const user = new User()
     user.email = email
     user.password = createMe.password
-    user.permissions = [ Permission.REGULAR ]
+    user.permissions = [ Permission.Regular ]
 
     if ('name' in createMe) {
       user.name = createMe.name

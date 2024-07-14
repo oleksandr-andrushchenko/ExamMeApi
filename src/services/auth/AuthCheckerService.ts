@@ -5,6 +5,7 @@ import UserService from '../user/UserService'
 import { AuthChecker, AuthenticationError, AuthorizationError } from 'type-graphql'
 import Context from '../../context/Context'
 import { Request } from 'express'
+import AuthorizationFailedError from '../../errors/auth/AuthorizationFailedError'
 
 @Service()
 export class AuthCheckerService {
@@ -33,8 +34,14 @@ export class AuthCheckerService {
       }
 
       for (const permission of permissions) {
-        if (!await this.authService.verifyAuthorization(user, permission, root)) {
-          throw new AuthorizationError()
+        try {
+          await this.authService.verifyAuthorization(user, permission, root)
+        } catch (error) {
+          if (error instanceof AuthorizationFailedError) {
+            throw new AuthorizationError()
+          }
+
+          throw error
         }
       }
 

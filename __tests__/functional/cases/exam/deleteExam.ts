@@ -19,7 +19,7 @@ describe('Delete exam', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid id)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.DELETE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.Delete ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(deleteExam({ examId: 'invalid' }))
@@ -29,7 +29,7 @@ describe('Delete exam', () => {
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
   test('Not found', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.DELETE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.Delete ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
@@ -64,7 +64,7 @@ describe('Delete exam', () => {
   })
   test('Deleted (has permission)', async () => {
     const exam = await framework.fixture<Exam>(Exam)
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.DELETE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.Delete ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(deleteExam({ examId: exam.id.toString() }))

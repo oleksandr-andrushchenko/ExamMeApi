@@ -5,10 +5,10 @@ import Permission from '../../enums/Permission'
 export default class PermissionHierarchySchema {
 
   @Field(_type => [ String ], { nullable: true })
-  public [Permission.REGULAR]?: string[] = []
+  public [Permission.Regular]?: string[] = []
 
   @Field(_type => [ String ], { nullable: true })
-  public [Permission.ROOT]?: string[] = [
-    Permission.ALL,
+  public [Permission.Root]?: string[] = [
+    Permission.All,
   ]
 }

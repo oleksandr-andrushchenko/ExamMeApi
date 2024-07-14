@@ -224,10 +224,10 @@ input UpdateUser {
 
 type User {
   createdAt: Timestamp!
-  email: String!
+  email: String
   id: ObjectId!
   name: String
   ownerId: ObjectId!
-  permissions: [String!]!
+  permissions: [String!]
   updatedAt: Timestamp
 }

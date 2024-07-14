@@ -38,7 +38,7 @@ export default class CategoryService {
   public async createCategory(createCategory: CreateCategory, initiator: User): Promise<Category> {
     await this.validator.validate(createCategory)
 
-    await this.authService.verifyAuthorization(initiator, CategoryPermission.CREATE)
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.Create)
 
     const name = createCategory.name
     await this.verifyCategoryNameNotExists(name)
@@ -102,7 +102,7 @@ export default class CategoryService {
       where['name'] = { $regex: getCategories.search, $options: 'i' }
     }
 
-    return await cursor.getPaginated(where, meta)
+    return await cursor.getPaginated({ where, meta })
   }
 
   /**
@@ -117,7 +117,7 @@ export default class CategoryService {
   public async updateCategory(category: Category, updateCategory: UpdateCategory, initiator: User): Promise<Category> {
     await this.validator.validate(updateCategory)
 
-    await this.authService.verifyAuthorization(initiator, CategoryPermission.UPDATE, category)
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.Update, category)
 
     if ('name' in updateCategory) {
       const name = updateCategory.name
@@ -147,7 +147,7 @@ export default class CategoryService {
    * @throws {AuthorizationFailedError}
    */
   public async deleteCategory(category: Category, initiator: User): Promise<Category> {
-    await this.authService.verifyAuthorization(initiator, CategoryPermission.DELETE, category)
+    await this.authService.verifyAuthorization(initiator, CategoryPermission.Delete, category)
 
     category.deletedAt = new Date()
 

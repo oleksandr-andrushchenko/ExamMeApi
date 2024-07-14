@@ -14,7 +14,7 @@ export default class Cursor<Entity> {
   ) {
   }
 
-  public async getPaginated(where: object = {}, meta: boolean = false): Promise<Entity[] | PaginatedSchema<Entity>> {
+  public async getPaginated({ where = {}, meta = false }): Promise<Entity[] | PaginatedSchema<Entity>> {
     const order = {
       key: '',
       direction: -1,

@@ -22,7 +22,7 @@ describe('Create exam', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (empty body)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Create ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(createExam({ createExam: {} as CreateExam }))
@@ -43,7 +43,7 @@ describe('Create exam', () => {
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
   test('Conflict (exam taken)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Create ] })
     const token = (await framework.auth(user)).token
     const exam = await framework.fixture<Exam>(Exam, { completedAt: false, creatorId: user.id })
     const res = await request(framework.app).post('/')
@@ -55,7 +55,7 @@ describe('Create exam', () => {
   })
   test('Created', async () => {
     await framework.clear(Exam)
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Create ] })
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
     const create = { categoryId: category.id.toString() }

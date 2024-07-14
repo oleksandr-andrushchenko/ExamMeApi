@@ -21,7 +21,7 @@ describe('Update category', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Bad request (invalid category id)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.UPDATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Update ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(updateCategory({ categoryId: 'invalid', updateCategory: { name: 'Any' } }))
@@ -31,7 +31,7 @@ describe('Update category', () => {
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
   test('Not found', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.UPDATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Update ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const res = await request(framework.app).post('/')
@@ -51,7 +51,7 @@ describe('Update category', () => {
   ])('Bad request ($case)', async ({ update }) => {
     const category = await framework.fixture<Category>(Category)
     const categoryId = category.id.toString()
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.UPDATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Update ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
       .send(updateCategory({ categoryId, updateCategory: update as UpdateCategory }))
@@ -74,7 +74,7 @@ describe('Update category', () => {
   })
   test('Conflict', async () => {
     const category1 = await framework.fixture<Category>(Category)
-    const category = await framework.fixture<Category>(Category, { permissions: [ CategoryPermission.UPDATE ] })
+    const category = await framework.fixture<Category>(Category, { permissions: [ CategoryPermission.Update ] })
     const categoryId = category.id.toString()
     const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
@@ -103,7 +103,7 @@ describe('Update category', () => {
   test('Updated (has permission)', async () => {
     await framework.clear(Category)
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.UPDATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Update ] })
     const token = (await framework.auth(user)).token
     const categoryId = category.id.toString()
     const update = { name: 'any' }

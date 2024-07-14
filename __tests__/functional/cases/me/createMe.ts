@@ -5,7 +5,6 @@ import { ObjectId } from 'mongodb'
 // @ts-ignore
 import { createMe } from '../../graphql/me/createMe'
 import CreateMe from '../../../../src/schema/user/CreateMe'
-import Permission from '../../../../src/enums/Permission'
 import TestFramework from '../../TestFramework'
 
 const framework: TestFramework = globalThis.framework
@@ -53,7 +52,7 @@ describe('Create me', () => {
   test('Created', async () => {
     await framework.clear(User)
     const me = { name: 'any', email: 'a@a.com' }
-    const fields = [ 'id', 'name', 'email', 'permissions', 'createdAt', 'updatedAt' ]
+    const fields = [ 'id', 'name', 'createdAt', 'updatedAt' ]
     const now = Date.now()
     const res = await request(framework.app).post('/')
       .send(createMe({ createMe: { ...me, ...{ password: '123123' } } }, fields))
@@ -68,8 +67,6 @@ describe('Create me', () => {
     expect(res.body.data.createMe).toMatchObject({
       id: id.toString(),
       name: latestMe.name,
-      email: latestMe.email,
-      permissions: [ Permission.REGULAR ],
       createdAt: latestMe.createdAt.getTime(),
       updatedAt: null,
     })

@@ -40,7 +40,7 @@ export default class UserService {
    * @throws {UserEmailTakenError}
    */
   public async createUser(createUser: CreateUser, initiator: User): Promise<User> {
-    await this.authService.verifyAuthorization(initiator, UserPermission.CREATE)
+    await this.authService.verifyAuthorization(initiator, UserPermission.Create)
 
     await this.validator.validate(createUser)
 
@@ -50,7 +50,7 @@ export default class UserService {
     const user = new User()
     user.email = email
     user.password = createUser.password
-    user.permissions = createUser.permissions ?? [ Permission.REGULAR ]
+    user.permissions = createUser.permissions ?? [ Permission.Regular ]
     user.creatorId = initiator.id
 
     if ('name' in createUser) {
@@ -77,7 +77,7 @@ export default class UserService {
    */
   public async updateUser(user: User, updateUser: UpdateUser, initiator: User): Promise<User> {
     await this.validator.validate(updateUser)
-    await this.authService.verifyAuthorization(initiator, UserPermission.Update, { ...user, ownerId: user.id })
+    await this.authService.verifyAuthorization(initiator, UserPermission.Update, user)
 
     if ('email' in updateUser) {
       const email = updateUser.email
@@ -219,6 +219,6 @@ export default class UserService {
       where['name'] = { $regex: getUsers.search, $options: 'i' }
     }
 
-    return await cursor.getPaginated(where, meta)
+    return await cursor.getPaginated({ where, meta })
   }
 }

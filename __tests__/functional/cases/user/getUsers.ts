@@ -45,7 +45,7 @@ describe('Get users', () => {
   })
   test('No filter', async () => {
     framework.clear()
-    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.Get ] })
+    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.Get, UserPermission.GetEmail, UserPermission.GetPermissions ] })
     const token = (await framework.auth(user)).token
     const users = await Promise.all([
       framework.fixture<User>(User),
@@ -75,7 +75,7 @@ describe('Get users', () => {
   })
   test('Search filter', async () => {
     framework.clear()
-    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.Get ] })
+    const user = await framework.fixture<User>(User, { permissions: [ UserPermission.Get, UserPermission.GetEmail, UserPermission.GetPermissions ] })
     const token = (await framework.auth(user)).token
     const users = await Promise.all([
       framework.fixture<User>(User),

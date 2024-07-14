@@ -32,7 +32,7 @@ describe('Create question', () => {
   })
   test('Bad request (category not found)', async () => {
     const categoryId = await framework.fakeId()
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Create ] })
     const token = (await framework.auth(user)).token
     const create = {
       categoryId: categoryId.toString(),
@@ -112,7 +112,7 @@ describe('Create question', () => {
     },
   ])('Bad request ($case)', async ({ body, times }) => {
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Create ] })
     const token = (await framework.auth(user)).token
     const create = { ...body, ...{ categoryId: category.id.toString() } } as CreateQuestion
     const res = await request(framework.app).post('/').send(createQuestion({ createQuestion: create }))
@@ -142,7 +142,7 @@ describe('Create question', () => {
   test('Conflict', async () => {
     const category = await framework.fixture<Category>(Category)
     const question1 = await framework.fixture<Question>(Question)
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Create ] })
     const token = (await framework.auth(user)).token
     const create = {
       categoryId: category.id.toString(),
@@ -160,7 +160,7 @@ describe('Create question', () => {
   // todo: add cases
   test('Created', async () => {
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.CREATE ] })
+    const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Create ] })
     const token = (await framework.auth(user)).token
     const create = {
       categoryId: category.id.toString(),

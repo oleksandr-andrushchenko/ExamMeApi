@@ -34,7 +34,7 @@ describe('Create exam question answer', () => {
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
   test('Not found (exam)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_QUESTION_ANSWER ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.CreateQuestionAnswer ] })
     const token = (await framework.auth(user)).token
     const id = await framework.fakeId()
     const questionNumber = 0
@@ -66,7 +66,7 @@ describe('Create exam question answer', () => {
     expect(res.body).toMatchObject(framework.graphqlError('NotFoundError'))
   })
   test('Bad request (empty body)', async () => {
-    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.GET, ExamPermission.CREATE_QUESTION_ANSWER ] })
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Get, ExamPermission.CreateQuestionAnswer ] })
     const token = (await framework.auth(user)).token
     const exam = await framework.fixture<Exam>(Exam)
     const create = undefined as CreateExamQuestionAnswer
