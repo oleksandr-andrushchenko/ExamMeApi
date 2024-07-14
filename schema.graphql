@@ -90,6 +90,7 @@ type Mutation {
   deleteExamQuestionAnswer(examId: ID!, question: Int!): ExamQuestionSchema!
   deleteMe: Boolean!
   deleteQuestion(questionId: ID!): Boolean!
+  deleteUser(userId: ID!): Boolean!
   updateCategory(categoryId: ID!, updateCategory: UpdateCategory!): Category!
   updateMe(updateMe: UpdateMe!): User!
   updateQuestion(questionId: ID!, updateQuestion: UpdateQuestion!): Question!

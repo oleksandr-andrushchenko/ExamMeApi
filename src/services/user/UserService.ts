@@ -221,4 +221,21 @@ export default class UserService {
 
     return await cursor.getPaginated({ where, meta })
   }
+
+  /**
+   * @param {User} user
+   * @param {User} initiator
+   * @returns {Promise<User>}
+   * @throws {AuthorizationFailedError}
+   */
+  public async deleteUser(user: User, initiator: User): Promise<User> {
+    await this.authService.verifyAuthorization(initiator, UserPermission.Delete, user)
+
+    user.deletedAt = new Date()
+
+    await this.entityManager.save(user)
+    this.eventDispatcher.dispatch('userDeleted', { user })
+
+    return user
+  }
 }
