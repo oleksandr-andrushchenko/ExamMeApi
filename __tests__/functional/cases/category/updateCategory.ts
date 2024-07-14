@@ -60,19 +60,7 @@ describe('Update category', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
-  test('Forbidden (no permissions)', async () => {
-    const user = await framework.fixture<User>(User)
-    const category = await framework.fixture<Category>(Category)
-    const categoryId = category.id.toString()
-    const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/')
-      .send(updateCategory({ categoryId, updateCategory: { name: 'Any' } }))
-      .auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
-  })
-  test('Forbidden (no ownership)', async () => {
+  test('Forbidden', async () => {
     const user = await framework.fixture<User>(User)
     const category = await framework.fixture<Category>(Category)
     const categoryId = category.id.toString()

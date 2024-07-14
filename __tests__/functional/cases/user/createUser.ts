@@ -67,7 +67,7 @@ describe('Create user', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
-  test('Conflict', async () => {
+  test('Conflict (email)', async () => {
     const user1 = await framework.fixture<User>(User)
     const user = await framework.fixture<User>(User, { permissions: [ UserPermission.CREATE ] })
     const token = (await framework.auth(user)).token

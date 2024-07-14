@@ -54,7 +54,7 @@ export default class MeService {
 
     if ('email' in updateMe) {
       const email = updateMe.email
-      await this.userService.verifyUserEmailNotExists(email)
+      await this.userService.verifyUserEmailNotExists(email, initiator.id)
       initiator.email = email
     }
 

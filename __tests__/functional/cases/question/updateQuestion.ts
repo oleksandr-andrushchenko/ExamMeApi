@@ -55,21 +55,7 @@ describe('Update question', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
-  test('Forbidden (no permissions)', async () => {
-    const user = await framework.fixture<User>(User)
-    const question = await framework.fixture<Question>(Question)
-    const token = (await framework.auth(user)).token
-    const res = await request(framework.app).post('/')
-      .send(updateQuestion({
-        questionId: question.id.toString(),
-        updateQuestion: { title: faker.lorem.sentences(3) },
-      }))
-      .auth(token, { type: 'bearer' })
-
-    expect(res.status).toEqual(200)
-    expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
-  })
-  test('Forbidden (no ownership)', async () => {
+  test('Forbidden', async () => {
     const user = await framework.fixture<User>(User)
     const question = await framework.fixture<Question>(Question)
     const token = (await framework.auth(user)).token

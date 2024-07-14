@@ -165,8 +165,16 @@ export default class CategoryService {
    * @throws {CategoryNameTakenError}
    */
   public async verifyCategoryNameNotExists(name: string, ignoreId: ObjectId = undefined): Promise<void> {
-    if (await this.categoryRepository.findOneByName(name, ignoreId)) {
-      throw new CategoryNameTakenError(name)
+    const category = await this.categoryRepository.findOneByName(name)
+
+    if (!category) {
+      return
     }
+
+    if (ignoreId && category.id.toString() === ignoreId.toString()) {
+      return
+    }
+
+    throw new CategoryNameTakenError(name)
   }
 }

@@ -36,7 +36,7 @@ describe('Create me', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError(...Array(times).fill('BadRequestError')))
   })
-  test('Conflict', async () => {
+  test('Conflict (email)', async () => {
     const user = await framework.fixture<User>(User)
     const res = await request(framework.app).post('/')
       .send(createMe({

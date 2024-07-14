@@ -227,9 +227,17 @@ export default class QuestionService {
    * @throws {QuestionTitleTakenError}
    */
   public async verifyQuestionTitleNotExists(title: string, ignoreId: ObjectId = undefined): Promise<void> {
-    if (await this.questionRepository.findOneByTitle(title, ignoreId)) {
-      throw new QuestionTitleTakenError(title)
+    const question = await this.questionRepository.findOneByTitle(title)
+
+    if (!question) {
+      return
     }
+
+    if (ignoreId && question.id.toString() === ignoreId.toString()) {
+      return
+    }
+
+    throw new QuestionTitleTakenError(title)
   }
 
   /**

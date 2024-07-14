@@ -26,7 +26,7 @@ describe('Update me', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
-  test('Conflict', async () => {
+  test('Conflict (email)', async () => {
     const user1 = await framework.fixture<User>(User)
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token

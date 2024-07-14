@@ -16,7 +16,7 @@ describe('Get users', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
-  test('Forbidden (no permissions)', async () => {
+  test('Forbidden', async () => {
     const user = await framework.fixture<User>(User)
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/').send(getUsers()).auth(token, { type: 'bearer' })
