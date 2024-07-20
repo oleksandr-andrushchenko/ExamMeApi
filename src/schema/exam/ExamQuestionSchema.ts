@@ -11,6 +11,9 @@ export default class ExamQuestionSchema {
   @Field(_type => Question, { nullable: true })
   public question?: Question
 
+  @Field(_type => [ String! ], { nullable: true })
+  public choices?: string[]
+
   @Field(_type => Int, { nullable: true })
   public number?: number
 

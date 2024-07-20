@@ -71,6 +71,7 @@ type Exam {
 type ExamQuestionSchema {
   answer: String
   choice: Int
+  choices: [String!]
   exam: Exam
   number: Int
   question: Question

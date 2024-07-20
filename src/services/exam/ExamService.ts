@@ -106,6 +106,7 @@ export default class ExamService {
 
     if (question.type === QuestionType.CHOICE) {
       examQuestion.choice = questions[questionNumber].choice
+      examQuestion.choices = question.choices.map(choice => choice.title)
     }
 
     return examQuestion
