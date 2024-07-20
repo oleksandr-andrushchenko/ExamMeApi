@@ -124,7 +124,7 @@ describe('Create question', () => {
   // todo: add cases
   test('Forbidden', async () => {
     const category = await framework.fixture<Category>(Category)
-    const user = await framework.fixture<User>(User)
+    const user = await framework.fixture<User>(User, { permissions: [] })
     const token = (await framework.auth(user)).token
     const create = {
       categoryId: category.id.toString(),

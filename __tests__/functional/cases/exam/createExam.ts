@@ -32,7 +32,7 @@ describe('Create exam', () => {
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
   })
   test('Forbidden', async () => {
-    const user = await framework.fixture<User>(User)
+    const user = await framework.fixture<User>(User, { permissions: [] })
     const token = (await framework.auth(user)).token
     const category = await framework.fixture<Category>(Category)
     const res = await request(framework.app).post('/')

@@ -85,7 +85,7 @@ describe('Get exam question', () => {
     const res = await request(framework.app).post('/')
       .send(getExamQuestion(
         { examId: exam.id.toString(), question: questionNumber },
-        [ 'exam {id}', 'question {id title type difficulty}', 'number', 'choice', 'answer' ],
+        [ 'exam {id}', 'question {id title type difficulty}', 'choices', 'number', 'choice', 'answer' ],
       ))
       .auth(token, { type: 'bearer' })
 
@@ -112,6 +112,10 @@ describe('Get exam question', () => {
       if ('choice' in examQuestion) {
         expect(res.body.data.examQuestion).toHaveProperty('choice')
       }
+
+      expect(res.body.data.examQuestion).toMatchObject({
+        choices: question.choices.map(choice => choice.title),
+      })
     }
 
     expect((await framework.load<Exam>(Exam, exam.id)).questionNumber).toEqual(questionNumber)
@@ -124,7 +128,7 @@ describe('Get exam question', () => {
     const res = await request(framework.app).post('/')
       .send(getExamQuestion(
         { examId: exam.id.toString(), question: questionNumber },
-        [ 'exam {id}', 'question {id title type difficulty}', 'number', 'choice', 'answer' ],
+        [ 'exam {id}', 'question {id title type difficulty}', 'choices', 'number', 'choice', 'answer' ],
       ))
       .auth(token, { type: 'bearer' })
 
@@ -152,6 +156,10 @@ describe('Get exam question', () => {
       if ('choice' in examQuestion) {
         expect(res.body.data.examQuestion).toHaveProperty('choice')
       }
+
+      expect(res.body.data.examQuestion).toMatchObject({
+        choices: question.choices.map(choice => choice.title),
+      })
     }
 
     expect((await framework.load<Exam>(Exam, exam.id)).questionNumber).toEqual(exam.questionNumber)
