@@ -60,7 +60,6 @@ export default class UserService {
     user.createdAt = new Date()
 
     await this.entityManager.save<User>(user)
-
     this.eventDispatcher.dispatch('userCreated', { user })
 
     return user
@@ -83,6 +82,10 @@ export default class UserService {
       const email = updateUser.email
       await this.verifyUserEmailNotExists(email, user.id)
       user.email = email
+    }
+
+    if ('password' in updateUser) {
+      user.password = updateUser.password
     }
 
     if ('name' in updateUser) {

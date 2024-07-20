@@ -1,4 +1,4 @@
-import { ArrayUnique, IsEmail, IsEnum, IsOptional, Length } from 'class-validator'
+import { ArrayUnique, IsEmail, IsEnum, IsOptional, IsStrongPassword, Length } from 'class-validator'
 import { Field, InputType } from 'type-graphql'
 import Permission from '../../enums/Permission'
 
@@ -14,6 +14,12 @@ export default class UpdateUser {
   @IsEmail()
   @Field({ nullable: true })
   public readonly email?: string
+
+  @IsOptional()
+  @Length(5, 15)
+  @IsStrongPassword({ minLength: 5, minLowercase: 0, minNumbers: 0, minSymbols: 0, minUppercase: 0 })
+  @Field({ nullable: true })
+  public readonly password?: string
 
   @IsOptional()
   @IsEnum(Permission, { each: true })

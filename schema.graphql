@@ -220,6 +220,7 @@ input UpdateQuestion {
 input UpdateUser {
   email: String
   name: String
+  password: String
   permissions: [String!] = ["regular"]
 }
 
