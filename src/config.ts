@@ -4,6 +4,9 @@ import pkg from '../package.json'
 import Permission from './enums/Permission'
 import Env from './schema/config/Env'
 import EnvValidator from './services/config/EnvValidator'
+import CategoryPermission from './enums/category/CategoryPermission'
+import QuestionPermission from './enums/question/QuestionPermission'
+import ExamPermission from './enums/exam/ExamPermission'
 
 const env = new Env(process.env)
 EnvValidator.validateEnv(env)
@@ -22,7 +25,11 @@ export default {
   },
   auth: {
     permissions: {
-      [Permission.Regular]: [],
+      [Permission.Regular]: [
+        CategoryPermission.Create,
+        QuestionPermission.Create,
+        ExamPermission.Create,
+      ],
       [Permission.Root]: [
         Permission.All,
       ],
