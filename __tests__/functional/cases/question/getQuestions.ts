@@ -14,7 +14,7 @@ const framework: TestFramework = globalThis.framework
 
 describe('Get questions', () => {
   test.each([
-    { case: 'invalid category', query: { categoryId: 'any' } },
+    { case: 'invalid category', query: { category: 'any' } },
     { case: 'invalid price', query: { price: 'any' } },
     { case: 'invalid difficulty', query: { difficulty: 'any' } },
     { case: 'invalid type', query: { type: 'any' } },
@@ -36,7 +36,7 @@ describe('Get questions', () => {
     await framework.clear(Question)
     const category = await framework.fixture<Category>(Category)
     const res = await request(framework.app).post('/')
-      .send(getQuestions({ categoryId: category.id.toString() }))
+      .send(getQuestions({ category: category.id.toString() }))
 
     expect(res.status).toEqual(200)
     expect(res.body.data.questions).toEqual([])
@@ -59,7 +59,7 @@ describe('Get questions', () => {
       'choices {title correct explanation}',
     ]
     const res = await request(framework.app).post('/')
-      .send(getQuestions({ categoryId: category.id.toString() }, fields))
+      .send(getQuestions({ category: category.id.toString() }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)

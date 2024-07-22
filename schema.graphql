@@ -151,11 +151,11 @@ type Query {
   me: User!
   paginatedCategories(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10): PaginatedCategories!
   paginatedExams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): PaginatedExams!
-  paginatedQuestions(categoryId: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): PaginatedQuestions!
+  paginatedQuestions(category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): PaginatedQuestions!
   paginatedUsers(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10): PaginatedUsers!
   permission: PermissionSchema!
   question(questionId: ID!): Question!
-  questions(categoryId: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
+  questions(category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, price: String, search: String, size: Int = 10, type: String): [Question!]!
   users(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10): [User!]!
 }
 

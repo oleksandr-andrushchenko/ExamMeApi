@@ -88,8 +88,8 @@ export default class QuestionService {
 
     const where = {}
 
-    if ('categoryId' in getQuestions) {
-      where['categoryId'] = new ObjectId(getQuestions.categoryId)
+    if ('category' in getQuestions) {
+      where['categoryId'] = new ObjectId(getQuestions.category)
     }
 
     if ('price' in getQuestions) {
@@ -124,7 +124,7 @@ export default class QuestionService {
     meta: boolean = false,
   ): Promise<Question[] | PaginatedQuestions> {
     getQuestions = getQuestions === undefined ? new GetQuestions() : getQuestions
-    getQuestions.categoryId = category.id.toString()
+    getQuestions.category = category.id.toString()
 
     return this.getQuestions(getQuestions, meta)
   }
