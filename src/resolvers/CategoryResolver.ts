@@ -12,6 +12,7 @@ import PaginatedCategories from '../schema/category/PaginatedCategories'
 import CategoryDeleter from '../services/category/CategoryDeleter'
 import CategoryCreator from '../services/category/CategoryCreator'
 import CategoryUpdater from '../services/category/CategoryUpdater'
+import CategoriesProvider from '../services/category/CategoriesProvider'
 
 @Service()
 @Resolver(Category)
@@ -19,6 +20,7 @@ export class CategoryResolver {
 
   public constructor(
     @Inject() private readonly categoryProvider: CategoryProvider,
+    @Inject() private readonly categoriesProvider: CategoriesProvider,
     @Inject() private readonly categoryCreator: CategoryCreator,
     @Inject() private readonly categoryUpdater: CategoryUpdater,
     @Inject() private readonly categoryDeleter: CategoryDeleter,
@@ -39,14 +41,14 @@ export class CategoryResolver {
   public async getCategories(
     @Args() getCategories: GetCategories,
   ): Promise<Category[]> {
-    return await this.categoryProvider.getCategories(getCategories) as Category[]
+    return await this.categoriesProvider.getCategories(getCategories) as Category[]
   }
 
   @Query(_returns => PaginatedCategories, { name: 'paginatedCategories' })
   public async getPaginatedCategories(
     @Args() getCategories: GetCategories,
   ): Promise<PaginatedCategories> {
-    return await this.categoryProvider.getCategories(getCategories, true) as PaginatedCategories
+    return await this.categoriesProvider.getCategories(getCategories, true) as PaginatedCategories
   }
 
   @Authorized()

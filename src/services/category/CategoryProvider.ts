@@ -4,9 +4,6 @@ import CategoryRepository from '../../repositories/CategoryRepository'
 import CategoryNotFoundError from '../../errors/category/CategoryNotFoundError'
 import { ObjectId } from 'mongodb'
 import ValidatorInterface from '../validator/ValidatorInterface'
-import Cursor from '../../models/Cursor'
-import GetCategories from '../../schema/category/GetCategories'
-import PaginatedCategories from '../../schema/category/PaginatedCategories'
 
 @Service()
 export default class CategoryProvider {
@@ -35,33 +32,5 @@ export default class CategoryProvider {
     }
 
     return category
-  }
-
-  /**
-   *
-   * @param {GetCategories} getCategories
-   * @param {boolean} meta
-   * @returns {Promise<Category[] | PaginatedCategories>}
-   * @throws {ValidatorError}
-   */
-  public async getCategories(
-    getCategories: GetCategories,
-    meta: boolean = false,
-  ): Promise<Category[] | PaginatedCategories> {
-    await this.validator.validate(getCategories)
-
-    const cursor = new Cursor<Category>(getCategories, this.categoryRepository)
-
-    const where = {}
-
-    if ('price' in getCategories) {
-      where['price'] = getCategories.price
-    }
-
-    if ('search' in getCategories) {
-      where['name'] = { $regex: getCategories.search, $options: 'i' }
-    }
-
-    return await cursor.getPaginated({ where, meta })
   }
 }

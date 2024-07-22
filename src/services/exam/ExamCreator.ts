@@ -6,12 +6,12 @@ import ValidatorInterface from '../validator/ValidatorInterface'
 import CategoryProvider from '../category/CategoryProvider'
 import CreateExam from '../../schema/exam/CreateExam'
 import Exam from '../../entities/Exam'
-import QuestionProvider from '../question/QuestionProvider'
 import Question from '../../entities/Question'
 import ExamPermission from '../../enums/exam/ExamPermission'
 import ExamQuestion from '../../entities/exam/ExamQuestion'
 import ExamVerifier from './ExamVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
+import CategoryQuestionsProvider from '../question/CategoryQuestionsProvider'
 
 @Service()
 export default class ExamCreator {
@@ -19,7 +19,7 @@ export default class ExamCreator {
   constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly categoryProvider: CategoryProvider,
-    @Inject() private readonly questionProvider: QuestionProvider,
+    @Inject() private readonly categoryQuestionsProvider: CategoryQuestionsProvider,
     @Inject() private readonly examVerifier: ExamVerifier,
     @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
@@ -43,7 +43,7 @@ export default class ExamCreator {
 
     await this.examVerifier.verifyExamNotTaken(category, initiator)
 
-    const questions = (await this.questionProvider.getCategoryQuestions(category) as Question[])
+    const questions = (await this.categoryQuestionsProvider.getCategoryQuestions(category) as Question[])
       .map((question: Question): ExamQuestion => {
         const examQuestion = new ExamQuestion()
         examQuestion.questionId = question.id

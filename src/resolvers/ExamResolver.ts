@@ -19,6 +19,8 @@ import ExamQuestionAnswerDeleter from '../services/exam/ExamQuestionAnswerDelete
 import ExamQuestionAnswerCreator from '../services/exam/ExamQuestionAnswerCreator'
 import ExamCompletionCreator from '../services/exam/ExamCompletionCreator'
 import ExamLastRequestedQuestionNumberSetter from '../services/exam/ExamLastRequestedQuestionNumberSetter'
+import ExamQuestionProvider from '../services/exam/ExamQuestionProvider'
+import ExamsProvider from '../services/exam/ExamsProvider'
 
 @Service()
 @Resolver(Exam)
@@ -29,9 +31,11 @@ export class ExamResolver {
     @Inject() private readonly examDeleter: ExamDeleter,
     @Inject() private readonly examLastRequestedQuestionNumberSetter: ExamLastRequestedQuestionNumberSetter,
     @Inject() private readonly examQuestionAnswerCreator: ExamQuestionAnswerCreator,
+    @Inject() private readonly examQuestionProvider: ExamQuestionProvider,
     @Inject() private readonly examQuestionAnswerDeleter: ExamQuestionAnswerDeleter,
     @Inject() private readonly examCompletionCreator: ExamCompletionCreator,
     @Inject() private readonly examProvider: ExamProvider,
+    @Inject() private readonly examsProvider: ExamsProvider,
     @Inject() private readonly categoryProvider: CategoryProvider,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
@@ -52,7 +56,7 @@ export class ExamResolver {
     @Args() getExams: GetExams,
     @Ctx('user') user: User,
   ): Promise<Exam[]> {
-    return await this.examProvider.getExams(getExams, user) as Exam[]
+    return await this.examsProvider.getExams(getExams, user) as Exam[]
   }
 
   @Query(_returns => PaginatedExams, { name: 'paginatedExams' })
@@ -60,7 +64,7 @@ export class ExamResolver {
     @Args() getExams: GetExams,
     @Ctx('user') user: User,
   ): Promise<PaginatedExams> {
-    return await this.examProvider.getExams(getExams, user, true) as PaginatedExams
+    return await this.examsProvider.getExams(getExams, user, true) as PaginatedExams
   }
 
   @Authorized()
@@ -83,7 +87,7 @@ export class ExamResolver {
     await this.validator.validate(getExamQuestion)
     const exam = await this.examProvider.getExam(getExamQuestion.examId, user)
 
-    const examQuestion = await this.examProvider.getExamQuestion(exam, getExamQuestion.question, user)
+    const examQuestion = await this.examQuestionProvider.getExamQuestion(exam, getExamQuestion.question, user)
     await this.examLastRequestedQuestionNumberSetter.setExamLastRequestedQuestionNumber(exam, getExamQuestion.question, user)
 
     return examQuestion
@@ -98,7 +102,7 @@ export class ExamResolver {
     await this.validator.validate(getExam)
     const exam = await this.examProvider.getExam(getExam.examId, user)
 
-    return await this.examProvider.getExamQuestion(exam, exam.questionNumber, user)
+    return await this.examQuestionProvider.getExamQuestion(exam, exam.questionNumber, user)
   }
 
   @Authorized()
@@ -113,7 +117,7 @@ export class ExamResolver {
 
     await this.examQuestionAnswerCreator.createExamQuestionAnswer(exam, getExamQuestion.question, createExamQuestionAnswer, user)
 
-    return this.examProvider.getExamQuestion(exam, getExamQuestion.question, user)
+    return this.examQuestionProvider.getExamQuestion(exam, getExamQuestion.question, user)
   }
 
   @Authorized()
@@ -127,7 +131,7 @@ export class ExamResolver {
 
     await this.examQuestionAnswerDeleter.deleteExamQuestionAnswer(exam, getExamQuestion.question, user)
 
-    return this.examProvider.getExamQuestion(exam, getExamQuestion.question, user)
+    return this.examQuestionProvider.getExamQuestion(exam, getExamQuestion.question, user)
   }
 
   @Authorized()

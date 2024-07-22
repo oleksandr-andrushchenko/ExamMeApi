@@ -11,6 +11,7 @@ import GetUser from '../schema/user/GetUser'
 import UserCreator from '../services/user/UserCreator'
 import UserUpdater from '../services/user/UserUpdater'
 import UserDeleter from '../services/user/UserDeleter'
+import UsersProvider from '../services/user/UsersProvider'
 
 @Service()
 @Resolver(User)
@@ -18,6 +19,7 @@ export class UserResolver {
 
   public constructor(
     @Inject() private readonly userProvider: UserProvider,
+    @Inject() private readonly usersProvider: UsersProvider,
     @Inject() private readonly userCreator: UserCreator,
     @Inject() private readonly userUpdater: UserUpdater,
     @Inject() private readonly userDeleter: UserDeleter,
@@ -53,7 +55,7 @@ export class UserResolver {
     @Args() getUsers: GetUsers,
     @Ctx('user') currentUser: User,
   ): Promise<User[]> {
-    return await this.userProvider.getUsers(getUsers, false, currentUser) as User[]
+    return await this.usersProvider.getUsers(getUsers, false, currentUser) as User[]
   }
 
   @Authorized()
@@ -62,7 +64,7 @@ export class UserResolver {
     @Args() getUsers: GetUsers,
     @Ctx('user') currentUser: User,
   ): Promise<PaginatedUsers> {
-    return await this.userProvider.getUsers(getUsers, true, currentUser) as PaginatedUsers
+    return await this.usersProvider.getUsers(getUsers, true, currentUser) as PaginatedUsers
   }
 
   @Authorized()

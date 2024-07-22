@@ -14,6 +14,7 @@ import CategoryProvider from '../services/category/CategoryProvider'
 import QuestionDeleter from '../services/question/QuestionDeleter'
 import QuestionCreator from '../services/question/QuestionCreator'
 import QuestionUpdater from '../services/question/QuestionUpdater'
+import QuestionsProvider from '../services/question/QuestionsProvider'
 
 @Service()
 @Resolver(Question)
@@ -21,6 +22,7 @@ export class QuestionResolver {
 
   public constructor(
     @Inject() private readonly questionProvider: QuestionProvider,
+    @Inject() private readonly questionsProvider: QuestionsProvider,
     @Inject() private readonly questionCreator: QuestionCreator,
     @Inject() private readonly questionUpdater: QuestionUpdater,
     @Inject() private readonly questionDeleter: QuestionDeleter,
@@ -42,14 +44,14 @@ export class QuestionResolver {
   public async getQuestions(
     @Args() getQuestions: GetQuestions,
   ): Promise<Question[]> {
-    return await this.questionProvider.getQuestions(getQuestions) as Question[]
+    return await this.questionsProvider.getQuestions(getQuestions) as Question[]
   }
 
   @Query(_returns => PaginatedQuestions, { name: 'paginatedQuestions' })
   public async getPaginatedQuestions(
     @Args() getQuestions: GetQuestions,
   ): Promise<PaginatedQuestions> {
-    return await this.questionProvider.getQuestions(getQuestions, true) as PaginatedQuestions
+    return await this.questionsProvider.getQuestions(getQuestions, true) as PaginatedQuestions
   }
 
   @Authorized()
