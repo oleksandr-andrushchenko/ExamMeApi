@@ -11,6 +11,7 @@ import UpdateQuestion from '../schema/question/UpdateQuestion'
 import PaginatedQuestions from '../schema/question/PaginatedQuestions'
 import Category from '../entities/Category'
 import CategoryService from '../services/category/CategoryService'
+import QuestionDeleter from '../services/question/QuestionDeleter'
 
 @Service()
 @Resolver(Question)
@@ -18,6 +19,7 @@ export class QuestionResolver {
 
   public constructor(
     @Inject() private readonly questionService: QuestionService,
+    @Inject() private readonly questionDeleter: QuestionDeleter,
     @Inject() private readonly categoryService: CategoryService,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
@@ -77,7 +79,7 @@ export class QuestionResolver {
     await this.validator.validate(getQuestion)
     const question = await this.questionService.getQuestion(getQuestion.questionId)
 
-    await this.questionService.deleteQuestion(question, user)
+    await this.questionDeleter.deleteQuestion(question, user)
 
     return true
   }
