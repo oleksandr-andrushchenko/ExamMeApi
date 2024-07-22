@@ -15,6 +15,7 @@ import QuestionDeleter from '../services/question/QuestionDeleter'
 import QuestionCreator from '../services/question/QuestionCreator'
 import QuestionUpdater from '../services/question/QuestionUpdater'
 import QuestionsProvider from '../services/question/QuestionsProvider'
+import QuestionApproveSwitcher from '../services/question/QuestionApproveSwitcher'
 
 @Service()
 @Resolver(Question)
@@ -27,6 +28,7 @@ export class QuestionResolver {
     @Inject() private readonly questionUpdater: QuestionUpdater,
     @Inject() private readonly questionDeleter: QuestionDeleter,
     @Inject() private readonly categoryProvider: CategoryProvider,
+    @Inject() private readonly questionApproveSwitcher: QuestionApproveSwitcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }
@@ -86,6 +88,20 @@ export class QuestionResolver {
     const question = await this.questionProvider.getQuestion(getQuestion.questionId)
 
     await this.questionDeleter.deleteQuestion(question, user)
+
+    return true
+  }
+
+  @Authorized()
+  @Mutation(_returns => Boolean)
+  public async toggleQuestionApprove(
+    @Args() getQuestion: GetQuestion,
+    @Ctx('user') user: User,
+  ): Promise<boolean> {
+    await this.validator.validate(getQuestion)
+    const question = await this.questionProvider.getQuestion(getQuestion.questionId)
+
+    await this.questionApproveSwitcher.toggleQuestionApprove(question, user)
 
     return true
   }

@@ -32,7 +32,7 @@ export default class ExamQuestionAnswerDeleter {
     questionNumber: number,
     initiator: User,
   ): Promise<void> {
-    await this.authorizationVerifier.verifyAuthorization(initiator, ExamPermission.deleteQuestionAnswer, exam)
+    await this.authorizationVerifier.verifyAuthorization(initiator, ExamPermission.DeleteQuestionAnswer, exam)
 
     const questions = exam.questions
     const questionId = questions[questionNumber]

@@ -7,7 +7,7 @@ type Category {
   createdAt: Timestamp!
   id: ObjectId!
   name: String!
-  ownerId: ObjectId!
+  ownerId: ObjectId
   questionCount: Int
   rating: Rating
   requiredScore: Int
@@ -62,7 +62,7 @@ type Exam {
   correctAnswerCount: Int
   createdAt: Timestamp!
   id: ObjectId!
-  ownerId: ObjectId!
+  ownerId: ObjectId
   questionCount: Int!
   questionNumber: Int
   updatedAt: Timestamp
@@ -92,6 +92,8 @@ type Mutation {
   deleteMe: Boolean!
   deleteQuestion(questionId: ID!): Boolean!
   deleteUser(userId: ID!): Boolean!
+  toggleCategoryApprove(categoryId: ID!): Boolean!
+  toggleQuestionApprove(questionId: ID!): Boolean!
   updateCategory(categoryId: ID!, updateCategory: UpdateCategory!): Category!
   updateMe(updateMe: UpdateMe!): User!
   updateQuestion(questionId: ID!, updateQuestion: UpdateQuestion!): Question!
@@ -166,7 +168,7 @@ type Question {
   createdAt: Timestamp!
   difficulty: String!
   id: ObjectId!
-  ownerId: ObjectId!
+  ownerId: ObjectId
   rating: Rating
   title: String!
   type: String!
@@ -230,7 +232,7 @@ type User {
   email: String
   id: ObjectId!
   name: String
-  ownerId: ObjectId!
+  ownerId: ObjectId
   permissions: [String!]
   updatedAt: Timestamp
 }

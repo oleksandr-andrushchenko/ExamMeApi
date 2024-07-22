@@ -19,8 +19,8 @@ export default class Base {
 
   @IsMongoId()
   @Column()
-  @Field(_type => ObjectIdScalar)
-  public ownerId: ObjectId
+  @Field(_type => ObjectIdScalar, { nullable: true })
+  public ownerId?: ObjectId
 
   @IsNumber()
   @Column({ update: false })

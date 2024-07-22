@@ -13,6 +13,7 @@ import CategoryDeleter from '../services/category/CategoryDeleter'
 import CategoryCreator from '../services/category/CategoryCreator'
 import CategoryUpdater from '../services/category/CategoryUpdater'
 import CategoriesProvider from '../services/category/CategoriesProvider'
+import CategoryApproveSwitcher from '../services/category/CategoryApproveSwitcher'
 
 @Service()
 @Resolver(Category)
@@ -24,6 +25,7 @@ export class CategoryResolver {
     @Inject() private readonly categoryCreator: CategoryCreator,
     @Inject() private readonly categoryUpdater: CategoryUpdater,
     @Inject() private readonly categoryDeleter: CategoryDeleter,
+    @Inject() private readonly categoryApproveSwitcher: CategoryApproveSwitcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }
@@ -71,6 +73,20 @@ export class CategoryResolver {
     const category = await this.categoryProvider.getCategory(getCategory.categoryId)
 
     return await this.categoryUpdater.updateCategory(category, updateCategory, user)
+  }
+
+  @Authorized()
+  @Mutation(_returns => Boolean)
+  public async toggleCategoryApprove(
+    @Args() getCategory: GetCategory,
+    @Ctx('user') user: User,
+  ): Promise<boolean> {
+    await this.validator.validate(getCategory)
+    const category = await this.categoryProvider.getCategory(getCategory.categoryId)
+
+    await this.categoryApproveSwitcher.toggleCategoryApprove(category, user)
+
+    return true
   }
 
   @Authorized()

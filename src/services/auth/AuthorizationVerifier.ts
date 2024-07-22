@@ -24,7 +24,7 @@ export default class AuthorizationVerifier {
   public async verifyAuthorization(
     user: User,
     permission: string,
-    resource: { ownerId: ObjectId } = undefined,
+    resource: { ownerId?: ObjectId } = undefined,
     permissions: string[] = undefined,
   ): Promise<boolean> {
     if (resource) {
@@ -32,7 +32,7 @@ export default class AuthorizationVerifier {
         resource = { ...resource, ownerId: resource.id }
       }
 
-      if (resource.ownerId.toString() === user.id.toString()) {
+      if (!!resource.ownerId && resource.ownerId.toString() === user.id.toString()) {
         return true
       }
     }

@@ -3,7 +3,7 @@ enum ExamPermission {
   Get = 'getExam',
   GetQuestion = 'getExamQuestion',
   CreateQuestionAnswer = 'createExamQuestionAnswer',
-  deleteQuestionAnswer = 'deleteExamQuestionAnswer',
+  DeleteQuestionAnswer = 'deleteExamQuestionAnswer',
   CreateCompletion = 'createExamCompletion',
   Delete = 'deleteExam',
 }
