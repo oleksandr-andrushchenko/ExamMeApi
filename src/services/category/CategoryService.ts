@@ -140,25 +140,6 @@ export default class CategoryService {
   }
 
   /**
-   * @param {Category} category
-   * @param {User} initiator
-   * @returns {Promise<Category>}
-   * @throws {CategoryNotFoundError}
-   * @throws {AuthorizationFailedError}
-   */
-  public async deleteCategory(category: Category, initiator: User): Promise<Category> {
-    await this.authService.verifyAuthorization(initiator, CategoryPermission.Delete, category)
-
-    category.deletedAt = new Date()
-
-    await this.entityManager.save<Category>(category)
-
-    this.eventDispatcher.dispatch('categoryDeleted', { category })
-
-    return category
-  }
-
-  /**
    * @param {string} name
    * @param {ObjectId} ignoreId
    * @returns {Promise<void>}

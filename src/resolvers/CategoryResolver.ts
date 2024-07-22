@@ -9,6 +9,7 @@ import User from '../entities/User'
 import UpdateCategory from '../schema/category/UpdateCategory'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
 import PaginatedCategories from '../schema/category/PaginatedCategories'
+import CategoryDeleter from '../services/category/CategoryDeleter'
 
 @Service()
 @Resolver(Category)
@@ -16,6 +17,7 @@ export class CategoryResolver {
 
   public constructor(
     @Inject() private readonly categoryService: CategoryService,
+    @Inject() private readonly categoryDeleter: CategoryDeleter,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }
@@ -74,7 +76,7 @@ export class CategoryResolver {
     await this.validator.validate(getCategory)
     const category = await this.categoryService.getCategory(getCategory.categoryId)
 
-    await this.categoryService.deleteCategory(category, user)
+    await this.categoryDeleter.deleteCategory(category, user)
 
     return true
   }
