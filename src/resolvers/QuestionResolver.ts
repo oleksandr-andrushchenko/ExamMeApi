@@ -3,24 +3,28 @@ import { Arg, Args, Authorized, Ctx, FieldResolver, Mutation, Query, Resolver, R
 import User from '../entities/User'
 import ValidatorInterface from '../services/validator/ValidatorInterface'
 import Question from '../entities/Question'
-import QuestionService from '../services/question/QuestionService'
+import QuestionProvider from '../services/question/QuestionProvider'
 import GetQuestion from '../schema/question/GetQuestion'
 import GetQuestions from '../schema/question/GetQuestions'
 import CreateQuestion from '../schema/question/CreateQuestion'
 import UpdateQuestion from '../schema/question/UpdateQuestion'
 import PaginatedQuestions from '../schema/question/PaginatedQuestions'
 import Category from '../entities/Category'
-import CategoryService from '../services/category/CategoryService'
+import CategoryProvider from '../services/category/CategoryProvider'
 import QuestionDeleter from '../services/question/QuestionDeleter'
+import QuestionCreator from '../services/question/QuestionCreator'
+import QuestionUpdater from '../services/question/QuestionUpdater'
 
 @Service()
 @Resolver(Question)
 export class QuestionResolver {
 
   public constructor(
-    @Inject() private readonly questionService: QuestionService,
+    @Inject() private readonly questionProvider: QuestionProvider,
+    @Inject() private readonly questionCreator: QuestionCreator,
+    @Inject() private readonly questionUpdater: QuestionUpdater,
     @Inject() private readonly questionDeleter: QuestionDeleter,
-    @Inject() private readonly categoryService: CategoryService,
+    @Inject() private readonly categoryProvider: CategoryProvider,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }
@@ -31,21 +35,21 @@ export class QuestionResolver {
   ): Promise<Question> {
     await this.validator.validate(getQuestion)
 
-    return await this.questionService.getQuestion(getQuestion.questionId)
+    return await this.questionProvider.getQuestion(getQuestion.questionId)
   }
 
   @Query(_returns => [ Question ], { name: 'questions' })
   public async getQuestions(
     @Args() getQuestions: GetQuestions,
   ): Promise<Question[]> {
-    return await this.questionService.getQuestions(getQuestions) as Question[]
+    return await this.questionProvider.getQuestions(getQuestions) as Question[]
   }
 
   @Query(_returns => PaginatedQuestions, { name: 'paginatedQuestions' })
   public async getPaginatedQuestions(
     @Args() getQuestions: GetQuestions,
   ): Promise<PaginatedQuestions> {
-    return await this.questionService.getQuestions(getQuestions, true) as PaginatedQuestions
+    return await this.questionProvider.getQuestions(getQuestions, true) as PaginatedQuestions
   }
 
   @Authorized()
@@ -54,7 +58,7 @@ export class QuestionResolver {
     @Arg('createQuestion') question: CreateQuestion,
     @Ctx('user') user: User,
   ): Promise<Question> {
-    return await this.questionService.createQuestion(question, user)
+    return await this.questionCreator.createQuestion(question, user)
   }
 
   @Authorized()
@@ -65,9 +69,9 @@ export class QuestionResolver {
     @Ctx('user') user: User,
   ): Promise<Question> {
     await this.validator.validate(getQuestion)
-    const question = await this.questionService.getQuestion(getQuestion.questionId)
+    const question = await this.questionProvider.getQuestion(getQuestion.questionId)
 
-    return await this.questionService.updateQuestion(question, updateQuestion, user)
+    return await this.questionUpdater.updateQuestion(question, updateQuestion, user)
   }
 
   @Authorized()
@@ -77,7 +81,7 @@ export class QuestionResolver {
     @Ctx('user') user: User,
   ): Promise<boolean> {
     await this.validator.validate(getQuestion)
-    const question = await this.questionService.getQuestion(getQuestion.questionId)
+    const question = await this.questionProvider.getQuestion(getQuestion.questionId)
 
     await this.questionDeleter.deleteQuestion(question, user)
 
@@ -88,6 +92,6 @@ export class QuestionResolver {
   public async getQuestionCategory(
     @Root() question: Question,
   ): Promise<Category> {
-    return await this.categoryService.getCategory(question.categoryId)
+    return await this.categoryProvider.getCategory(question.categoryId)
   }
 }

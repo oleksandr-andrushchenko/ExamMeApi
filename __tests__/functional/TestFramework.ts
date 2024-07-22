@@ -12,13 +12,13 @@ import Exam from '../../src/entities/Exam'
 import { ConnectionManager } from 'typeorm'
 import { ObjectId } from 'mongodb'
 import Token from '../../src/schema/auth/Token'
-import AuthService from '../../src/services/auth/AuthService'
 import { Application } from 'express'
 import QuestionType from '../../src/entities/question/QuestionType'
 import QuestionDifficulty from '../../src/entities/question/QuestionDifficulty'
 import QuestionChoice from '../../src/entities/question/QuestionChoice'
 import ExamQuestion from '../../src/entities/exam/ExamQuestion'
 import Rating from '../../src/entities/Rating'
+import AccessTokenCreator from '../../src/services/auth/AccessTokenCreator'
 
 export default class TestFramework {
 
@@ -221,9 +221,9 @@ export default class TestFramework {
   }
 
   public async auth(user: User): Promise<Token> {
-    const authService: AuthService = this.container.get<AuthService>(AuthService)
+    const tokenCreator: AccessTokenCreator = this.container.get<AccessTokenCreator>(AccessTokenCreator)
 
-    return await authService.createAuth(user)
+    return await tokenCreator.createAccessToken(user)
   }
 
   public async fakeId(): Promise<ObjectId> {

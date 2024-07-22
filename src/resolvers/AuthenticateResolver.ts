@@ -1,17 +1,17 @@
 import { Inject, Service } from 'typedi'
 import { Arg, Mutation, Resolver } from 'type-graphql'
-import UserService from '../services/user/UserService'
-import AuthService from '../services/auth/AuthService'
+import UserProvider from '../services/user/UserProvider'
 import { Credentials } from '../schema/auth/Credentials'
 import Token from '../schema/auth/Token'
+import AccessTokenCreator from '../services/auth/AccessTokenCreator'
 
 @Service()
 @Resolver()
 export class AuthenticateResolver {
 
   public constructor(
-    @Inject() private readonly userService: UserService,
-    @Inject() private readonly authService: AuthService,
+    @Inject() private readonly userProvider: UserProvider,
+    @Inject() private readonly accessTokenCreator: AccessTokenCreator,
   ) {
   }
 
@@ -19,8 +19,8 @@ export class AuthenticateResolver {
   public async createAuthenticationToken(
     @Arg('credentials') credentials: Credentials,
   ): Promise<Token> {
-    const user = await this.userService.getUserByCredentials(credentials)
+    const user = await this.userProvider.getUserByCredentials(credentials)
 
-    return await this.authService.createAuth(user)
+    return await this.accessTokenCreator.createAccessToken(user)
   }
 }

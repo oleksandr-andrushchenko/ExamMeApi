@@ -1,16 +1,20 @@
 import { Inject, Service } from 'typedi'
 import { Arg, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
 import User from '../entities/User'
-import MeService from '../services/user/MeService'
 import CreateMe from '../schema/user/CreateMe'
 import UpdateMe from '../schema/user/UpdateMe'
+import MeCreator from '../services/me/MeCreator'
+import MeUpdater from '../services/me/MeUpdater'
+import MeDeleter from '../services/me/MeDeleter'
 
 @Service()
 @Resolver(User)
 export class MeResolver {
 
   public constructor(
-    @Inject() private readonly meService: MeService,
+    @Inject() private readonly meCreator: MeCreator,
+    @Inject() private readonly meUpdater: MeUpdater,
+    @Inject() private readonly meDeleter: MeDeleter,
   ) {
   }
 
@@ -18,7 +22,7 @@ export class MeResolver {
   public async createMe(
     @Arg('createMe') createMe: CreateMe,
   ): Promise<User> {
-    return await this.meService.createMe(createMe)
+    return await this.meCreator.createMe(createMe)
   }
 
   @Authorized()
@@ -35,7 +39,7 @@ export class MeResolver {
     @Arg('updateMe') updateMe: UpdateMe,
     @Ctx('user') user: User,
   ): Promise<User> {
-    return await this.meService.updateMe(updateMe, user)
+    return await this.meUpdater.updateMe(updateMe, user)
   }
 
   @Authorized()
@@ -43,7 +47,7 @@ export class MeResolver {
   public async deleteMe(
     @Ctx('user') user: User,
   ): Promise<boolean> {
-    await this.meService.deleteMe(user)
+    await this.meDeleter.deleteMe(user)
 
     return true
   }
