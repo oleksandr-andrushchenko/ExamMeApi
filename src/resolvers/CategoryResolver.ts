@@ -76,17 +76,17 @@ export class CategoryResolver {
   }
 
   @Authorized()
-  @Mutation(_returns => Boolean)
+  @Mutation(_returns => Category)
   public async toggleCategoryApprove(
     @Args() getCategory: GetCategory,
     @Ctx('user') user: User,
-  ): Promise<boolean> {
+  ): Promise<Category> {
     await this.validator.validate(getCategory)
     const category = await this.categoryProvider.getCategory(getCategory.categoryId)
 
     await this.categoryApproveSwitcher.toggleCategoryApprove(category, user)
 
-    return true
+    return category
   }
 
   @Authorized()

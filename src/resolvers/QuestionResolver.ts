@@ -93,17 +93,17 @@ export class QuestionResolver {
   }
 
   @Authorized()
-  @Mutation(_returns => Boolean)
+  @Mutation(_returns => Question)
   public async toggleQuestionApprove(
     @Args() getQuestion: GetQuestion,
     @Ctx('user') user: User,
-  ): Promise<boolean> {
+  ): Promise<Question> {
     await this.validator.validate(getQuestion)
     const question = await this.questionProvider.getQuestion(getQuestion.questionId)
 
     await this.questionApproveSwitcher.toggleQuestionApprove(question, user)
 
-    return true
+    return question
   }
 
   @FieldResolver(_returns => Category, { name: 'category' })

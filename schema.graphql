@@ -92,8 +92,8 @@ type Mutation {
   deleteMe: Boolean!
   deleteQuestion(questionId: ID!): Boolean!
   deleteUser(userId: ID!): Boolean!
-  toggleCategoryApprove(categoryId: ID!): Boolean!
-  toggleQuestionApprove(questionId: ID!): Boolean!
+  toggleCategoryApprove(categoryId: ID!): Category!
+  toggleQuestionApprove(questionId: ID!): Question!
   updateCategory(categoryId: ID!, updateCategory: UpdateCategory!): Category!
   updateMe(updateMe: UpdateMe!): User!
   updateQuestion(questionId: ID!, updateQuestion: UpdateQuestion!): Question!
