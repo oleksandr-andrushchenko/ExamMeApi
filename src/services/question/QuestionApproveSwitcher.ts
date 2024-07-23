@@ -23,7 +23,7 @@ export default class QuestionApproveSwitcher {
    * @throws {AuthorizationFailedError}
    */
   public async toggleQuestionApprove(question: Question, initiator: User): Promise<Question> {
-    await this.authorizationVerifier.verifyAuthorization(initiator, QuestionPermission.Approve, question)
+    await this.authorizationVerifier.verifyAuthorization(initiator, QuestionPermission.Approve)
 
     if (this.isQuestionApproved(question)) {
       question.ownerId = question.creatorId

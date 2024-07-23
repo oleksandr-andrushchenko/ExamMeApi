@@ -23,7 +23,7 @@ export default class CategoryApproveSwitcher {
    * @throws {AuthorizationFailedError}
    */
   public async toggleCategoryApprove(category: Category, initiator: User): Promise<Category> {
-    await this.authorizationVerifier.verifyAuthorization(initiator, CategoryPermission.Approve, category)
+    await this.authorizationVerifier.verifyAuthorization(initiator, CategoryPermission.Approve)
 
     if (this.isCategoryApproved(category)) {
       category.ownerId = category.creatorId

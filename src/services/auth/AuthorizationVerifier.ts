@@ -16,7 +16,7 @@ export default class AuthorizationVerifier {
   /**
    * @param {User} user
    * @param {string} permission
-   * @param {{ownerId => ObjectId}} resource
+   * @param {{ownerId? => ObjectId}} resource
    * @param {string[]} permissions
    * @returns {Promise<boolean>}
    * @throws {AuthorizationFailedError}
