@@ -20,6 +20,12 @@ export default class Category extends Base {
   public questionCount?: number = 0
 
   @Min(0)
+  @IsNumber({ maxDecimalPlaces: 0 })
+  @Column()
+  @Field(_type => Int, { nullable: true })
+  public approvedQuestionCount?: number = 0
+
+  @Min(0)
   @Max(100)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Column()

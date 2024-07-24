@@ -4,6 +4,7 @@
 # -----------------------------------------------
 
 type Category {
+  approvedQuestionCount: Int
   createdAt: Timestamp!
   id: ObjectId!
   name: String!

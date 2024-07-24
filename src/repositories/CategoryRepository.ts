@@ -1,6 +1,5 @@
 import Category from '../entities/Category'
 import Repository from '../decorators/Repository'
-import { ObjectId } from 'mongodb'
 import EntityRepository from './EntityRepository'
 
 @Repository(Category)

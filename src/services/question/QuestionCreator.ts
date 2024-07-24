@@ -10,6 +10,7 @@ import QuestionPermission from '../../enums/question/QuestionPermission'
 import QuestionType from '../../entities/question/QuestionType'
 import QuestionVerifier from './QuestionVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
+import QuestionRepository from '../../repositories/QuestionRepository'
 
 @Service()
 export default class QuestionCreator {
@@ -20,6 +21,7 @@ export default class QuestionCreator {
     @Inject() private readonly questionVerifier: QuestionVerifier,
     @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
+    @Inject() private readonly questionRepository: QuestionRepository,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }
@@ -54,7 +56,7 @@ export default class QuestionCreator {
     }
 
     question.createdAt = new Date()
-    category.questionCount = (category.questionCount ?? 0) + 1
+    category.questionCount = await this.questionRepository.countByCategory(category) + 1
 
     await this.entityManager.save([ question, category ])
     this.eventDispatcher.dispatch('questionCreated', { question })
