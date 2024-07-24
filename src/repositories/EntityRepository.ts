@@ -36,19 +36,26 @@ export default class EntityRepository<Entity extends ObjectLiteral> extends Mong
   public async updateOneByEntity(
     entity: Entity,
     set: Partial<Entity> = {},
-    unset: (keyof Entity)[] = [],
   ): Promise<Document | UpdateResult> {
     const update: { $set: Partial<Entity>, $unset: Record<string, ''> } = { $set: {}, $unset: {} }
 
     for (const prop in set) {
       if (set.hasOwnProperty(prop)) {
-        entity[prop] = update.$set[prop] = set[prop]
+        if (set[prop] === undefined) {
+          delete entity[prop]
+          update.$unset[prop as string] = ''
+        } else {
+          entity[prop] = update.$set[prop] = set[prop]
+        }
       }
     }
 
-    for (const prop of unset) {
-      delete entity[prop]
-      update.$unset[prop as string] = ''
+    if (Object.keys(update.$set).length === 0) {
+      delete update.$set
+    }
+
+    if (Object.keys(update.$unset).length === 0) {
+      delete update.$unset
     }
 
     return await this.updateOne({ _id: entity.id }, update)
