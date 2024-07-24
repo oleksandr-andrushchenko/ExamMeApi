@@ -2,12 +2,13 @@ import { MongoRepository } from 'typeorm'
 import { ObjectId } from 'mongodb'
 import { ObjectLiteral } from 'typeorm/common/ObjectLiteral'
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions'
-import { FilterOperators } from 'typeorm/driver/mongodb/typings'
+import { CountOptions, Document, FilterOperators } from 'typeorm/driver/mongodb/typings'
+import { UpdateResult } from 'typeorm/query-builder/result/UpdateResult'
 
 export default class EntityRepository<Entity extends ObjectLiteral> extends MongoRepository<Entity> {
 
   public async findOneBy(where: any): Promise<Entity | null> {
-    where['deletedAt'] = { $exists: false }
+    where.deletedAt = { $exists: false }
 
     return await super.findOneBy(where)
   }
@@ -18,9 +19,38 @@ export default class EntityRepository<Entity extends ObjectLiteral> extends Mong
 
   public async find(options?: FindManyOptions<Entity> | Partial<Entity> | FilterOperators<Entity>): Promise<Entity[]> {
     if ('where' in options) {
-      options.where['deletedAt'] = { $exists: false }
+      options.where.deletedAt = { $exists: false }
+    } else {
+      options.where = { deletedAt: { $exists: false } }
     }
 
     return await super.find(options)
+  }
+
+  public async count(query?: ObjectLiteral, options?: CountOptions): Promise<number> {
+    query['deletedAt'] = { $exists: false }
+
+    return await super.count(query, options)
+  }
+
+  public async updateOneByEntity(
+    entity: Entity,
+    set: Partial<Entity> = {},
+    unset: (keyof Entity)[] = [],
+  ): Promise<Document | UpdateResult> {
+    const update: { $set: Partial<Entity>, $unset: Record<string, ''> } = { $set: {}, $unset: {} }
+
+    for (const prop in set) {
+      if (set.hasOwnProperty(prop)) {
+        entity[prop] = update.$set[prop] = set[prop]
+      }
+    }
+
+    for (const prop of unset) {
+      delete entity[prop]
+      update.$unset[prop as string] = ''
+    }
+
+    return await this.updateOne({ _id: entity.id }, update)
   }
 }
