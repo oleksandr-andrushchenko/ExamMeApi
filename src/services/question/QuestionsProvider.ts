@@ -36,8 +36,12 @@ export default class QuestionsProvider {
       where['categoryId'] = new ObjectId(getQuestions.category)
     }
 
-    if ('price' in getQuestions) {
-      where['price'] = getQuestions.price
+    if ('subscription' in getQuestions) {
+      where['subscription'] = { $exists: getQuestions.subscription === 'yes' }
+    }
+
+    if ('approved' in getQuestions) {
+      where['ownerId'] = { $exists: getQuestions.approved !== 'yes' }
     }
 
     if ('search' in getQuestions) {

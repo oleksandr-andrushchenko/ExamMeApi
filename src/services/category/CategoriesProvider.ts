@@ -32,8 +32,12 @@ export default class CategoriesProvider {
 
     const where = {}
 
-    if ('price' in getCategories) {
-      where['price'] = getCategories.price
+    if ('subscription' in getCategories) {
+      where['subscription'] = { subscription: { $exists: getCategories.subscription === 'yes' } }
+    }
+
+    if ('approved' in getCategories) {
+      where['approved'] = { ownerId: { $exists: getCategories.approved !== 'yes' } }
     }
 
     if ('search' in getCategories) {

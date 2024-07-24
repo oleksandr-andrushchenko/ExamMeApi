@@ -13,9 +13,14 @@ export default class GetQuestions extends PaginationSchema {
   public category?: string
 
   @IsOptional()
-  @IsIn([ 'free', 'subscription' ])
+  @IsIn([ 'yes', 'no' ])
   @Field({ nullable: true })
-  public readonly price?: string
+  public readonly subscription?: string
+
+  @IsOptional()
+  @IsIn([ 'yes', 'no' ])
+  @Field({ nullable: true })
+  public readonly approved?: string
 
   @IsOptional()
   @IsString()
