@@ -15,7 +15,8 @@ const framework: TestFramework = globalThis.framework
 describe('Get questions', () => {
   test.each([
     { case: 'invalid category', query: { category: 'any' } },
-    { case: 'invalid price', query: { price: 'any' } },
+    { case: 'invalid subscription', query: { subscription: 'any' } },
+    { case: 'invalid approved', query: { approved: 'any' } },
     { case: 'invalid difficulty', query: { difficulty: 'any' } },
     { case: 'invalid type', query: { type: 'any' } },
     { case: 'invalid cursor type', query: { cursor: 1 } },

@@ -17,7 +17,8 @@ describe('Get categories', () => {
     expect(res.body).toEqual({ data: { categories: [] } })
   })
   test.each([
-    { case: 'invalid price', query: { price: 'any' } },
+    { case: 'invalid subscription', query: { subscription: 'any' } },
+    { case: 'invalid approved', query: { approved: 'any' } },
     { case: 'invalid cursor type', query: { cursor: 1 } },
     { case: 'not allowed cursor', query: { cursor: 'name' } },
     { case: 'invalid size type', query: { size: 'any' } },
