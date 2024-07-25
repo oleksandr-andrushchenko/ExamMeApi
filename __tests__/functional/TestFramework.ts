@@ -73,15 +73,15 @@ export default class TestFramework {
         object = new User()
         object.name = faker.person.fullName()
         object.email = faker.internet.email()
-        object.password = options['password'] ?? faker.internet.password()
-        object.permissions = options['permissions'] ?? [ Permission.Regular ]
+        object.password = 'password' in options ? options.password : faker.internet.password()
+        object.permissions = 'permissions' in options ? options.permissions : [ Permission.Regular ]
 
         break
       case this.compare(entity, Category):
         object = new Category()
         object.name = faker.lorem.word()
-        object.creatorId = options['creatorId'] ?? (await this.fixture(User, options) as User).id
-        object.ownerId = options['ownerId'] ?? object.creatorId
+        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id
+        object.ownerId = 'ownerId' in options ? options.ownerId : object.creatorId
 
         if (faker.datatype.boolean()) {
           const rating = new Rating()
@@ -93,12 +93,12 @@ export default class TestFramework {
         break
       case this.compare(entity, Question):
         object = new Question()
-        object.categoryId = options['categoryId'] ?? (await this.fixture(Category, options) as Category).id
+        object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category, options) as Category).id
         object.type = faker.helpers.enumValue(QuestionType)
         object.difficulty = faker.helpers.enumValue(QuestionDifficulty)
         object.title = faker.lorem.sentences(3)
-        object.creatorId = options['creatorId'] ?? (await this.fixture(User, options) as User).id
-        object.ownerId = options['ownerId'] ?? object.creatorId
+        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id
+        object.ownerId = 'ownerId' in options ? options.ownerId : object.creatorId
 
         if (object.type === QuestionType.CHOICE) {
           const choices = []
@@ -131,9 +131,9 @@ export default class TestFramework {
         break
       case this.compare(entity, Exam):
         object = new Exam()
-        object.categoryId = options['categoryId'] ?? (await this.fixture(Category, options) as Category).id
-        object.creatorId = options['creatorId'] ?? (await this.fixture(User, options) as User).id
-        object.ownerId = options['ownerId'] ?? object.creatorId
+        object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category, options) as Category).id
+        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id
+        object.ownerId = 'ownerId' in options ? options.ownerId : object.creatorId
 
         const questions = []
 
@@ -156,7 +156,7 @@ export default class TestFramework {
 
         if (options['completedAt'] ?? faker.datatype.boolean()) {
           object.correctAnswerCount = faker.number.int({ min: 0, max: questions.length })
-          object.completedAt = options['completedAt'] ?? new Date()
+          object.completedAt = 'completedAt' in options ? options.completedAt : new Date()
         }
 
         break
@@ -172,6 +172,10 @@ export default class TestFramework {
 
     if (options['deleted'] ?? false) {
       object.deletedAt = faker.date.anytime()
+    }
+
+    if (object.ownerId === undefined) {
+      delete object.ownerId
     }
 
     await this.container.get<ConnectionManager>(ConnectionManager).get('default').manager.save(object)
