@@ -11,5 +11,5 @@
 
 # TODO
 
-* Tests for approves: categories/questions
 * Ratings
+* Use approved categories/questions for exams
