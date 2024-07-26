@@ -148,6 +148,7 @@ type Query {
   categories(approved: String, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10, subscription: String): [Category!]!
   category(categoryId: ID!): Category!
   currentExamQuestion(examId: ID!): ExamQuestionSchema!
+  currentExams(categoryIds: [ID!]!): [Exam!]!
   exam(examId: ID!): Exam!
   examQuestion(examId: ID!, question: Int!): ExamQuestionSchema!
   exams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!

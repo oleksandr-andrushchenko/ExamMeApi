@@ -14,7 +14,7 @@ import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 @Service()
 export default class ExamsProvider {
 
-  constructor(
+  public constructor(
     @Inject() private readonly examRepository: ExamRepository,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
     @Inject('validator') private readonly validator: ValidatorInterface,

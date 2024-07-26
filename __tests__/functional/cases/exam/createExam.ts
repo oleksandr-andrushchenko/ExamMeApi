@@ -45,7 +45,7 @@ describe('Create exam', () => {
   test('Conflict (exam taken)', async () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Create ] })
     const token = (await framework.auth(user)).token
-    const exam = await framework.fixture<Exam>(Exam, { completedAt: false, creatorId: user.id })
+    const exam = await framework.fixture<Exam>(Exam, { completed: false, ownerId: user.id })
     const res = await request(framework.app).post('/')
       .send(createExam({ createExam: { categoryId: exam.categoryId.toString() } }))
       .auth(token, { type: 'bearer' })

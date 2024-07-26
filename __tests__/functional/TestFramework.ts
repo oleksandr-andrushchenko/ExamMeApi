@@ -154,9 +154,9 @@ export default class TestFramework {
         object.questions = questions
         object.questionNumber = faker.number.int({ min: 0, max: questions.length - 1 })
 
-        if (options['completedAt'] ?? faker.datatype.boolean()) {
+        if (options['completed'] ?? faker.datatype.boolean()) {
           object.correctAnswerCount = faker.number.int({ min: 0, max: questions.length })
-          object.completedAt = 'completedAt' in options ? options.completedAt : new Date()
+          object.completedAt = faker.date.anytime()
         }
 
         break

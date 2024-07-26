@@ -9,7 +9,7 @@ import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 @Service()
 export default class ExamLastRequestedQuestionNumberSetter {
 
-  constructor(
+  public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
   ) {

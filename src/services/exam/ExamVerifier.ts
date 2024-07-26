@@ -7,7 +7,7 @@ import ExamTakenError from '../../errors/exam/ExamTakenError'
 @Service()
 export default class ExamVerifier {
 
-  constructor(
+  public constructor(
     @Inject() private readonly examRepository: ExamRepository,
   ) {
   }
@@ -19,7 +19,7 @@ export default class ExamVerifier {
    * @throws {ExamTakenError}
    */
   public async verifyExamNotTaken(category: Category, user: User): Promise<void> {
-    const existing = await this.examRepository.findOneNotCompletedByCategoryAndCreator(category.id, user.id)
+    const existing = await this.examRepository.findOneNotCompletedByCategoryAndOwner(category.id, user)
 
     if (existing) {
       throw new ExamTakenError(existing)

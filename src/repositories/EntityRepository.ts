@@ -4,6 +4,7 @@ import { ObjectLiteral } from 'typeorm/common/ObjectLiteral'
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions'
 import { CountOptions, Document, FilterOperators } from 'typeorm/driver/mongodb/typings'
 import { UpdateResult } from 'typeorm/query-builder/result/UpdateResult'
+import { MongoFindOneOptions } from 'typeorm/find-options/mongodb/MongoFindOneOptions'
 
 export default class EntityRepository<Entity extends ObjectLiteral> extends MongoRepository<Entity> {
 
@@ -11,6 +12,16 @@ export default class EntityRepository<Entity extends ObjectLiteral> extends Mong
     where.deletedAt = { $exists: false }
 
     return await super.findOneBy(where)
+  }
+
+  public findOne(options: MongoFindOneOptions<Entity>): Promise<Entity | null> {
+    if ('where' in options) {
+      options.where['deletedAt'] = { $exists: false }
+    } else {
+      options.where = { deletedAt: { $exists: false } }
+    }
+
+    return super.findOne(options)
   }
 
   public async findOneById(id: string | number | Date | ObjectId): Promise<Entity | null> {
@@ -31,6 +42,12 @@ export default class EntityRepository<Entity extends ObjectLiteral> extends Mong
     query['deletedAt'] = { $exists: false }
 
     return await super.count(query, options)
+  }
+
+  public countBy(query?: ObjectLiteral, options?: CountOptions): Promise<number> {
+    query['deletedAt'] = { $exists: false }
+
+    return super.countBy(query, options)
   }
 
   public async updateOneByEntity(

@@ -21,6 +21,8 @@ import ExamCompletionCreator from '../services/exam/ExamCompletionCreator'
 import ExamLastRequestedQuestionNumberSetter from '../services/exam/ExamLastRequestedQuestionNumberSetter'
 import ExamQuestionProvider from '../services/exam/ExamQuestionProvider'
 import ExamsProvider from '../services/exam/ExamsProvider'
+import GetCurrentExams from '../schema/exam/GetCurrentExams'
+import CurrentExamsProvider from '../services/exam/CurrentExamsProvider'
 
 @Service()
 @Resolver(Exam)
@@ -37,6 +39,7 @@ export class ExamResolver {
     @Inject() private readonly examProvider: ExamProvider,
     @Inject() private readonly examsProvider: ExamsProvider,
     @Inject() private readonly categoryProvider: CategoryProvider,
+    @Inject() private readonly currentExamsProvider: CurrentExamsProvider,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }
@@ -167,5 +170,14 @@ export class ExamResolver {
     @Root() exam: Exam,
   ): Promise<Category> {
     return await this.categoryProvider.getCategory(exam.categoryId)
+  }
+
+  @Authorized()
+  @Query(_returns => [ Exam ], { name: 'currentExams' })
+  public async getCurrentExams(
+    @Args() getCurrentExams: GetCurrentExams,
+    @Ctx('user') user: User,
+  ): Promise<Exam[]> {
+    return await this.currentExamsProvider.getCurrentExams(getCurrentExams, user)
   }
 }

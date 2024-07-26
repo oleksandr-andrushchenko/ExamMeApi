@@ -9,7 +9,7 @@ import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 @Service()
 export default class ExamDeleter {
 
-  constructor(
+  public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,

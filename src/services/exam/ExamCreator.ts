@@ -16,7 +16,7 @@ import CategoryQuestionsProvider from '../question/CategoryQuestionsProvider'
 @Service()
 export default class ExamCreator {
 
-  constructor(
+  public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly categoryProvider: CategoryProvider,
     @Inject() private readonly categoryQuestionsProvider: CategoryQuestionsProvider,

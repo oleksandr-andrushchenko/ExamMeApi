@@ -11,7 +11,7 @@ import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 @Service()
 export default class ExamQuestionAnswerDeleter {
 
-  constructor(
+  public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly questionProvider: QuestionProvider,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
