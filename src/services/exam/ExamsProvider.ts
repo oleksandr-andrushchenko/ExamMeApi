@@ -48,6 +48,8 @@ export default class ExamsProvider {
       }
     }
 
+    // where['ownerId'] = initiator.id
+
     if ('categoryId' in getExams) {
       where['categoryId'] = new ObjectId(getExams.categoryId)
     }
