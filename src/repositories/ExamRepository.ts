@@ -8,22 +8,18 @@ import User from '../entities/User'
 export default class ExamRepository extends EntityRepository<Exam> {
 
   public async findOneNotCompletedByCategoryAndOwner(categoryId: ObjectId, owner: User): Promise<Exam | null> {
-    return await this.findOne({
-      where: {
-        categoryId: categoryId,
-        ownerId: owner.id,
-        completedAt: { $exists: false },
-      },
+    return await this.findOneBy({
+      categoryId: categoryId,
+      ownerId: owner.id,
+      completedAt: { $exists: false },
     })
   }
 
   public async findNonCompletedByCategoryAndOwner(categoryIds: ObjectId[], owner: User): Promise<Exam[]> {
-    return await this.find({
-      where: {
-        categoryId: { $in: categoryIds },
-        ownerId: owner.id,
-        completedAt: { $exists: false },
-      },
+    return await this.findBy({
+      categoryId: { $in: categoryIds },
+      ownerId: owner.id,
+      completedAt: { $exists: false },
     })
   }
 }

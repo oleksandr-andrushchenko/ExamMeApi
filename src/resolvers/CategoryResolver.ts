@@ -14,6 +14,7 @@ import CategoryCreator from '../services/category/CategoryCreator'
 import CategoryUpdater from '../services/category/CategoryUpdater'
 import CategoriesProvider from '../services/category/CategoriesProvider'
 import CategoryApproveSwitcher from '../services/category/CategoryApproveSwitcher'
+import CategoryRepository from '../repositories/CategoryRepository'
 
 @Service()
 @Resolver(Category)
@@ -25,6 +26,7 @@ export class CategoryResolver {
     @Inject() private readonly categoryCreator: CategoryCreator,
     @Inject() private readonly categoryUpdater: CategoryUpdater,
     @Inject() private readonly categoryDeleter: CategoryDeleter,
+    @Inject() private readonly categoryRepository: CategoryRepository,
     @Inject() private readonly categoryApproveSwitcher: CategoryApproveSwitcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
@@ -37,6 +39,14 @@ export class CategoryResolver {
     await this.validator.validate(getCategory)
 
     return await this.categoryProvider.getCategory(getCategory.categoryId)
+  }
+
+  @Authorized()
+  @Query(_returns => [ Category ], { name: 'ownCategories' })
+  public async getOwnCategories(
+    @Ctx('user') user: User,
+  ): Promise<Category[]> {
+    return await this.categoryRepository.findByOwner(user)
   }
 
   @Query(_returns => [ Category ], { name: 'categories' })
