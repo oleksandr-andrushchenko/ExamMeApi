@@ -2,12 +2,17 @@ import { Inject, Service } from 'typedi'
 import CategoryRepository from '../../repositories/CategoryRepository'
 import CategoryNameTakenError from '../../errors/category/CategoryNameTakenError'
 import { ObjectId } from 'mongodb'
+import Category from '../../entities/Category'
+import CategoryWithoutApprovedQuestionsError from '../../errors/category/CategoryWithoutApprovedQuestionsError'
+import CategoryApproveSwitcher from './CategoryApproveSwitcher'
+import CategoryNotApprovedError from '../../errors/category/CategoryNotApprovedError'
 
 @Service()
 export default class CategoryVerifier {
 
   public constructor(
     @Inject() private readonly categoryRepository: CategoryRepository,
+    @Inject() private readonly categoryApproveSwitcher: CategoryApproveSwitcher,
   ) {
   }
 
@@ -29,5 +34,27 @@ export default class CategoryVerifier {
     }
 
     throw new CategoryNameTakenError(name)
+  }
+
+  /**
+   * @param {Category} category
+   * @returns {void}
+   * @throws {CategoryNotApprovedError}
+   */
+  public verifyCategoryApproved(category: Category): void {
+    if (!this.categoryApproveSwitcher.isCategoryApproved(category)) {
+      throw new CategoryNotApprovedError(category)
+    }
+  }
+
+  /**
+   * @param {Category} category
+   * @returns {void}
+   * @throws {CategoryWithoutApprovedQuestionsError}
+   */
+  public verifyCategoryHasApprovedQuestions(category: Category): void {
+    if (!category.approvedQuestionCount) {
+      throw new CategoryWithoutApprovedQuestionsError(category)
+    }
   }
 }

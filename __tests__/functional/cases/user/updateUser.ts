@@ -42,19 +42,16 @@ describe('Update user', () => {
     expect(res.body).toMatchObject(framework.graphqlError('NotFoundError'))
   })
   test.each([
-    { case: 'name is an object', body: { name: {}, email: 'a@a.com', password: 'password' } },
-    { case: 'name is a number', body: { name: 123123, email: 'a@a.com', password: 'password' } },
-    { case: 'name is too short', body: { name: 'a', email: 'a@a.com', password: 'password' } },
-    { case: 'name is too long', body: { name: 'abc'.repeat(99), email: 'a@a.com', password: 'password' } },
-    { case: 'email is missed', body: { password: 'password' } },
-    { case: 'email is null', body: { email: null, password: 'password' } },
-    { case: 'email is undefined', body: { email: undefined, password: 'password' } },
-    { case: 'email is a number', body: { email: 123123, password: 'password' } },
-    { case: 'email is an object', body: { email: {}, password: 'password' } },
-    { case: 'permissions is a string', body: { email: 'a@a.com', password: 'password', permissions: 'invalid' } },
-    { case: 'permissions is an integer', body: { email: 'a@a.com', password: 'password', permissions: 123 } },
-    { case: 'permissions is an object', body: { email: 'a@a.com', password: 'password', permissions: {} } },
-    { case: 'permissions is invalid', body: { email: 'a@a.com', password: 'password', permissions: [ 'any' ] } },
+    { case: 'name is an object', body: { name: {} } },
+    { case: 'name is a number', body: { name: 123123 } },
+    { case: 'name is too short', body: { name: 'a' } },
+    { case: 'name is too long', body: { name: 'abc'.repeat(99) } },
+    { case: 'email is a number', body: { email: 123123 } },
+    { case: 'email is an object', body: { email: {} } },
+    { case: 'permissions is a string', body: { permissions: 'invalid' } },
+    { case: 'permissions is an integer', body: { permissions: 123 } },
+    { case: 'permissions is an object', body: { permissions: {} } },
+    { case: 'permissions is invalid', body: { permissions: [ 'any' ] } },
   ])('Bad request ($case)', async ({ body }) => {
     const token = (await framework.auth(
       await framework.fixture<User>(User, { permissions: [ UserPermission.Update ] }),
@@ -66,8 +63,9 @@ describe('Update user', () => {
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
+    expect(res.body.errors).toHaveLength(1)
   })
-  test.only('Forbidden', async () => {
+  test('Forbidden', async () => {
     const token = (await framework.auth(await framework.fixture<User>(User))).token
     const user = await framework.fixture<User>(User)
     const res = await request(framework.app).post('/')
@@ -98,7 +96,7 @@ describe('Update user', () => {
   })
   test('Updated (has ownership)', async () => {
     await framework.clear(User)
-    const user = await framework.fixture<User>(User)
+    const user = await framework.fixture<User>(User, { permissions: [ Permission.Root ] })
     const token = (await framework.auth(user)).token
     const userId = user.id.toString()
     const update = { name: faker.person.fullName() }
@@ -108,7 +106,16 @@ describe('Update user', () => {
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { updateUser: { id: userId } } })
-    expect(await framework.load<User>(User, user.id)).toMatchObject(update)
+
+    const updatedUser = await framework.load<User>(User, user.id)
+    expect(updatedUser).toMatchObject(update)
+
+    // check if others remains to be the same
+    expect(updatedUser).toMatchObject({
+      email: user.email,
+      permissions: user.permissions,
+      password: user.password,
+    })
   })
   test('Updated (has permission)', async () => {
     await framework.clear(User)

@@ -87,7 +87,7 @@ describe('Update category', () => {
   })
   test('Updated (has ownership)', async () => {
     await framework.clear(Category)
-    const category = await framework.fixture<Category>(Category)
+    const category = await framework.fixture<Category>(Category, { requiredScore: 1 })
     const user = await framework.load<User>(User, category.creatorId)
     const token = (await framework.auth(user)).token
     const categoryId = category.id.toString()
@@ -98,7 +98,14 @@ describe('Update category', () => {
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { updateCategory: { id: categoryId } } })
-    expect(await framework.load<Category>(Category, category.id)).toMatchObject(update)
+
+    const updatedCategory = await framework.load<Category>(Category, category.id)
+    expect(updatedCategory).toMatchObject(update)
+
+    // check if others remains to be the same
+    expect(updatedCategory).toMatchObject({
+      requiredScore: category.requiredScore,
+    })
   })
   test('Updated (has permission)', async () => {
     await framework.clear(Category)

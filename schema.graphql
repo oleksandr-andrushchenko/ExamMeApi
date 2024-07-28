@@ -205,7 +205,7 @@ type Token {
 
 input UpdateCategory {
   name: String
-  requiredScore: Int = 0
+  requiredScore: Int
 }
 
 input UpdateMe {
@@ -226,7 +226,7 @@ input UpdateUser {
   email: String
   name: String
   password: String
-  permissions: [String!] = ["regular"]
+  permissions: [String!]
 }
 
 type User {

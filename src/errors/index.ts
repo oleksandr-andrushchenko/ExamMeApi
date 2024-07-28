@@ -39,6 +39,8 @@ export const errors = {
       'QuestionTitleTakenError',
       'ExamTakenError',
       'UserEmailTakenError',
+      'CategoryNotApprovedError',
+      'CategoryWithoutApprovedQuestionsError',
     ],
     code: 409,
   },

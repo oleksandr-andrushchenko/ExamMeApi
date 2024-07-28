@@ -24,7 +24,7 @@ export default class CreateQuestion {
   @Field()
   public readonly title: string
 
-  @ValidateIf(question => question.type === QuestionType.CHOICE)
+  @ValidateIf(target => target.type === QuestionType.CHOICE)
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => QuestionChoiceSchema)

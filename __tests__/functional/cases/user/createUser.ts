@@ -99,18 +99,19 @@ describe('Create user', () => {
     expect(res.body).toHaveProperty('data')
     expect(res.body.data).toHaveProperty('createUser')
     expect(res.body.data.createUser).toHaveProperty('id')
+
     const id = new ObjectId(res.body.data.createUser.id)
-    const latestUser = await framework.load<User>(User, id)
-    expect(latestUser).toMatchObject(userCreate)
+    const createdUser = await framework.load<User>(User, id)
+    expect(createdUser).toMatchObject(userCreate)
     expect(res.body.data.createUser).toMatchObject({
       id: id.toString(),
-      name: latestUser.name,
-      email: latestUser.email,
+      name: createdUser.name,
+      email: createdUser.email,
       permissions: [ Permission.Regular ],
-      createdAt: latestUser.createdAt.getTime(),
+      createdAt: createdUser.createdAt.getTime(),
       updatedAt: null,
     })
-    expect(latestUser.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(createdUser.createdAt.getTime()).toBeGreaterThanOrEqual(now)
     expect(res.body.data.createUser).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
   })
 })

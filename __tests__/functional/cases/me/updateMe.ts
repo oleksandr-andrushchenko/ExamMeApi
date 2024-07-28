@@ -5,6 +5,7 @@ import User from '../../../../src/entities/User'
 import { updateMe } from '../../graphql/me/updateMe'
 import UpdateMe from '../../../../src/schema/user/UpdateMe'
 import TestFramework from '../../TestFramework'
+import Permission from '../../../../src/enums/Permission'
 
 const framework: TestFramework = globalThis.framework
 
@@ -38,7 +39,7 @@ describe('Update me', () => {
     expect(res.body).toMatchObject(framework.graphqlError('ConflictError'))
   })
   test('Updated', async () => {
-    const user = await framework.fixture<User>(User)
+    const user = await framework.fixture<User>(User, { permissions: [ Permission.Root ] })
     const token = (await framework.auth(user)).token
     const update = { name: 'any' }
     const now = Date.now()
@@ -64,5 +65,15 @@ describe('Update me', () => {
     expect(res.body.data.updateMe).toHaveProperty([ 'updatedAt' ])
     expect(res.body.data.updateMe.updatedAt).toBeGreaterThanOrEqual(now)
     expect(res.body.data.updateMe).not.toHaveProperty([ 'password', 'creatorId', 'deletedAt' ])
+
+    const updatedMe = await framework.load<User>(User, user.id)
+    expect(updatedMe).toMatchObject(update)
+
+    // check if others remains to be the same
+    expect(updatedMe).toMatchObject({
+      email: user.email,
+      permissions: user.permissions,
+      password: user.password,
+    })
   })
 })

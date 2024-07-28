@@ -35,7 +35,7 @@ export default class Question extends Base {
   public title: string
 
   @Authorized(QuestionPermission.GetChoices)
-  @ValidateIf(question => question.type === QuestionType.CHOICE)
+  @ValidateIf(target => target.type === QuestionType.CHOICE)
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Column(() => QuestionChoice)

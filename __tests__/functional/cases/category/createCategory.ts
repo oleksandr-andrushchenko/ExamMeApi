@@ -72,27 +72,27 @@ describe('Create category', () => {
     const category = { name: 'any', requiredScore: 80 }
     const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'rating {value voterCount}', 'createdAt', 'updatedAt' ]
     const now = Date.now()
-    const res = await request(framework.app)
-      .post('/')
+    const res = await request(framework.app).post('/')
       .send(createCategory({ createCategory: category }, fields))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { createCategory: category } })
     expect(res.body.data.createCategory).toHaveProperty('id')
+
     const id = new ObjectId(res.body.data.createCategory.id)
-    const latestCategory = await framework.load<Category>(Category, id)
-    expect(latestCategory).toMatchObject(category)
+    const createdCategory = await framework.load<Category>(Category, id)
+    expect(createdCategory).toMatchObject(category)
     expect(res.body.data.createCategory).toEqual({
-      id: latestCategory.id.toString(),
-      name: latestCategory.name,
-      questionCount: latestCategory.questionCount,
-      requiredScore: latestCategory.requiredScore,
+      id: createdCategory.id.toString(),
+      name: createdCategory.name,
+      questionCount: createdCategory.questionCount,
+      requiredScore: createdCategory.requiredScore,
       rating: null,
-      createdAt: latestCategory.createdAt.getTime(),
+      createdAt: createdCategory.createdAt.getTime(),
       updatedAt: null,
     })
-    expect(latestCategory.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(createdCategory.createdAt.getTime()).toBeGreaterThanOrEqual(now)
     expect(res.body.data.createCategory).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
 })

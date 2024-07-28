@@ -11,7 +11,8 @@ import ExamPermission from '../../enums/exam/ExamPermission'
 import ExamQuestion from '../../entities/exam/ExamQuestion'
 import ExamVerifier from './ExamVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
-import CategoryQuestionsProvider from '../question/CategoryQuestionsProvider'
+import CategoryVerifier from '../category/CategoryVerifier'
+import QuestionRepository from '../../repositories/QuestionRepository'
 
 @Service()
 export default class ExamCreator {
@@ -19,8 +20,9 @@ export default class ExamCreator {
   public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly categoryProvider: CategoryProvider,
-    @Inject() private readonly categoryQuestionsProvider: CategoryQuestionsProvider,
     @Inject() private readonly examVerifier: ExamVerifier,
+    @Inject() private readonly categoryVerifier: CategoryVerifier,
+    @Inject() private readonly questionRepository: QuestionRepository,
     @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
     @Inject('validator') private readonly validator: ValidatorInterface,
@@ -34,6 +36,8 @@ export default class ExamCreator {
    * @throws {AuthorizationFailedError}
    * @throws {CategoryNotFoundError}
    * @throws {ExamTakenError}
+   * @throws {CategoryNotApprovedError}
+   * @throws {CategoryWithoutApprovedQuestionsError}
    */
   public async createExam(createExam: CreateExam, initiator: User): Promise<Exam> {
     await this.authorizationVerifier.verifyAuthorization(initiator, ExamPermission.Create)
@@ -41,9 +45,12 @@ export default class ExamCreator {
     await this.validator.validate(createExam)
     const category = await this.categoryProvider.getCategory(createExam.categoryId)
 
+    this.categoryVerifier.verifyCategoryApproved(category)
+    this.categoryVerifier.verifyCategoryHasApprovedQuestions(category)
+
     await this.examVerifier.verifyExamNotTaken(category, initiator)
 
-    const questions = (await this.categoryQuestionsProvider.getCategoryQuestions(category) as Question[])
+    const questions = (await this.questionRepository.findByCategoryAndNoOwner(category))
       .map((question: Question): ExamQuestion => {
         const examQuestion = new ExamQuestion()
         examQuestion.questionId = question.id

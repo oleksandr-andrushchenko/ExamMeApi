@@ -11,6 +11,7 @@ import QuestionType from '../../entities/question/QuestionType'
 import QuestionVerifier from './QuestionVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import QuestionRepository from '../../repositories/QuestionRepository'
+import CategoryPermission from '../../enums/category/CategoryPermission'
 
 @Service()
 export default class QuestionCreator {
@@ -39,6 +40,7 @@ export default class QuestionCreator {
     await this.authorizationVerifier.verifyAuthorization(initiator, QuestionPermission.Create)
 
     const category = await this.categoryProvider.getCategory(createQuestion.categoryId)
+    await this.authorizationVerifier.verifyAuthorization(initiator, CategoryPermission.AddQuestion, category)
 
     const title = createQuestion.title
     await this.questionVerifier.verifyQuestionTitleNotExists(title)

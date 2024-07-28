@@ -14,7 +14,7 @@ const framework: TestFramework = globalThis.framework
 
 describe('Create exam', () => {
   test('Unauthorized', async () => {
-    const category = await framework.fixture<Category>(Category)
+    const category = await framework.fixture<Category>(Category, { ownerId: null })
     const res = await request(framework.app).post('/')
       .send(createExam({ createExam: { categoryId: category.id.toString() } }))
 
@@ -34,7 +34,7 @@ describe('Create exam', () => {
   test('Forbidden', async () => {
     const user = await framework.fixture<User>(User, { permissions: [] })
     const token = (await framework.auth(user)).token
-    const category = await framework.fixture<Category>(Category)
+    const category = await framework.fixture<Category>(Category, { ownerId: null })
     const res = await request(framework.app).post('/')
       .send(createExam({ createExam: { categoryId: category.id.toString() } }))
       .auth(token, { type: 'bearer' })
@@ -42,10 +42,33 @@ describe('Create exam', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
+  test('Conflict (not approved category)', async () => {
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Create ] })
+    const token = (await framework.auth(user)).token
+    const category = await framework.fixture<Category>(Category)
+    const res = await request(framework.app).post('/')
+      .send(createExam({ createExam: { categoryId: category.id.toString() } }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(framework.graphqlError('ConflictError'))
+  })
+  test('Conflict (not approved questions)', async () => {
+    const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Create ] })
+    const token = (await framework.auth(user)).token
+    const category = await framework.fixture<Category>(Category, { approvedQuestionCount: 0, ownerId: null })
+    const res = await request(framework.app).post('/')
+      .send(createExam({ createExam: { categoryId: category.id.toString() } }))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(framework.graphqlError('ConflictError'))
+  })
   test('Conflict (exam taken)', async () => {
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Create ] })
     const token = (await framework.auth(user)).token
-    const exam = await framework.fixture<Exam>(Exam, { completed: false, ownerId: user.id })
+    const category = await framework.fixture<Category>(Category, { approvedQuestionCount: 1, ownerId: null })
+    const exam = await framework.fixture<Exam>(Exam, { categoryId: category.id, completed: false, ownerId: user.id })
     const res = await request(framework.app).post('/')
       .send(createExam({ createExam: { categoryId: exam.categoryId.toString() } }))
       .auth(token, { type: 'bearer' })
@@ -57,7 +80,7 @@ describe('Create exam', () => {
     await framework.clear(Exam)
     const user = await framework.fixture<User>(User, { permissions: [ ExamPermission.Create ] })
     const token = (await framework.auth(user)).token
-    const category = await framework.fixture<Category>(Category)
+    const category = await framework.fixture<Category>(Category, { approvedQuestionCount: 1, ownerId: null })
     const create = { categoryId: category.id.toString() }
     const fields = [
       'id',
@@ -78,21 +101,22 @@ describe('Create exam', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { createExam: create } })
     expect(res.body.data.createExam).toHaveProperty('id')
+
     const id = new ObjectId(res.body.data.createExam.id)
-    const latestExam = await framework.load<Exam>(Exam, id)
-    expect({ ...latestExam, ...{ categoryId: latestExam.categoryId.toString() } }).toMatchObject(create)
+    const createdExam = await framework.load<Exam>(Exam, id)
+    expect({ ...createdExam, ...{ categoryId: createdExam.categoryId.toString() } }).toMatchObject(create)
     expect(res.body.data.createExam).toEqual({
-      id: latestExam.id.toString(),
-      categoryId: latestExam.categoryId.toString(),
-      questionNumber: latestExam.questionNumber,
+      id: createdExam.id.toString(),
+      categoryId: createdExam.categoryId.toString(),
+      questionNumber: createdExam.questionNumber,
       completedAt: null,
-      ownerId: latestExam.ownerId.toString(),
-      questionCount: latestExam.questionCount(),
-      answeredQuestionCount: latestExam.answeredQuestionCount(),
-      createdAt: latestExam.createdAt.getTime(),
+      ownerId: createdExam.ownerId.toString(),
+      questionCount: createdExam.questionCount(),
+      answeredQuestionCount: createdExam.answeredQuestionCount(),
+      createdAt: createdExam.createdAt.getTime(),
       updatedAt: null,
     })
-    expect(latestExam.createdAt.getTime()).toBeGreaterThanOrEqual(now)
+    expect(createdExam.createdAt.getTime()).toBeGreaterThanOrEqual(now)
     expect(res.body.data.createExam).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
   })
 })

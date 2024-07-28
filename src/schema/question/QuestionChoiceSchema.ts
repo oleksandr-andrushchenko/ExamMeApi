@@ -1,5 +1,5 @@
 import { Field, InputType } from 'type-graphql'
-import { IsBoolean, IsOptional, Length } from 'class-validator'
+import { IsBoolean, Length, ValidateIf } from 'class-validator'
 import { Column } from 'typeorm'
 
 @InputType()
@@ -10,13 +10,13 @@ export class QuestionChoiceSchema {
   @Field()
   public readonly title: string
 
-  @IsOptional()
+  @ValidateIf(target => 'correct' in target)
   @IsBoolean()
   @Column()
   @Field({ nullable: true })
   public readonly correct?: boolean
 
-  @IsOptional()
+  @ValidateIf(target => 'explanation' in target)
   @Length(10, 3000)
   @Column()
   @Field({ nullable: true })

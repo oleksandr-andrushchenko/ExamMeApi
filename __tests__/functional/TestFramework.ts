@@ -80,6 +80,15 @@ export default class TestFramework {
       case this.compare(entity, Category):
         object = new Category()
         object.name = faker.lorem.word()
+        object.requiredScore = 'requiredScore' in options ? options.requiredScore : faker.number.int({
+          min: 0,
+          max: 100,
+        })
+        object.questionCount = 'questionCount' in options ? options.questionCount : faker.number.int({ min: 2, max: 5 })
+        object.approvedQuestionCount = 'approvedQuestionCount' in options ? options.approvedQuestionCount : faker.number.int({
+          min: 0,
+          max: 2,
+        })
         object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id
         object.ownerId = 'ownerId' in options ? options.ownerId : object.creatorId
 
@@ -94,7 +103,7 @@ export default class TestFramework {
       case this.compare(entity, Question):
         object = new Question()
         object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category, options) as Category).id
-        object.type = faker.helpers.enumValue(QuestionType)
+        object.type = 'type' in options ? options.type : faker.helpers.enumValue(QuestionType)
         object.difficulty = faker.helpers.enumValue(QuestionDifficulty)
         object.title = faker.lorem.sentences(3)
         object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id

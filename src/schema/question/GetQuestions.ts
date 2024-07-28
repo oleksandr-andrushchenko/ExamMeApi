@@ -20,7 +20,7 @@ export default class GetQuestions extends PaginationSchema {
   @IsOptional()
   @IsIn([ 'yes', 'no' ])
   @Field({ nullable: true })
-  public readonly approved?: string
+  public approved?: string
 
   @IsOptional()
   @IsString()

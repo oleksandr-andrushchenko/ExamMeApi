@@ -10,6 +10,7 @@ import QuestionPermission from '../../enums/question/QuestionPermission'
 import QuestionType from '../../entities/question/QuestionType'
 import QuestionVerifier from './QuestionVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
+import CategoryPermission from '../../enums/category/CategoryPermission'
 
 @Service()
 export default class QuestionUpdater {
@@ -40,6 +41,7 @@ export default class QuestionUpdater {
 
     if ('categoryId' in updateQuestion) {
       const category = await this.categoryProvider.getCategory(updateQuestion.categoryId)
+      await this.authorizationVerifier.verifyAuthorization(initiator, CategoryPermission.AddQuestion, category)
       question.categoryId = category.id
     }
 

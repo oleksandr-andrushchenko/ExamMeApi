@@ -11,7 +11,7 @@ export default class EntityRepository<Entity extends ObjectLiteral> extends Mong
   public async findOneBy(where: any): Promise<Entity | null> {
     where.deletedAt = { $exists: false }
 
-    return await super.findOneBy(where)
+    return await super.findOne({ where })
   }
 
   public findOne(options: MongoFindOneOptions<Entity>): Promise<Entity | null> {
@@ -22,6 +22,12 @@ export default class EntityRepository<Entity extends ObjectLiteral> extends Mong
     }
 
     return super.findOne(options)
+  }
+
+  public findBy(where: any): Promise<Entity[]> {
+    where.deletedAt = { $exists: false }
+
+    return super.find({ where })
   }
 
   public async findOneById(id: string | number | Date | ObjectId): Promise<Entity | null> {
