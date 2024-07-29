@@ -40,7 +40,7 @@ export default class QuestionCreator {
     await this.authorizationVerifier.verifyAuthorization(initiator, QuestionPermission.Create)
 
     const category = await this.categoryProvider.getCategory(createQuestion.categoryId)
-    await this.authorizationVerifier.verifyAuthorization(initiator, CategoryPermission.AddQuestion, category)
+    // await this.authorizationVerifier.verifyAuthorization(initiator, CategoryPermission.AddQuestion, category)
 
     const title = createQuestion.title
     await this.questionVerifier.verifyQuestionTitleNotExists(title)

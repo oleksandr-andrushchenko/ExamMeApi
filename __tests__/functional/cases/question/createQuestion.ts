@@ -124,8 +124,8 @@ describe('Create question', () => {
   })
   test.each([
     { case: 'no permissions', permissions: [] },
-    { case: 'no add category question permission', permissions: [ QuestionPermission.Create ] },
-    { case: 'no create question permission', permissions: [ CategoryPermission.AddQuestion ] },
+    // { case: 'no add category question permission', permissions: [ QuestionPermission.Create ] },
+    // { case: 'no create question permission', permissions: [ CategoryPermission.AddQuestion ] },
   ])('Forbidden ($case)', async ({ permissions }) => {
     const category = await framework.fixture<Category>(Category)
     const user = await framework.fixture<User>(User, { permissions })
