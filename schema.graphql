@@ -7,6 +7,9 @@ type Category {
   approvedQuestionCount: Int
   createdAt: Timestamp!
   id: ObjectId!
+  isApproved: Boolean
+  isCreator: Boolean
+  isOwner: Boolean
   name: String!
   ownerId: ObjectId
   questionCount: Int
@@ -145,7 +148,7 @@ type PermissionSchema {
 }
 
 type Query {
-  categories(approved: String, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10, subscription: String): [Category!]!
+  categories(approved: String, creator: String, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10, subscription: String): [Category!]!
   category(categoryId: ID!): Category!
   currentExamQuestion(examId: ID!): ExamQuestionSchema!
   currentExams(categoryIds: [ID!]!): [Exam!]!
@@ -154,13 +157,13 @@ type Query {
   exams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): [Exam!]!
   me: User!
   ownCategories: [Category!]!
-  paginatedCategories(approved: String, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10, subscription: String): PaginatedCategories!
+  paginatedCategories(approved: String, creator: String, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10, subscription: String): PaginatedCategories!
   paginatedExams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 10): PaginatedExams!
-  paginatedQuestions(approved: String, category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10, subscription: String, type: String): PaginatedQuestions!
+  paginatedQuestions(approved: String, category: ID, creator: String, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10, subscription: String, type: String): PaginatedQuestions!
   paginatedUsers(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10): PaginatedUsers!
   permission: PermissionSchema!
   question(questionId: ID!): Question!
-  questions(approved: String, category: ID, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10, subscription: String, type: String): [Question!]!
+  questions(approved: String, category: ID, creator: String, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10, subscription: String, type: String): [Question!]!
   users(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 10): [User!]!
 }
 
@@ -171,6 +174,9 @@ type Question {
   createdAt: Timestamp!
   difficulty: String!
   id: ObjectId!
+  isApproved: Boolean
+  isCreator: Boolean
+  isOwner: Boolean
   ownerId: ObjectId
   rating: Rating
   title: String!

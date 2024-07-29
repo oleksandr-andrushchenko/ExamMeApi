@@ -36,4 +36,9 @@ export default class GetQuestions extends PaginationSchema {
   @IsEnum(QuestionType)
   @Field({ nullable: true })
   public readonly type?: QuestionType
+
+  @IsOptional()
+  @IsIn([ 'i', 'somebody' ])
+  @Field({ nullable: true })
+  public creator?: string
 }

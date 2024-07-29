@@ -35,4 +35,9 @@ export default class Category extends Base {
   @Column(() => Rating)
   @Field(_type => Rating, { nullable: true })
   public rating?: Rating
+
+  @Field(_type => Boolean, { nullable: true })
+  public isApproved(): boolean {
+    return !this.ownerId
+  }
 }

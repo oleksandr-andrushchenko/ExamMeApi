@@ -4,6 +4,7 @@ import Question from '../../entities/Question'
 import GetQuestions from '../../schema/question/GetQuestions'
 import PaginatedQuestions from '../../schema/question/PaginatedQuestions'
 import QuestionsProvider from './QuestionsProvider'
+import User from '../../entities/User'
 
 @Service()
 export default class CategoryQuestionsProvider {
@@ -17,6 +18,7 @@ export default class CategoryQuestionsProvider {
    * @param {Category} category
    * @param {GetQuestions} getQuestions
    * @param {boolean} meta
+   * @param {User} initiator
    * @returns {Promise<Question[] | PaginatedQuestions>}
    * @throws {ValidatorError}
    */
@@ -24,10 +26,11 @@ export default class CategoryQuestionsProvider {
     category: Category,
     getQuestions: GetQuestions = undefined,
     meta: boolean = false,
+    initiator?: User,
   ): Promise<Question[] | PaginatedQuestions> {
     getQuestions = getQuestions === undefined ? new GetQuestions() : getQuestions
     getQuestions.category = category.id.toString()
 
-    return this.questionsProvider.getQuestions(getQuestions, meta)
+    return this.questionsProvider.getQuestions(getQuestions, meta, initiator)
   }
 }

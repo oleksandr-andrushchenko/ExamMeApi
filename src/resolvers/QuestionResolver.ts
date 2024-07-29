@@ -45,15 +45,17 @@ export class QuestionResolver {
   @Query(_returns => [ Question ], { name: 'questions' })
   public async getQuestions(
     @Args() getQuestions: GetQuestions,
+    @Ctx('user') user: User,
   ): Promise<Question[]> {
-    return await this.questionsProvider.getQuestions(getQuestions) as Question[]
+    return await this.questionsProvider.getQuestions(getQuestions, false, user) as Question[]
   }
 
   @Query(_returns => PaginatedQuestions, { name: 'paginatedQuestions' })
   public async getPaginatedQuestions(
     @Args() getQuestions: GetQuestions,
+    @Ctx('user') user: User,
   ): Promise<PaginatedQuestions> {
-    return await this.questionsProvider.getQuestions(getQuestions, true) as PaginatedQuestions
+    return await this.questionsProvider.getQuestions(getQuestions, true, user) as PaginatedQuestions
   }
 
   @Authorized()
@@ -111,5 +113,21 @@ export class QuestionResolver {
     @Root() question: Question,
   ): Promise<Category> {
     return await this.categoryProvider.getCategory(question.categoryId)
+  }
+
+  @FieldResolver(_returns => Boolean, { nullable: true })
+  public async isOwner(
+    @Root() question: Question,
+    @Ctx('user') user: User,
+  ): Promise<boolean> {
+    return user && user.id.toString() === question?.ownerId?.toString()
+  }
+
+  @FieldResolver(_returns => Boolean, { nullable: true })
+  public async isCreator(
+    @Root() question: Question,
+    @Ctx('user') user: User,
+  ): Promise<boolean> {
+    return user && user.id.toString() === question.creatorId.toString()
   }
 }

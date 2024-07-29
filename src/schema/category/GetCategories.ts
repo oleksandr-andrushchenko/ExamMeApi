@@ -19,4 +19,9 @@ export default class GetCategories extends PaginationSchema {
   @IsString()
   @Field({ nullable: true })
   public readonly search?: string
+
+  @IsOptional()
+  @IsIn([ 'i', 'somebody' ])
+  @Field({ nullable: true })
+  public creator?: string
 }

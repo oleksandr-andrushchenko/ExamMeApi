@@ -5,6 +5,7 @@ import ValidatorInterface from '../validator/ValidatorInterface'
 import Cursor from '../../models/Cursor'
 import GetCategories from '../../schema/category/GetCategories'
 import PaginatedCategories from '../../schema/category/PaginatedCategories'
+import User from '../../entities/User'
 
 @Service()
 export default class CategoriesProvider {
@@ -16,32 +17,40 @@ export default class CategoriesProvider {
   }
 
   /**
-   *
    * @param {GetCategories} getCategories
    * @param {boolean} meta
+   * @param {User} initiator
    * @returns {Promise<Category[] | PaginatedCategories>}
    * @throws {ValidatorError}
    */
   public async getCategories(
     getCategories: GetCategories,
     meta: boolean = false,
+    initiator?: User,
   ): Promise<Category[] | PaginatedCategories> {
     await this.validator.validate(getCategories)
 
     const cursor = new Cursor<Category>(getCategories, this.categoryRepository)
-
-    const where = {}
+    const where: Partial<Record<keyof Category, any>> = {}
 
     if ('subscription' in getCategories) {
       where['subscription'] = { $exists: getCategories.subscription === 'yes' }
     }
 
     if ('approved' in getCategories) {
-      where['ownerId'] = { $exists: getCategories.approved !== 'yes' }
+      where.ownerId = { $exists: getCategories.approved !== 'yes' }
     }
 
     if ('search' in getCategories) {
-      where['name'] = { $regex: getCategories.search, $options: 'i' }
+      where.name = { $regex: getCategories.search, $options: 'i' }
+    }
+
+    if ('creator' in getCategories && initiator) {
+      if (getCategories.creator === 'i') {
+        where.creatorId = initiator.id
+      } else {
+        where.creatorId = { $ne: initiator.id }
+      }
     }
 
     return await cursor.getPaginated({ where, meta })

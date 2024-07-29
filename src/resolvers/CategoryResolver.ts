@@ -1,6 +1,6 @@
 import { Inject, Service } from 'typedi'
 import CategoryProvider from '../services/category/CategoryProvider'
-import { Arg, Args, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
+import { Arg, Args, Authorized, Ctx, FieldResolver, Mutation, Query, Resolver, Root } from 'type-graphql'
 import Category from '../entities/Category'
 import GetCategories from '../schema/category/GetCategories'
 import GetCategory from '../schema/category/GetCategory'
@@ -52,15 +52,17 @@ export class CategoryResolver {
   @Query(_returns => [ Category ], { name: 'categories' })
   public async getCategories(
     @Args() getCategories: GetCategories,
+    @Ctx('user') user: User,
   ): Promise<Category[]> {
-    return await this.categoriesProvider.getCategories(getCategories) as Category[]
+    return await this.categoriesProvider.getCategories(getCategories, false, user) as Category[]
   }
 
   @Query(_returns => PaginatedCategories, { name: 'paginatedCategories' })
   public async getPaginatedCategories(
     @Args() getCategories: GetCategories,
+    @Ctx('user') user: User,
   ): Promise<PaginatedCategories> {
-    return await this.categoriesProvider.getCategories(getCategories, true) as PaginatedCategories
+    return await this.categoriesProvider.getCategories(getCategories, true, user) as PaginatedCategories
   }
 
   @Authorized()
@@ -111,5 +113,21 @@ export class CategoryResolver {
     await this.categoryDeleter.deleteCategory(category, user)
 
     return true
+  }
+
+  @FieldResolver(_returns => Boolean, { nullable: true })
+  public async isOwner(
+    @Root() category: Category,
+    @Ctx('user') user: User,
+  ): Promise<boolean> {
+    return user && user.id.toString() === category?.ownerId?.toString()
+  }
+
+  @FieldResolver(_returns => Boolean, { nullable: true })
+  public async isCreator(
+    @Root() category: Category,
+    @Ctx('user') user: User,
+  ): Promise<boolean> {
+    return user && user.id.toString() === category.creatorId.toString()
   }
 }
