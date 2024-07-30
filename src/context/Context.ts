@@ -1,4 +1,4 @@
-import User from '../entities/User'
+import User from '../entities/user/User'
 
 export default interface Context {
   user?: User

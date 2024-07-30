@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 import AuthorizationFailedError from '../../errors/auth/AuthorizationFailedError'
 import Permission from '../../enums/Permission'
 import { ObjectId } from 'mongodb'

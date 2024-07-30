@@ -1,7 +1,7 @@
 import { EntitySubscriberInterface, EventSubscriber, InsertEvent, UpdateEvent } from 'typeorm'
 import { Inject, Service } from 'typedi'
 import EscapeHtmlSpecialCharsService from '../services/html/EscapeHtmlSpecialCharsService'
-import Question from '../entities/Question'
+import Question from '../entities/question/Question'
 
 @Service()
 @EventSubscriber()

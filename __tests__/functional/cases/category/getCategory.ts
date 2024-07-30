@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import Category from '../../../../src/entities/Category'
+import Category from '../../../../src/entities/category/Category'
 // @ts-ignore
 import { getCategory } from '../../graphql/category/getCategory'
 import TestFramework from '../../TestFramework'

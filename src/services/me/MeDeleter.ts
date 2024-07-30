@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import EventDispatcher from '../event/EventDispatcher'
 

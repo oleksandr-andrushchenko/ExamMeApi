@@ -3,9 +3,9 @@ import { ObjectId } from 'mongodb'
 import { IsDate, IsMongoId, IsNumber, IsOptional, Min, ValidateNested } from 'class-validator'
 import { Field, Int, ObjectType } from 'type-graphql'
 import { GraphQLTimestamp } from 'graphql-scalars'
-import { ObjectIdScalar } from '../scalars/ObjectIdScalar'
-import Base from './Base'
-import ExamQuestion from './exam/ExamQuestion'
+import { ObjectIdScalar } from '../../scalars/ObjectIdScalar'
+import Base from '../Base'
+import ExamQuestion from './ExamQuestion'
 
 @ObjectType()
 @Entity({ name: 'exams' })

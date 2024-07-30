@@ -1,7 +1,7 @@
 import PaginatedSchema from '../pagination/PaginatedSchema'
 import { ValidateNested } from 'class-validator'
 import { Type } from 'class-transformer'
-import Question from '../../entities/Question'
+import Question from '../../entities/question/Question'
 import { Field, ObjectType } from 'type-graphql'
 
 @ObjectType()

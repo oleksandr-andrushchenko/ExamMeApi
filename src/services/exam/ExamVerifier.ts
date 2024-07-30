@@ -1,6 +1,6 @@
 import { Inject, Service } from 'typedi'
-import Category from '../../entities/Category'
-import User from '../../entities/User'
+import Category from '../../entities/category/Category'
+import User from '../../entities/user/User'
 import ExamRepository from '../../repositories/ExamRepository'
 import ExamTakenError from '../../errors/exam/ExamTakenError'
 

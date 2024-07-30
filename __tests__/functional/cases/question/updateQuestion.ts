@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import Question from '../../../../src/entities/Question'
-import User from '../../../../src/entities/User'
+import Question from '../../../../src/entities/question/Question'
+import User from '../../../../src/entities/user/User'
 import { faker } from '@faker-js/faker'
 import QuestionPermission from '../../../../src/enums/question/QuestionPermission'
 // @ts-ignore
@@ -10,7 +10,7 @@ import UpdateQuestion from '../../../../src/schema/question/UpdateQuestion'
 import TestFramework from '../../TestFramework'
 import QuestionType from '../../../../src/entities/question/QuestionType'
 import CategoryPermission from '../../../../src/enums/category/CategoryPermission'
-import Category from '../../../../src/entities/Category'
+import Category from '../../../../src/entities/category/Category'
 
 const framework: TestFramework = globalThis.framework
 

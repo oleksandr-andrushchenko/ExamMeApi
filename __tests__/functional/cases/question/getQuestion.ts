@@ -1,10 +1,10 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import Question from '../../../../src/entities/Question'
+import Question from '../../../../src/entities/question/Question'
 // @ts-ignore
 import { getQuestion } from '../../graphql/question/getQuestion'
 import TestFramework from '../../TestFramework'
-import User from '../../../../src/entities/User'
+import User from '../../../../src/entities/user/User'
 import QuestionType from '../../../../src/entities/question/QuestionType'
 import QuestionChoice from '../../../../src/entities/question/QuestionChoice'
 

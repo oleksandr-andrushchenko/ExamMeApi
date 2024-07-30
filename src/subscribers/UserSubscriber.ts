@@ -1,5 +1,5 @@
 import { EntitySubscriberInterface, EventSubscriber, InsertEvent, UpdateEvent } from 'typeorm'
-import User from '../entities/User'
+import User from '../entities/user/User'
 import { Inject, Service } from 'typedi'
 import UserPasswordManager from '../services/user/UserPasswordManager'
 

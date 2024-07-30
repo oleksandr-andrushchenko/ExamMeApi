@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import Category from '../../../../src/entities/Category'
-import User from '../../../../src/entities/User'
+import Category from '../../../../src/entities/category/Category'
+import User from '../../../../src/entities/user/User'
 import { ObjectId } from 'mongodb'
 import CategoryPermission from '../../../../src/enums/category/CategoryPermission'
 // @ts-ignore

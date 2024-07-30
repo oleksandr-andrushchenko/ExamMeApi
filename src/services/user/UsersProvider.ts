@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 import UserRepository from '../../repositories/UserRepository'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import UserPermission from '../../enums/user/UserPermission'

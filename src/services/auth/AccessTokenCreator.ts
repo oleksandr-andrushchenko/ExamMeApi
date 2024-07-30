@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 import TokenService from '../token/TokenService'
 import Token from '../../schema/auth/Token'
 import EventDispatcher from '../event/EventDispatcher'

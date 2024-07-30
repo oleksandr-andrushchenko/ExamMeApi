@@ -1,8 +1,8 @@
 import { Inject, Service } from 'typedi'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import ExamRepository from '../../repositories/ExamRepository'
-import Exam from '../../entities/Exam'
+import Exam from '../../entities/exam/Exam'
 import GetCurrentExams from '../../schema/exam/GetCurrentExams'
 import IdNormalizer from '../normalizers/IdNormalizer'
 

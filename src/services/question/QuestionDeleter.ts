@@ -1,6 +1,6 @@
 import { Inject, Service } from 'typedi'
-import User from '../../entities/User'
-import Question from '../../entities/Question'
+import User from '../../entities/user/User'
+import Question from '../../entities/question/Question'
 import CategoryProvider from '../category/CategoryProvider'
 import QuestionPermission from '../../enums/question/QuestionPermission'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'

@@ -1,7 +1,7 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import User from '../../../../src/entities/User'
-import Exam from '../../../../src/entities/Exam'
+import User from '../../../../src/entities/user/User'
+import Exam from '../../../../src/entities/exam/Exam'
 import ExamPermission from '../../../../src/enums/exam/ExamPermission'
 // @ts-ignore
 import { deleteExam } from '../../graphql/exam/deleteExam'

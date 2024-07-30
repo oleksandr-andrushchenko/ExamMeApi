@@ -1,6 +1,6 @@
 import { Inject, Service } from 'typedi'
-import User from '../../entities/User'
-import Exam from '../../entities/Exam'
+import User from '../../entities/user/User'
+import Exam from '../../entities/exam/Exam'
 import ExamQuestionSchema from '../../schema/exam/ExamQuestionSchema'
 import QuestionProvider from '../question/QuestionProvider'
 import ExamQuestionNumberNotFoundError from '../../errors/exam/ExamQuestionNumberNotFoundError'

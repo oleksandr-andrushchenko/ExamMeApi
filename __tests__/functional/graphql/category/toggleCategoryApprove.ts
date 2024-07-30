@@ -1,5 +1,5 @@
 import GetCategory from '../../../../src/schema/category/GetCategory'
-import Category from '../../../../src/entities/Category'
+import Category from '../../../../src/entities/category/Category'
 
 export const toggleCategoryApprove = (variables: GetCategory, fields: (keyof Category)[] = [ 'id' ]) => {
   return {

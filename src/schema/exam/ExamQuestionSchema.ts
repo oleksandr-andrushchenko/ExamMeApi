@@ -1,6 +1,6 @@
-import Question from '../../entities/Question'
+import Question from '../../entities/question/Question'
 import { Field, Int, ObjectType } from 'type-graphql'
-import Exam from '../../entities/Exam'
+import Exam from '../../entities/exam/Exam'
 
 @ObjectType()
 export default class ExamQuestionSchema {

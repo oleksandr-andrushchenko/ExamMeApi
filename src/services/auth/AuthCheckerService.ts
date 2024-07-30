@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 import UserProvider from '../user/UserProvider'
 import { AuthChecker, AuthenticationError, AuthorizationError } from 'type-graphql'
 import Context from '../../context/Context'

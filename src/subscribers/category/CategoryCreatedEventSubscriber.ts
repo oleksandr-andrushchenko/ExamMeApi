@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi'
-import Category from '../../entities/Category'
+import Category from '../../entities/category/Category'
 import LoggerInterface from '../../services/logger/LoggerInterface'
 import EventSubscriber from '../../decorators/EventSubscriber'
 import EventSubscriberInterface from '../../services/event/EventSubscriberInterface'

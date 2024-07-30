@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 import TokenStrategyInterface from './strategy/TokenStrategyInterface'
 
 export type GeneratedToken = {

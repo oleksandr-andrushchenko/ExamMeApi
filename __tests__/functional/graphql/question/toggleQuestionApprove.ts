@@ -1,5 +1,5 @@
 import GetQuestion from '../../../../src/schema/question/GetQuestion'
-import Question from '../../../../src/entities/Question'
+import Question from '../../../../src/entities/question/Question'
 
 export const toggleQuestionApprove = (variables: GetQuestion, fields: (keyof Question)[] = [ 'id' ]) => {
   return {

@@ -1,5 +1,5 @@
 import PaginatedSchema from '../pagination/PaginatedSchema'
-import Category from '../../entities/Category'
+import Category from '../../entities/category/Category'
 import { ValidateNested } from 'class-validator'
 import { Type } from 'class-transformer'
 import { Field, ObjectType } from 'type-graphql'

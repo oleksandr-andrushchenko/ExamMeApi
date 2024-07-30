@@ -1,5 +1,5 @@
 import { Inject, Service } from 'typedi'
-import Category from '../../entities/Category'
+import Category from '../../entities/category/Category'
 import CategoryRepository from '../../repositories/CategoryRepository'
 import CategoryNotFoundError from '../../errors/category/CategoryNotFoundError'
 import { ObjectId } from 'mongodb'

@@ -1,12 +1,12 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import Question from '../../../../src/entities/Question'
-import User from '../../../../src/entities/User'
+import Question from '../../../../src/entities/question/Question'
+import User from '../../../../src/entities/user/User'
 import QuestionPermission from '../../../../src/enums/question/QuestionPermission'
 // @ts-ignore
 import { toggleQuestionApprove } from '../../graphql/question/toggleQuestionApprove'
 import TestFramework from '../../TestFramework'
-import Category from '../../../../src/entities/Category'
+import Category from '../../../../src/entities/category/Category'
 
 const framework: TestFramework = globalThis.framework
 

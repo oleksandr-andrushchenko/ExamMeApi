@@ -1,6 +1,6 @@
 import { Inject, Service } from 'typedi'
 import { Arg, Args, Authorized, Ctx, Mutation, Query, Resolver } from 'type-graphql'
-import User from '../entities/User'
+import User from '../entities/user/User'
 import UserProvider from '../services/user/UserProvider'
 import CreateUser from '../schema/user/CreateUser'
 import GetUsers from '../schema/user/GetUsers'

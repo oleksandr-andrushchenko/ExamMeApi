@@ -1,11 +1,11 @@
 import { Inject, Service } from 'typedi'
-import Category from '../../entities/Category'
+import Category from '../../entities/category/Category'
 import CategoryRepository from '../../repositories/CategoryRepository'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import Cursor from '../../models/Cursor'
 import GetCategories from '../../schema/category/GetCategories'
 import PaginatedCategories from '../../schema/category/PaginatedCategories'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 
 @Service()
 export default class CategoriesProvider {

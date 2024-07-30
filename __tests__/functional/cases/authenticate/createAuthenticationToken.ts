@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import User from '../../../../src/entities/User'
+import User from '../../../../src/entities/user/User'
 // @ts-ignore
 import { createAuthenticationToken } from '../../graphql/authenticate/createAuthenticationToken'
 import { Credentials } from '../../../../src/schema/auth/Credentials'

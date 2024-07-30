@@ -1,4 +1,4 @@
-import Exam from '../../entities/Exam'
+import Exam from '../../entities/exam/Exam'
 
 export default class ExamTakenError extends Error {
 

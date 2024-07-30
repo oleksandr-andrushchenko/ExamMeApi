@@ -1,6 +1,6 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import User from '../../../../src/entities/User'
+import User from '../../../../src/entities/user/User'
 import config from '../../../../src/config'
 // @ts-ignore
 import { getPermission } from '../../graphql/permission/getPermission'

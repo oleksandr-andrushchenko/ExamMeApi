@@ -3,8 +3,8 @@ import request from 'supertest'
 // @ts-ignore
 import { getOwnCategories } from '../../graphql/category/getOwnCategories'
 import TestFramework from '../../TestFramework'
-import User from '../../../../src/entities/User'
-import Category from '../../../../src/entities/Category'
+import User from '../../../../src/entities/user/User'
+import Category from '../../../../src/entities/category/Category'
 
 const framework: TestFramework = globalThis.framework
 

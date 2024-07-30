@@ -1,7 +1,7 @@
 import Repository from '../decorators/Repository'
-import Question from '../entities/Question'
+import Question from '../entities/question/Question'
 import EntityRepository from './EntityRepository'
-import Category from '../entities/Category'
+import Category from '../entities/category/Category'
 
 @Repository(Question)
 export default class QuestionRepository extends EntityRepository<Question> {

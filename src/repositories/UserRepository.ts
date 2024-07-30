@@ -1,4 +1,4 @@
-import User from '../entities/User'
+import User from '../entities/user/User'
 import Repository from '../decorators/Repository'
 import EntityRepository from './EntityRepository'
 

@@ -1,8 +1,8 @@
 import Repository from '../decorators/Repository'
 import { ObjectId } from 'mongodb'
-import Exam from '../entities/Exam'
+import Exam from '../entities/exam/Exam'
 import EntityRepository from './EntityRepository'
-import User from '../entities/User'
+import User from '../entities/user/User'
 
 @Repository(Exam)
 export default class ExamRepository extends EntityRepository<Exam> {

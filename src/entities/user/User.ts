@@ -1,9 +1,9 @@
 import { Column, Entity } from 'typeorm'
 import { ArrayNotEmpty, ArrayUnique, IsEmail, IsEnum, IsOptional, Length } from 'class-validator'
-import Permission from '../enums/Permission'
+import Permission from '../../enums/Permission'
 import { Authorized, Field, ObjectType } from 'type-graphql'
-import Base from './Base'
-import UserPermission from '../enums/user/UserPermission'
+import Base from '../Base'
+import UserPermission from '../../enums/user/UserPermission'
 
 @ObjectType()
 @Entity({ name: 'users' })

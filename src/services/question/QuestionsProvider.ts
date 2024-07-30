@@ -1,12 +1,12 @@
 import { Inject, Service } from 'typedi'
 import { ObjectId } from 'mongodb'
 import ValidatorInterface from '../validator/ValidatorInterface'
-import Question from '../../entities/Question'
+import Question from '../../entities/question/Question'
 import QuestionRepository from '../../repositories/QuestionRepository'
 import Cursor from '../../models/Cursor'
 import GetQuestions from '../../schema/question/GetQuestions'
 import PaginatedQuestions from '../../schema/question/PaginatedQuestions'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 
 @Service()
 export default class QuestionsProvider {

@@ -1,7 +1,7 @@
 import { Inject, Service } from 'typedi'
 import { ObjectId } from 'mongodb'
 import ValidatorInterface from '../validator/ValidatorInterface'
-import Question from '../../entities/Question'
+import Question from '../../entities/question/Question'
 import QuestionRepository from '../../repositories/QuestionRepository'
 import QuestionNotFoundError from '../../errors/question/QuestionNotFoundError'
 

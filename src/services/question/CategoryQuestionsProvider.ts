@@ -1,10 +1,10 @@
 import { Inject, Service } from 'typedi'
-import Category from '../../entities/Category'
-import Question from '../../entities/Question'
+import Category from '../../entities/category/Category'
+import Question from '../../entities/question/Question'
 import GetQuestions from '../../schema/question/GetQuestions'
 import PaginatedQuestions from '../../schema/question/PaginatedQuestions'
 import QuestionsProvider from './QuestionsProvider'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 
 @Service()
 export default class CategoryQuestionsProvider {

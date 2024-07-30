@@ -1,5 +1,5 @@
 import { Service } from 'typedi'
-import User from '../../entities/User'
+import User from '../../entities/user/User'
 import * as bcrypt from 'bcrypt'
 
 @Service()

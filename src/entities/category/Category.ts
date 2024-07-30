@@ -1,8 +1,8 @@
 import { Column, Entity } from 'typeorm'
 import { IsNumber, Length, Max, Min } from 'class-validator'
 import { Field, Int, ObjectType } from 'type-graphql'
-import Base from './Base'
-import Rating from './Rating'
+import Base from '../Base'
+import Rating from '../Rating'
 
 @ObjectType()
 @Entity({ name: 'categories' })

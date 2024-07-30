@@ -1,9 +1,9 @@
 import { describe, expect, test } from '@jest/globals'
 import request from 'supertest'
-import Category from '../../../../src/entities/Category'
-import User from '../../../../src/entities/User'
+import Category from '../../../../src/entities/category/Category'
+import User from '../../../../src/entities/user/User'
 import { ObjectId } from 'mongodb'
-import Question from '../../../../src/entities/Question'
+import Question from '../../../../src/entities/question/Question'
 import { faker } from '@faker-js/faker'
 import QuestionPermission from '../../../../src/enums/question/QuestionPermission'
 // @ts-ignore
