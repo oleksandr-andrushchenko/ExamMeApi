@@ -1,5 +1,4 @@
 import { Inject, Service } from 'typedi'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import User from '../../entities/User'
 import ValidatorInterface from '../validator/ValidatorInterface'
@@ -13,6 +12,7 @@ import ExamVerifier from './ExamVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import CategoryVerifier from '../category/CategoryVerifier'
 import QuestionRepository from '../../repositories/QuestionRepository'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class ExamCreator {
@@ -23,7 +23,7 @@ export default class ExamCreator {
     @Inject() private readonly examVerifier: ExamVerifier,
     @Inject() private readonly categoryVerifier: CategoryVerifier,
     @Inject() private readonly questionRepository: QuestionRepository,
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {

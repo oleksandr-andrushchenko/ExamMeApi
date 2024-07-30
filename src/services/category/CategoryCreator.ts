@@ -1,5 +1,4 @@
 import { Inject, Service } from 'typedi'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import Category from '../../entities/Category'
 import User from '../../entities/User'
@@ -8,6 +7,8 @@ import ValidatorInterface from '../validator/ValidatorInterface'
 import CategoryPermission from '../../enums/category/CategoryPermission'
 import CategoryVerifier from './CategoryVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
+import LoggerInterface from '../logger/LoggerInterface'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class CategoryCreator {
@@ -15,8 +16,9 @@ export default class CategoryCreator {
   public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly categoryVerifier: CategoryVerifier,
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
+    @Inject('logger') private readonly logger: LoggerInterface,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }

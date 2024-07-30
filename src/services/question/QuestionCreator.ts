@@ -1,5 +1,4 @@
 import { Inject, Service } from 'typedi'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import User from '../../entities/User'
 import ValidatorInterface from '../validator/ValidatorInterface'
@@ -11,7 +10,7 @@ import QuestionType from '../../entities/question/QuestionType'
 import QuestionVerifier from './QuestionVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import QuestionRepository from '../../repositories/QuestionRepository'
-import CategoryPermission from '../../enums/category/CategoryPermission'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class QuestionCreator {
@@ -20,7 +19,7 @@ export default class QuestionCreator {
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly categoryProvider: CategoryProvider,
     @Inject() private readonly questionVerifier: QuestionVerifier,
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
     @Inject() private readonly questionRepository: QuestionRepository,
     @Inject('validator') private readonly validator: ValidatorInterface,

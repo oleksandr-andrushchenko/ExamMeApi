@@ -1,6 +1,5 @@
 import { Inject, Service } from 'typedi'
 import User from '../../entities/User'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import CreateUser from '../../schema/user/CreateUser'
 import Permission from '../../enums/Permission'
@@ -8,6 +7,7 @@ import ValidatorInterface from '../validator/ValidatorInterface'
 import UserPermission from '../../enums/user/UserPermission'
 import UserVerifier from './UserVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class UserCreator {
@@ -16,7 +16,7 @@ export default class UserCreator {
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly userVerifier: UserVerifier,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }

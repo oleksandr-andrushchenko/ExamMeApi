@@ -26,7 +26,7 @@ export default class PaginationSchema {
   @Max(50)
   @IsNumber({ maxDecimalPlaces: 0 })
   @Field(_type => Int, { nullable: true })
-  public readonly size?: number = 10
+  public readonly size?: number = 20
 
   @IsOptional()
   @IsIn([ 'asc', 'desc' ])

@@ -12,4 +12,5 @@
 # TODO
 
 * Ratings
-* Use approved categories/questions for exams
+* Activities (populate using eventDispatchers)
+* Add max value for page size

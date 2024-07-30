@@ -1,5 +1,4 @@
 import { Inject, Service } from 'typedi'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import Category from '../../entities/Category'
 import User from '../../entities/User'
@@ -8,13 +7,14 @@ import QuestionDeleter from '../question/QuestionDeleter'
 import Question from '../../entities/Question'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import CategoryQuestionsProvider from '../question/CategoryQuestionsProvider'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class CategoryDeleter {
 
   public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject() private readonly categoryQuestionsProvider: CategoryQuestionsProvider,
     @Inject() private readonly questionDeleter: QuestionDeleter,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,

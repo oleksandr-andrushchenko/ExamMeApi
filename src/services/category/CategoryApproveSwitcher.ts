@@ -1,16 +1,16 @@
 import { Inject, Service } from 'typedi'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import User from '../../entities/User'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import Category from '../../entities/Category'
 import CategoryPermission from '../../enums/category/CategoryPermission'
 import CategoryRepository from '../../repositories/CategoryRepository'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class CategoryApproveSwitcher {
 
   public constructor(
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject() private readonly categoryRepository: CategoryRepository,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
   ) {

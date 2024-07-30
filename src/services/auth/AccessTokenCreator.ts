@@ -1,15 +1,15 @@
 import { Inject, Service } from 'typedi'
 import User from '../../entities/User'
 import TokenService from '../token/TokenService'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import Token from '../../schema/auth/Token'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class AccessTokenCreator {
 
   public constructor(
     @Inject() private readonly tokenService: TokenService,
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     private readonly tokenExpiresIn: number = 60 * 60 * 24 * 7,
   ) {
   }

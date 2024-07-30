@@ -1,5 +1,4 @@
 import { Inject, Service } from 'typedi'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import User from '../../entities/User'
 import CategoryProvider from '../category/CategoryProvider'
@@ -8,6 +7,7 @@ import Question from '../../entities/Question'
 import ExamPermission from '../../enums/exam/ExamPermission'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import CategoryQuestionsProvider from '../question/CategoryQuestionsProvider'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class ExamCompletionCreator {
@@ -16,7 +16,7 @@ export default class ExamCompletionCreator {
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly categoryProvider: CategoryProvider,
     @Inject() private readonly categoryQuestionsProvider: CategoryQuestionsProvider,
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
   ) {
   }

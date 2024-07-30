@@ -1,9 +1,9 @@
 import { Inject, Service } from 'typedi'
 import User from '../../entities/User'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import UserPermission from '../../enums/user/UserPermission'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class UserDeleter {
@@ -11,7 +11,7 @@ export default class UserDeleter {
   public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
   ) {
   }
 

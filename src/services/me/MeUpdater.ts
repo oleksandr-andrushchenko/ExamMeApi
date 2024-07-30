@@ -1,17 +1,17 @@
 import { Inject, Service } from 'typedi'
 import User from '../../entities/User'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import InjectEntityManager, { EntityManagerInterface } from '../../decorators/InjectEntityManager'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import UpdateMe from '../../schema/user/UpdateMe'
 import UserVerifier from '../user/UserVerifier'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class MeUpdater {
 
   public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
     @Inject() private readonly userVerifier: UserVerifier,
   ) {

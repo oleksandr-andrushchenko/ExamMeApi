@@ -1,5 +1,4 @@
 import { Inject, Service } from 'typedi'
-import InjectEventDispatcher, { EventDispatcherInterface } from '../../decorators/InjectEventDispatcher'
 import User from '../../entities/User'
 import Question from '../../entities/Question'
 import QuestionPermission from '../../enums/question/QuestionPermission'
@@ -7,12 +6,13 @@ import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import QuestionRepository from '../../repositories/QuestionRepository'
 import CategoryProvider from '../category/CategoryProvider'
 import CategoryRepository from '../../repositories/CategoryRepository'
+import EventDispatcher from '../event/EventDispatcher'
 
 @Service()
 export default class QuestionApproveSwitcher {
 
   public constructor(
-    @InjectEventDispatcher() private readonly eventDispatcher: EventDispatcherInterface,
+    @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject() private readonly categoryProvider: CategoryProvider,
     @Inject() private readonly questionRepository: QuestionRepository,
     @Inject() private readonly categoryRepository: CategoryRepository,
