@@ -14,7 +14,7 @@ import CategoryProvider from '../services/category/CategoryProvider'
 import QuestionDeleter from '../services/question/QuestionDeleter'
 import QuestionCreator from '../services/question/QuestionCreator'
 import QuestionUpdater from '../services/question/QuestionUpdater'
-import QuestionsProvider from '../services/question/QuestionsProvider'
+import QuestionListProvider from '../services/question/QuestionListProvider'
 import QuestionApproveSwitcher from '../services/question/QuestionApproveSwitcher'
 
 @Service()
@@ -23,7 +23,7 @@ export class QuestionResolver {
 
   public constructor(
     @Inject() private readonly questionProvider: QuestionProvider,
-    @Inject() private readonly questionsProvider: QuestionsProvider,
+    @Inject() private readonly questionListProvider: QuestionListProvider,
     @Inject() private readonly questionCreator: QuestionCreator,
     @Inject() private readonly questionUpdater: QuestionUpdater,
     @Inject() private readonly questionDeleter: QuestionDeleter,
@@ -47,7 +47,7 @@ export class QuestionResolver {
     @Args() getQuestions: GetQuestions,
     @Ctx('user') user: User,
   ): Promise<Question[]> {
-    return await this.questionsProvider.getQuestions(getQuestions, false, user) as Question[]
+    return await this.questionListProvider.getQuestions(getQuestions, false, user) as Question[]
   }
 
   @Query(_returns => PaginatedQuestions, { name: 'paginatedQuestions' })
@@ -55,7 +55,7 @@ export class QuestionResolver {
     @Args() getQuestions: GetQuestions,
     @Ctx('user') user: User,
   ): Promise<PaginatedQuestions> {
-    return await this.questionsProvider.getQuestions(getQuestions, true, user) as PaginatedQuestions
+    return await this.questionListProvider.getQuestions(getQuestions, true, user) as PaginatedQuestions
   }
 
   @Authorized()

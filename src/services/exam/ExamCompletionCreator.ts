@@ -6,7 +6,7 @@ import Exam from '../../entities/exam/Exam'
 import Question from '../../entities/question/Question'
 import ExamPermission from '../../enums/exam/ExamPermission'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
-import CategoryQuestionsProvider from '../question/CategoryQuestionsProvider'
+import CategoryQuestionListProvider from '../question/CategoryQuestionListProvider'
 import EventDispatcher from '../event/EventDispatcher'
 import ExamEvent from '../../enums/exam/ExamEvent'
 
@@ -16,7 +16,7 @@ export default class ExamCompletionCreator {
   public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly categoryProvider: CategoryProvider,
-    @Inject() private readonly categoryQuestionsProvider: CategoryQuestionsProvider,
+    @Inject() private readonly categoryQuestionListProvider: CategoryQuestionListProvider,
     @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
   ) {
@@ -32,7 +32,7 @@ export default class ExamCompletionCreator {
     await this.authorizationVerifier.verifyAuthorization(initiator, ExamPermission.CreateCompletion, exam)
 
     const category = await this.categoryProvider.getCategory(exam.categoryId)
-    const questions = await this.categoryQuestionsProvider.getCategoryQuestions(category) as Question[]
+    const questions = await this.categoryQuestionListProvider.getCategoryQuestions(category) as Question[]
 
     const questionsHashedById = []
 

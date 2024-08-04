@@ -9,7 +9,7 @@ import PaginatedQuestions from '../../schema/question/PaginatedQuestions'
 import User from '../../entities/user/User'
 
 @Service()
-export default class QuestionsProvider {
+export default class QuestionListProvider {
 
   public constructor(
     @Inject() private readonly questionRepository: QuestionRepository,

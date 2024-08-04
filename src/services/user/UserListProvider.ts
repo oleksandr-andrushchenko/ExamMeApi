@@ -9,7 +9,7 @@ import PaginatedUsers from '../../schema/user/PaginatedUsers'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 
 @Service()
-export default class UsersProvider {
+export default class UserListProvider {
 
   public constructor(
     @Inject() private readonly userRepository: UserRepository,

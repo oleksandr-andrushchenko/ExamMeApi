@@ -12,7 +12,7 @@ import PaginatedExams from '../../schema/exam/PaginatedExams'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 
 @Service()
-export default class ExamsProvider {
+export default class ExamListProvider {
 
   public constructor(
     @Inject() private readonly examRepository: ExamRepository,

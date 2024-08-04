@@ -7,7 +7,7 @@ import GetCurrentExams from '../../schema/exam/GetCurrentExams'
 import IdNormalizer from '../normalizers/IdNormalizer'
 
 @Service()
-export default class CurrentExamsProvider {
+export default class CurrentExamListProvider {
 
   public constructor(
     @Inject() private readonly examRepository: ExamRepository,

@@ -6,7 +6,7 @@ import CategoryPermission from '../../enums/category/CategoryPermission'
 import QuestionDeleter from '../question/QuestionDeleter'
 import Question from '../../entities/question/Question'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
-import CategoryQuestionsProvider from '../question/CategoryQuestionsProvider'
+import CategoryQuestionListProvider from '../question/CategoryQuestionListProvider'
 import EventDispatcher from '../event/EventDispatcher'
 import CategoryEvent from '../../enums/category/CategoryEvent'
 
@@ -16,7 +16,7 @@ export default class CategoryDeleter {
   public constructor(
     @InjectEntityManager() private readonly entityManager: EntityManagerInterface,
     @Inject() private readonly eventDispatcher: EventDispatcher,
-    @Inject() private readonly categoryQuestionsProvider: CategoryQuestionsProvider,
+    @Inject() private readonly categoryQuestionListProvider: CategoryQuestionListProvider,
     @Inject() private readonly questionDeleter: QuestionDeleter,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
   ) {
@@ -32,7 +32,7 @@ export default class CategoryDeleter {
   public async deleteCategory(category: Category, initiator: User): Promise<Category> {
     await this.authorizationVerifier.verifyAuthorization(initiator, CategoryPermission.Delete, category)
 
-    const questions = await this.categoryQuestionsProvider.getCategoryQuestions(category) as Question[]
+    const questions = await this.categoryQuestionListProvider.getCategoryQuestions(category) as Question[]
 
     for (const question of questions) {
       await this.questionDeleter.deleteQuestion(question, initiator)

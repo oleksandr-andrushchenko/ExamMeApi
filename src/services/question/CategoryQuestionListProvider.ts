@@ -3,14 +3,14 @@ import Category from '../../entities/category/Category'
 import Question from '../../entities/question/Question'
 import GetQuestions from '../../schema/question/GetQuestions'
 import PaginatedQuestions from '../../schema/question/PaginatedQuestions'
-import QuestionsProvider from './QuestionsProvider'
+import QuestionListProvider from './QuestionListProvider'
 import User from '../../entities/user/User'
 
 @Service()
-export default class CategoryQuestionsProvider {
+export default class CategoryQuestionListProvider {
 
   public constructor(
-    @Inject() private readonly questionsProvider: QuestionsProvider,
+    @Inject() private readonly questionListProvider: QuestionListProvider,
   ) {
   }
 
@@ -31,6 +31,6 @@ export default class CategoryQuestionsProvider {
     getQuestions = getQuestions === undefined ? new GetQuestions() : getQuestions
     getQuestions.category = category.id.toString()
 
-    return this.questionsProvider.getQuestions(getQuestions, meta, initiator)
+    return this.questionListProvider.getQuestions(getQuestions, meta, initiator)
   }
 }

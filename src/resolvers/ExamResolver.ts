@@ -20,9 +20,9 @@ import ExamQuestionAnswerCreator from '../services/exam/ExamQuestionAnswerCreato
 import ExamCompletionCreator from '../services/exam/ExamCompletionCreator'
 import ExamLastRequestedQuestionNumberSetter from '../services/exam/ExamLastRequestedQuestionNumberSetter'
 import ExamQuestionProvider from '../services/exam/ExamQuestionProvider'
-import ExamsProvider from '../services/exam/ExamsProvider'
+import ExamListProvider from '../services/exam/ExamListProvider'
 import GetCurrentExams from '../schema/exam/GetCurrentExams'
-import CurrentExamsProvider from '../services/exam/CurrentExamsProvider'
+import CurrentExamListProvider from '../services/exam/CurrentExamListProvider'
 
 @Service()
 @Resolver(Exam)
@@ -37,9 +37,9 @@ export class ExamResolver {
     @Inject() private readonly examQuestionAnswerDeleter: ExamQuestionAnswerDeleter,
     @Inject() private readonly examCompletionCreator: ExamCompletionCreator,
     @Inject() private readonly examProvider: ExamProvider,
-    @Inject() private readonly examsProvider: ExamsProvider,
+    @Inject() private readonly examListProvider: ExamListProvider,
     @Inject() private readonly categoryProvider: CategoryProvider,
-    @Inject() private readonly currentExamsProvider: CurrentExamsProvider,
+    @Inject() private readonly currentExamListProvider: CurrentExamListProvider,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }
@@ -59,7 +59,7 @@ export class ExamResolver {
     @Args() getExams: GetExams,
     @Ctx('user') user: User,
   ): Promise<Exam[]> {
-    return await this.examsProvider.getExams(getExams, user) as Exam[]
+    return await this.examListProvider.getExams(getExams, user) as Exam[]
   }
 
   @Query(_returns => PaginatedExams, { name: 'paginatedExams' })
@@ -67,7 +67,7 @@ export class ExamResolver {
     @Args() getExams: GetExams,
     @Ctx('user') user: User,
   ): Promise<PaginatedExams> {
-    return await this.examsProvider.getExams(getExams, user, true) as PaginatedExams
+    return await this.examListProvider.getExams(getExams, user, true) as PaginatedExams
   }
 
   @Authorized()
@@ -178,6 +178,6 @@ export class ExamResolver {
     @Args() getCurrentExams: GetCurrentExams,
     @Ctx('user') user: User,
   ): Promise<Exam[]> {
-    return await this.currentExamsProvider.getCurrentExams(getCurrentExams, user)
+    return await this.currentExamListProvider.getCurrentExams(getCurrentExams, user)
   }
 }

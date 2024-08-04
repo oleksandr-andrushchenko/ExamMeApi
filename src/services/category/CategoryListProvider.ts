@@ -8,7 +8,7 @@ import PaginatedCategories from '../../schema/category/PaginatedCategories'
 import User from '../../entities/user/User'
 
 @Service()
-export default class CategoriesProvider {
+export default class CategoryListProvider {
 
   public constructor(
     @Inject() private readonly categoryRepository: CategoryRepository,
