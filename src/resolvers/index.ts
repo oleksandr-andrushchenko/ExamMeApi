@@ -5,6 +5,7 @@ import { ExamResolver } from './ExamResolver'
 import { MeResolver } from './MeResolver'
 import { UserResolver } from './UserResolver'
 import { PermissionResolver } from './PermissionResolver'
+import { ActivityResolver } from './ActivityResolver'
 
 export const resolvers = [
   AuthenticateResolver,
@@ -14,4 +15,5 @@ export const resolvers = [
   MeResolver,
   UserResolver,
   PermissionResolver,
+  ActivityResolver,
 ]

@@ -3,6 +3,16 @@
 # !!!   DO NOT MODIFY THIS FILE BY YOURSELF   !!!
 # -----------------------------------------------
 
+type Activity {
+  categoryId: ObjectId
+  categoryName: String
+  createdAt: Timestamp!
+  event: String!
+  id: ObjectId!
+  ownerId: ObjectId
+  updatedAt: Timestamp
+}
+
 type Category {
   approvedQuestionCount: Int
   createdAt: Timestamp!
@@ -107,6 +117,11 @@ type Mutation {
 """Mongo object id scalar type"""
 scalar ObjectId
 
+type PaginatedActivityList {
+  data: [Activity!]!
+  meta: PaginatedMetaSchema!
+}
+
 type PaginatedCategories {
   data: [Category!]!
   meta: PaginatedMetaSchema!
@@ -148,6 +163,7 @@ type PermissionSchema {
 }
 
 type Query {
+  activities(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 20): [Activity!]!
   categories(approved: String, creator: String, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 20, subscription: String): [Category!]!
   category(categoryId: ID!): Category!
   currentExamQuestion(examId: ID!): ExamQuestionSchema!
@@ -157,6 +173,7 @@ type Query {
   exams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 20): [Exam!]!
   me: User!
   ownCategories: [Category!]!
+  paginatedActivities(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 20): PaginatedActivityList!
   paginatedCategories(approved: String, creator: String, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 20, subscription: String): PaginatedCategories!
   paginatedExams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 20): PaginatedExams!
   paginatedQuestions(approved: String, category: ID, creator: String, cursor: String = "id", difficulty: String, nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 20, subscription: String, type: String): PaginatedQuestions!
