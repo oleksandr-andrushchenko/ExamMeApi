@@ -8,6 +8,7 @@ import CategoryPermission from '../../enums/category/CategoryPermission'
 import CategoryVerifier from './CategoryVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import EventDispatcher from '../event/EventDispatcher'
+import CategoryEvent from '../../enums/category/CategoryEvent'
 
 @Service()
 export default class CategoryUpdater {
@@ -49,7 +50,7 @@ export default class CategoryUpdater {
     category.updatedAt = new Date()
 
     await this.entityManager.save<Category>(category)
-    this.eventDispatcher.dispatch('categoryUpdated', { category })
+    this.eventDispatcher.dispatch(CategoryEvent.Updated, { category })
 
     return category
   }

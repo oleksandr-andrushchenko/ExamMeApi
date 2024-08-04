@@ -7,6 +7,7 @@ import QuestionRepository from '../../repositories/QuestionRepository'
 import CategoryProvider from '../category/CategoryProvider'
 import CategoryRepository from '../../repositories/CategoryRepository'
 import EventDispatcher from '../event/EventDispatcher'
+import QuestionEvent from '../../enums/question/QuestionEvent'
 
 @Service()
 export default class QuestionApproveSwitcher {
@@ -49,7 +50,7 @@ export default class QuestionApproveSwitcher {
       })
     }
 
-    this.eventDispatcher.dispatch('questionApproveToggled', { question, initiator })
+    this.eventDispatcher.dispatch(QuestionEvent.ApproveToggled, { question, initiator })
 
     return question
   }

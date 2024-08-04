@@ -6,6 +6,7 @@ import CreateMe from '../../schema/user/CreateMe'
 import ValidatorInterface from '../validator/ValidatorInterface'
 import UserVerifier from '../user/UserVerifier'
 import EventDispatcher from '../event/EventDispatcher'
+import MeEvent from '../../enums/me/MeEvent'
 
 @Service()
 export default class MeCreator {
@@ -42,7 +43,7 @@ export default class MeCreator {
     user.createdAt = new Date()
 
     await this.entityManager.save<User>(user)
-    this.eventDispatcher.dispatch('meCreated', { me: user })
+    this.eventDispatcher.dispatch(MeEvent.Created, { me: user })
 
     return user
   }

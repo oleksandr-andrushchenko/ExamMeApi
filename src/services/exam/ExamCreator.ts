@@ -13,6 +13,7 @@ import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import CategoryVerifier from '../category/CategoryVerifier'
 import QuestionRepository from '../../repositories/QuestionRepository'
 import EventDispatcher from '../event/EventDispatcher'
+import ExamEvent from '../../enums/exam/ExamEvent'
 
 @Service()
 export default class ExamCreator {
@@ -66,7 +67,7 @@ export default class ExamCreator {
     exam.createdAt = new Date()
 
     await this.entityManager.save<Exam>(exam)
-    this.eventDispatcher.dispatch('examCreated', { exam })
+    this.eventDispatcher.dispatch(ExamEvent.Created, { exam })
 
     return exam
   }

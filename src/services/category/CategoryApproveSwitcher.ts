@@ -5,6 +5,7 @@ import Category from '../../entities/category/Category'
 import CategoryPermission from '../../enums/category/CategoryPermission'
 import CategoryRepository from '../../repositories/CategoryRepository'
 import EventDispatcher from '../event/EventDispatcher'
+import CategoryEvent from '../../enums/category/CategoryEvent'
 
 @Service()
 export default class CategoryApproveSwitcher {
@@ -30,7 +31,7 @@ export default class CategoryApproveSwitcher {
       updatedAt: new Date(),
     })
 
-    this.eventDispatcher.dispatch('categoryApproveToggled', { category, initiator })
+    this.eventDispatcher.dispatch(CategoryEvent.ApproveToggled, { category, initiator })
 
     return category
   }

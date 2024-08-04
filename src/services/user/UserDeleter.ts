@@ -4,6 +4,7 @@ import InjectEntityManager, { EntityManagerInterface } from '../../decorators/In
 import UserPermission from '../../enums/user/UserPermission'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import EventDispatcher from '../event/EventDispatcher'
+import UserEvent from '../../enums/user/UserEvent'
 
 @Service()
 export default class UserDeleter {
@@ -27,7 +28,7 @@ export default class UserDeleter {
     user.deletedAt = new Date()
 
     await this.entityManager.save(user)
-    this.eventDispatcher.dispatch('userDeleted', { user })
+    this.eventDispatcher.dispatch(UserEvent.Deleted, { user })
 
     return user
   }

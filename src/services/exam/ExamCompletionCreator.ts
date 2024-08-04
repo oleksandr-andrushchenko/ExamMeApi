@@ -8,6 +8,7 @@ import ExamPermission from '../../enums/exam/ExamPermission'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import CategoryQuestionsProvider from '../question/CategoryQuestionsProvider'
 import EventDispatcher from '../event/EventDispatcher'
+import ExamEvent from '../../enums/exam/ExamEvent'
 
 @Service()
 export default class ExamCompletionCreator {
@@ -55,8 +56,7 @@ export default class ExamCompletionCreator {
     exam.completedAt = new Date()
     exam.updatedAt = new Date()
 
-    this.eventDispatcher.dispatch('examCompleted', { exam })
-
     await this.entityManager.save<Exam>(exam)
+    this.eventDispatcher.dispatch(ExamEvent.Completed, { exam })
   }
 }

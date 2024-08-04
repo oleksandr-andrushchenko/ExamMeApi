@@ -11,6 +11,7 @@ import QuestionVerifier from './QuestionVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import QuestionRepository from '../../repositories/QuestionRepository'
 import EventDispatcher from '../event/EventDispatcher'
+import QuestionEvent from '../../enums/question/QuestionEvent'
 
 @Service()
 export default class QuestionCreator {
@@ -60,7 +61,7 @@ export default class QuestionCreator {
     category.questionCount = await this.questionRepository.countByCategory(category) + 1
 
     await this.entityManager.save([ question, category ])
-    this.eventDispatcher.dispatch('questionCreated', { question })
+    this.eventDispatcher.dispatch(QuestionEvent.Created, { question })
 
     return question
   }

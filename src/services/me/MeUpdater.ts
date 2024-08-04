@@ -5,6 +5,7 @@ import ValidatorInterface from '../validator/ValidatorInterface'
 import UpdateMe from '../../schema/user/UpdateMe'
 import UserVerifier from '../user/UserVerifier'
 import EventDispatcher from '../event/EventDispatcher'
+import MeEvent from '../../enums/me/MeEvent'
 
 @Service()
 export default class MeUpdater {
@@ -37,7 +38,7 @@ export default class MeUpdater {
     initiator.updatedAt = new Date()
 
     await this.entityManager.save<User>(initiator)
-    this.eventDispatcher.dispatch('meUpdated', { me: initiator })
+    this.eventDispatcher.dispatch(MeEvent.Updated, { me: initiator })
 
     return initiator
   }

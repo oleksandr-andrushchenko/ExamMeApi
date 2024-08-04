@@ -9,6 +9,7 @@ import CategoryVerifier from './CategoryVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import LoggerInterface from '../logger/LoggerInterface'
 import EventDispatcher from '../event/EventDispatcher'
+import CategoryEvent from '../../enums/category/CategoryEvent'
 
 @Service()
 export default class CategoryCreator {
@@ -46,7 +47,7 @@ export default class CategoryCreator {
     category.createdAt = new Date()
 
     await this.entityManager.save<Category>(category)
-    this.eventDispatcher.dispatch('categoryCreated', { category })
+    this.eventDispatcher.dispatch(CategoryEvent.Created, { category })
 
     return category
   }

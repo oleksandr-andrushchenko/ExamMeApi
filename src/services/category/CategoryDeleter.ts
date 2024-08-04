@@ -8,6 +8,7 @@ import Question from '../../entities/question/Question'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import CategoryQuestionsProvider from '../question/CategoryQuestionsProvider'
 import EventDispatcher from '../event/EventDispatcher'
+import CategoryEvent from '../../enums/category/CategoryEvent'
 
 @Service()
 export default class CategoryDeleter {
@@ -40,7 +41,7 @@ export default class CategoryDeleter {
     category.deletedAt = new Date()
 
     await this.entityManager.save<Category>(category)
-    this.eventDispatcher.dispatch('categoryDeleted', { category })
+    this.eventDispatcher.dispatch(CategoryEvent.Deleted, { category })
 
     return category
   }

@@ -7,6 +7,7 @@ import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import QuestionRepository from '../../repositories/QuestionRepository'
 import CategoryRepository from '../../repositories/CategoryRepository'
 import EventDispatcher from '../event/EventDispatcher'
+import QuestionEvent from '../../enums/question/QuestionEvent'
 
 @Service()
 export default class QuestionDeleter {
@@ -40,7 +41,7 @@ export default class QuestionDeleter {
       updatedAt: new Date(),
     })
 
-    this.eventDispatcher.dispatch('questionDeleted', { question })
+    this.eventDispatcher.dispatch(QuestionEvent.Deleted, { question })
 
     return question
   }

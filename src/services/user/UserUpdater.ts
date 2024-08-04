@@ -7,6 +7,7 @@ import UpdateUser from '../../schema/user/UpdateUser'
 import UserVerifier from './UserVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import EventDispatcher from '../event/EventDispatcher'
+import UserEvent from '../../enums/user/UserEvent'
 
 @Service()
 export default class UserUpdater {
@@ -54,7 +55,7 @@ export default class UserUpdater {
     user.updatedAt = new Date()
 
     await this.entityManager.save<User>(user)
-    this.eventDispatcher.dispatch('userUpdated', { user })
+    this.eventDispatcher.dispatch(UserEvent.Updated, { user })
 
     return user
   }

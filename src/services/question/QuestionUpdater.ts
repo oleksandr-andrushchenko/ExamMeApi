@@ -10,6 +10,7 @@ import QuestionType from '../../entities/question/QuestionType'
 import QuestionVerifier from './QuestionVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import EventDispatcher from '../event/EventDispatcher'
+import QuestionEvent from '../../enums/question/QuestionEvent'
 
 @Service()
 export default class QuestionUpdater {
@@ -67,7 +68,7 @@ export default class QuestionUpdater {
     question.updatedAt = new Date()
 
     await this.entityManager.save<Question>(question)
-    this.eventDispatcher.dispatch('questionUpdated', { question })
+    this.eventDispatcher.dispatch(QuestionEvent.Updated, { question })
 
     return question
   }

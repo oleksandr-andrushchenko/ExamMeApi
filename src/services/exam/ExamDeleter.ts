@@ -5,6 +5,7 @@ import Exam from '../../entities/exam/Exam'
 import ExamPermission from '../../enums/exam/ExamPermission'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import EventDispatcher from '../event/EventDispatcher'
+import ExamEvent from '../../enums/exam/ExamEvent'
 
 @Service()
 export default class ExamDeleter {
@@ -29,7 +30,7 @@ export default class ExamDeleter {
     exam.deletedAt = new Date()
 
     await this.entityManager.save<Exam>(exam)
-    this.eventDispatcher.dispatch('examDeleted', { exam })
+    this.eventDispatcher.dispatch(ExamEvent.Deleted, { exam })
 
     return exam
   }

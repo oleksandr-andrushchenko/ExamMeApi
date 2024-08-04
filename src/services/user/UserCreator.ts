@@ -8,6 +8,7 @@ import UserPermission from '../../enums/user/UserPermission'
 import UserVerifier from './UserVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import EventDispatcher from '../event/EventDispatcher'
+import UserEvent from '../../enums/user/UserEvent'
 
 @Service()
 export default class UserCreator {
@@ -49,7 +50,7 @@ export default class UserCreator {
     user.createdAt = new Date()
 
     await this.entityManager.save<User>(user)
-    this.eventDispatcher.dispatch('userCreated', { user })
+    this.eventDispatcher.dispatch(UserEvent.Created, { user })
 
     return user
   }
