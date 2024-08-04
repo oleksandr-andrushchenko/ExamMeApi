@@ -27,7 +27,7 @@ export default class UserDeleter {
 
     user.deletedAt = new Date()
 
-    await this.entityManager.save(user)
+    await this.entityManager.save<User>(user)
     this.eventDispatcher.dispatch(UserEvent.Deleted, { user })
 
     return user

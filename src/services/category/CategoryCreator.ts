@@ -7,7 +7,6 @@ import ValidatorInterface from '../validator/ValidatorInterface'
 import CategoryPermission from '../../enums/category/CategoryPermission'
 import CategoryVerifier from './CategoryVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
-import LoggerInterface from '../logger/LoggerInterface'
 import EventDispatcher from '../event/EventDispatcher'
 import CategoryEvent from '../../enums/category/CategoryEvent'
 
@@ -19,7 +18,6 @@ export default class CategoryCreator {
     @Inject() private readonly categoryVerifier: CategoryVerifier,
     @Inject() private readonly eventDispatcher: EventDispatcher,
     @Inject() private readonly authorizationVerifier: AuthorizationVerifier,
-    @Inject('logger') private readonly logger: LoggerInterface,
     @Inject('validator') private readonly validator: ValidatorInterface,
   ) {
   }

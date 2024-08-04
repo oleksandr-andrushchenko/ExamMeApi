@@ -19,6 +19,11 @@ import QuestionChoice from '../../src/entities/question/QuestionChoice'
 import ExamQuestion from '../../src/entities/exam/ExamQuestion'
 import Rating from '../../src/entities/Rating'
 import AccessTokenCreator from '../../src/services/auth/AccessTokenCreator'
+import Activity from '../../src/entities/activity/Activity'
+import ActivityRepository from '../../src/repositories/ActivityRepository'
+import { Event } from '../../src/enums/Event'
+import CategoryEvent from '../../src/enums/category/CategoryEvent'
+import EntityRepository from '../../src/repositories/EntityRepository'
 
 export default class TestFramework {
 
@@ -54,6 +59,9 @@ export default class TestFramework {
           break
         case this.compare(entity, Exam):
           await this.container.get<ExamRepository>(ExamRepository).clear()
+          break
+        case this.compare(entity, Activity):
+          await this.container.get<ActivityRepository>(ActivityRepository).clear()
           break
         default:
           throw new Error(`Clear: Unknown "${ entity.toString() }" type passed`)
@@ -169,6 +177,17 @@ export default class TestFramework {
         }
 
         break
+      case this.compare(entity, Activity):
+        object = new Activity()
+        object.event = 'event' in options ? options.event : faker.helpers.arrayElement(Object.values(Event))
+
+        if (Object.values(CategoryEvent).includes(object.event)) {
+          const category = ('category' in options ? options.category : await this.fixture<Category>(Category, options)) as Category
+          object.categoryId = category.id
+          object.categoryName = category.name
+        }
+
+        break
       default:
         throw new Error(`Fixture: Unknown "${ entity.toString() }" type passed`)
     }
@@ -192,19 +211,25 @@ export default class TestFramework {
     return object
   }
 
-  public async load<Entity>(entity: any, id: ObjectId): Promise<Entity> {
+  public repo<Entity>(entity: any): EntityRepository<Entity> {
     switch (true) {
       case this.compare(entity, User):
-        return await this.container.get<UserRepository>(UserRepository).findOneById(id) as any
+        return this.container.get<UserRepository>(UserRepository) as any
       case this.compare(entity, Category):
-        return await this.container.get<CategoryRepository>(CategoryRepository).findOneById(id) as any
+        return this.container.get<CategoryRepository>(CategoryRepository) as any
       case this.compare(entity, Question):
-        return await this.container.get<QuestionRepository>(QuestionRepository).findOneById(id) as any
+        return this.container.get<QuestionRepository>(QuestionRepository) as any
       case this.compare(entity, Exam):
-        return await this.container.get<ExamRepository>(ExamRepository).findOneById(id) as any
+        return this.container.get<ExamRepository>(ExamRepository) as any
+      case this.compare(entity, Activity):
+        return this.container.get<ActivityRepository>(ActivityRepository) as any
       default:
-        throw new Error(`Load: Unknown "${ entity.toString() }" type passed`)
+        throw new Error(`Repo: Unknown "${ entity.toString() }" type passed`)
     }
+  }
+
+  public async load<Entity>(entity: any, id: ObjectId): Promise<Entity> {
+    return await (this.repo<Entity>(entity)).findOneById(id) as any
   }
 
   public error(name: string = '', message: string = '', errors: string[] = []) {

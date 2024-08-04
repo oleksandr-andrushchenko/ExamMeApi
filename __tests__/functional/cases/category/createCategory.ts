@@ -8,6 +8,8 @@ import CategoryPermission from '../../../../src/enums/category/CategoryPermissio
 import { createCategory } from '../../graphql/category/createCategory'
 import CreateCategory from '../../../../src/schema/category/CreateCategory'
 import TestFramework from '../../TestFramework'
+import Activity from '../../../../src/entities/activity/Activity'
+import CategoryEvent from '../../../../src/enums/category/CategoryEvent'
 
 const framework: TestFramework = globalThis.framework
 
@@ -94,5 +96,7 @@ describe('Create category', () => {
     })
     expect(createdCategory.createdAt.getTime()).toBeGreaterThanOrEqual(now)
     expect(res.body.data.createCategory).not.toHaveProperty([ 'creatorId', 'deletedAt' ])
+
+    expect(await framework.repo(Activity).countBy({ event: CategoryEvent.Created, categoryId: id })).toEqual(1)
   })
 })

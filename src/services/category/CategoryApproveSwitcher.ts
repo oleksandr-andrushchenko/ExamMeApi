@@ -33,6 +33,10 @@ export default class CategoryApproveSwitcher {
 
     this.eventDispatcher.dispatch(CategoryEvent.ApproveToggled, { category, initiator })
 
+    if (this.isCategoryApproved(category)) {
+      this.eventDispatcher.dispatch(CategoryEvent.Approved, { category, initiator })
+    }
+
     return category
   }
 

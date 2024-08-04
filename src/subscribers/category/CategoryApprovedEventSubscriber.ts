@@ -6,8 +6,8 @@ import CategoryEvent from '../../enums/category/CategoryEvent'
 import CategoryActivityCreator from '../../services/category/CategoryActivityCreator'
 
 @Service()
-@EventSubscriber(CategoryEvent.Created)
-export default class CategoryCreatedEventSubscriber implements EventSubscriberInterface {
+@EventSubscriber(CategoryEvent.Approved)
+export default class CategoryApprovedEventSubscriber implements EventSubscriberInterface {
 
   public constructor(
     @Inject() private readonly categoryActivityCreator: CategoryActivityCreator,
@@ -15,6 +15,6 @@ export default class CategoryCreatedEventSubscriber implements EventSubscriberIn
   }
 
   public async handle({ category }: { category: Category }): Promise<void> {
-    await this.categoryActivityCreator.createCategoryActivity(category, CategoryEvent.Created)
+    await this.categoryActivityCreator.createCategoryActivity(category, CategoryEvent.Approved)
   }
 }

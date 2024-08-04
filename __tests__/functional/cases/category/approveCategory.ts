@@ -6,6 +6,8 @@ import CategoryPermission from '../../../../src/enums/category/CategoryPermissio
 // @ts-ignore
 import { toggleCategoryApprove } from '../../graphql/category/toggleCategoryApprove'
 import TestFramework from '../../TestFramework'
+import Activity from '../../../../src/entities/activity/Activity'
+import CategoryEvent from '../../../../src/enums/category/CategoryEvent'
 
 const framework: TestFramework = globalThis.framework
 
@@ -79,6 +81,8 @@ describe('Approve category', () => {
 
     const updatedCategory = await framework.load<Category>(Category, category.id)
     expect(updatedCategory).not.toHaveProperty('ownerId')
+
+    expect(await framework.repo(Activity).countBy({ event: CategoryEvent.Approved, categoryId: category.id })).toEqual(1)
   })
   test('Un-approved', async () => {
     await framework.clear(Category)
