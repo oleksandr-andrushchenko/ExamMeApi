@@ -43,7 +43,7 @@ export class CategoryResolver {
 
   @Authorized()
   @Query(_returns => [ Category ], { name: 'ownCategories' })
-  public async getOwnCategories(
+  public async getCurrentUserCategories(
     @Ctx('user') user: User,
   ): Promise<Category[]> {
     return await this.categoryRepository.findByOwner(user)
@@ -115,16 +115,18 @@ export class CategoryResolver {
     return true
   }
 
-  @FieldResolver(_returns => Boolean, { nullable: true })
-  public async isOwner(
+  @Authorized()
+  @FieldResolver(_returns => Boolean, { name: 'isOwner', nullable: true })
+  public async isCurrentUserCategoryOwner(
     @Root() category: Category,
     @Ctx('user') user: User,
   ): Promise<boolean> {
     return user && user.id.toString() === category?.ownerId?.toString()
   }
 
-  @FieldResolver(_returns => Boolean, { nullable: true })
-  public async isCreator(
+  @Authorized()
+  @FieldResolver(_returns => Boolean, { name: 'isCreator', nullable: true })
+  public async isCurrentUserCategoryCreator(
     @Root() category: Category,
     @Ctx('user') user: User,
   ): Promise<boolean> {

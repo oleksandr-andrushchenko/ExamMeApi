@@ -115,16 +115,18 @@ export class QuestionResolver {
     return await this.categoryProvider.getCategory(question.categoryId)
   }
 
-  @FieldResolver(_returns => Boolean, { nullable: true })
-  public async isOwner(
+  @Authorized()
+  @FieldResolver(_returns => Boolean, { name: 'isOwner', nullable: true })
+  public async isCurrentUserQuestionOwner(
     @Root() question: Question,
     @Ctx('user') user: User,
   ): Promise<boolean> {
     return user && user.id.toString() === question?.ownerId?.toString()
   }
 
-  @FieldResolver(_returns => Boolean, { nullable: true })
-  public async isCreator(
+  @Authorized()
+  @FieldResolver(_returns => Boolean, { name: 'isCreator', nullable: true })
+  public async isCurrentUserQuestionCreator(
     @Root() question: Question,
     @Ctx('user') user: User,
   ): Promise<boolean> {
