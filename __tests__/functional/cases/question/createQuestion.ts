@@ -101,15 +101,42 @@ describe('Create question', () => {
     { case: 'choice title as short string', body: createBadRequestBody('choices', [ { title: 'a' } ]) },
     { case: 'choice title as long string', body: createBadRequestBody('choices', [ { title: 'a'.repeat(4001) } ]) },
     { case: 'choice title as boolean', body: createBadRequestBody('choices', [ { title: false } ]) },
-    { case: 'choice correct as object', body: createBadRequestBody('choices', [ { title: 'Any valid title', correct: {} } ]) },
-    { case: 'choice correct as number', body: createBadRequestBody('choices', [ { title: 'Any valid title', correct: 1 } ]) },
-    { case: 'choice correct as string', body: createBadRequestBody('choices', [ { title: 'Any valid title', correct: 'any' } ]) },
-    { case: 'choice correct as null', body: createBadRequestBody('choices', [ { title: 'Any valid title', correct: null } ]) },
-    { case: 'choice explanation as object', body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: {} } ]) },
-    { case: 'choice explanation as number', body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: 1 } ]) },
-    { case: 'choice explanation as string', body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: 'any' } ]) },
-    { case: 'choice explanation as null', body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: null } ]) },
-    { case: 'choice explanation as boolean', body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: true } ]) },
+    {
+      case: 'choice correct as object',
+      body: createBadRequestBody('choices', [ { title: 'Any valid title', correct: {} } ]),
+    },
+    {
+      case: 'choice correct as number',
+      body: createBadRequestBody('choices', [ { title: 'Any valid title', correct: 1 } ]),
+    },
+    {
+      case: 'choice correct as string',
+      body: createBadRequestBody('choices', [ { title: 'Any valid title', correct: 'any' } ]),
+    },
+    {
+      case: 'choice correct as null',
+      body: createBadRequestBody('choices', [ { title: 'Any valid title', correct: null } ]),
+    },
+    {
+      case: 'choice explanation as object',
+      body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: {} } ]),
+    },
+    {
+      case: 'choice explanation as number',
+      body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: 1 } ]),
+    },
+    {
+      case: 'choice explanation as string',
+      body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: 'any' } ]),
+    },
+    {
+      case: 'choice explanation as null',
+      body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: null } ]),
+    },
+    {
+      case: 'choice explanation as boolean',
+      body: createBadRequestBody('choices', [ { title: 'Any valid title', explanation: true } ]),
+    },
   ])('Bad request ($case)', async ({ body, times = 1 }) => {
     const category = await framework.fixture<Category>(Category)
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Create ] })
@@ -197,7 +224,7 @@ describe('Create question', () => {
       'difficulty',
       'title',
       'choices {title correct explanation}',
-      'rating {value voterCount}',
+      'rating {markCount mark}',
       'ownerId',
       'createdAt',
       'updatedAt',

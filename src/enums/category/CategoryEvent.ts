@@ -4,6 +4,7 @@ enum CategoryEvent {
   Deleted = 'categoryDeleted',
   ApproveToggled = 'categoryApproveToggled',
   Approved = 'categoryApproved',
+  Rated = 'categoryRated',
 }
 
 export default CategoryEvent

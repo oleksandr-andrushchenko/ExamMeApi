@@ -35,7 +35,7 @@ describe('Get question', () => {
       'difficulty',
       'title',
       'choices {title correct explanation}',
-      'rating {value voterCount}',
+      'rating {markCount mark}',
       'ownerId',
       'createdAt',
       'updatedAt',

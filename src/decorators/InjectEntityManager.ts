@@ -1,5 +1,5 @@
 import { Constructable, Container } from 'typedi'
-import { ConnectionManager, EntityManager } from 'typeorm'
+import { ConnectionManager, MongoEntityManager } from 'typeorm'
 
 export default function InjectEntityManager(connection: string = 'default'): ParameterDecorator {
   return (target: Constructable<unknown>, propertyKey: string | symbol, parameterIndex: number): void => {
@@ -12,4 +12,4 @@ export default function InjectEntityManager(connection: string = 'default'): Par
   }
 }
 
-export { EntityManager as EntityManagerInterface }
+export { MongoEntityManager as EntityManagerInterface }

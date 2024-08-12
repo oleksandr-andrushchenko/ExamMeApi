@@ -5,6 +5,7 @@ enum UserPermission {
   Delete = 'deleteUser',
   GetEmail = 'getUserEmail',
   GetPermissions = 'getUserPermissions',
+  GetCategoryVotes = 'getUserCategoryVotes',
 }
 
 export default UserPermission

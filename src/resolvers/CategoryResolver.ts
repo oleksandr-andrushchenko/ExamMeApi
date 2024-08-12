@@ -15,6 +15,8 @@ import CategoryUpdater from '../services/category/CategoryUpdater'
 import CategoryListProvider from '../services/category/CategoryListProvider'
 import CategoryApproveSwitcher from '../services/category/CategoryApproveSwitcher'
 import CategoryRepository from '../repositories/CategoryRepository'
+import CategoryRater from '../services/category/CategoryRater'
+import RateCategoryRequest from '../schema/category/RateCategoryRequest'
 
 @Service()
 @Resolver(Category)
@@ -29,6 +31,7 @@ export class CategoryResolver {
     @Inject() private readonly categoryRepository: CategoryRepository,
     @Inject() private readonly categoryApproveSwitcher: CategoryApproveSwitcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
+    @Inject() private readonly categoryRater: CategoryRater,
   ) {
   }
 
@@ -131,5 +134,19 @@ export class CategoryResolver {
     @Ctx('user') user: User,
   ): Promise<boolean> {
     return user && user.id.toString() === category.creatorId.toString()
+  }
+
+  @Authorized()
+  @Mutation(_returns => Category)
+  public async rateCategory(
+    @Args() rateCategoryRequest: RateCategoryRequest,
+    @Ctx('user') user: User,
+  ): Promise<Category> {
+    await this.validator.validate(rateCategoryRequest)
+    const category = await this.categoryProvider.getCategory(rateCategoryRequest.categoryId)
+
+    await this.categoryRater.rateCategory(category, rateCategoryRequest.mark, user)
+
+    return category
   }
 }

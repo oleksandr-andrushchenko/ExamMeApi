@@ -106,6 +106,7 @@ type Mutation {
   deleteMe: Boolean!
   deleteQuestion(questionId: ID!): Boolean!
   deleteUser(userId: ID!): Boolean!
+  rateCategory(categoryId: ID!, mark: Int!): Category!
   toggleCategoryApprove(categoryId: ID!): Category!
   toggleQuestionApprove(questionId: ID!): Question!
   updateCategory(categoryId: ID!, updateCategory: UpdateCategory!): Category!
@@ -214,8 +215,8 @@ input QuestionChoiceSchema {
 }
 
 type Rating {
-  value: Float
-  voterCount: Int
+  mark: Float!
+  markCount: Int!
 }
 
 """
@@ -254,6 +255,7 @@ input UpdateUser {
 }
 
 type User {
+  categoryRatingMarks: [[ObjectId!]!]
   createdAt: Timestamp!
   email: String
   id: ObjectId!

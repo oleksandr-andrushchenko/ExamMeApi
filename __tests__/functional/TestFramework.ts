@@ -23,6 +23,8 @@ import Activity from '../../src/entities/activity/Activity'
 import ActivityRepository from '../../src/repositories/ActivityRepository'
 import CategoryEvent from '../../src/enums/category/CategoryEvent'
 import EntityRepository from '../../src/repositories/EntityRepository'
+import RatingMark from '../../src/entities/rating/RatingMark'
+import RatingMarkRepository from '../../src/repositories/RatingMarkRepository'
 
 export default class TestFramework {
 
@@ -61,6 +63,9 @@ export default class TestFramework {
           break
         case this.compare(entity, Activity):
           await this.container.get<ActivityRepository>(ActivityRepository).clear()
+          break
+        case this.compare(entity, RatingMark):
+          await this.container.get<RatingMarkRepository>(RatingMarkRepository).clear()
           break
         default:
           throw new Error(`Clear: Unknown "${ entity.toString() }" type passed`)
@@ -101,8 +106,8 @@ export default class TestFramework {
 
         if (faker.datatype.boolean()) {
           const rating = new Rating()
-          rating.value = faker.number.float({ min: 0.1, max: 5 })
-          rating.voterCount = faker.number.int({ min: 1, max: 10 })
+          rating.mark = faker.number.float({ min: 1, max: 5 })
+          rating.markCount = faker.number.int({ min: 1, max: 10 })
           object.rating = rating
         }
 
@@ -139,8 +144,8 @@ export default class TestFramework {
 
         if (faker.datatype.boolean()) {
           const rating = new Rating()
-          rating.value = faker.number.float({ min: 0.1, max: 5 })
-          rating.voterCount = faker.number.int({ min: 1, max: 10 })
+          rating.mark = faker.number.float({ min: 1, max: 5 })
+          rating.markCount = faker.number.int({ min: 1, max: 10 })
           object.rating = rating
         }
 
@@ -187,6 +192,28 @@ export default class TestFramework {
         }
 
         break
+      case this.compare(entity, RatingMark):
+        object = new RatingMark()
+        object.mark = faker.number.float({ min: 1, max: 5 })
+
+        const hasCustomCategory = 'categoryId' in options
+        const hasCustomQuestion = 'questionId' in options
+
+        if (hasCustomCategory || hasCustomQuestion) {
+          if (hasCustomCategory) {
+            object.categoryId = options.categoryId
+          } else {
+            object.questionId = options.questionId
+          }
+        } else {
+          if (faker.datatype.boolean()) {
+            object.categoryId = (await this.fixture(Category, options) as Category).id
+          } else {
+            object.questionId = (await this.fixture(Question, options) as Question).id
+          }
+        }
+
+        break
       default:
         throw new Error(`Fixture: Unknown "${ entity.toString() }" type passed`)
     }
@@ -222,6 +249,8 @@ export default class TestFramework {
         return this.container.get<ExamRepository>(ExamRepository) as any
       case this.compare(entity, Activity):
         return this.container.get<ActivityRepository>(ActivityRepository) as any
+      case this.compare(entity, RatingMark):
+        return this.container.get<RatingMarkRepository>(RatingMarkRepository) as any
       default:
         throw new Error(`Repo: Unknown "${ entity.toString() }" type passed`)
     }
