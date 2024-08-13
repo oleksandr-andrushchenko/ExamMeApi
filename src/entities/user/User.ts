@@ -36,7 +36,7 @@ export default class User extends Base {
   public permissions?: Permission[] = [ Permission.Regular ]
 
   @Authorized(UserPermission.GetCategoryVotes)
-  @Column({ nullable: true })
+  @Column()
   @Field(_type => [ [ ObjectIdScalar! ]! ], { nullable: true })
   public categoryRatingMarks?: ObjectId[][]
 }

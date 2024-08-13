@@ -58,22 +58,27 @@ describe('Rate category', () => {
   test('Rated', async () => {
     await framework.clear(RatingMark)
     const category = await framework.fixture<Category>(Category)
+    await framework.fixture<RatingMark>(RatingMark, { categoryId: category.id })
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Rate ] })
+    const existingRatingMark = await framework.fixture<RatingMark>(RatingMark, { creatorId: user.id, mark: 3 })
     const token = (await framework.auth(user)).token
     const categoryId = category.id.toString()
+    const mark = 4
     const res = await request(framework.app).post('/')
-      .send(rateCategory({ categoryId, mark: 4 }, [ 'id', 'ownerId' ]))
+      .send(rateCategory({ categoryId, mark }, [ 'id', 'ownerId' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { rateCategory: { id: categoryId } } })
 
-    const updatedCategory = await framework.load<Category>(Category, category.id)
-    expect(updatedCategory).not.toHaveProperty('ownerId')
+    expect(await framework.repo(RatingMark).countBy({ categoryId: category.id, mark, creatorId: user.id })).toEqual(1)
+    expect(await framework.repo(Activity).countBy({ event: CategoryEvent.Rated, categoryId: category.id })).toEqual(1)
 
-    expect(await framework.repo(Activity).countBy({
-      event: CategoryEvent.Rated,
-      categoryId: category.id,
-    })).toEqual(1)
+    const updatedUser = await framework.repo(User).findOneById(user.id) as User
+    console.log(updatedUser)
+    expect(updatedUser.categoryRatingMarks[existingRatingMark.mark - 1][0].toString()).toEqual(existingRatingMark.categoryId.toString())
+    expect(updatedUser.categoryRatingMarks[mark - 1][0].toString()).toEqual(category.id.toString())
+
+    expect(await framework.repo(Category).countBy({ id: category.id, 'rating.markCount': 2, 'rating.mark': 0 })).toEqual(1)
   })
 })

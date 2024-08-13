@@ -14,7 +14,6 @@ export default class UserCategoryRatingMarksSyncer {
 
   public async syncUserCategoryRatingMarks(user: User): Promise<User> {
     const ratingMarks = await this.ratingMarkRepository.findByCreator(user)
-    console.log(ratingMarks)
 
     const categoryRatingMarks = []
 

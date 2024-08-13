@@ -5,6 +5,7 @@ import { FindManyOptions } from 'typeorm/find-options/FindManyOptions'
 import { CountOptions, Document, FilterOperators } from 'typeorm/driver/mongodb/typings'
 import { UpdateResult } from 'typeorm/query-builder/result/UpdateResult'
 import { MongoFindOneOptions } from 'typeorm/find-options/mongodb/MongoFindOneOptions'
+import { PickKeysByType } from 'typeorm/common/PickKeysByType'
 
 export default class EntityRepository<Entity extends ObjectLiteral> extends MongoRepository<Entity> {
 
@@ -54,6 +55,24 @@ export default class EntityRepository<Entity extends ObjectLiteral> extends Mong
     query['deletedAt'] = { $exists: false }
 
     return super.countBy(query, options)
+  }
+
+  public async sumBy(columnName: PickKeysByType<Entity, number>, where: any = {}): Promise<number | null> {
+    where.deletedAt = { $exists: false }
+
+    const res = await this.aggregate([
+      {
+        $match: where,
+      },
+      {
+        $group: {
+          _id: null,
+          sum: { $sum: `$${ columnName }` },
+        },
+      },
+    ]).toArray()
+
+    return res.length > 0 ? res[0].sum : null
   }
 
   public async updateOneByEntity(

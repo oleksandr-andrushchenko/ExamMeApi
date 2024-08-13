@@ -11,7 +11,7 @@ export default class QuestionRepository extends EntityRepository<Question> {
   }
 
   public async countByCategory(category: Category): Promise<number> {
-    return await this.count({ categoryId: category.id })
+    return await this.countBy({ categoryId: category.id })
   }
 
   public async findByCategoryAndNoOwner(category: Category): Promise<Question[]> {
@@ -19,6 +19,6 @@ export default class QuestionRepository extends EntityRepository<Question> {
   }
 
   public async countByCategoryAndNoOwner(category: Category): Promise<number> {
-    return await this.count({ categoryId: category.id, ownerId: { $exists: false } })
+    return await this.countBy({ categoryId: category.id, ownerId: { $exists: false } })
   }
 }

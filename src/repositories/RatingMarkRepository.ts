@@ -12,11 +12,11 @@ export default class RatingMarkRepository extends EntityRepository<RatingMark> {
   }
 
   public async countByCategory(category: Category): Promise<number> {
-    return await this.count({ categoryId: category.id })
+    return await this.countBy({ categoryId: category.id })
   }
 
   public async sumByCategory(category: Category): Promise<number> {
-    return await this.sum('mark', { categoryId: category.id })
+    return await this.sumBy('mark', { categoryId: category.id })
   }
 
   public async findByCreator(creator: User): Promise<RatingMark[]> {

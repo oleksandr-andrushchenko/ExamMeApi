@@ -213,6 +213,8 @@ export default class TestFramework {
           }
         }
 
+        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id
+
         break
       default:
         throw new Error(`Fixture: Unknown "${ entity.toString() }" type passed`)
