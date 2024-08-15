@@ -82,7 +82,7 @@ describe('Rate category', () => {
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
   test('Rated', async () => {
-    await framework.clear()
+    await framework.clear([ RatingMark, Category ])
     const category = await framework.fixture<Category>(Category)
     // existing somebodies category mark
     const nonUserCategoryMark = await framework.fixture<RatingMark>(RatingMark, { categoryId: category.id })
@@ -108,6 +108,7 @@ describe('Rate category', () => {
     expect(updatedUser.categoryRatingMarks[mark - 1][0].toString()).toEqual(category.id.toString())
 
     const updatedCategory = await framework.repo(Category).findOneById(category.id) as Category
+    expect(updatedCategory.rating).toBeDefined()
     expect(updatedCategory.rating.markCount).toEqual(2)
     expect(updatedCategory.rating.mark).toEqual((nonUserCategoryMark.mark + mark) / 2)
   })
