@@ -94,7 +94,7 @@ describe('Rate category', () => {
     // new users category mark
     const mark = 4
     const res = await request(framework.app).post('/')
-      .send(rateCategory({ categoryId, mark }, [ 'id', 'rating {markCount mark}' ]))
+      .send(rateCategory({ categoryId, mark }))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
