@@ -9,6 +9,7 @@ import TestFramework from '../../TestFramework'
 import Activity from '../../../../src/entities/activity/Activity'
 import CategoryEvent from '../../../../src/enums/category/CategoryEvent'
 import RatingMark from '../../../../src/entities/rating/RatingMark'
+import RateCategoryRequest from '../../../../src/schema/category/RateCategoryRequest'
 
 const framework: TestFramework = globalThis.framework
 
@@ -22,11 +23,36 @@ describe('Rate category', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject(framework.graphqlError('AuthorizationRequiredError'))
   })
-  test('Bad request (invalid category id)', async () => {
+  test.each([
+    { case: 'no category', body: {} },
+    { case: 'category is null', body: { categoryId: null } },
+    { case: 'category is undefined', body: { categoryId: undefined } },
+    { case: 'invalid category', body: { categoryId: 'invalid' } },
+  ])('Bad request ($case)', async ({ body }) => {
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Rate ] })
     const token = (await framework.auth(user)).token
     const res = await request(framework.app).post('/')
-      .send(rateCategory({ categoryId: 'invalid', mark: 1 }))
+      .send(rateCategory({ ...body, mark: 1 } as RateCategoryRequest))
+      .auth(token, { type: 'bearer' })
+
+    expect(res.status).toEqual(200)
+    expect(res.body).toMatchObject(framework.graphqlError('BadRequestError'))
+  })
+  test.each([
+    { case: 'no mark', body: {} },
+    { case: 'mark is null', body: { mark: null } },
+    { case: 'mark is undefined', body: { mark: undefined } },
+    { case: 'mark is string', body: { mark: 'any' } },
+    { case: 'mark is float', body: { mark: 1.1 } },
+    { case: 'mark is negative', body: { mark: -1 } },
+    { case: 'mark is less then 1', body: { mark: 0 } },
+    { case: 'mark is greater 5', body: { mark: 6 } },
+  ])('Bad request ($case)', async ({ body }) => {
+    const category = await framework.fixture<Category>(Category)
+    const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Rate ] })
+    const token = (await framework.auth(user)).token
+    const res = await request(framework.app).post('/')
+      .send(rateCategory({ categoryId: category.id.toString(), ...body } as RateCategoryRequest))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -56,16 +82,19 @@ describe('Rate category', () => {
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
   test('Rated', async () => {
-    await framework.clear(RatingMark)
+    await framework.clear()
     const category = await framework.fixture<Category>(Category)
-    await framework.fixture<RatingMark>(RatingMark, { categoryId: category.id })
+    // existing somebodies category mark
+    const nonUserCategoryMark = await framework.fixture<RatingMark>(RatingMark, { categoryId: category.id })
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Rate ] })
-    const existingRatingMark = await framework.fixture<RatingMark>(RatingMark, { creatorId: user.id, mark: 3 })
+    // existing users non-category mark
+    const userAnyCategoryRatingMark = await framework.fixture<RatingMark>(RatingMark, { creatorId: user.id, mark: 3 })
     const token = (await framework.auth(user)).token
     const categoryId = category.id.toString()
+    // new users category mark
     const mark = 4
     const res = await request(framework.app).post('/')
-      .send(rateCategory({ categoryId, mark }, [ 'id', 'ownerId' ]))
+      .send(rateCategory({ categoryId, mark }, [ 'id', 'rating {markCount mark}' ]))
       .auth(token, { type: 'bearer' })
 
     expect(res.status).toEqual(200)
@@ -75,10 +104,11 @@ describe('Rate category', () => {
     expect(await framework.repo(Activity).countBy({ event: CategoryEvent.Rated, categoryId: category.id })).toEqual(1)
 
     const updatedUser = await framework.repo(User).findOneById(user.id) as User
-    console.log(updatedUser)
-    expect(updatedUser.categoryRatingMarks[existingRatingMark.mark - 1][0].toString()).toEqual(existingRatingMark.categoryId.toString())
+    expect(updatedUser.categoryRatingMarks[userAnyCategoryRatingMark.mark - 1][0].toString()).toEqual(userAnyCategoryRatingMark.categoryId.toString())
     expect(updatedUser.categoryRatingMarks[mark - 1][0].toString()).toEqual(category.id.toString())
 
-    expect(await framework.repo(Category).countBy({ id: category.id, 'rating.markCount': 2, 'rating.mark': 0 })).toEqual(1)
+    const updatedCategory = await framework.repo(Category).findOneById(category.id) as Category
+    expect(updatedCategory.rating.markCount).toEqual(2)
+    expect(updatedCategory.rating.mark).toEqual((nonUserCategoryMark.mark + mark) / 2)
   })
 })

@@ -44,7 +44,7 @@ export default class TestFramework {
     this.appDown = appDown
   }
 
-  public async clear(_entity: any | any[] = [ User, Category, Question, Exam ]) {
+  public async clear(_entity: any | any[] = [ User, Category, Question, Exam, RatingMark ]) {
     _entity = Array.isArray(_entity) ? _entity : [ _entity ]
 
     for (const entity of _entity) {
@@ -101,12 +101,12 @@ export default class TestFramework {
           min: 0,
           max: 2,
         })
-        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id
+        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User) as User).id
         object.ownerId = 'ownerId' in options ? options.ownerId : object.creatorId
 
         if (faker.datatype.boolean()) {
           const rating = new Rating()
-          rating.mark = faker.number.float({ min: 1, max: 5 })
+          rating.mark = faker.number.int({ min: 1, max: 5 })
           rating.markCount = faker.number.int({ min: 1, max: 10 })
           object.rating = rating
         }
@@ -114,11 +114,11 @@ export default class TestFramework {
         break
       case this.compare(entity, Question):
         object = new Question()
-        object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category, options) as Category).id
+        object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category) as Category).id
         object.type = 'type' in options ? options.type : faker.helpers.enumValue(QuestionType)
         object.difficulty = faker.helpers.enumValue(QuestionDifficulty)
         object.title = faker.lorem.sentences(3)
-        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id
+        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User) as User).id
         object.ownerId = 'ownerId' in options ? options.ownerId : object.creatorId
 
         if (object.type === QuestionType.CHOICE) {
@@ -144,7 +144,7 @@ export default class TestFramework {
 
         if (faker.datatype.boolean()) {
           const rating = new Rating()
-          rating.mark = faker.number.float({ min: 1, max: 5 })
+          rating.mark = faker.number.int({ min: 1, max: 5 })
           rating.markCount = faker.number.int({ min: 1, max: 10 })
           object.rating = rating
         }
@@ -152,14 +152,14 @@ export default class TestFramework {
         break
       case this.compare(entity, Exam):
         object = new Exam()
-        object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category, options) as Category).id
-        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id
+        object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category) as Category).id
+        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User) as User).id
         object.ownerId = 'ownerId' in options ? options.ownerId : object.creatorId
 
         const questions = []
 
         for (let i = 0, max = faker.number.int({ min: 1, max: 3 }); i < max; i++) {
-          const question = await this.fixture(Question, { ...options, ...{ categoryId: object.categoryId } }) as Question
+          const question = await this.fixture(Question, { categoryId: object.categoryId }) as Question
           const examQuestion = new ExamQuestion()
           examQuestion.questionId = question.id
 
@@ -186,7 +186,7 @@ export default class TestFramework {
         object.event = 'event' in options ? options.event : faker.helpers.arrayElement(Object.values(Event))
 
         if (Object.values(CategoryEvent).includes(object.event)) {
-          const category = ('category' in options ? options.category : await this.fixture<Category>(Category, options)) as Category
+          const category = ('category' in options ? options.category : await this.fixture<Category>(Category)) as Category
           object.categoryId = category.id
           object.categoryName = category.name
         }
@@ -194,26 +194,9 @@ export default class TestFramework {
         break
       case this.compare(entity, RatingMark):
         object = new RatingMark()
-        object.mark = faker.number.float({ min: 1, max: 5 })
-
-        const hasCustomCategory = 'categoryId' in options
-        const hasCustomQuestion = 'questionId' in options
-
-        if (hasCustomCategory || hasCustomQuestion) {
-          if (hasCustomCategory) {
-            object.categoryId = options.categoryId
-          } else {
-            object.questionId = options.questionId
-          }
-        } else {
-          if (faker.datatype.boolean()) {
-            object.categoryId = (await this.fixture(Category, options) as Category).id
-          } else {
-            object.questionId = (await this.fixture(Question, options) as Question).id
-          }
-        }
-
-        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User, options) as User).id
+        object.mark = 'mark' in options ? options.mark : faker.number.int({ min: 1, max: 5 })
+        object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category) as Category).id
+        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User) as User).id
 
         break
       default:

@@ -1,7 +1,6 @@
-import Category from '../../../../src/entities/category/Category'
 import RateCategoryRequest from '../../../../src/schema/category/RateCategoryRequest'
 
-export const rateCategory = (variables: RateCategoryRequest, fields: (keyof Category)[] = [ 'id' ]) => {
+export const rateCategory = (variables: RateCategoryRequest, fields: string[] = [ 'id' ]) => {
   return {
     query: `
       mutation RateCategory($categoryId: ID!, $mark: Int!) {

@@ -19,7 +19,7 @@ export default class RatingMarkRepository extends EntityRepository<RatingMark> {
     return await this.sumBy('mark', { categoryId: category.id })
   }
 
-  public async findByCreator(creator: User): Promise<RatingMark[]> {
-    return await this.findBy({ creatorId: creator.id })
+  public async findWithCategoryByCreator(creator: User): Promise<RatingMark[]> {
+    return await this.findBy({ creatorId: creator.id, categoryId: { $exists: true } })
   }
 }
