@@ -46,8 +46,8 @@ export default class Question extends Base {
   @Field(_type => Rating, { nullable: true })
   public rating?: Rating
 
-  @Field(_type => Boolean, { nullable: true })
-  public isApproved(): boolean {
+  @Field(_type => Boolean, { name: 'isApproved', nullable: true })
+  public getIsApproved(): boolean {
     return !this.ownerId
   }
 }

@@ -117,7 +117,7 @@ export class QuestionResolver {
 
   @Authorized()
   @FieldResolver(_returns => Boolean, { name: 'isOwner', nullable: true })
-  public async isCurrentUserQuestionOwner(
+  public async getIsCurrentUserQuestionOwner(
     @Root() question: Question,
     @Ctx('user') user: User,
   ): Promise<boolean> {
@@ -126,7 +126,7 @@ export class QuestionResolver {
 
   @Authorized()
   @FieldResolver(_returns => Boolean, { name: 'isCreator', nullable: true })
-  public async isCurrentUserQuestionCreator(
+  public async getIsCurrentUserQuestionCreator(
     @Root() question: Question,
     @Ctx('user') user: User,
   ): Promise<boolean> {

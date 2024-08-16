@@ -11,7 +11,7 @@ import RatingMarkRepository from '../../repositories/RatingMarkRepository'
 import CategoryRatedAlready from '../../errors/category/CategoryRatedAlready'
 
 @Service()
-export default class CategoryRater {
+export default class CategoryRatingMarkCreator {
 
   public constructor(
     @Inject() private readonly eventDispatcher: EventDispatcher,
@@ -28,7 +28,7 @@ export default class CategoryRater {
    * @returns {Promise<Category>}
    * @throws {AuthorizationFailedError}
    */
-  public async rateCategory(category: Category, mark: number, initiator: User): Promise<Category> {
+  public async createCategoryRatingMark(category: Category, mark: number, initiator: User): Promise<Category> {
     await this.authorizationVerifier.verifyAuthorization(initiator, CategoryPermission.Rate, category)
 
     const existingRatingMark = await this.ratingMarkRepository.findOneByCategoryAndCreator(category, initiator)

@@ -15,7 +15,7 @@ import CategoryUpdater from '../services/category/CategoryUpdater'
 import CategoryListProvider from '../services/category/CategoryListProvider'
 import CategoryApproveSwitcher from '../services/category/CategoryApproveSwitcher'
 import CategoryRepository from '../repositories/CategoryRepository'
-import CategoryRater from '../services/category/CategoryRater'
+import CategoryRatingMarkCreator from '../services/category/CategoryRatingMarkCreator'
 import RateCategoryRequest from '../schema/category/RateCategoryRequest'
 
 @Service()
@@ -31,7 +31,7 @@ export class CategoryResolver {
     @Inject() private readonly categoryRepository: CategoryRepository,
     @Inject() private readonly categoryApproveSwitcher: CategoryApproveSwitcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
-    @Inject() private readonly categoryRater: CategoryRater,
+    @Inject() private readonly categoryRatingMarkCreator: CategoryRatingMarkCreator,
   ) {
   }
 
@@ -120,7 +120,7 @@ export class CategoryResolver {
 
   @Authorized()
   @FieldResolver(_returns => Boolean, { name: 'isOwner', nullable: true })
-  public async isCurrentUserCategoryOwner(
+  public async getIsCurrentUserCategoryOwner(
     @Root() category: Category,
     @Ctx('user') user: User,
   ): Promise<boolean> {
@@ -129,7 +129,7 @@ export class CategoryResolver {
 
   @Authorized()
   @FieldResolver(_returns => Boolean, { name: 'isCreator', nullable: true })
-  public async isCurrentUserCategoryCreator(
+  public async getIsCurrentUserCategoryCreator(
     @Root() category: Category,
     @Ctx('user') user: User,
   ): Promise<boolean> {
@@ -145,7 +145,7 @@ export class CategoryResolver {
     await this.validator.validate(rateCategoryRequest)
     const category = await this.categoryProvider.getCategory(rateCategoryRequest.categoryId)
 
-    await this.categoryRater.rateCategory(category, rateCategoryRequest.mark, user)
+    await this.categoryRatingMarkCreator.createCategoryRatingMark(category, rateCategoryRequest.mark, user)
 
     return category
   }
