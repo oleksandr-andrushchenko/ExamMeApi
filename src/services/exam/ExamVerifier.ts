@@ -19,7 +19,7 @@ export default class ExamVerifier {
    * @throws {ExamTakenError}
    */
   public async verifyExamNotTaken(category: Category, user: User): Promise<void> {
-    const existing = await this.examRepository.findOneNotCompletedByCategoryAndOwner(category.id, user)
+    const existing = await this.examRepository.findOneNotCompletedByCategoryAndOwner(category, user)
 
     if (existing) {
       throw new ExamTakenError(existing)

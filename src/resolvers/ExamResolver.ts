@@ -23,6 +23,7 @@ import ExamQuestionProvider from '../services/exam/ExamQuestionProvider'
 import ExamListProvider from '../services/exam/ExamListProvider'
 import GetCurrentExams from '../schema/exam/GetCurrentExams'
 import CurrentExamListProvider from '../services/exam/CurrentExamListProvider'
+import CategoryListProvider from '../services/category/CategoryListProvider'
 
 @Service()
 @Resolver(Exam)
@@ -41,6 +42,7 @@ export class ExamResolver {
     @Inject() private readonly categoryProvider: CategoryProvider,
     @Inject() private readonly currentExamListProvider: CurrentExamListProvider,
     @Inject('validator') private readonly validator: ValidatorInterface,
+    @Inject() private readonly categoryListProvider: CategoryListProvider,
   ) {
   }
 
@@ -178,6 +180,9 @@ export class ExamResolver {
     @Args() getCurrentExams: GetCurrentExams,
     @Ctx('user') user: User,
   ): Promise<Exam[]> {
-    return await this.currentExamListProvider.getCurrentExams(getCurrentExams, user)
+    await this.validator.validate(getCurrentExams)
+    const categories = await this.categoryListProvider.getCategoriesByIds(getCurrentExams.categoryIds)
+
+    return await this.currentExamListProvider.getCurrentExams(categories, user)
   }
 }
