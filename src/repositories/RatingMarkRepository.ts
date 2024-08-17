@@ -22,4 +22,11 @@ export default class RatingMarkRepository extends EntityRepository<RatingMark> {
   public async findWithCategoryByCreator(creator: User): Promise<RatingMark[]> {
     return await this.findBy({ creatorId: creator.id, categoryId: { $exists: true } })
   }
+
+  public async findByCategoriesAndCreator(categories: Category[], creator: User): Promise<RatingMark[]> {
+    return await this.findBy({
+      categoryId: { $in: categories.map(category => category.id) },
+      creatorId: creator.id,
+    })
+  }
 }

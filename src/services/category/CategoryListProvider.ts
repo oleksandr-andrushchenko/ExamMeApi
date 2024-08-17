@@ -6,6 +6,7 @@ import Cursor from '../../models/Cursor'
 import GetCategories from '../../schema/category/GetCategories'
 import PaginatedCategories from '../../schema/category/PaginatedCategories'
 import User from '../../entities/user/User'
+import IdNormalizer from '../normalizers/IdNormalizer'
 
 @Service()
 export default class CategoryListProvider {
@@ -13,6 +14,7 @@ export default class CategoryListProvider {
   public constructor(
     @Inject() private readonly categoryRepository: CategoryRepository,
     @Inject('validator') private readonly validator: ValidatorInterface,
+    @Inject() private readonly idNormalizer: IdNormalizer,
   ) {
   }
 
@@ -54,5 +56,11 @@ export default class CategoryListProvider {
     }
 
     return await cursor.getPaginated({ where, meta })
+  }
+
+  public async getCategoriesByIds(categoryIds: string[]): Promise<Category[]> {
+    const ids = categoryIds.map(categoryId => this.idNormalizer.normalizeId(categoryId))
+
+    return await this.categoryRepository.findByIds(ids)
   }
 }

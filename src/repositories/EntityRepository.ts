@@ -35,6 +35,10 @@ export default class EntityRepository<Entity extends ObjectLiteral> extends Mong
     return await this.findOneBy({ _id: id })
   }
 
+  public async findByIds(ids: ObjectId[]): Promise<Entity[]> {
+    return await this.findBy({ _id: { $in: ids } })
+  }
+
   public async find(options?: FindManyOptions<Entity> | Partial<Entity> | FilterOperators<Entity>): Promise<Entity[]> {
     if ('where' in options) {
       options.where.deletedAt = { $exists: false }

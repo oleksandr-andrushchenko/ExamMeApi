@@ -17,6 +17,9 @@ import CategoryApproveSwitcher from '../services/category/CategoryApproveSwitche
 import CategoryRepository from '../repositories/CategoryRepository'
 import CategoryRatingMarkCreator from '../services/category/CategoryRatingMarkCreator'
 import RateCategoryRequest from '../schema/category/RateCategoryRequest'
+import GetCategoryRatingMarksRequest from '../schema/category/GetCategoryRatingMarksRequest'
+import RatingMark from '../entities/rating/RatingMark'
+import CategoryRatingMarkListProvider from '../services/category/CategoryRatingMarkListProvider'
 
 @Service()
 @Resolver(Category)
@@ -32,6 +35,7 @@ export class CategoryResolver {
     @Inject() private readonly categoryApproveSwitcher: CategoryApproveSwitcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
     @Inject() private readonly categoryRatingMarkCreator: CategoryRatingMarkCreator,
+    @Inject() private readonly categoryRatingMarkLinkProvider: CategoryRatingMarkListProvider,
   ) {
   }
 
@@ -148,5 +152,17 @@ export class CategoryResolver {
     await this.categoryRatingMarkCreator.createCategoryRatingMark(category, rateCategoryRequest.mark, user)
 
     return category
+  }
+
+  @Authorized()
+  @Query(_returns => [ RatingMark ], { name: 'categoryRatingMarks' })
+  public async getCategoryRatingMarks(
+    @Args() getCategoryRatingMarksRequest: GetCategoryRatingMarksRequest,
+    @Ctx('user') user: User,
+  ): Promise<RatingMark[]> {
+    await this.validator.validate(getCategoryRatingMarksRequest)
+    const categories = await this.categoryListProvider.getCategoriesByIds(getCategoryRatingMarksRequest.categoryIds)
+
+    return await this.categoryRatingMarkLinkProvider.getCategoryRatingMarks(categories, user)
   }
 }

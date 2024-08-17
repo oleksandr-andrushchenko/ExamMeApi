@@ -167,6 +167,7 @@ type Query {
   activities(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 20): [Activity!]!
   categories(approved: String, creator: String, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 20, subscription: String): [Category!]!
   category(categoryId: ID!): Category!
+  categoryRatingMarks(categoryIds: [ID!]!): [RatingMark!]!
   currentExamQuestion(examId: ID!): ExamQuestionSchema!
   currentExams(categoryIds: [ID!]!): [Exam!]!
   exam(examId: ID!): Exam!
@@ -217,6 +218,15 @@ input QuestionChoiceSchema {
 type Rating {
   mark: Float!
   markCount: Int!
+}
+
+type RatingMark {
+  categoryId: ObjectId
+  createdAt: Timestamp!
+  id: ObjectId!
+  mark: Int!
+  ownerId: ObjectId
+  updatedAt: Timestamp
 }
 
 """
