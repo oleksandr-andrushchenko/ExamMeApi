@@ -107,6 +107,7 @@ type Mutation {
   deleteQuestion(questionId: ID!): Boolean!
   deleteUser(userId: ID!): Boolean!
   rateCategory(categoryId: ID!, mark: Int!): Category!
+  rateQuestion(mark: Int!, questionId: ID!): Question!
   toggleCategoryApprove(categoryId: ID!): Category!
   toggleQuestionApprove(questionId: ID!): Question!
   updateCategory(categoryId: ID!, updateCategory: UpdateCategory!): Category!
@@ -226,6 +227,7 @@ type RatingMark {
   id: ObjectId!
   mark: Int!
   ownerId: ObjectId
+  questionId: ObjectId
   updatedAt: Timestamp
 }
 
@@ -272,5 +274,6 @@ type User {
   name: String
   ownerId: ObjectId
   permissions: [String!]
+  questionRatingMarks: [[ObjectId!]!]
   updatedAt: Timestamp
 }

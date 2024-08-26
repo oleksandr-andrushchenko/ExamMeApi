@@ -16,6 +16,8 @@ import QuestionCreator from '../services/question/QuestionCreator'
 import QuestionUpdater from '../services/question/QuestionUpdater'
 import QuestionListProvider from '../services/question/QuestionListProvider'
 import QuestionApproveSwitcher from '../services/question/QuestionApproveSwitcher'
+import RateQuestionRequest from '../schema/question/RateQuestionRequest'
+import QuestionRatingMarkCreator from '../services/question/QuestionRatingMarkCreator'
 
 @Service()
 @Resolver(Question)
@@ -30,6 +32,7 @@ export class QuestionResolver {
     @Inject() private readonly categoryProvider: CategoryProvider,
     @Inject() private readonly questionApproveSwitcher: QuestionApproveSwitcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
+    @Inject() private readonly questionRatingMarkCreator: QuestionRatingMarkCreator,
   ) {
   }
 
@@ -131,5 +134,19 @@ export class QuestionResolver {
     @Ctx('user') user: User,
   ): Promise<boolean> {
     return user && user.id.toString() === question.creatorId.toString()
+  }
+
+  @Authorized()
+  @Mutation(_returns => Question)
+  public async rateQuestion(
+    @Args() rateQuestionRequest: RateQuestionRequest,
+    @Ctx('user') user: User,
+  ): Promise<Question> {
+    await this.validator.validate(rateQuestionRequest)
+    const question = await this.questionProvider.getQuestion(rateQuestionRequest.questionId)
+
+    await this.questionRatingMarkCreator.createQuestionRatingMark(question, rateQuestionRequest.mark, user)
+
+    return question
   }
 }

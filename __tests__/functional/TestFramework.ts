@@ -196,6 +196,7 @@ export default class TestFramework {
         object = new RatingMark()
         object.mark = 'mark' in options ? options.mark : faker.number.int({ min: 1, max: 5 })
         object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category) as Category).id
+        object.questionId = 'questionId' in options ? options.questionId : (await this.fixture(Question) as Question).id
         object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User) as User).id
 
         break

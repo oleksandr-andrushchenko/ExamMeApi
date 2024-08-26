@@ -14,6 +14,11 @@ export default class RatingMark extends Base {
   @Field(_type => ObjectIdScalar, { nullable: true })
   public categoryId?: ObjectId
 
+  @IsMongoId()
+  @Column()
+  @Field(_type => ObjectIdScalar, { nullable: true })
+  public questionId?: ObjectId
+
   @Min(1)
   @Max(5)
   @IsNumber({ maxDecimalPlaces: 0 })
