@@ -18,7 +18,7 @@ import CategoryRepository from '../repositories/CategoryRepository'
 import CategoryRatingMarkCreator from '../services/category/CategoryRatingMarkCreator'
 import RateCategoryRequest from '../schema/category/RateCategoryRequest'
 import GetCategoryRatingMarksRequest from '../schema/category/GetCategoryRatingMarksRequest'
-import RatingMark from '../entities/rating/RatingMark'
+import CategoryRatingMark from '../entities/category/CategoryRatingMark'
 import CategoryRatingMarkListProvider from '../services/category/CategoryRatingMarkListProvider'
 import RatingSchema from '../schema/rating/RatingSchema'
 import CategoryRatingProvider from '../services/category/CategoryRatingProvider'
@@ -158,11 +158,11 @@ export class CategoryResolver {
   }
 
   @Authorized()
-  @Query(_returns => [ RatingMark ], { name: 'categoryRatingMarks' })
+  @Query(_returns => [ CategoryRatingMark ], { name: 'categoryRatingMarks' })
   public async getCategoryRatingMarks(
     @Args() getCategoryRatingMarksRequest: GetCategoryRatingMarksRequest,
     @Ctx('user') user: User,
-  ): Promise<RatingMark[]> {
+  ): Promise<CategoryRatingMark[]> {
     await this.validator.validate(getCategoryRatingMarksRequest)
     const categories = await this.categoryListProvider.getCategoriesByIds(getCategoryRatingMarksRequest.categoryIds)
 

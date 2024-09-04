@@ -4,21 +4,21 @@ import EventSubscriberInterface from '../../services/event/EventSubscriberInterf
 import User from '../../entities/user/User'
 import QuestionEvent from '../../enums/question/QuestionEvent'
 import Question from '../../entities/question/Question'
-import UserRatingMarksSyncer from '../../services/user/UserRatingMarksSyncer'
-import RatingSyncer from '../../services/rating/RatingSyncer'
+import QuestionRatingSyncer from '../../services/question/QuestionRatingSyncer'
+import UserCategoryRatingMarksSyncer from '../../services/user/UserCategoryRatingMarksSyncer'
 
 @Service()
 @EventSubscriber(QuestionEvent.Rated)
 export default class QuestionRatedEventSubscriber implements EventSubscriberInterface {
 
   public constructor(
-    @Inject() private readonly userRatingMarksSyncer: UserRatingMarksSyncer,
-    @Inject() private readonly ratingSyncer: RatingSyncer,
+    @Inject() private readonly userCategoryRatingMarksSyncer: UserCategoryRatingMarksSyncer,
+    @Inject() private readonly questionRatingSyncer: QuestionRatingSyncer,
   ) {
   }
 
   public async handle({ question, user }: { question: Question, user: User }): Promise<void> {
-    await this.userRatingMarksSyncer.syncUserRatingMarks(user, Question)
-    await this.ratingSyncer.syncRating(question)
+    await this.userCategoryRatingMarksSyncer.syncUserCategoryRatingMarks(user, Question)
+    await this.questionRatingSyncer.syncQuestionRating(question)
   }
 }
