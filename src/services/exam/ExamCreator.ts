@@ -11,7 +11,7 @@ import ExamQuestion from '../../entities/exam/ExamQuestion'
 import ExamVerifier from './ExamVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import CategoryVerifier from '../category/CategoryVerifier'
-import QuestionRepository from '../../repositories/QuestionRepository'
+import QuestionRepository from '../../repositories/question/QuestionRepository'
 import EventDispatcher from '../event/EventDispatcher'
 import ExamEvent from '../../enums/exam/ExamEvent'
 

@@ -3,7 +3,7 @@ import User from '../../entities/user/User'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
 import Category from '../../entities/category/Category'
 import CategoryPermission from '../../enums/category/CategoryPermission'
-import CategoryRepository from '../../repositories/CategoryRepository'
+import CategoryRepository from '../../repositories/category/CategoryRepository'
 import EventDispatcher from '../event/EventDispatcher'
 import CategoryEvent from '../../enums/category/CategoryEvent'
 

@@ -1,7 +1,7 @@
 import { Container, ContainerInstance } from 'typedi'
 import UserRepository from '../../src/repositories/UserRepository'
-import CategoryRepository from '../../src/repositories/CategoryRepository'
-import QuestionRepository from '../../src/repositories/QuestionRepository'
+import CategoryRepository from '../../src/repositories/category/CategoryRepository'
+import QuestionRepository from '../../src/repositories/question/QuestionRepository'
 import ExamRepository from '../../src/repositories/ExamRepository'
 import User from '../../src/entities/user/User'
 import { faker } from '@faker-js/faker'
@@ -79,7 +79,7 @@ export default class TestFramework {
   }
 
   public compare(entity1: any, entity2: any): boolean {
-    return (entity1 === entity2) || (entity1.toString() === entity2.toString())
+    return entity1.name === entity2.name
   }
 
   public async fixture<Entity>(entity: any, options: object = {}): Promise<Entity> {

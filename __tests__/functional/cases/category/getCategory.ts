@@ -25,7 +25,7 @@ describe('Get category', () => {
   })
   test('Found', async () => {
     const category = await framework.fixture<Category>(Category)
-    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'rating {markCount mark}', 'createdAt', 'updatedAt' ]
+    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'rating {markCount averageMark}', 'createdAt', 'updatedAt' ]
     const res = await request(framework.app).post('/').send(getCategory({ categoryId: category.id.toString() }, fields))
 
     expect(res.status).toEqual(200)

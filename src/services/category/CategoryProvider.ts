@@ -1,6 +1,6 @@
 import { Inject, Service } from 'typedi'
 import Category from '../../entities/category/Category'
-import CategoryRepository from '../../repositories/CategoryRepository'
+import CategoryRepository from '../../repositories/category/CategoryRepository'
 import CategoryNotFoundError from '../../errors/category/CategoryNotFoundError'
 import { ObjectId } from 'mongodb'
 import ValidatorInterface from '../validator/ValidatorInterface'

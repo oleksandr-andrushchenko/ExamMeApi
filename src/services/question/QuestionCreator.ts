@@ -9,7 +9,7 @@ import QuestionPermission from '../../enums/question/QuestionPermission'
 import QuestionType from '../../entities/question/QuestionType'
 import QuestionVerifier from './QuestionVerifier'
 import AuthorizationVerifier from '../auth/AuthorizationVerifier'
-import QuestionRepository from '../../repositories/QuestionRepository'
+import QuestionRepository from '../../repositories/question/QuestionRepository'
 import EventDispatcher from '../event/EventDispatcher'
 import QuestionEvent from '../../enums/question/QuestionEvent'
 

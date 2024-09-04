@@ -1,6 +1,6 @@
 import { Inject, Service } from 'typedi'
 import { ObjectId } from 'mongodb'
-import QuestionRepository from '../../repositories/QuestionRepository'
+import QuestionRepository from '../../repositories/question/QuestionRepository'
 import QuestionTitleTakenError from '../../errors/question/QuestionTitleTakenError'
 
 @Service()

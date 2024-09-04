@@ -197,6 +197,7 @@ type Question {
   isCreator: Boolean
   isOwner: Boolean
   ownerId: ObjectId
+  rating: RatingSchema
   title: String!
   type: String!
   updatedAt: Timestamp

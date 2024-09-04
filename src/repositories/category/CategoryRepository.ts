@@ -1,7 +1,7 @@
-import Category from '../entities/category/Category'
-import Repository from '../decorators/Repository'
-import EntityRepository from './EntityRepository'
-import User from '../entities/user/User'
+import Category from '../../entities/category/Category'
+import Repository from '../../decorators/Repository'
+import EntityRepository from '../EntityRepository'
+import User from '../../entities/user/User'
 
 @Repository(Category)
 export default class CategoryRepository extends EntityRepository<Category> {

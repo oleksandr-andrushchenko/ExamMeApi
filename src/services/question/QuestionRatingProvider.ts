@@ -1,24 +1,24 @@
 import { Service } from 'typedi'
-import Category from '../../entities/category/Category'
+import Question from '../../entities/question/Question'
 import RatingSchema from '../../schema/rating/RatingSchema'
 import User from '../../entities/user/User'
 
 @Service()
-export default class CategoryRatingProvider {
+export default class QuestionRatingProvider {
 
-  public getCategoryRating(category: Category, initiator: User): RatingSchema | undefined {
-    if (!category.rating) {
+  public getQuestionRating(question: Question, initiator: User): RatingSchema | undefined {
+    if (!question.rating) {
       return undefined
     }
 
     const rating = new RatingSchema()
 
-    rating.averageMark = category.rating.averageMark
-    rating.markCount = category.rating.markCount
+    rating.averageMark = question.rating.averageMark
+    rating.markCount = question.rating.markCount
 
-    if (initiator.categoryRatingMarks) {
-      const ratingMarks = initiator.categoryRatingMarks
-      const objectId = category.id
+    if (initiator.questionRatingMarks) {
+      const ratingMarks = initiator.questionRatingMarks
+      const objectId = question.id
 
       if (Array.isArray(ratingMarks)) {
         for (let index = 0; index < 5; index++) {

@@ -72,7 +72,7 @@ describe('Create category', () => {
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Create ] })
     const token = (await framework.auth(user)).token
     const category = { name: 'any', requiredScore: 80 }
-    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'rating {markCount mark}', 'createdAt', 'updatedAt' ]
+    const fields = [ 'id', 'name', 'questionCount', 'requiredScore', 'rating {markCount averageMark}', 'createdAt', 'updatedAt' ]
     const now = Date.now()
     const res = await request(framework.app).post('/')
       .send(createCategory({ createCategory: category }, fields))

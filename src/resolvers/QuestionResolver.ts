@@ -18,6 +18,8 @@ import QuestionListProvider from '../services/question/QuestionListProvider'
 import QuestionApproveSwitcher from '../services/question/QuestionApproveSwitcher'
 import RateQuestionRequest from '../schema/question/RateQuestionRequest'
 import QuestionRatingMarkCreator from '../services/question/QuestionRatingMarkCreator'
+import RatingSchema from '../schema/rating/RatingSchema'
+import QuestionRatingProvider from '../services/question/QuestionRatingProvider'
 
 @Service()
 @Resolver(Question)
@@ -33,6 +35,7 @@ export class QuestionResolver {
     @Inject() private readonly questionApproveSwitcher: QuestionApproveSwitcher,
     @Inject('validator') private readonly validator: ValidatorInterface,
     @Inject() private readonly questionRatingMarkCreator: QuestionRatingMarkCreator,
+    @Inject() private readonly questionRatingProvider: QuestionRatingProvider,
   ) {
   }
 
@@ -148,5 +151,13 @@ export class QuestionResolver {
     await this.questionRatingMarkCreator.createQuestionRatingMark(question, rateQuestionRequest.mark, user)
 
     return question
+  }
+
+  @FieldResolver(_returns => RatingSchema, { name: 'rating', nullable: true })
+  public async getQuestionRating(
+    @Root() question: Question,
+    @Ctx('user') user: User,
+  ): Promise<RatingSchema> {
+    return this.questionRatingProvider.getQuestionRating(question, user)
   }
 }
