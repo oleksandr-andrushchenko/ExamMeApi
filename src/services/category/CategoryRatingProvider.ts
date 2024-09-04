@@ -12,7 +12,11 @@ export default class CategoryRatingProvider {
   ) {
   }
 
-  public getCategoryRating(category: Category, initiator: User): RatingSchema {
+  public getCategoryRating(category: Category, initiator: User): RatingSchema | undefined {
+    if (!category.rating) {
+      return undefined
+    }
+
     const rating = new RatingSchema()
 
     rating.averageMark = category.rating.averageMark

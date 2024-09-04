@@ -8,8 +8,8 @@ import { rateCategory } from '../../graphql/category/rateCategory'
 import TestFramework from '../../TestFramework'
 import Activity from '../../../../src/entities/activity/Activity'
 import CategoryEvent from '../../../../src/enums/category/CategoryEvent'
-import RatingMark from '../../../../src/entities/rating/RatingMark'
 import RateCategoryRequest from '../../../../src/schema/category/RateCategoryRequest'
+import CategoryRatingMark from '../../../../src/entities/category/CategoryRatingMark'
 
 const framework: TestFramework = globalThis.framework
 
@@ -82,13 +82,16 @@ describe('Rate category', () => {
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
   test('Rated', async () => {
-    await framework.clear([ RatingMark, Category ])
+    await framework.clear([ CategoryRatingMark, Category ])
     const category = await framework.fixture<Category>(Category)
     // existing somebodies category mark
-    const nonUserCategoryMark = await framework.fixture<RatingMark>(RatingMark, { categoryId: category.id })
+    const nonUserCategoryMark = await framework.fixture<CategoryRatingMark>(CategoryRatingMark, { categoryId: category.id })
     const user = await framework.fixture<User>(User, { permissions: [ CategoryPermission.Rate ] })
     // existing users non-category mark
-    const userAnyCategoryRatingMark = await framework.fixture<RatingMark>(RatingMark, { creatorId: user.id, mark: 3 })
+    const userAnyCategoryRatingMark = await framework.fixture<CategoryRatingMark>(CategoryRatingMark, {
+      creatorId: user.id,
+      mark: 3,
+    })
     const token = (await framework.auth(user)).token
     const categoryId = category.id.toString()
     // new users category mark
@@ -100,7 +103,11 @@ describe('Rate category', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { rateCategory: { id: categoryId } } })
 
-    expect(await framework.repo(RatingMark).countBy({ categoryId: category.id, mark, creatorId: user.id })).toEqual(1)
+    expect(await framework.repo(CategoryRatingMark).countBy({
+      categoryId: category.id,
+      mark,
+      creatorId: user.id,
+    })).toEqual(1)
     expect(await framework.repo(Activity).countBy({ event: CategoryEvent.Rated, categoryId: category.id })).toEqual(1)
 
     const updatedUser = await framework.repo(User).findOneById(user.id) as User

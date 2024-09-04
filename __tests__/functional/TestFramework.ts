@@ -23,8 +23,10 @@ import Activity from '../../src/entities/activity/Activity'
 import ActivityRepository from '../../src/repositories/ActivityRepository'
 import CategoryEvent from '../../src/enums/category/CategoryEvent'
 import EntityRepository from '../../src/repositories/EntityRepository'
-import RatingMark from '../../src/entities/rating/RatingMark'
-import RatingMarkRepository from '../../src/repositories/RatingMarkRepository'
+import CategoryRatingMark from '../../src/entities/category/CategoryRatingMark'
+import QuestionRatingMark from '../../src/entities/question/QuestionRatingMark'
+import CategoryRatingMarkRepository from '../../src/repositories/category/CategoryRatingMarkRepository'
+import QuestionRatingMarkRepository from '../../src/repositories/question/QuestionRatingMarkRepository'
 
 export default class TestFramework {
 
@@ -44,7 +46,7 @@ export default class TestFramework {
     this.appDown = appDown
   }
 
-  public async clear(_entity: any | any[] = [ User, Category, Question, Exam, RatingMark ]) {
+  public async clear(_entity: any | any[] = [ User, Category, Question, Exam, CategoryRatingMark, QuestionRatingMark ]) {
     _entity = Array.isArray(_entity) ? _entity : [ _entity ]
 
     for (const entity of _entity) {
@@ -64,8 +66,11 @@ export default class TestFramework {
         case this.compare(entity, Activity):
           await this.container.get<ActivityRepository>(ActivityRepository).clear()
           break
-        case this.compare(entity, RatingMark):
-          await this.container.get<RatingMarkRepository>(RatingMarkRepository).clear()
+        case this.compare(entity, CategoryRatingMark):
+          await this.container.get<CategoryRatingMarkRepository>(CategoryRatingMarkRepository).clear()
+          break
+        case this.compare(entity, QuestionRatingMark):
+          await this.container.get<QuestionRatingMarkRepository>(QuestionRatingMarkRepository).clear()
           break
         default:
           throw new Error(`Clear: Unknown "${ entity.toString() }" type passed`)
@@ -192,10 +197,16 @@ export default class TestFramework {
         }
 
         break
-      case this.compare(entity, RatingMark):
-        object = new RatingMark()
+      case this.compare(entity, CategoryRatingMark):
+        object = new CategoryRatingMark()
         object.mark = 'mark' in options ? options.mark : faker.number.int({ min: 1, max: 5 })
         object.categoryId = 'categoryId' in options ? options.categoryId : (await this.fixture(Category) as Category).id
+        object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User) as User).id
+
+        break
+      case this.compare(entity, QuestionRatingMark):
+        object = new QuestionRatingMark()
+        object.mark = 'mark' in options ? options.mark : faker.number.int({ min: 1, max: 5 })
         object.questionId = 'questionId' in options ? options.questionId : (await this.fixture(Question) as Question).id
         object.creatorId = 'creatorId' in options ? options.creatorId : (await this.fixture(User) as User).id
 
@@ -235,8 +246,10 @@ export default class TestFramework {
         return this.container.get<ExamRepository>(ExamRepository) as any
       case this.compare(entity, Activity):
         return this.container.get<ActivityRepository>(ActivityRepository) as any
-      case this.compare(entity, RatingMark):
-        return this.container.get<RatingMarkRepository>(RatingMarkRepository) as any
+      case this.compare(entity, CategoryRatingMark):
+        return this.container.get<CategoryRatingMarkRepository>(CategoryRatingMarkRepository) as any
+      case this.compare(entity, QuestionRatingMark):
+        return this.container.get<QuestionRatingMarkRepository>(QuestionRatingMarkRepository) as any
       default:
         throw new Error(`Repo: Unknown "${ entity.toString() }" type passed`)
     }

@@ -5,7 +5,7 @@ import QuestionPermission from '../../../../src/enums/question/QuestionPermissio
 // @ts-ignore
 import { rateQuestion } from '../../graphql/question/rateQuestion'
 import TestFramework from '../../TestFramework'
-import RatingMark from '../../../../src/entities/rating/RatingMark'
+import QuestionRatingMark from '../../../../src/entities/question/QuestionRatingMark'
 import Question from '../../../../src/entities/question/Question'
 import RateQuestionRequest from '../../../../src/schema/question/RateQuestionRequest'
 
@@ -80,13 +80,16 @@ describe('Rate question', () => {
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
   test('Rated', async () => {
-    await framework.clear([ RatingMark, Question ])
+    await framework.clear([ QuestionRatingMark, Question ])
     const question = await framework.fixture<Question>(Question)
     // existing somebodies question mark
-    const nonUserQuestionMark = await framework.fixture<RatingMark>(RatingMark, { questionId: question.id })
+    const nonUserQuestionMark = await framework.fixture<QuestionRatingMark>(QuestionRatingMark, { questionId: question.id })
     const user = await framework.fixture<User>(User, { permissions: [ QuestionPermission.Rate ] })
     // existing users non-question mark
-    const userAnyQuestionRatingMark = await framework.fixture<RatingMark>(RatingMark, { creatorId: user.id, mark: 3 })
+    const userAnyQuestionRatingMark = await framework.fixture<QuestionRatingMark>(QuestionRatingMark, {
+      creatorId: user.id,
+      mark: 3,
+    })
     const token = (await framework.auth(user)).token
     const questionId = question.id.toString()
     // new users question mark
@@ -98,7 +101,11 @@ describe('Rate question', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { rateQuestion: { id: questionId } } })
 
-    expect(await framework.repo(RatingMark).countBy({ questionId: question.id, mark, creatorId: user.id })).toEqual(1)
+    expect(await framework.repo(QuestionRatingMark).countBy({
+      questionId: question.id,
+      mark,
+      creatorId: user.id,
+    })).toEqual(1)
 
     const updatedUser = await framework.repo(User).findOneById(user.id) as User
     expect(updatedUser.questionRatingMarks[userAnyQuestionRatingMark.mark - 1][0].toString()).toEqual(userAnyQuestionRatingMark.questionId.toString())

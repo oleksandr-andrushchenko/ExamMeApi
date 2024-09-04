@@ -157,18 +157,6 @@ export class CategoryResolver {
     return category
   }
 
-  @Authorized()
-  @Query(_returns => [ CategoryRatingMark ], { name: 'categoryRatingMarks' })
-  public async getCategoryRatingMarks(
-    @Args() getCategoryRatingMarksRequest: GetCategoryRatingMarksRequest,
-    @Ctx('user') user: User,
-  ): Promise<CategoryRatingMark[]> {
-    await this.validator.validate(getCategoryRatingMarksRequest)
-    const categories = await this.categoryListProvider.getCategoriesByIds(getCategoryRatingMarksRequest.categoryIds)
-
-    return await this.categoryRatingMarkLinkProvider.getCategoryRatingMarks(categories, user)
-  }
-
   @FieldResolver(_returns => RatingSchema, { name: 'rating', nullable: true })
   public async getCategoryRating(
     @Root() category: Category,

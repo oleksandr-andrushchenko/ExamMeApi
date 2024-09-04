@@ -1,19 +1,19 @@
 import { Inject, Service } from 'typedi'
 import User from '../../entities/user/User'
-import RatingMarkRepository from '../../repositories/RatingMarkRepository'
 import UserRepository from '../../repositories/UserRepository'
+import CategoryRatingMarkRepository from '../../repositories/category/CategoryRatingMarkRepository'
 
 @Service()
 export default class UserCategoryRatingMarksSyncer {
 
   public constructor(
-    @Inject() private readonly ratingMarkRepository: RatingMarkRepository,
+    @Inject() private readonly categoryRatingMarkRepository: CategoryRatingMarkRepository,
     @Inject() private readonly userRepository: UserRepository,
   ) {
   }
 
   public async syncUserCategoryRatingMarks(user: User): Promise<User> {
-    const ratingMarks = await this.ratingMarkRepository.findWithCategoryByCreator(user)
+    const ratingMarks = await this.categoryRatingMarkRepository.findByCreator(user)
 
     const categoryRatingMarks = []
 
