@@ -31,7 +31,7 @@ export default class CategoryRatingMarkCreator {
   public async createCategoryRatingMark(category: Category, mark: number, initiator: User): Promise<Category> {
     await this.authorizationVerifier.verifyAuthorization(initiator, CategoryPermission.Rate, category)
 
-    const existingRatingMark = await this.ratingMarkRepository.findOneByCategoryAndCreator(category, initiator)
+    const existingRatingMark = await this.ratingMarkRepository.findOneByTargetAndCreator(category, initiator)
 
     if (existingRatingMark) {
       throw new CategoryRatedAlready(category)

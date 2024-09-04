@@ -31,7 +31,7 @@ export default class QuestionRatingMarkCreator {
   public async createQuestionRatingMark(question: Question, mark: number, initiator: User): Promise<Question> {
     await this.authorizationVerifier.verifyAuthorization(initiator, QuestionPermission.Rate, question)
 
-    const existingRatingMark = await this.ratingMarkRepository.findOneByQuestionAndCreator(question, initiator)
+    const existingRatingMark = await this.ratingMarkRepository.findOneByTargetAndCreator(question, initiator)
 
     if (existingRatingMark) {
       throw new QuestionRatedAlready(question)

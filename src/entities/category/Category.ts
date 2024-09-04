@@ -33,7 +33,6 @@ export default class Category extends Base {
   public requiredScore?: number = 0
 
   @Column(() => Rating)
-  @Field(_type => Rating, { nullable: true })
   public rating?: Rating
 
   @Field(_type => Boolean, { name: 'isApproved', nullable: true })

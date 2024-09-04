@@ -20,6 +20,8 @@ import RateCategoryRequest from '../schema/category/RateCategoryRequest'
 import GetCategoryRatingMarksRequest from '../schema/category/GetCategoryRatingMarksRequest'
 import RatingMark from '../entities/rating/RatingMark'
 import CategoryRatingMarkListProvider from '../services/category/CategoryRatingMarkListProvider'
+import RatingSchema from '../schema/rating/RatingSchema'
+import CategoryRatingProvider from '../services/category/CategoryRatingProvider'
 
 @Service()
 @Resolver(Category)
@@ -36,6 +38,7 @@ export class CategoryResolver {
     @Inject('validator') private readonly validator: ValidatorInterface,
     @Inject() private readonly categoryRatingMarkCreator: CategoryRatingMarkCreator,
     @Inject() private readonly categoryRatingMarkLinkProvider: CategoryRatingMarkListProvider,
+    @Inject() private readonly categoryRatingProvider: CategoryRatingProvider,
   ) {
   }
 
@@ -164,5 +167,13 @@ export class CategoryResolver {
     const categories = await this.categoryListProvider.getCategoriesByIds(getCategoryRatingMarksRequest.categoryIds)
 
     return await this.categoryRatingMarkLinkProvider.getCategoryRatingMarks(categories, user)
+  }
+
+  @FieldResolver(_returns => RatingSchema, { name: 'rating', nullable: true })
+  public async getCategoryRating(
+    @Root() category: Category,
+    @Ctx('user') user: User,
+  ): Promise<RatingSchema> {
+    return this.categoryRatingProvider.getCategoryRating(category, user)
   }
 }

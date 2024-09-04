@@ -4,9 +4,9 @@ import EventSubscriber from '../../decorators/EventSubscriber'
 import EventSubscriberInterface from '../../services/event/EventSubscriberInterface'
 import CategoryEvent from '../../enums/category/CategoryEvent'
 import CategoryActivityCreator from '../../services/category/CategoryActivityCreator'
-import UserCategoryRatingMarksSyncer from '../../services/user/UserCategoryRatingMarksSyncer'
 import User from '../../entities/user/User'
-import CategoryRatingSyncer from '../../services/category/CategoryRatingSyncer'
+import UserRatingMarksSyncer from '../../services/user/UserRatingMarksSyncer'
+import RatingSyncer from '../../services/rating/RatingSyncer'
 
 @Service()
 @EventSubscriber(CategoryEvent.Rated)
@@ -14,14 +14,14 @@ export default class CategoryRatedEventSubscriber implements EventSubscriberInte
 
   public constructor(
     @Inject() private readonly categoryActivityCreator: CategoryActivityCreator,
-    @Inject() private readonly userCategoryRatingMarksSyncer: UserCategoryRatingMarksSyncer,
-    @Inject() private readonly categoryRatingSyncer: CategoryRatingSyncer,
+    @Inject() private readonly userRatingMarksSyncer: UserRatingMarksSyncer,
+    @Inject() private readonly ratingSyncer: RatingSyncer,
   ) {
   }
 
   public async handle({ category, user }: { category: Category, user: User }): Promise<void> {
     await this.categoryActivityCreator.createCategoryActivity(category, CategoryEvent.Rated)
-    await this.userCategoryRatingMarksSyncer.syncUserCategoryRatingMarks(user)
-    await this.categoryRatingSyncer.syncCategoryRating(category)
+    await this.userRatingMarksSyncer.syncUserRatingMarks(user, Category)
+    await this.ratingSyncer.syncRating(category)
   }
 }

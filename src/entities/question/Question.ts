@@ -43,7 +43,6 @@ export default class Question extends Base {
   public choices?: QuestionChoice[]
 
   @Column(() => Rating)
-  @Field(_type => Rating, { nullable: true })
   public rating?: Rating
 
   @Field(_type => Boolean, { name: 'isApproved', nullable: true })

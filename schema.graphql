@@ -23,7 +23,7 @@ type Category {
   name: String!
   ownerId: ObjectId
   questionCount: Int
-  rating: Rating
+  rating: RatingSchema
   requiredScore: Int
   updatedAt: Timestamp
 }
@@ -198,7 +198,6 @@ type Question {
   isCreator: Boolean
   isOwner: Boolean
   ownerId: ObjectId
-  rating: Rating
   title: String!
   type: String!
   updatedAt: Timestamp
@@ -216,11 +215,6 @@ input QuestionChoiceSchema {
   title: String!
 }
 
-type Rating {
-  mark: Float!
-  markCount: Int!
-}
-
 type RatingMark {
   categoryId: ObjectId
   createdAt: Timestamp!
@@ -229,6 +223,12 @@ type RatingMark {
   ownerId: ObjectId
   questionId: ObjectId
   updatedAt: Timestamp
+}
+
+type RatingSchema {
+  averageMark: Float!
+  mark: Int
+  markCount: Int!
 }
 
 """

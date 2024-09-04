@@ -107,6 +107,6 @@ describe('Rate question', () => {
     const updatedQuestion = await framework.repo(Question).findOneById(question.id) as Question
     expect(updatedQuestion.rating).toBeDefined()
     expect(updatedQuestion.rating.markCount).toEqual(2)
-    expect(updatedQuestion.rating.mark).toEqual((nonUserQuestionMark.mark + mark) / 2)
+    expect(updatedQuestion.rating.averageMark).toEqual((nonUserQuestionMark.mark + mark) / 2)
   })
 })

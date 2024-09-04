@@ -110,6 +110,6 @@ describe('Rate category', () => {
     const updatedCategory = await framework.repo(Category).findOneById(category.id) as Category
     expect(updatedCategory.rating).toBeDefined()
     expect(updatedCategory.rating.markCount).toEqual(2)
-    expect(updatedCategory.rating.mark).toEqual((nonUserCategoryMark.mark + mark) / 2)
+    expect(updatedCategory.rating.averageMark).toEqual((nonUserCategoryMark.mark + mark) / 2)
   })
 })

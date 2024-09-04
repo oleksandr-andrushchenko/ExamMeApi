@@ -106,7 +106,7 @@ export default class TestFramework {
 
         if (faker.datatype.boolean()) {
           const rating = new Rating()
-          rating.mark = faker.number.int({ min: 1, max: 5 })
+          rating.averageMark = faker.number.int({ min: 1, max: 5 })
           rating.markCount = faker.number.int({ min: 1, max: 10 })
           object.rating = rating
         }
@@ -144,7 +144,7 @@ export default class TestFramework {
 
         if (faker.datatype.boolean()) {
           const rating = new Rating()
-          rating.mark = faker.number.int({ min: 1, max: 5 })
+          rating.averageMark = faker.number.int({ min: 1, max: 5 })
           rating.markCount = faker.number.int({ min: 1, max: 10 })
           object.rating = rating
         }
