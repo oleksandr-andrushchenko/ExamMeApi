@@ -124,7 +124,7 @@ export class CategoryResolver {
 
   @Authorized()
   @FieldResolver(_returns => Boolean, { name: 'isOwner', nullable: true })
-  public async getIsCurrentUserCategoryOwner(
+  public async getIsAuthorizedUserOwner(
     @Root() category: Category,
     @Ctx('user') user: User,
   ): Promise<boolean> {
@@ -133,7 +133,7 @@ export class CategoryResolver {
 
   @Authorized()
   @FieldResolver(_returns => Boolean, { name: 'isCreator', nullable: true })
-  public async getIsCurrentUserCategoryCreator(
+  public async getIsAuthorizedUserCreator(
     @Root() category: Category,
     @Ctx('user') user: User,
   ): Promise<boolean> {
