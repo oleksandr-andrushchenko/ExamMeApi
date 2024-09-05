@@ -22,6 +22,6 @@ export default class CategoryRatedEventSubscriber implements EventSubscriberInte
   public async handle({ category, user }: { category: Category, user: User }): Promise<void> {
     await this.categoryActivityCreator.createCategoryActivity(category, CategoryEvent.Rated)
     await this.userCategoryRatingMarksSyncer.syncUserCategoryRatingMarks(user)
-    await this.categoryRatingSyncer.syncQuestionRating(category)
+    await this.categoryRatingSyncer.syncCategoryRating(category)
   }
 }

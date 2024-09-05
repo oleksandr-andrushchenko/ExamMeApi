@@ -16,18 +16,15 @@ export default class QuestionRatingProvider {
     rating.averageMark = question.rating.averageMark
     rating.markCount = question.rating.markCount
 
-    if (initiator.questionRatingMarks) {
-      const ratingMarks = initiator.questionRatingMarks
-      const objectId = question.id
+    if (initiator && Array.isArray(initiator.questionRatingMarks)) {
+      const questionId = question.id.toString()
 
-      if (Array.isArray(ratingMarks)) {
-        for (let index = 0; index < 5; index++) {
-          const ratingMarkArray = ratingMarks[index]
+      for (let index = 0; index < 5; index++) {
+        const questionIds = initiator.questionRatingMarks[index].map(question => question.toString())
 
-          if (Array.isArray(ratingMarkArray) && ratingMarkArray.includes(objectId)) {
-            rating.mark = index + 1
-            break
-          }
+        if (Array.isArray(questionIds) && questionIds.includes(questionId)) {
+          rating.mark = index + 1
+          break
         }
       }
     }

@@ -82,7 +82,7 @@ describe('Rate category', () => {
     expect(res.body).toMatchObject(framework.graphqlError('ForbiddenError'))
   })
   test('Rated', async () => {
-    await framework.clear([ CategoryRatingMark, Category ])
+    await framework.clear()
     const category = await framework.fixture<Category>(Category)
     // existing somebodies category mark
     const nonUserCategoryMark = await framework.fixture<CategoryRatingMark>(CategoryRatingMark, { categoryId: category.id })

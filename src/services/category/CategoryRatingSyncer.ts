@@ -13,7 +13,7 @@ export default class CategoryRatingSyncer {
   ) {
   }
 
-  public async syncQuestionRating(category: Category): Promise<Category> {
+  public async syncCategoryRating(category: Category): Promise<Category> {
     const markCount = await this.categoryRatingMarkRepository.countByCategory(category)
     const markSum = await this.categoryRatingMarkRepository.sumByCategory(category)
 

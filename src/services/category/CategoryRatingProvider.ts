@@ -6,7 +6,7 @@ import User from '../../entities/user/User'
 @Service()
 export default class CategoryRatingProvider {
 
-  public getCategoryRating(category: Category, initiator: User): RatingSchema | undefined {
+  public getCategoryRating(category: Category, initiator?: User): RatingSchema | undefined {
     if (!category.rating) {
       return undefined
     }
@@ -16,18 +16,15 @@ export default class CategoryRatingProvider {
     rating.averageMark = category.rating.averageMark
     rating.markCount = category.rating.markCount
 
-    if (initiator.categoryRatingMarks) {
-      const ratingMarks = initiator.categoryRatingMarks
-      const objectId = category.id
+    if (initiator && Array.isArray(initiator.categoryRatingMarks)) {
+      const categoryId = category.id.toString()
 
-      if (Array.isArray(ratingMarks)) {
-        for (let index = 0; index < 5; index++) {
-          const ratingMarkArray = ratingMarks[index]
+      for (let index = 0; index < 5; index++) {
+        const categoryIds = initiator.categoryRatingMarks[index].map(category => category.toString())
 
-          if (Array.isArray(ratingMarkArray) && ratingMarkArray.includes(objectId)) {
-            rating.mark = index + 1
-            break
-          }
+        if (Array.isArray(categoryIds) && categoryIds.includes(categoryId)) {
+          rating.mark = index + 1
+          break
         }
       }
     }
