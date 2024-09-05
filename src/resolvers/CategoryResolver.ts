@@ -49,14 +49,6 @@ export class CategoryResolver {
     return await this.categoryProvider.getCategory(getCategory.categoryId)
   }
 
-  @Authorized()
-  @Query(_returns => [ Category ], { name: 'ownCategories' })
-  public async getCurrentUserCategories(
-    @Ctx('user') user: User,
-  ): Promise<Category[]> {
-    return await this.categoryRepository.findByOwner(user)
-  }
-
   @Query(_returns => [ Category ], { name: 'categories' })
   public async getCategories(
     @Args() getCategories: GetCategories,

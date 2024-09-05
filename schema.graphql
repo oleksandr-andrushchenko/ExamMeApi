@@ -174,7 +174,6 @@ type Query {
   examQuestion(examId: ID!, question: Int!): ExamQuestionSchema!
   exams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 20): [Exam!]!
   me: User!
-  ownCategories: [Category!]!
   paginatedActivities(cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 20): PaginatedActivityList!
   paginatedCategories(approved: String, creator: String, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, search: String, size: Int = 20, subscription: String): PaginatedCategories!
   paginatedExams(categoryId: ID, completion: Boolean, cursor: String = "id", nextCursor: String, order: String = "desc", prevCursor: String, size: Int = 20): PaginatedExams!
