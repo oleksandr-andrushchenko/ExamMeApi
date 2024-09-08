@@ -29,6 +29,7 @@ export default {
         CategoryPermission.Create,
         CategoryPermission.Rate,
         QuestionPermission.Create,
+        QuestionPermission.Rate,
         ExamPermission.Create,
       ],
       [Permission.Root]: [
