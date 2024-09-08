@@ -256,13 +256,11 @@ input UpdateUser {
 }
 
 type User {
-  categoryRatingMarks: [[ObjectId!]!]
   createdAt: Timestamp!
   email: String
   id: ObjectId!
   name: String
   ownerId: ObjectId
   permissions: [String!]
-  questionRatingMarks: [[ObjectId!]!]
   updatedAt: Timestamp
 }
