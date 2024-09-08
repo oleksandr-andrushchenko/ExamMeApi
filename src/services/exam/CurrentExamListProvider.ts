@@ -18,6 +18,6 @@ export default class CurrentExamListProvider {
    * @returns {Promise<Exam[]>}
    */
   public async getCurrentExams(categories: Category[], initiator: User): Promise<Exam[]> {
-    return await this.examRepository.findNonCompletedByCategoriesAndOwner(categories, initiator)
+    return await this.examRepository.findByCategoriesAndOwnerWithoutCompleted(categories, initiator)
   }
 }

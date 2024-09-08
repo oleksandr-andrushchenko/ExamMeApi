@@ -31,7 +31,7 @@ export default class QuestionApproveSwitcher {
     await this.authorizationVerifier.verifyAuthorization(initiator, QuestionPermission.Approve)
 
     const category = await this.categoryProvider.getCategory(question.categoryId)
-    const approvedQuestionCount = await this.questionRepository.countByCategoryAndNoOwner(category)
+    const approvedQuestionCount = await this.questionRepository.countByCategoryWithoutOwner(category)
 
     if (this.isQuestionApproved(question)) {
       await this.questionRepository.updateOneByEntity(question, { ownerId: question.creatorId, updatedAt: new Date() })

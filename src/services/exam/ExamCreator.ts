@@ -51,7 +51,7 @@ export default class ExamCreator {
 
     await this.examVerifier.verifyExamNotTaken(category, initiator)
 
-    const questions = (await this.questionRepository.findByCategoryAndNoOwner(category))
+    const questions = (await this.questionRepository.findByCategoryWithoutOwner(category))
       .map((question: Question): ExamQuestion => {
         const examQuestion = new ExamQuestion()
         examQuestion.questionId = question.id
