@@ -16,6 +16,7 @@ type Activity {
 type Category {
   approvedQuestionCount: Int
   createdAt: Timestamp!
+  examId: ObjectId
   id: ObjectId!
   isApproved: Boolean
   isCreator: Boolean

@@ -22,4 +22,11 @@ export default class ExamRepository extends EntityRepository<Exam> {
       completedAt: { $exists: false },
     })
   }
+
+  public async findByCreatorWithoutCompleted(creator: User): Promise<Exam[]> {
+    return await this.findBy({
+      creatorId: creator.id,
+      completedAt: { $exists: false },
+    })
+  }
 }

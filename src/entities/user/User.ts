@@ -31,4 +31,7 @@ export default class User extends Base {
 
   @Column()
   public questionRatingMarks?: ObjectId[][]
+
+  @Column()
+  public categoryExams?: { [key: string]: ObjectId }
 }

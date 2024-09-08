@@ -20,6 +20,8 @@ import RateCategoryRequest from '../schema/category/RateCategoryRequest'
 import CategoryRatingMarkListProvider from '../services/category/CategoryRatingMarkListProvider'
 import RatingSchema from '../schema/rating/RatingSchema'
 import CategoryRatingProvider from '../services/category/CategoryRatingProvider'
+import { ObjectId } from 'mongodb'
+import CategoryExamIdProvider from '../services/category/CategoryExamIdProvider'
 
 @Service()
 @Resolver(Category)
@@ -37,6 +39,7 @@ export class CategoryResolver {
     @Inject() private readonly categoryRatingMarkCreator: CategoryRatingMarkCreator,
     @Inject() private readonly categoryRatingMarkLinkProvider: CategoryRatingMarkListProvider,
     @Inject() private readonly categoryRatingProvider: CategoryRatingProvider,
+    @Inject() private readonly categoryExamIdProvider: CategoryExamIdProvider,
   ) {
   }
 
@@ -153,5 +156,14 @@ export class CategoryResolver {
     @Ctx('user') user: User,
   ): Promise<RatingSchema> {
     return this.categoryRatingProvider.getCategoryRating(category, user)
+  }
+
+  @Authorized()
+  @FieldResolver(_returns => ObjectId, { name: 'examId', nullable: true })
+  public async getAuthorizedUserCategoryExamId(
+    @Root() category: Category,
+    @Ctx('user') user: User,
+  ): Promise<ObjectId> {
+    return this.categoryExamIdProvider.getCategoryExamId(category, user)
   }
 }
