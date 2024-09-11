@@ -6,6 +6,7 @@ import CategoryRatedEventSubscriber from './category/CategoryRatedEventSubscribe
 import QuestionRatedEventSubscriber from './question/QuestionRatedEventSubscriber'
 import ExamCreatedEventSubscriber from './exam/ExamCreatedEventSubscriber'
 import ExamCompletedEventSubscriber from './exam/ExamCompletedEventSubscriber'
+import ExamDeletedEventSubscriber from './exam/ExamDeletedEventSubscriber'
 
 export default [
   CategoryCreatedEventSubscriber,
@@ -14,6 +15,7 @@ export default [
   QuestionRatedEventSubscriber,
   ExamCreatedEventSubscriber,
   ExamCompletedEventSubscriber,
+  ExamDeletedEventSubscriber,
 ]
 
 export const subscribers = [
