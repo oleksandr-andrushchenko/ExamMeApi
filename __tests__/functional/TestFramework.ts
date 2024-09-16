@@ -29,24 +29,28 @@ import CategoryRatingMarkRepository from '../../src/repositories/category/Catego
 import QuestionRatingMarkRepository from '../../src/repositories/question/QuestionRatingMarkRepository'
 
 export default class TestFramework {
+  public app: Application
 
-  public readonly app: Application
-
-  public readonly container: ContainerInstance
-
-  public readonly appUp: (listen?: boolean) => Promise<void>
-
-  public readonly appDown: (callback?: () => {}) => Promise<void>
+  private readonly container: ContainerInstance
+  private readonly _serverUp: () => Promise<Application>
+  private readonly _serverDown: () => Promise<void>
 
   public constructor() {
-    const { app, appUp, appDown } = require('../../src/app')
-    this.app = app
+    const { testServerUp, testServerDown } = require('../../src/application')
     this.container = Container as unknown as ContainerInstance
-    this.appUp = appUp
-    this.appDown = appDown
+    this._serverUp = testServerUp
+    this._serverDown = testServerDown
   }
 
-  public async clear(_entity: any | any[] = [ User, Category, Question, Exam, CategoryRatingMark, QuestionRatingMark ]) {
+  public async serverUp(): Promise<void> {
+    this.app = await this._serverUp()
+  }
+
+  public async serverDown(): Promise<void> {
+    await this._serverDown()
+  }
+
+  public async clear(_entity: any | any[] = [ User, Category, Question, Exam, CategoryRatingMark, QuestionRatingMark ]): Promise<void> {
     _entity = Array.isArray(_entity) ? _entity : [ _entity ]
 
     for (const entity of _entity) {
@@ -259,7 +263,7 @@ export default class TestFramework {
     return await (this.repo<Entity>(entity)).findOneById(id) as any
   }
 
-  public error(name: string = '', message: string = '', errors: string[] = []) {
+  public error(name: string = '', message: string = '', errors: string[] = []): object {
     const body = {}
 
     if (name) {

@@ -1,8 +1,8 @@
 import 'reflect-metadata'
 import { ConnectionManager, useContainer as typeormUseContainer } from 'typeorm'
 import { Container } from 'typedi'
-import config from './config'
-import express from 'express'
+import config from './configuration'
+import express, { Application } from 'express'
 import LoggerInterface from './services/logger/LoggerInterface'
 import JwtTokenStrategyFactory from './services/token/strategy/JwtTokenStrategyFactory'
 import TokenStrategyInterface from './services/token/strategy/TokenStrategyInterface'
@@ -11,7 +11,7 @@ import { MongoDriver } from 'typeorm/driver/mongodb/MongoDriver'
 import NullLogger from './services/logger/NullLogger'
 import ClassValidatorValidator from './services/validator/ClassValidatorValidator'
 import WinstonLogger from './services/logger/WinstonLogger'
-import { createServer } from 'http'
+import { createServer, Server } from 'http'
 import { ApolloServer } from '@apollo/server'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -28,6 +28,9 @@ import type { GraphQLFormattedError } from 'graphql/index'
 import cors from 'cors'
 import compression from 'compression'
 import morgan from 'morgan'
+import { DataSource } from 'typeorm/data-source/DataSource'
+
+const serverlessExpress = require('@vendia/serverless-express')
 
 typeormUseContainer(Container)
 
@@ -63,22 +66,9 @@ const dataSourceOptions: MongoConnectionOptions = {
 }
 
 const db = connectionManager.create(dataSourceOptions)
+const authChecker = Container.get<AuthCheckerService>(AuthCheckerService)
 
-export const app = express()
-const server = createServer(app)
-
-export const appUp = async (listen?: boolean): Promise<void> => {
-  const authChecker = Container.get<AuthCheckerService>(AuthCheckerService)
-
-  await db.initialize()
-
-  if (mongoLogging) {
-    const conn = (db.driver as MongoDriver).queryRunner.databaseConnection
-    conn.on('commandStarted', (event) => logger.debug('commandStarted', event))
-    conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event))
-    conn.on('commandFailed', (event) => logger.error('commandFailed', event))
-  }
-
+const buildApolloServer = async (server: Server = undefined): Promise<ApolloServer> => {
   const schema = await buildSchema({
     // @ts-ignore
     resolvers,
@@ -87,9 +77,15 @@ export const appUp = async (listen?: boolean): Promise<void> => {
     authChecker: authChecker.getTypeGraphqlAuthChecker(),
     emitSchemaFile: `${ projectDir }/schema.graphql`,
   })
-  const apolloServer = new ApolloServer<Context>({
+  const plugins = []
+
+  if (server) {
+    plugins.push(ApolloServerPluginDrainHttpServer({ httpServer: server }))
+  }
+
+  return new ApolloServer<Context>({
     schema,
-    plugins: [ ApolloServerPluginDrainHttpServer({ httpServer: server }) ],
+    plugins,
     formatError: (formattedError: GraphQLFormattedError, error: GraphQLError) => {
       for (const name in errors) {
         for (const key of [ error.originalError.constructor.name, formattedError.extensions.code as string ]) {
@@ -102,9 +98,8 @@ export const appUp = async (listen?: boolean): Promise<void> => {
       return formattedError
     },
   })
-
-  await apolloServer.start()
-
+}
+const prepareExpress = async (app: Application, apolloServer: ApolloServer): Promise<Application> => {
   app.use(morgan(loggerFormat, { stream: { write: logger.info.bind(logger) } }))
   app.use(cors({ origin: config.client_url }))
   app.use(express.json())
@@ -117,27 +112,49 @@ export const appUp = async (listen?: boolean): Promise<void> => {
     },
   }))
 
-  if (listen) {
-    const port = config.app.port
-    server.listen({ port }, () => logger.info(`Server is running on port ${ port }`))
+  return app
+}
+const initializeDb = async (db: DataSource): Promise<void> => {
+  await db.initialize()
 
-    const failureHandler = (error: string) => {
-      logger.error(error)
-      appDown(() => process.exit(1))
-    }
-
-    process.on('uncaughtException', failureHandler)
-    process.on('unhandledRejection', failureHandler)
-
-    const successHandler = () => {
-      logger.info('SIGTERM received')
-      appDown(() => process.exit(0))
-    }
-
-    process.on('SIGTERM', successHandler)
+  if (mongoLogging) {
+    const conn = (db.driver as MongoDriver).queryRunner.databaseConnection
+    conn.on('commandStarted', (event) => logger.debug('commandStarted', event))
+    conn.on('commandSucceeded', (event) => logger.debug('commandSucceeded', event))
+    conn.on('commandFailed', (event) => logger.error('commandFailed', event))
   }
 }
-export const appDown = async (callback?: () => {}): Promise<void> => {
+
+export const serverUp = async (): Promise<void> => {
+  const app = express()
+  const server = createServer(app)
+
+  await initializeDb(db)
+
+  const apolloServer = await buildApolloServer(server)
+  await apolloServer.start()
+
+  await prepareExpress(app, apolloServer)
+
+  const port = config.app.port
+  server.listen({ port }, () => logger.info(`Server is running on port ${ port }`))
+
+  const failureHandler = (error: string) => {
+    logger.error(error)
+    serverDown(server, () => process.exit(1))
+  }
+
+  process.on('uncaughtException', failureHandler)
+  process.on('unhandledRejection', failureHandler)
+
+  const successHandler = () => {
+    logger.info('SIGTERM received')
+    serverDown(server, () => process.exit(0))
+  }
+
+  process.on('SIGTERM', successHandler)
+}
+export const serverDown = async (server: Server, callback: () => {}): Promise<void> => {
   server.close(() => {
     logger.info('Server closed')
     db.destroy().then(() => {
@@ -145,4 +162,35 @@ export const appDown = async (callback?: () => {}): Promise<void> => {
       callback && callback()
     })
   })
+}
+
+export const testServerUp = async (): Promise<Application> => {
+  const app = express()
+
+  await initializeDb(db)
+
+  const apolloServer = await buildApolloServer()
+  await apolloServer.start()
+
+  await prepareExpress(app, apolloServer)
+
+  return app
+}
+export const testServerDown = async (): Promise<void> => {
+  db.destroy().then(() => logger.info('Database connection closed'))
+}
+
+export const serverless = async (): Promise<Function> => {
+  const app = express()
+
+  await initializeDb(db)
+
+  const apolloServer = await buildApolloServer()
+  apolloServer.startInBackgroundHandlingStartupErrorsByLoggingAndFailingAllRequests()
+
+  await prepareExpress(app, apolloServer)
+
+  // todo: add process signals processing/handlers
+
+  return serverlessExpress({ app })
 }
