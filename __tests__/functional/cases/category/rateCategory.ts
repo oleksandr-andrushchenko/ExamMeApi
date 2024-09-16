@@ -103,6 +103,8 @@ describe('Rate category', () => {
     expect(res.status).toEqual(200)
     expect(res.body).toMatchObject({ data: { rateCategory: { id: categoryId } } })
 
+    await framework.sleep(500)
+
     expect(await framework.repo(CategoryRatingMark).countBy({
       categoryId: category.id,
       mark,
